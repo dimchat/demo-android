@@ -39,10 +39,8 @@ public class DummyContent {
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
         Facebook facebook = Facebook.getInstance();
-        int count = facebook.getCountOfContacts(user.identifier);
-        ID identifier;
-        for (int index = 0; index < count; index++) {
-            identifier = facebook.getContactAtIndex(index, user.identifier);
+        List<ID> contacts = facebook.getContacts(user.identifier);
+        for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }
     }

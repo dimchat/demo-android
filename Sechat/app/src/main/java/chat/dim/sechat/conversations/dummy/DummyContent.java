@@ -7,8 +7,7 @@ import java.util.Map;
 
 import chat.dim.client.Conversation;
 import chat.dim.core.Barrack;
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Profile;
+import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.sechat.model.MessageProcessor;
 

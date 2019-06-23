@@ -1,23 +1,21 @@
 package chat.dim.client;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.JSON;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.GroupDataSource;
-import chat.dim.mkm.Profile;
+import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.User;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.entity.Address;
-import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -60,12 +58,12 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
             throw new IllegalArgumentException("meta not match ID:" + identifier + ", " + meta);
         }
         // profile
-        Profile profile = Profile.getInstance(dictionary.get("profile"));
+        Object profile = dictionary.get("profile");
         if (profile != null) {
-            profileMap.put(identifier.address, profile);
+            profileMap.put(identifier.address, Profile.getInstance(profile));
         }
         // private key
-        PrivateKey privateKey = PrivateKey.getInstance(dictionary.get("privateKey"));
+        PrivateKey privateKey = PrivateKeyImpl.getInstance(dictionary.get("privateKey"));
         if (meta.key.matches(privateKey)) {
             // TODO: store private key into keychain
             privateKeyMap.put(identifier.address, privateKey);
@@ -93,22 +91,17 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     //---- UserDataSource
 
     @Override
-    public PrivateKey getPrivateKey(int flag, ID user) {
+    public PrivateKey getPrivateKeyForSignature(ID user) {
         return privateKeyMap.get(user.address);
     }
 
     @Override
-    public List<ID> getContacts(ID user) {
+    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
         return null;
     }
 
     @Override
-    public int getCountOfContacts(ID user) {
-        return 0;
-    }
-
-    @Override
-    public ID getContactAtIndex(int index, ID user) {
+    public List<ID> getContacts(ID user) {
         return null;
     }
 
@@ -126,16 +119,6 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
 
     @Override
     public List<ID> getMembers(ID group) {
-        return null;
-    }
-
-    @Override
-    public int getCountOfMembers(ID group) {
-        return 0;
-    }
-
-    @Override
-    public ID getMemberAtIndex(int index, ID group) {
         return null;
     }
 

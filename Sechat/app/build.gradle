@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation group: 'chat.dim', name: 'DIMP', version: '[0.1,)'
+    implementation group: 'chat.dim', name: 'DIMP', version: '[0.2.2,)'
     //implementation 'org.bouncycastle:bcprov-jdk15on:1.52'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])

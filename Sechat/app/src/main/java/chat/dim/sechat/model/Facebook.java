@@ -10,10 +10,9 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.GroupDataSource;
-import chat.dim.mkm.Profile;
+import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.User;
 import chat.dim.mkm.UserDataSource;
-import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -59,8 +58,12 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
     //---- UserDataSource
 
     @Override
-    public PrivateKey getPrivateKey(int flag, ID user) {
-        // TODO: load private key for user
+    public PrivateKey getPrivateKeyForSignature(ID user) {
+        return null;
+    }
+
+    @Override
+    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
         return null;
     }
 
@@ -68,18 +71,6 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
     public List<ID> getContacts(ID user) {
         // TODO: get contacts of the user
         return contactList;
-    }
-
-    @Override
-    public int getCountOfContacts(ID user) {
-        // TODO: get contacts count
-        return contactList.size();
-    }
-
-    @Override
-    public ID getContactAtIndex(int index, ID user) {
-        // TODO: get one contact
-        return ID.getInstance(contactList.get(index));
     }
 
     //---- GroupDataSource
@@ -99,18 +90,6 @@ public class Facebook implements EntityDataSource, UserDataSource, GroupDataSour
     @Override
     public List<ID> getMembers(ID group) {
         // TODO: get group members
-        return null;
-    }
-
-    @Override
-    public int getCountOfMembers(ID group) {
-        // TODO: get members count
-        return 0;
-    }
-
-    @Override
-    public ID getMemberAtIndex(int index, ID group) {
-        // TODO: get one member
         return null;
     }
 

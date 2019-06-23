@@ -4,13 +4,11 @@ import java.util.Map;
 
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
-import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
 
 public class Station extends Account implements TransceiverDelegate {
 

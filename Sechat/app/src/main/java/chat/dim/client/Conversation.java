@@ -2,7 +2,6 @@ package chat.dim.client;
 
 import java.util.List;
 
-import chat.dim.core.Barrack;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;

@@ -11,7 +11,6 @@ import android.view.MenuItem;
 
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
-import chat.dim.sechat.model.Client;
 
 public class MainActivity extends AppCompatActivity {
 

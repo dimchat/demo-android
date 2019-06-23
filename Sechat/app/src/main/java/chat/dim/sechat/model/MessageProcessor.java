@@ -11,7 +11,6 @@ import chat.dim.client.ConversationDataSource;
 import chat.dim.core.Barrack;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.Account;
 import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
 import chat.dim.protocol.TextContent;

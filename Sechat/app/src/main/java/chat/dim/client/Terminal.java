@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import chat.dim.core.Barrack;
 import chat.dim.core.Transceiver;
@@ -16,7 +15,6 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.protocol.CommandContent;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HistoryCommand;
 
 public class Terminal implements StationDelegate {
@@ -91,11 +89,7 @@ public class Terminal implements StationDelegate {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         Meta meta = barrack.getMeta(sender);
         if (meta == null) {
-            try {
-                meta = Meta.getInstance(rMsg.getMeta());
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            meta = Meta.getInstance(rMsg.getMeta());
             if (meta == null) {
                 // TODO: query meta from network
                 return;
@@ -129,7 +123,7 @@ public class Terminal implements StationDelegate {
         InstantMessage iMsg = null;
         try {
             iMsg = trans.verifyAndDecryptMessage(rMsg, getUsers());
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         if (iMsg == null) {
