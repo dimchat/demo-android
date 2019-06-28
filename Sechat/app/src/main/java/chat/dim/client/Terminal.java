@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.core.Barrack;
-import chat.dim.core.Transceiver;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -14,12 +13,14 @@ import chat.dim.format.JSON;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.network.Station;
+import chat.dim.network.StationDelegate;
 import chat.dim.protocol.CommandContent;
 import chat.dim.protocol.HistoryCommand;
 
 public class Terminal implements StationDelegate {
 
-    protected Station currentStation;
+    protected Server currentStation;
     protected String session;
 
     protected List<User> users = new ArrayList<>();
@@ -74,7 +75,7 @@ public class Terminal implements StationDelegate {
 
     @Override
     public void didReceivePackage(byte[] data, Station server) {
-        Barrack barrack = Barrack.getInstance();
+        Barrack barrack = Facebook.getInstance();
         Transceiver trans = Transceiver.getInstance();
 
         // 1. decode
@@ -89,7 +90,11 @@ public class Terminal implements StationDelegate {
         ID sender = ID.getInstance(rMsg.envelope.sender);
         Meta meta = barrack.getMeta(sender);
         if (meta == null) {
-            meta = Meta.getInstance(rMsg.getMeta());
+            try {
+                meta = Meta.getInstance(rMsg.getMeta());
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             if (meta == null) {
                 // TODO: query meta from network
                 return;
@@ -123,7 +128,7 @@ public class Terminal implements StationDelegate {
         InstantMessage iMsg = null;
         try {
             iMsg = trans.verifyAndDecryptMessage(rMsg, getUsers());
-        } catch (IOException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         if (iMsg == null) {

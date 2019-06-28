@@ -8,6 +8,7 @@ import java.util.Map;
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.ConversationDataSource;
+import chat.dim.client.Facebook;
 import chat.dim.core.Barrack;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
@@ -27,7 +28,7 @@ public class MessageProcessor implements ConversationDataSource {
         clerk.dataSource = this;
     }
 
-    private Barrack barrack = Barrack.getInstance();
+    private Barrack barrack = Facebook.getInstance();
     private Amanuensis clerk = Amanuensis.getInstance();
 
     private Map<ID, List<InstantMessage>> chatHistory;

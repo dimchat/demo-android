@@ -3,7 +3,8 @@ package chat.dim.sechat.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.client.Station;
+import chat.dim.client.Facebook;
+import chat.dim.client.Server;
 import chat.dim.client.Terminal;
 import chat.dim.core.Barrack;
 import chat.dim.mkm.User;
@@ -25,7 +26,7 @@ public class Client extends Terminal {
 
     static {
         // test
-        Barrack barrack = Barrack.getInstance();
+        Barrack barrack = Facebook.getInstance();
 
         Client client = Client.getInstance();
 
@@ -35,7 +36,7 @@ public class Client extends Terminal {
             dictioanry.put("host", "134.175.87.98");
             dictioanry.put("port", 9527);
 
-            client.currentStation = new Station(dictioanry);
+            client.currentStation = new Server(dictioanry);
         }
         {
             ID identifier = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");

@@ -4,26 +4,27 @@ import java.util.Map;
 
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
+import chat.dim.network.Station;
 
-public class Station extends Account implements TransceiverDelegate {
-
-    public final String host;
-    public final int port;
+public class Server extends Station implements TransceiverDelegate {
 
     public User currentUser;
 
-    public Station(Map<String, Object> dictionary) {
-        // ID
-        super(ID.getInstance(dictionary.get("ID")));
-        // host
-        host = (String) dictionary.get("host");
-        // port
-        port = (int) dictionary.get("port");
+    public Server(ID identifier) {
+        super(identifier);
+    }
+
+    public Server(ID identifier, String host, int port) {
+        super(identifier, host, port);
+    }
+
+    public Server(Map<String, Object> dictionary) {
+        this(ID.getInstance(dictionary.get("ID")),
+                (String) dictionary.get("host"),
+                (int) dictionary.get("port"));
 
         // SP
         // CA
@@ -34,11 +35,6 @@ public class Station extends Account implements TransceiverDelegate {
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
         return false;
-    }
-
-    @Override
-    public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey reusedKey) {
-        return null;
     }
 
     @Override

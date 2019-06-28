@@ -2,13 +2,13 @@ package chat.dim.client;
 
 import java.util.List;
 
+import chat.dim.core.Barrack;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.NetworkType;
-import chat.dim.sechat.model.Facebook;
 
 public class Conversation {
     public static int PersonalChat = NetworkType.Main.value;
@@ -61,9 +61,5 @@ public class Conversation {
 
     public boolean withdrawMessage(InstantMessage iMsg) {
         return dataSource.withdrawMessage(iMsg, this);
-    }
-
-    static {
-        Facebook facebook = Facebook.getInstance();
     }
 }

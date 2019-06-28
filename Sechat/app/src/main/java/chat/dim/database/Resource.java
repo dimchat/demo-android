@@ -1,22 +1,26 @@
-package chat.dim.client;
+package chat.dim.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
-public class FileUtils {
+public class Resource {
 
-    public static byte[] readResourceFile(String filename) throws IOException {
-        InputStream is = FileUtils.class.getResourceAsStream(filename);
+    private static byte[] readResourceFile(String filename) throws IOException {
+        InputStream is = Resource.class.getResourceAsStream(filename);
         assert is != null;
-        int len = is.available();
-        byte[] data = new byte[len];
-        is.read(data, 0, len);
+        int size = is.available();
+        byte[] data = new byte[size];
+        int len = is.read(data, 0, size);
+        if (len != size) {
+            throw new IOException("read error: " + len + " != " + size);
+        }
         return data;
     }
 
     public static String readTextFile(String filename) throws IOException {
         byte[] data = readResourceFile(filename);
-        return new String(data, "UTF-8");
+        return new String(data, Charset.forName("UTF-8"));
     }
 
     static {

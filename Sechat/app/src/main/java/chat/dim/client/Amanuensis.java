@@ -43,7 +43,7 @@ public class Amanuensis {
             return chatBox;
         }
         // create directly if we can find the entity
-        Barrack barrack = Barrack.getInstance();
+        Barrack barrack = Facebook.getInstance();
         Entity entity;
         if (identifier.getType().isCommunicator()) {
             entity = barrack.getAccount(identifier);

@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.client.Facebook;
+import chat.dim.core.Barrack;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.sechat.model.Client;
-import chat.dim.sechat.model.Facebook;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -38,8 +39,8 @@ public class DummyContent {
 
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
-        Facebook facebook = Facebook.getInstance();
-        List<ID> contacts = facebook.getContacts(user.identifier);
+        Barrack barrack = Facebook.getInstance();
+        List<ID> contacts = barrack.getContacts(user.identifier);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }
@@ -67,7 +68,7 @@ public class DummyContent {
         private final Account account;
 
         public DummyItem(Object id) {
-            account = new Account(ID.getInstance(id));
+            account = Facebook.getInstance().getAccount(ID.getInstance(id));
         }
 
         public ID getIdentifier() {

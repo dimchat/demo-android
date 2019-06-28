@@ -9,8 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
+import chat.dim.mkm.UserDataSource;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
+import chat.dim.sechat.model.UserDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,5 +57,9 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         setDefaultFragment();
+    }
+
+    static {
+        UserDatabase db = UserDatabase.getInstance();
     }
 }
