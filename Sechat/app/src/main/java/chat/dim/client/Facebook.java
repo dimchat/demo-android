@@ -1,21 +1,17 @@
 package chat.dim.client;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 import chat.dim.core.Barrack;
 import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PublicKey;
 import chat.dim.database.MetaTable;
+import chat.dim.database.ProfileTable;
 import chat.dim.format.JSON;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
+import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.NetworkType;
@@ -33,7 +29,7 @@ public class Facebook extends Barrack implements BarrackDelegate {
     }
 
     public boolean verifyProfile(Profile profile) {
-        if (profile.isValid()) {
+        if (profile == null || profile.isValid()) {
             // already verified
             return true;
         }
@@ -85,6 +81,8 @@ public class Facebook extends Barrack implements BarrackDelegate {
             // already verified?
             return profile;
         }
+        // load from local storage
+        profile = ProfileTable.loadProfile(identifier);
         if (verifyProfile(profile)) {
             // signature correct
             return profile;

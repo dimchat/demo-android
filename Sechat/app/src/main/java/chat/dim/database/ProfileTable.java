@@ -1,21 +1,28 @@
 package chat.dim.database;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
+import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Profile;
 
 public class ProfileTable extends Database {
 
-    // load profile from "/sdcard/chat.dim.sechat/.mkm/{address}/profile.js"
+    // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
+
+    static String getProfileDirectory(Address address) {
+        return publicDirectory + "/mkm/" + address;
+    }
+    static String getProfileDirectory(ID identifier) {
+        return getProfileDirectory(identifier.address);
+    }
+
     public static Profile loadProfile(ID identifier) {
+        // load from JsON file
+        String dir = getProfileDirectory(identifier.address);
         try {
-            // load from JsON file
-            Map<String, Object> dict = loadJSONFile("profile.js", identifier);
+            Map<String, Object> dict = readJSONFile("profile.js", dir);
             return Profile.getInstance(dict);
         } catch (IOException e) {
             e.printStackTrace();
@@ -23,11 +30,11 @@ public class ProfileTable extends Database {
         }
     }
 
-    // save profile into "/sdcard/chat.dim.sechat/.mkm/{address}/profile.js"
     public static boolean saveProfile(Profile profile) {
+        // write into JsON file
+        String dir = getProfileDirectory(profile.identifier);
         try {
-            // save into JsON file
-            return saveJSONFile(profile, "profile.js", profile.identifier, true);
+            return writeJSONFile(profile, "profile.js", dir);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

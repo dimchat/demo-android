@@ -1,23 +1,38 @@
 package chat.dim.database;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
-import chat.dim.format.JSON;
+import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
 public class MetaTable extends Database {
 
-    // load meta from "/sdcard/chat.dim.sechat/.mkm/{address}/meta.js"
+    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+
+    static String getMetaDirectory(Address address) {
+        return publicDirectory + "/mkm/" + address;
+    }
+    static String getMetaDirectory(ID identifier) {
+        return getMetaDirectory(identifier.address);
+    }
+
+    /**
+     *  Load meta for entity ID
+     *
+     * @param identifier - entity ID
+     * @return meta info
+     */
     public static Meta loadMeta(ID identifier) {
+        return loadMeta(identifier.address);
+    }
+
+    public static Meta loadMeta(Address address) {
+        // load from JsON file
+        String dir = getMetaDirectory(address);
         try {
-            // load from JsON file
-            Map<String, Object> dict = loadJSONFile("meta.js", identifier);
+            Map<String, Object> dict = readJSONFile("meta.js", dir);
             return Meta.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -25,18 +40,37 @@ public class MetaTable extends Database {
         }
     }
 
-    // save meta into "/sdcard/chat.dim.sechat/.mkm/{address}/meta.js"
+    /**
+     *  Save meta for entity ID
+     *
+     * @param meta - meta info
+     * @param identifier - entity ID
+     * @return false on error
+     */
     public static boolean saveMeta(Meta meta, ID identifier) {
-        // check whether match ID
-        if (!meta.matches(identifier)) {
-            throw new ArithmeticException("meta not match ID: " + identifier + ", " + meta);
-        }
+        return saveMeta(meta, identifier.address);
+    }
+
+    public static boolean saveMeta(Meta meta, Address address) {
+        // save into JsON file
+        String dir = getMetaDirectory(address);
         try {
-            // save into JsON file
-            return saveJSONFile(meta, "meta.js", identifier, false);
+            return saveJSONFile(meta, "meta.js", dir);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     *  Get ID with address
+     *
+     * @param address - ID.address
+     * @return ID
+     */
+    public static ID getID(Address address) {
+        Meta meta = loadMeta(address);
+        //return new ID(meta.seed, address);
+        return meta == null ? null : meta.generateID(address.getNetwork());
     }
 }

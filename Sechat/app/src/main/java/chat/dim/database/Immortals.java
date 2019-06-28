@@ -88,7 +88,7 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     }
 
     private void loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
-        String jsonString = Resource.readTextFile(filename);
+        String jsonString = Database.readTextFile(filename);
         Map<String, Object> dictionary = JSON.decode(jsonString);
         System.out.println(filename + ":" + dictionary);
         // ID

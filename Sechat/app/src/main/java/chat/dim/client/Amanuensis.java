@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.core.Barrack;
+import chat.dim.database.Conversation;
+import chat.dim.database.MessageTable;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.Entity;
@@ -20,21 +22,6 @@ public class Amanuensis {
     }
 
     private Map<Address, Conversation> conversationMap = new HashMap<>();
-
-    public ConversationDataSource dataSource;
-
-    public void setConversationDataSource(ConversationDataSource dataSource) {
-        if (dataSource != null) {
-            Map<Address, Conversation> list = new HashMap<>(conversationMap);
-            // update exists chat boxes
-            for (Conversation item : list.values()) {
-                if (item.dataSource == null) {
-                    item.dataSource = dataSource;
-                }
-            }
-        }
-        this.dataSource = dataSource;
-    }
 
     // conversation factory
     public Conversation getConversation(ID identifier) {
@@ -56,14 +43,11 @@ public class Amanuensis {
             throw new NullPointerException("failed to create conversation:" + identifier);
         }
         chatBox = new Conversation(entity);
-        addConversation(chatBox);
+        cacheConversation(chatBox);
         return chatBox;
     }
 
-    public void addConversation(Conversation chatBox) {
-        if (chatBox.dataSource == null) {
-            chatBox.dataSource = this.dataSource;
-        }
+    public void cacheConversation(Conversation chatBox) {
         conversationMap.put(chatBox.identifier.address, chatBox);
     }
 
@@ -95,7 +79,7 @@ public class Amanuensis {
             // personal chat, get chat box with contact ID
             chatBox = getConversation(sender);
         }
-        return chatBox.insertMessage(iMsg);
+        return MessageTable.insertMessage(iMsg, chatBox);
     }
 
     /**

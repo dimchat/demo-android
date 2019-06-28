@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Conversation;
+import chat.dim.database.Conversation;
 import chat.dim.client.Facebook;
 import chat.dim.core.Barrack;
+import chat.dim.database.MessageTable;
 import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.entity.ID;
 import chat.dim.sechat.model.MessageProcessor;
@@ -38,10 +39,10 @@ public class DummyContent {
         ITEMS.clear();
 
         MessageProcessor database = MessageProcessor.getInstance();
-        int count = database.numberOfConversations();
+        int count = MessageTable.numberOfConversations();
         Conversation chatBox;
         for (int index = 0; index < count; index++) {
-            chatBox = database.conversationAtIndex(index);
+            chatBox = MessageTable.conversationAtIndex(index);
             addItem(new DummyItem(chatBox));
         }
     }

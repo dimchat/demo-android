@@ -1,5 +1,7 @@
 package chat.dim.client;
 
+import chat.dim.database.KeyStore;
+
 public class Transceiver extends chat.dim.core.Transceiver {
 
     private static final Transceiver ourInstance = new Transceiver();

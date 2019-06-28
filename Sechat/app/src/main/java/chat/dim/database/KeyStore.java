@@ -1,4 +1,4 @@
-package chat.dim.client;
+package chat.dim.database;
 
 import java.util.Map;
 
@@ -7,7 +7,7 @@ import chat.dim.mkm.entity.ID;
 
 public class KeyStore extends chat.dim.core.KeyStore {
 
-    KeyStore() {
+    public KeyStore() {
         super();
     }
 
