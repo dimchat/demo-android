@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
-import chat.dim.mkm.UserDataSource;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
 import chat.dim.sechat.model.UserDatabase;

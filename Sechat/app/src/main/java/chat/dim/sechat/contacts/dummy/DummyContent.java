@@ -10,7 +10,7 @@ import chat.dim.core.Barrack;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
-import chat.dim.sechat.model.Client;
+import chat.dim.sechat.Client;
 
 /**
  * Helper class for providing sample content for user interfaces created by

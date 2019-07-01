@@ -1,10 +1,5 @@
 package chat.dim.sechat.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import chat.dim.client.Amanuensis;
 import chat.dim.database.Conversation;
 import chat.dim.client.Facebook;
@@ -12,7 +7,6 @@ import chat.dim.core.Barrack;
 import chat.dim.database.MessageTable;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
 import chat.dim.protocol.TextContent;
 

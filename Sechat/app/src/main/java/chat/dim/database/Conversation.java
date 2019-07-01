@@ -2,7 +2,6 @@ package chat.dim.database;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
@@ -22,12 +21,6 @@ public class Conversation {
         this.identifier = entity.identifier;
         this.type = getType(entity);
     }
-
-//    public Conversation(ID identifier) {
-//        this(identifier.getType().isGroup() ?
-//                Facebook.getInstance().getGroup(identifier) :
-//                Facebook.getInstance().getAccount(identifier));
-//    }
 
     private int getType(Entity entity) {
         NetworkType type = entity.getType();

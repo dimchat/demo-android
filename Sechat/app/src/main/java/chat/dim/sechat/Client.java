@@ -1,4 +1,4 @@
-package chat.dim.sechat.model;
+package chat.dim.sechat;
 
 import java.util.HashMap;
 import java.util.Map;
