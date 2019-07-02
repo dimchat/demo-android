@@ -1,17 +1,13 @@
-package chat.dim.client;
+package chat.dim.common;
 
 import chat.dim.core.Barrack;
 import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PublicKey;
 import chat.dim.database.MetaTable;
 import chat.dim.database.ProfileTable;
-import chat.dim.format.JSON;
-import chat.dim.group.Chatroom;
-import chat.dim.group.Polylogue;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
-import chat.dim.mkm.entity.Entity;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.NetworkType;

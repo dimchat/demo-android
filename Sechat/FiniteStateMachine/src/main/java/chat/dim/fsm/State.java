@@ -55,26 +55,26 @@ public abstract class State {
      *
      * @param machine - finite state machine
      */
-    abstract void onEnter(Machine machine);
+    protected abstract void onEnter(Machine machine);
 
     /**
      *  Callback when exit state
      *
      * @param machine - finite state machine
      */
-    abstract void onExit(Machine machine);
+    protected abstract void onExit(Machine machine);
 
     /**
      *  Callback when state paused
      *
      * @param machine - finite state machine
      */
-    abstract void onPause(Machine machine);
+    protected abstract void onPause(Machine machine);
 
     /**
      *  Callback when state resumed
      *
      * @param machine - finite state machine
      */
-    abstract void onResume(Machine machine);
+    protected abstract void onResume(Machine machine);
 }

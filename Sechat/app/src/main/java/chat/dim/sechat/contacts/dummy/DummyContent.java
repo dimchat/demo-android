@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.core.Barrack;
+import chat.dim.common.Facebook;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
@@ -39,7 +38,7 @@ public class DummyContent {
 
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
-        Barrack barrack = Facebook.getInstance();
+        Facebook barrack = Facebook.getInstance();
         List<ID> contacts = barrack.getContacts(user.identifier);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));

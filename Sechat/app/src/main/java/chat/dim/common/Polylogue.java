@@ -1,4 +1,4 @@
-package chat.dim.group;
+package chat.dim.common;
 
 import chat.dim.mkm.Group;
 import chat.dim.mkm.entity.ID;

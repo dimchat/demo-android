@@ -1,9 +1,8 @@
 package chat.dim.sechat.model;
 
-import chat.dim.client.Amanuensis;
+import chat.dim.common.Amanuensis;
 import chat.dim.database.Conversation;
-import chat.dim.client.Facebook;
-import chat.dim.core.Barrack;
+import chat.dim.common.Facebook;
 import chat.dim.database.MessageTable;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
@@ -20,7 +19,7 @@ public class MessageProcessor {
     private MessageProcessor() {
     }
 
-    static Barrack barrack = Facebook.getInstance();
+    static Facebook barrack = Facebook.getInstance();
     static Amanuensis clerk = Amanuensis.getInstance();
 
     static {

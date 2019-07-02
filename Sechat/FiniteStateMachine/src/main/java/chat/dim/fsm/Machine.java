@@ -56,11 +56,12 @@ public class Machine {
     }
 
     /**
-     *  add state with transition(s)
+     *  add state with name
      *
+     * @param name - name for state
      * @param state - finite state
      */
-    public void addState(State state, String name) {
+    public void addState(String name, State state) {
         stateMap.put(name, state);
     }
 
@@ -70,7 +71,6 @@ public class Machine {
             currentState.onExit(this);
             currentState = null;
         }
-
         // enter new state
         State newState = stateMap.get(stateName);
         if (newState != null) {
@@ -83,7 +83,9 @@ public class Machine {
      *  start machine from default state
      */
     public void start() {
-        assert status == Status.Stopped && currentState == null;
+        if (status != Status.Stopped || currentState != null) {
+            throw new AssertionError("FSM start error: " + status + ", " + currentState);
+        }
         changeState(defaultStateName);
         status = Status.Running;
     }
@@ -92,7 +94,9 @@ public class Machine {
      *  stop machine and set current state to null
      */
     public void stop() {
-        assert status != Status.Stopped && currentState != null;
+        if (status == Status.Stopped || currentState == null) {
+            throw new AssertionError("FSM stop error: " + status + ", " + currentState);
+        }
         status = Status.Stopped;
         changeState(null);
     }
@@ -101,7 +105,9 @@ public class Machine {
      *  pause machine, current state not change
      */
     public void pause() {
-        assert status == Status.Running && currentState != null;
+        if (status != Status.Running || currentState == null) {
+            throw new AssertionError("FSM pause error: " + status + ", " + currentState);
+        }
         status = Status.Paused;
         currentState.onPause(this);
     }
@@ -110,7 +116,9 @@ public class Machine {
      *  resume machine with current state
      */
     public void resume() {
-        assert status == Status.Paused && currentState != null;
+        if (status != Status.Paused || currentState == null) {
+            throw new AssertionError("FSM resume error: " + status + ", " + currentState);
+        }
         currentState.onResume(this);
         status = Status.Running;
     }

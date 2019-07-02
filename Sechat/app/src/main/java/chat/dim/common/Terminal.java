@@ -1,4 +1,4 @@
-package chat.dim.client;
+package chat.dim.common;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;

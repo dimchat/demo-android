@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.database.Conversation;
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.core.Barrack;
 import chat.dim.database.MessageTable;
 import chat.dim.mkm.entity.Profile;

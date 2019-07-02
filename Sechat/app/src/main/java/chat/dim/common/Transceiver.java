@@ -1,4 +1,4 @@
-package chat.dim.client;
+package chat.dim.common;
 
 import chat.dim.database.KeyStore;
 

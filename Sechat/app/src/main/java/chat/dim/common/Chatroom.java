@@ -1,4 +1,4 @@
-package chat.dim.group;
+package chat.dim.common;
 
 import java.util.List;
 

@@ -40,5 +40,5 @@ public abstract class Transition {
      * @param machine - finite state machine
      * @return true when state should be changed
      */
-    abstract boolean evaluate(Machine machine);
+    protected abstract boolean evaluate(Machine machine);
 }

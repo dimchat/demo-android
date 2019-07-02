@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.core.Barrack;
+import chat.dim.common.Facebook;
 import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.Immortals;
@@ -36,7 +35,7 @@ public class UserDatabase implements EntityDataSource, UserDataSource, GroupData
     private UserDatabase() {
 
         // delegates
-        Barrack barrack = Facebook.getInstance();
+        Facebook barrack = Facebook.getInstance();
         barrack.entityDataSource = this;
         barrack.userDataSource   = this;
         barrack.groupDataSource  = this;

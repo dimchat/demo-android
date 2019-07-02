@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Server;
-import chat.dim.client.Terminal;
+import chat.dim.common.Facebook;
+import chat.dim.common.Server;
+import chat.dim.common.Terminal;
 import chat.dim.core.Barrack;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;

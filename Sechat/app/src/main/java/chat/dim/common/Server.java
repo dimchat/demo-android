@@ -1,6 +1,4 @@
-package chat.dim.client;
-
-import org.bouncycastle.util.Pack;
+package chat.dim.common;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.fsm.Machine;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.network.Station;
@@ -29,6 +28,7 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
 
     public User currentUser;
 
+    private Machine fsm;
     private Star star;
 
     public Server(ID identifier) {
@@ -46,6 +46,10 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
 
         // SP
         // CA
+    }
+
+    public StarStatus getStatus() {
+        return star.getStatus();
     }
 
     public void handshake(String session) {

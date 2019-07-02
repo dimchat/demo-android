@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Amanuensis;
+import chat.dim.common.Amanuensis;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.format.JSON;
 import chat.dim.mkm.entity.Address;

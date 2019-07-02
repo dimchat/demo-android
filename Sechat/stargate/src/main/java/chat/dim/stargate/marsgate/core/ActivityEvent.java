@@ -47,6 +47,7 @@ public class ActivityEvent {
         CONNECT_CLASS_MAP.put(Connect.None, null); //
     }
 
+    @SuppressWarnings("unchecked")
     public static void bind(Context context) {
         ActivityInfo[] list = new ActivityInfo[0];
 
