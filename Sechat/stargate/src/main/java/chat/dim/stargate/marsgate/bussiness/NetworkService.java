@@ -21,6 +21,8 @@ public class NetworkService implements NetworkStatusDelegate {
 
     public void setCallback() {
         // TODO:
+//        mars::stn::SetCallback(mars::stn::StnCallBack::Instance());
+//        mars::app::SetCallback(mars::app::AppCallBack::Instance());
     }
 
     public void createMars() {
