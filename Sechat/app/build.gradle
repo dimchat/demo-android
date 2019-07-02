@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    implementation project(':stargate')
+    implementation project(':StarGate')
     implementation project(':FiniteStateMachine')
     implementation group: 'chat.dim', name: 'DIMP', version: '[0.2.2,)'
 
