@@ -1,1 +1,1 @@
-include ':app', ':stargate'
+include ':app', ':stargate', ':FiniteStateMachine'
