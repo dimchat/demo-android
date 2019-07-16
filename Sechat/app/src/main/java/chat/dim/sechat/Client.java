@@ -13,7 +13,6 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.network.ServiceProvider;
-import chat.dim.protocol.command.BroadcastCommand;
 import chat.dim.sechat.model.MessageProcessor;
 
 public class Client extends Terminal {
@@ -93,9 +92,9 @@ public class Client extends Terminal {
 
     public void enterBackground() {
         // report client state
-        BroadcastCommand cmd = new BroadcastCommand("report");
-        cmd.put("state", "background");
-        sendCommand(cmd);
+//        BroadcastCommand cmd = new BroadcastCommand("report");
+//        cmd.put("state", "background");
+//        sendCommand(cmd);
 
         currentStation.pause();
     }
@@ -106,9 +105,9 @@ public class Client extends Terminal {
         // clear icon badge
 
         // report client state
-        BroadcastCommand cmd = new BroadcastCommand("report");
-        cmd.put("state", "foreground");
-        sendCommand(cmd);
+//        BroadcastCommand cmd = new BroadcastCommand("report");
+//        cmd.put("state", "foreground");
+//        sendCommand(cmd);
     }
 
     static {

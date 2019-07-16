@@ -199,17 +199,5 @@ public class Resource {
                 return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
             }
         };
-        // dkd.Base64
-        chat.dim.dkd.Base64.coder = new chat.dim.dkd.BaseCoder() {
-            @Override
-            public String encode(byte[] data) {
-                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
-            }
-
-            @Override
-            public byte[] decode(String string) {
-                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
-            }
-        };
     }
 }
