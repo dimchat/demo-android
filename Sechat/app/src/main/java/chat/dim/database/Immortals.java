@@ -125,6 +125,12 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     //---- EntityDataSource
 
     @Override
+    public boolean saveMeta(Meta meta, ID identifier) {
+        // NOTICE: no need to save immortals meta
+        return true;
+    }
+
+    @Override
     public Meta getMeta(ID identifier) {
         return metaMap.get(identifier.address);
     }
@@ -174,9 +180,8 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     //---- BarrackDelegate
 
     @Override
-    public boolean saveMeta(Meta meta, ID identifier) {
-        // NOTICE: no need to save immortals meta
-        return true;
+    public ID getID(Object identifier) {
+        return ID.getInstance(identifier);
     }
 
     @Override

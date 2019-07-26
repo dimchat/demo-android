@@ -72,8 +72,6 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
             rMsg = transceiver.encryptAndSignMessage(iMsg);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         if (rMsg == null) {
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);

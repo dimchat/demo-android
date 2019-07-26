@@ -125,8 +125,6 @@ public class Terminal implements StationDelegate {
             }
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -280,7 +278,7 @@ public class Terminal implements StationDelegate {
         }
 
         // 2. check sender
-        ID sender = ID.getInstance(rMsg.envelope.sender);
+        ID sender = barrack.getID(rMsg.envelope.sender);
         Meta meta = barrack.getMeta(sender);
         if (meta == null) {
             try {
@@ -295,7 +293,7 @@ public class Terminal implements StationDelegate {
         }
 
         // 3. check receiver
-        ID receiver = ID.getInstance(rMsg.envelope.receiver);
+        ID receiver = barrack.getID(rMsg.envelope.receiver);
         User user = null;
         if (receiver.getType().isGroup()) {
             // FIXME: maybe other user?
@@ -320,7 +318,7 @@ public class Terminal implements StationDelegate {
         // 4. trans to instant message
         InstantMessage iMsg = null;
         try {
-            iMsg = trans.verifyAndDecryptMessage(rMsg, getUsers());
+            iMsg = trans.verifyAndDecryptMessage(rMsg);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -332,7 +330,7 @@ public class Terminal implements StationDelegate {
         // 5. process commands
         Content content = iMsg.content;
         if (content instanceof HistoryCommand) {
-            ID group = ID.getInstance(content.getGroup());
+            ID group = barrack.getID(content.getGroup());
             if (group != null) {
                 // TODO: check group command
                 return;

@@ -168,6 +168,12 @@ public class UserDatabase implements EntityDataSource, UserDataSource, GroupData
     //---- BarrackDelegate
 
     @Override
+    public ID getID(Object identifier) {
+        // create extended ID object
+        return null;
+    }
+
+    @Override
     public Account getAccount(ID identifier) {
         // create extended Account object
         return null;
