@@ -9,9 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
+import chat.dim.common.Facebook;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
-import chat.dim.sechat.model.UserDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,6 +59,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     static {
-        UserDatabase db = UserDatabase.getInstance();
+        Facebook db = Facebook.getInstance();
     }
 }

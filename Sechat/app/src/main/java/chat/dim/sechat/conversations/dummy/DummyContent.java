@@ -7,7 +7,6 @@ import java.util.Map;
 
 import chat.dim.database.Conversation;
 import chat.dim.common.Facebook;
-import chat.dim.core.Barrack;
 import chat.dim.database.MessageTable;
 import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.entity.ID;
@@ -78,8 +77,8 @@ public class DummyContent {
 
         public String getTitle() {
             ID identifier = chatBox.identifier;
-            Barrack barrack = Facebook.getInstance();
-            Profile profile = barrack.getProfile(identifier);
+            Facebook facebook = Facebook.getInstance();
+            Profile profile = facebook.getProfile(identifier);
             String nickname = profile == null ? null : profile.getName();
             String username = identifier.name;
             if (nickname != null) {

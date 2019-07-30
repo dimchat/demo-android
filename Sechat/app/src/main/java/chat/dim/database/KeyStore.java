@@ -2,10 +2,11 @@ package chat.dim.database;
 
 import java.util.Map;
 
+import chat.dim.core.KeyCache;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.mkm.entity.ID;
 
-public class KeyStore extends chat.dim.core.KeyStore {
+public class KeyStore extends KeyCache {
 
     public KeyStore() {
         super();

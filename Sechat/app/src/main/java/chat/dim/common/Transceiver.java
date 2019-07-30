@@ -13,10 +13,7 @@ public class Transceiver extends chat.dim.core.Transceiver {
     private Transceiver()  {
         super();
 
-        barrackDelegate = Facebook.getInstance();
-        entityDataSource = Facebook.getInstance();
-        cipherKeyDataSource = keyStore;
+        barrack = Facebook.getInstance();
+        keyCache = new KeyStore();
     }
-
-    private final KeyStore keyStore = new KeyStore();
 }

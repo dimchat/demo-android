@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.core.Barrack;
 import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
@@ -266,7 +265,7 @@ public class Terminal implements StationDelegate {
 
     @Override
     public void didReceivePackage(byte[] data, Station server) {
-        Barrack barrack = Facebook.getInstance();
+        Facebook facebook = Facebook.getInstance();
         Transceiver trans = Transceiver.getInstance();
 
         // 1. decode
@@ -278,8 +277,8 @@ public class Terminal implements StationDelegate {
         }
 
         // 2. check sender
-        ID sender = barrack.getID(rMsg.envelope.sender);
-        Meta meta = barrack.getMeta(sender);
+        ID sender = facebook.getID(rMsg.envelope.sender);
+        Meta meta = facebook.getMeta(sender);
         if (meta == null) {
             try {
                 meta = Meta.getInstance(rMsg.getMeta());
@@ -293,7 +292,7 @@ public class Terminal implements StationDelegate {
         }
 
         // 3. check receiver
-        ID receiver = barrack.getID(rMsg.envelope.receiver);
+        ID receiver = facebook.getID(rMsg.envelope.receiver);
         User user = null;
         if (receiver.getType().isGroup()) {
             // FIXME: maybe other user?
@@ -330,7 +329,7 @@ public class Terminal implements StationDelegate {
         // 5. process commands
         Content content = iMsg.content;
         if (content instanceof HistoryCommand) {
-            ID group = barrack.getID(content.getGroup());
+            ID group = facebook.getID(content.getGroup());
             if (group != null) {
                 // TODO: check group command
                 return;

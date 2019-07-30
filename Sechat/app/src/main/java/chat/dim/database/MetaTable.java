@@ -7,7 +7,7 @@ import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-public class MetaTable extends Database {
+public class MetaTable extends Resource {
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
 

@@ -38,8 +38,8 @@ public class DummyContent {
 
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
-        Facebook barrack = Facebook.getInstance();
-        List<ID> contacts = barrack.getContacts(user.identifier);
+        Facebook facebook = Facebook.getInstance();
+        List<ID> contacts = facebook.getContacts(user.identifier);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }

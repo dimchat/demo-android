@@ -3,7 +3,6 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.core.Barrack;
 import chat.dim.database.Conversation;
 import chat.dim.database.MessageTable;
 import chat.dim.dkd.InstantMessage;
@@ -30,12 +29,12 @@ public class Amanuensis {
             return chatBox;
         }
         // create directly if we can find the entity
-        Barrack barrack = Facebook.getInstance();
+        Facebook facebook = Facebook.getInstance();
         Entity entity;
         if (identifier.getType().isCommunicator()) {
-            entity = barrack.getAccount(identifier);
+            entity = facebook.getAccount(identifier);
         } else if (identifier.getType().isGroup()) {
-            entity = barrack.getGroup(identifier);
+            entity = facebook.getGroup(identifier);
         } else {
             entity = null;
         }

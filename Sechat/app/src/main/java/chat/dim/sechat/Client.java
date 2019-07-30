@@ -8,7 +8,6 @@ import java.util.Map;
 import chat.dim.common.Facebook;
 import chat.dim.common.Server;
 import chat.dim.common.Terminal;
-import chat.dim.core.Barrack;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -112,7 +111,7 @@ public class Client extends Terminal {
 
     static {
         // test
-        Barrack barrack = Facebook.getInstance();
+        Facebook facebook = Facebook.getInstance();
 
         Client client = Client.getInstance();
 
@@ -126,7 +125,7 @@ public class Client extends Terminal {
         }
         {
             ID identifier = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-            User user = barrack.getUser(identifier);
+            User user = facebook.getUser(identifier);
             client.setCurrentUser(user);
         }
     }

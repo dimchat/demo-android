@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.core.BarrackDelegate;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
@@ -22,7 +21,7 @@ import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-public class Immortals implements EntityDataSource, UserDataSource, GroupDataSource, BarrackDelegate {
+public class Immortals implements EntityDataSource, UserDataSource, GroupDataSource {
 
     private static final Immortals ourInstance = new Immortals();
 
@@ -88,7 +87,7 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     }
 
     private void loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
-        String jsonString = Database.readTextFile(filename);
+        String jsonString = Resource.readTextFile(filename);
         Map<String, Object> dictionary = JSON.decode(jsonString);
         System.out.println(filename + ":" + dictionary);
         // ID
@@ -120,6 +119,22 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
         User user = new User(identifier);
         user.dataSource = this;
         userMap.put(identifier.address, user);
+    }
+
+    public ID getID(Object identifier) {
+        return ID.getInstance(identifier);
+    }
+
+    public Account getAccount(ID identifier) {
+        return userMap.get(identifier.address);
+    }
+
+    public User getUser(ID identifier) {
+        return userMap.get(identifier.address);
+    }
+
+    public Group getGroup(ID identifier) {
+        return null;
     }
 
     //---- EntityDataSource
@@ -174,28 +189,6 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
 
     @Override
     public List<ID> getMembers(ID group) {
-        return null;
-    }
-
-    //---- BarrackDelegate
-
-    @Override
-    public ID getID(Object identifier) {
-        return ID.getInstance(identifier);
-    }
-
-    @Override
-    public Account getAccount(ID identifier) {
-        return userMap.get(identifier.address);
-    }
-
-    @Override
-    public User getUser(ID identifier) {
-        return userMap.get(identifier.address);
-    }
-
-    @Override
-    public Group getGroup(ID identifier) {
         return null;
     }
 }

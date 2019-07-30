@@ -12,7 +12,7 @@ import chat.dim.format.JSON;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
-public class MessageTable extends Database {
+public class MessageTable extends Resource {
 
     private static Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
     private static List<ID> conversationList = new ArrayList<>();

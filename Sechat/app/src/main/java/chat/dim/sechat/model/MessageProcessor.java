@@ -19,7 +19,7 @@ public class MessageProcessor {
     private MessageProcessor() {
     }
 
-    static Facebook barrack = Facebook.getInstance();
+    static Facebook facebook = Facebook.getInstance();
     static Amanuensis clerk = Amanuensis.getInstance();
 
     static {
