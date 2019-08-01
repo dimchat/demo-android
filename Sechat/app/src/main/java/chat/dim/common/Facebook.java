@@ -25,6 +25,7 @@ public class Facebook extends Barrack {
     }
 
     private Facebook() {
+        super();
     }
 
     // immortal accounts

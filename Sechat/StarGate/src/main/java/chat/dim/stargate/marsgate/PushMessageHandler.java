@@ -2,7 +2,8 @@ package chat.dim.stargate.marsgate;
 
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
-import chat.dim.stargate.marsgate.bussiness.PushNotifyDelegate;
+
+import chat.dim.stargate.mars.bussiness.PushNotifyDelegate;
 
 public class PushMessageHandler implements PushNotifyDelegate {
 

@@ -12,6 +12,7 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.network.ServiceProvider;
+import chat.dim.protocol.CommandContent;
 import chat.dim.sechat.model.MessageProcessor;
 
 public class Client extends Terminal {
@@ -38,7 +39,8 @@ public class Client extends Terminal {
         //
         // launch server
         //
-//        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Facebook.getInstance();
+        MessageProcessor msgDB = MessageProcessor.getInstance();
 
         // config Service Provider
         String spConfigFilePath = (String) options.get("ConfigFilePath");
@@ -50,9 +52,15 @@ public class Client extends Terminal {
         Meta meta = null;
 //        facebook.saveMeta(meta, identifier);
 
+        String ip = "134.175.87.98"; // from stationConfig["host"]
+        Number port = 9394; // from stationConfig["port"]
+
         // prepare for launch star
         Map<String, Object> serverOptions = new HashMap<>();
-        String ip = "134.175.87.98"; // from stationConfig["host"]
+        serverOptions.put("ID", identifier);
+        serverOptions.put("host", ip);
+        serverOptions.put("port", port);
+
         if (ip != null) {
             serverOptions.put("LongLinkAddress", "dim.chat");
             List<String> list = new ArrayList<>();
@@ -61,7 +69,6 @@ public class Client extends Terminal {
             ipTable.put("dim.chat", list);
             serverOptions.put("NewDNS", ipTable);
         }
-        Number port = 9394; // from stationConfig["port"]
         if (port != null) {
             serverOptions.put("LongLinkPort", port);
         }
@@ -69,12 +76,11 @@ public class Client extends Terminal {
         // TODO: config FTP server
 
         // connect server
-        Server server = new Server(stationConfig);
+        Server server = new Server(serverOptions);
         server.delegate = this;
-        server.start(serverOptions);
+        server.start(options);
         currentStation = server;
 
-        MessageProcessor.getInstance();
 //        facebook.addStation(identifier, sp);
 
         // TODO: scan users
@@ -91,9 +97,10 @@ public class Client extends Terminal {
 
     public void enterBackground() {
         // report client state
-//        BroadcastCommand cmd = new BroadcastCommand("report");
-//        cmd.put("state", "background");
-//        sendCommand(cmd);
+        CommandContent cmd = new CommandContent("broadcast");
+        cmd.put("title", "report");
+        cmd.put("state", "background");
+        sendCommand(cmd);
 
         currentStation.pause();
     }
@@ -104,9 +111,10 @@ public class Client extends Terminal {
         // clear icon badge
 
         // report client state
-//        BroadcastCommand cmd = new BroadcastCommand("report");
-//        cmd.put("state", "foreground");
-//        sendCommand(cmd);
+        CommandContent cmd = new CommandContent("broadcast");
+        cmd.put("title", "report");
+        cmd.put("state", "foreground");
+        sendCommand(cmd);
     }
 
     static {
@@ -115,15 +123,14 @@ public class Client extends Terminal {
 
         Client client = Client.getInstance();
 
-        {
+        if (false) {
             Map<String, Object> dictioanry = new HashMap<>();
             dictioanry.put("ID", "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
             dictioanry.put("host", "134.175.87.98");
             dictioanry.put("port", 9527);
 
             client.currentStation = new Server(dictioanry);
-        }
-        {
+
             ID identifier = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
             User user = facebook.getUser(identifier);
             client.setCurrentUser(user);

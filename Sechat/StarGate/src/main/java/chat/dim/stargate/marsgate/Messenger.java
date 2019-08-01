@@ -4,7 +4,8 @@ import com.tencent.mars.stn.StnLogic;
 
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
-import chat.dim.stargate.marsgate.bussiness.NotifyDelegate;
+
+import chat.dim.stargate.mars.bussiness.NotifyDelegate;
 
 public class Messenger implements NotifyDelegate {
 

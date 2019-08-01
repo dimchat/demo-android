@@ -1,7 +1,5 @@
 package chat.dim.common;
 
-import chat.dim.database.KeyStore;
-
 public class Transceiver extends chat.dim.core.Transceiver {
 
     private static final Transceiver ourInstance = new Transceiver();
@@ -14,6 +12,6 @@ public class Transceiver extends chat.dim.core.Transceiver {
         super();
 
         barrack = Facebook.getInstance();
-        keyCache = new KeyStore();
+        keyCache = KeyStore.getInstance();
     }
 }

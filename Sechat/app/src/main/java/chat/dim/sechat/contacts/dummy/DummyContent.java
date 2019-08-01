@@ -36,10 +36,12 @@ public class DummyContent {
     public static void reloadData() {
         ITEMS.clear();
 
-        Client client = Client.getInstance();
-        User user = client.getCurrentUser();
         Facebook facebook = Facebook.getInstance();
-        List<ID> contacts = facebook.getContacts(user.identifier);
+        Client client = Client.getInstance();
+
+        User user = client.getCurrentUser();
+        ID uid = user == null ? null : user.identifier;
+        List<ID> contacts = facebook.getContacts(uid);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }
