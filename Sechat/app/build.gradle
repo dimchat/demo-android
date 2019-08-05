@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation project(':StarGate')
     implementation project(':FiniteStateMachine')
-    implementation group: 'chat.dim', name: 'DIMP', version: '0.3.5'
+    implementation group: 'chat.dim', name: 'DIMP', version: '0.3.6'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:28.0.0'

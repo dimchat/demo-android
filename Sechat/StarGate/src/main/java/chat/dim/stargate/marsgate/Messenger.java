@@ -24,7 +24,7 @@ public class Messenger implements NotifyDelegate {
         starDelegate = sender;
     }
 
-    //-------- Messenger
+    //-------- NotifyDelegate
 
     @Override
     public byte[] requestSendData() {

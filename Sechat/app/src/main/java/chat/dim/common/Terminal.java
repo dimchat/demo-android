@@ -339,22 +339,31 @@ public class Terminal implements StationDelegate {
         } else if (content instanceof CommandContent) {
             CommandContent cmd = (CommandContent) content;
             if (cmd.command.equalsIgnoreCase(CommandContent.HANDSHAKE)) {
-                // TODO: handshake
+                // handshake
+                processHandshakeCommand((HandshakeCommand) cmd);
                 return;
             } else if (cmd.command.equalsIgnoreCase(CommandContent.META)) {
-                // TODO: query meta response
+                // query meta response
+                processMetaCommand((MetaCommand) cmd);
                 return;
             } else if (cmd.command.equalsIgnoreCase(CommandContent.PROFILE)) {
-                // TODO: query profile response
+                // query profile response
+                processProfileCommand((ProfileCommand) cmd);
                 return;
             } else if (cmd.command.equalsIgnoreCase("users")) {
-                // TODO: query online users response
+                // query online users response
+                processOnlineUsersCommand(cmd);
                 return;
             } else if (cmd.command.equalsIgnoreCase("search")) {
-                // TODO: search users response
+                // search users response
+                processSearchUsersCommand(cmd);
                 return;
             } else if (cmd.command.equalsIgnoreCase(CommandContent.RECEIPT)) {
-                // TODO: receipt
+                // receipt
+                Amanuensis clerk = Amanuensis.getInstance();
+                if (clerk.saveReceipt(iMsg)) {
+                    // Log: target message state updated with receipt:
+                }
                 return;
             }
             // NOTE: let the message processor to do the job

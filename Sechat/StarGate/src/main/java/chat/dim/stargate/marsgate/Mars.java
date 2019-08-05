@@ -24,16 +24,14 @@ import static chat.dim.stargate.mars.bussiness.NetworkEvent.SEND_MSG;
 
 public class Mars implements Star {
 
-    private StarStatus longConnectionStatus;
-    private StarStatus connectionStatus;
+    private StarStatus longConnectionStatus = StarStatus.Init;
+    private StarStatus connectionStatus = StarStatus.Init;
 
-    StarDelegate handler;
-    PushMessageHandler pushHandler;
+    private StarDelegate handler;
+    private PushMessageHandler pushHandler;
 
     public Mars(StarDelegate messageHandler) {
         super();
-        longConnectionStatus = StarStatus.Init;
-        connectionStatus = StarStatus.Init;
 
         handler = messageHandler;
 

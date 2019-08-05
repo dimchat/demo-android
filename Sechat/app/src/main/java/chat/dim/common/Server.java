@@ -9,6 +9,7 @@ import java.util.Map;
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
+import chat.dim.dkd.Envelope;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.Base64;
@@ -23,6 +24,7 @@ import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
 import chat.dim.stargate.marsgate.Mars;
+import chat.dim.stargate.simplegate.Fence;
 
 public class Server extends Station implements TransceiverDelegate, StarDelegate {
 
@@ -102,10 +104,26 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         Transceiver transceiver = Transceiver.getInstance();
         transceiver.delegate = this;
 
-        star = new Mars(this);
+        star = new Fence(this);
+        //star = new Mars(this);
         star.launch(options);
 
         // TODO: perform run() in background
+        String session = null;
+        HandshakeCommand handshake = new HandshakeCommand(session);
+        ID sender = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
+        ID receiver = identifier;
+        InstantMessage iMsg = new InstantMessage(handshake, sender, receiver);
+        byte[] requestData = null;
+        try {
+            ReliableMessage rMsg = Transceiver.getInstance().encryptAndSignMessage(iMsg);
+            String string = JSON.encode(rMsg);
+            string = string + "\n";
+            requestData = string.getBytes(Charset.forName("UTF-8"));
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        star.send(requestData);
     }
 
     public void end() {
