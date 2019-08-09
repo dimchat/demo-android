@@ -3,18 +3,20 @@ package chat.dim.database;
 import java.io.IOException;
 import java.util.Map;
 
+import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.entity.Profile;
 
 public class MetaTable extends Resource {
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
 
-    static String getMetaDirectory(Address address) {
+    private static String getMetaDirectory(Address address) {
         return publicDirectory + "/mkm/" + address;
     }
-    static String getMetaDirectory(ID identifier) {
+    private static String getMetaDirectory(ID identifier) {
         return getMetaDirectory(identifier.address);
     }
 
@@ -40,20 +42,15 @@ public class MetaTable extends Resource {
         }
     }
 
-    /**
-     *  Save meta for entity ID
-     *
-     * @param meta - meta info
-     * @param identifier - entity ID
-     * @return false on error
-     */
-    public static boolean saveMeta(Meta meta, ID identifier) {
-        return saveMeta(meta, identifier.address);
+    public static ID getID(Address address) {
+        Meta meta = loadMeta(address);
+        //return new ID(meta.seed, address);
+        return meta == null ? null : meta.generateID(address.getNetwork());
     }
 
-    public static boolean saveMeta(Meta meta, Address address) {
+    public static boolean saveMeta(Meta meta, ID identifier) {
         // save into JsON file
-        String dir = getMetaDirectory(address);
+        String dir = getMetaDirectory(identifier);
         try {
             return saveJSONFile(meta, "meta.js", dir);
         } catch (IOException e) {
@@ -62,15 +59,22 @@ public class MetaTable extends Resource {
         }
     }
 
-    /**
-     *  Get ID with address
-     *
-     * @param address - ID.address
-     * @return ID
-     */
-    public static ID getID(Address address) {
-        Meta meta = loadMeta(address);
-        //return new ID(meta.seed, address);
-        return meta == null ? null : meta.generateID(address.getNetwork());
+    public static Meta getMeta(ID identifier) {
+        return loadMeta(identifier.address);
+    }
+
+    public static Profile getProfile(ID identifier) {
+        // TODO: load profile from local storage
+        return null;
+    }
+
+    public static boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
+        // TODO: save private key for ID
+        return false;
+    }
+
+    public static boolean saveProfile(Profile profile) {
+        // TODO: save profile to local storage
+        return false;
     }
 }

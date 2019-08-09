@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.database.Conversation;
-import chat.dim.common.Facebook;
-import chat.dim.database.MessageTable;
+import chat.dim.client.Amanuensis;
+import chat.dim.client.Conversation;
+import chat.dim.client.Facebook;
 import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.entity.ID;
-import chat.dim.sechat.model.MessageProcessor;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -37,11 +36,11 @@ public class DummyContent {
     public static void reloadData() {
         ITEMS.clear();
 
-        MessageProcessor database = MessageProcessor.getInstance();
-        int count = MessageTable.numberOfConversations();
+        Amanuensis clerk = Amanuensis.getInstance();
+        int count = clerk.numberOfConversations();
         Conversation chatBox;
         for (int index = 0; index < count; index++) {
-            chatBox = MessageTable.conversationAtIndex(index);
+            chatBox = clerk.conversationAtIndex(index);
             addItem(new DummyItem(chatBox));
         }
     }

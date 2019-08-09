@@ -1,10 +1,39 @@
-package chat.dim.common;
+/* license: https://mit-license.org
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
+package chat.dim.network;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.client.Amanuensis;
+import chat.dim.client.Conversation;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messanger;
 import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
@@ -14,8 +43,6 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.Profile;
-import chat.dim.network.Station;
-import chat.dim.network.StationDelegate;
 import chat.dim.protocol.CommandContent;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.command.HandshakeCommand;
@@ -117,9 +144,9 @@ public class Terminal implements StationDelegate {
             }
         };
         // send out
-        Transceiver transceiver = Transceiver.getInstance();
+        Messanger messanger = Messanger.getInstance();
         try {
-            if (transceiver.sendMessage(iMsg, callback, true)) {
+            if (messanger.sendMessage(iMsg, callback, true)) {
                 return iMsg;
             }
         } catch (NoSuchFieldException e) {
@@ -266,7 +293,7 @@ public class Terminal implements StationDelegate {
     @Override
     public void didReceivePackage(byte[] data, Station server) {
         Facebook facebook = Facebook.getInstance();
-        Transceiver trans = Transceiver.getInstance();
+        Messanger messanger = Messanger.getInstance();
 
         // 1. decode
         String json = new String(data, Charset.forName("UTF-8"));
@@ -317,7 +344,7 @@ public class Terminal implements StationDelegate {
         // 4. trans to instant message
         InstantMessage iMsg = null;
         try {
-            iMsg = trans.verifyAndDecryptMessage(rMsg);
+            iMsg = messanger.verifyAndDecryptMessage(rMsg);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -361,7 +388,11 @@ public class Terminal implements StationDelegate {
             } else if (cmd.command.equalsIgnoreCase(CommandContent.RECEIPT)) {
                 // receipt
                 Amanuensis clerk = Amanuensis.getInstance();
-                if (clerk.saveReceipt(iMsg)) {
+                Conversation chatBox = clerk.getConversation(iMsg);
+                if (chatBox == null) {
+                    throw new NullPointerException("failed to get conversation: " + iMsg);
+                }
+                if (chatBox.saveReceipt(iMsg)) {
                     // Log: target message state updated with receipt:
                 }
                 return;
@@ -378,7 +409,11 @@ public class Terminal implements StationDelegate {
 
         // normal message, let the clerk to deliver it
         Amanuensis clerk = Amanuensis.getInstance();
-        clerk.saveMessage(iMsg);
+        Conversation chatBox = clerk.getConversation(iMsg);
+        if (chatBox == null) {
+            throw new NullPointerException("failed to get conversation: " + iMsg);
+        }
+        chatBox.insertMessage(iMsg);
     }
 
     @Override

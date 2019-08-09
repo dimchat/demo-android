@@ -5,32 +5,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.common.Facebook;
-import chat.dim.common.Server;
-import chat.dim.common.Terminal;
+import chat.dim.client.Facebook;
+import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.network.Server;
 import chat.dim.network.ServiceProvider;
+import chat.dim.network.Terminal;
 import chat.dim.protocol.CommandContent;
-import chat.dim.sechat.model.MessageProcessor;
 
 public class Client extends Terminal {
-
-    Facebook facebook = Facebook.getInstance();
-    MessageProcessor msgDB = MessageProcessor.getInstance();
-
     private static final Client ourInstance = new Client();
-
-    public static Client getInstance() {
-        return ourInstance;
-    }
-
+    public static Client getInstance() { return ourInstance; }
     private Client() {
+        super();
+        ID user = getLastUser();
+        SocialNetworkDatabase.getInstance().reloadData(user);
     }
 
     public String getDisplayName() {
         return "DIM!";
+    }
+
+    private ID getLastUser() {
+        Facebook facebook = Facebook.getInstance();
+        return facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
+    }
+
+    private User getUser(Object identifier) {
+        Facebook facebook = Facebook.getInstance();
+        return facebook.getUser(facebook.getID(identifier));
     }
 
     private void startServer(Map<String, Object> station, ServiceProvider sp) {
@@ -66,8 +71,10 @@ public class Client extends Terminal {
         currentStation = server;
 
         // scan users
-        User user = facebook.getUser(ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk"));
-        addUser(user);
+        ID last = getLastUser();
+        if (last != null) {
+            addUser(getUser(last));
+        }
     }
 
     private void launchServiceProvider(Map<String, Object> spConfig) {
@@ -100,7 +107,7 @@ public class Client extends Terminal {
         metaDict.put("fingerprint", "R+Bv3RlVi8pNuVWDJ8uEp+N3l+B04ftlaNFxo7u8+V6eSQsQJNv7tfQNFdC633UpXDw3zZHvQNnkUBwthaCJTbEmy2CYqMSx/BLuaS7spkSZJJAT7++xqif+pRjdw9yM/aPufKHS4PAvGec21PsUpQzOV5TQFyF5CDEDVLC8HVY=");
         try {
             Meta meta = Meta.getInstance(metaDict);
-            facebook.saveMeta(meta, identifier);
+            Facebook.getInstance().saveMeta(meta, identifier);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

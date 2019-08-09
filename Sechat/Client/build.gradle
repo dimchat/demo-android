@@ -1,0 +1,10 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation group: 'chat.dim', name: 'DIMP', version: '0.3.7'
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"

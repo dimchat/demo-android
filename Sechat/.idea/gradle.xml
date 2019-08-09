@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/FiniteStateMachine" />
             <option value="$PROJECT_DIR$/StarGate" />
+            <option value="$PROJECT_DIR$/Client" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

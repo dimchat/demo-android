@@ -10,18 +10,28 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.entity.Profile;
-import chat.dim.mkm.User;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.entity.Address;
-import chat.dim.mkm.entity.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
-public class Immortals implements EntityDataSource, UserDataSource, GroupDataSource {
+public class Immortals implements UserDataSource {
+
+    static {
+        // mkm.Base64
+        chat.dim.format.Base64.coder = new chat.dim.format.BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+    }
 
     private static final Immortals ourInstance = new Immortals();
 
@@ -39,7 +49,6 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
     }
 
     private final Map<Address, Meta>    metaMap       = new HashMap<>();
-    private final Map<Address, User>    userMap       = new HashMap<>();
     private Map<Address, PrivateKey>    privateKeyMap = new HashMap<>();
     private final Map<Address, Profile> profileMap    = new HashMap<>();
 
@@ -115,26 +124,6 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
         if (profile != null) {
             profileMap.put(identifier.address, getProfile(profile, identifier, privateKey));
         }
-        // create user
-        User user = new User(identifier);
-        user.dataSource = this;
-        userMap.put(identifier.address, user);
-    }
-
-    public ID getID(Object identifier) {
-        return ID.getInstance(identifier);
-    }
-
-    public Account getAccount(ID identifier) {
-        return userMap.get(identifier.address);
-    }
-
-    public User getUser(ID identifier) {
-        return userMap.get(identifier.address);
-    }
-
-    public Group getGroup(ID identifier) {
-        return null;
     }
 
     //---- EntityDataSource
@@ -172,23 +161,6 @@ public class Immortals implements EntityDataSource, UserDataSource, GroupDataSou
 
     @Override
     public List<ID> getContacts(ID user) {
-        return null;
-    }
-
-    //---- GroupDataSource
-
-    @Override
-    public ID getFounder(ID group) {
-        return null;
-    }
-
-    @Override
-    public ID getOwner(ID group) {
-        return null;
-    }
-
-    @Override
-    public List<ID> getMembers(ID group) {
         return null;
     }
 }

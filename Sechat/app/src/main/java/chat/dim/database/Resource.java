@@ -185,19 +185,4 @@ public class Resource {
         }
         return !file.isDirectory() && file.delete();
     }
-
-    static {
-        // mkm.Base64
-        chat.dim.format.Base64.coder = new chat.dim.format.BaseCoder() {
-            @Override
-            public String encode(byte[] data) {
-                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
-            }
-
-            @Override
-            public byte[] decode(String string) {
-                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
-            }
-        };
-    }
 }

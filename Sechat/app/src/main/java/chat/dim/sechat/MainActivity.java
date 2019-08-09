@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.view.MenuItem;
 
-import chat.dim.common.Facebook;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
 
@@ -59,6 +58,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     static {
-        Facebook db = Facebook.getInstance();
+        Client client = Client.getInstance();
     }
 }

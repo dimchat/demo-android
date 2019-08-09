@@ -1,4 +1,29 @@
-package chat.dim.common;
+/* license: https://mit-license.org
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
+package chat.dim.network;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -6,10 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.client.Messanger;
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
-import chat.dim.dkd.Envelope;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.Base64;
@@ -17,13 +42,11 @@ import chat.dim.format.JSON;
 import chat.dim.fsm.Machine;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
-import chat.dim.network.Station;
 import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
-import chat.dim.stargate.marsgate.Mars;
 import chat.dim.stargate.simplegate.Fence;
 
 public class Server extends Station implements TransceiverDelegate, StarDelegate {
@@ -68,10 +91,10 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         ID serverID = identifier;
         HandshakeCommand cmd = new HandshakeCommand(session);
         InstantMessage iMsg = new InstantMessage(cmd, userID, serverID);
-        Transceiver transceiver = Transceiver.getInstance();
+        Messanger messanger = Messanger.getInstance();
         ReliableMessage rMsg = null;
         try {
-            rMsg = transceiver.encryptAndSignMessage(iMsg);
+            rMsg = messanger.encryptAndSignMessage(iMsg);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
@@ -101,8 +124,8 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
     public void start(Map<String, Object> options) {
         //_fsm.start()
 
-        Transceiver transceiver = Transceiver.getInstance();
-        transceiver.delegate = this;
+        Messanger messanger = Messanger.getInstance();
+        messanger.delegate = this;
 
         star = new Fence(this);
         //star = new Mars(this);
@@ -116,7 +139,7 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         InstantMessage iMsg = new InstantMessage(handshake, sender, receiver);
         byte[] requestData = null;
         try {
-            ReliableMessage rMsg = Transceiver.getInstance().encryptAndSignMessage(iMsg);
+            ReliableMessage rMsg = messanger.encryptAndSignMessage(iMsg);
             String string = JSON.encode(rMsg);
             string = string + "\n";
             requestData = string.getBytes(Charset.forName("UTF-8"));
