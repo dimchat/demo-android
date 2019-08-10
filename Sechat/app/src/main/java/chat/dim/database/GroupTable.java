@@ -20,4 +20,9 @@ public class GroupTable extends ExternalStorage {
         // TODO: get members of group
         return null;
     }
+
+    public static boolean existsMember(ID member, ID group) {
+        // TODO: check whether exists the member
+        return false;
+    }
 }

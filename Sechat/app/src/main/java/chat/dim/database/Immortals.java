@@ -11,48 +11,23 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
+import chat.dim.format.BaseCoder;
+import chat.dim.format.DataParser;
 import chat.dim.format.JSON;
 import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.UserDataSource;
-import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 
 public class Immortals implements UserDataSource {
-
-    static {
-        // mkm.Base64
-        chat.dim.format.Base64.coder = new chat.dim.format.BaseCoder() {
-            @Override
-            public String encode(byte[] data) {
-                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
-            }
-
-            @Override
-            public byte[] decode(String string) {
-                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
-            }
-        };
-    }
-
     private static final Immortals ourInstance = new Immortals();
-
-    public static Immortals getInstance() {
-        return ourInstance;
-    }
-
+    public static Immortals getInstance() { return ourInstance; }
     private Immortals() {
-        try {
-            loadBuiltInAccount("/mkm_hulk.js");
-            loadBuiltInAccount("/mkm_moki.js");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
-    private final Map<Address, Meta>    metaMap       = new HashMap<>();
-    private Map<Address, PrivateKey>    privateKeyMap = new HashMap<>();
-    private final Map<Address, Profile> profileMap    = new HashMap<>();
+    private final Map<ID, Meta>    metaMap       = new HashMap<>();
+    private Map<ID, PrivateKey>    privateKeyMap = new HashMap<>();
+    private final Map<ID, Profile> profileMap    = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     private Profile getProfile(Map dictionary, ID identifier, PrivateKey privateKey) {
@@ -114,7 +89,7 @@ public class Immortals implements UserDataSource {
         Meta meta = Meta.getInstance(dict.get("meta"));
         assert meta != null;
         if (meta.matches(identifier)) {
-            metaMap.put(identifier.address, meta);
+            metaMap.put(identifier, meta);
         } else {
             throw new IllegalArgumentException("meta not match ID:" + identifier + ", " + meta);
         }
@@ -123,14 +98,14 @@ public class Immortals implements UserDataSource {
         assert privateKey != null;
         if (meta.key.matches(privateKey)) {
             // TODO: store private key into keychain
-            privateKeyMap.put(identifier.address, privateKey);
+            privateKeyMap.put(identifier, privateKey);
         } else {
             throw new IllegalArgumentException("private key not match meta public key:" + privateKey);
         }
         // profile
         Map profile = (Map) dict.get("profile");
         if (profile != null) {
-            profileMap.put(identifier.address, getProfile(profile, identifier, privateKey));
+            profileMap.put(identifier, getProfile(profile, identifier, privateKey));
         }
     }
 
@@ -144,24 +119,24 @@ public class Immortals implements UserDataSource {
 
     @Override
     public Meta getMeta(ID identifier) {
-        return metaMap.get(identifier.address);
+        return metaMap.get(identifier);
     }
 
     @Override
     public Profile getProfile(ID identifier) {
-        return profileMap.get(identifier.address);
+        return profileMap.get(identifier);
     }
 
     //---- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        return privateKeyMap.get(user.address);
+        return privateKeyMap.get(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        PrivateKey privateKey = privateKeyMap.get(user.address);
+        PrivateKey privateKey = privateKeyMap.get(user);
         List<PrivateKey> list = new ArrayList<>();
         list.add(privateKey);
         return list;
@@ -170,5 +145,44 @@ public class Immortals implements UserDataSource {
     @Override
     public List<ID> getContacts(ID user) {
         return null;
+    }
+
+    static {
+        // mkm.Base64
+        Base64.coder = new BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+
+        // FIXME: test
+
+        // mkm.JSON
+        JSON.parser = new DataParser() {
+            @Override
+            public String encode(Object container) {
+                return com.alibaba.fastjson.JSON.toJSONString(container);
+            }
+
+            @Override
+            public Object decode(String jsonString) {
+                return com.alibaba.fastjson.JSON.parse(jsonString);
+            }
+        };
+
+        // load data
+        Immortals immortals = Immortals.getInstance();
+        try {
+            immortals.loadBuiltInAccount("/mkm_hulk.js");
+            immortals.loadBuiltInAccount("/mkm_moki.js");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

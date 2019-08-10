@@ -6,6 +6,7 @@ import chat.dim.client.Facebook;
 import chat.dim.client.FacebookDelegate;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.GroupDataSource;
+import chat.dim.mkm.User;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
@@ -25,11 +26,45 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     private static Immortals immortals = Immortals.getInstance();
 
-    public void reloadData(ID user) {
+    public void reloadData() {
+        UserTable.loadUsers();
+        ID user = UserTable.getCurrentUser();
+        if (user == null) {
+            return;
+        }
         // reload contacts for current user
-        UserTable.reloadData(user);
+        ContactTable.reloadContacts(user);
         // reload conversation database
         ConversationDatabase.getInstance().reloadData(user);
+    }
+
+    public User getCurrentUser() {
+        Facebook facebook = Facebook.getInstance();
+        return facebook.getUser(UserTable.getCurrentUser());
+    }
+
+    public void setCurrentUser(User user) {
+        UserTable.setCurrentUser(user.identifier);
+    }
+
+    public List<ID> allUsers() {
+        return UserTable.allUsers();
+    }
+
+    public boolean addUser(ID user) {
+        return UserTable.addUser(user);
+    }
+
+    public boolean removeUser(ID user) {
+        return UserTable.removeUser(user);
+    }
+
+    public boolean addContact(ID contact, ID user) {
+        return ContactTable.addContact(contact, user);
+    }
+
+    public boolean removeContact(ID contact, ID user) {
+        return ContactTable.removeContact(contact, user);
     }
 
     //---- EntityDataSource
@@ -79,7 +114,7 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     @Override
     public List<ID> getContacts(ID user) {
-        return UserTable.getContacts(user);
+        return ContactTable.getContacts(user);
     }
 
     //-------- GroupDataSource

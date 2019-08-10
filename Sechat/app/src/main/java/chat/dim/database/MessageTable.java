@@ -8,7 +8,6 @@ import java.util.Map;
 
 import chat.dim.client.Conversation;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
 public class MessageTable extends ExternalStorage {
@@ -17,11 +16,11 @@ public class MessageTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
 
-    private static String getFilePath(Address address) {
-        return root + "/dkd/" + address + "/messages.js";
+    private static String getMsgFilePath(ID entity) {
+        return root + "/dkd/" + entity.address + "/messages.js";
     }
 
-    private static List cacheMessages(Object array, ID identifier) {
+    private static List cacheMessages(Object array, ID entity) {
         if (!(array instanceof List)) {
             return null;
         }
@@ -30,27 +29,27 @@ public class MessageTable extends ExternalStorage {
         for (Object msg : list) {
             messages.add(InstantMessage.getInstance(msg));
         }
-        chatHistory.put(identifier, messages);
+        chatHistory.put(entity, messages);
         return messages;
     }
 
-    private static List loadMessages(ID identifier) {
-        String path = getFilePath(identifier.address);
+    private static List loadMessages(ID entity) {
+        String path = getMsgFilePath(entity);
         try {
             Object array = readJSON(path);
-            return cacheMessages(array, identifier);
+            return cacheMessages(array, entity);
         } catch (IOException e) {
             //e.printStackTrace();
             return null;
         }
     }
 
-    private static boolean saveMessages(ID identifier) {
-        List<InstantMessage> messages = chatHistory.get(identifier);
+    private static boolean saveMessages(ID entity) {
+        List<InstantMessage> messages = chatHistory.get(entity);
         if (messages == null) {
             return false;
         }
-        String path = getFilePath(identifier.address);
+        String path = getMsgFilePath(entity);
         try {
             return writeJSON(messages, path);
         } catch (IOException e) {
@@ -59,8 +58,8 @@ public class MessageTable extends ExternalStorage {
         }
     }
 
-    private static boolean removeMessages(ID identifier) {
-        String path = getFilePath(identifier.address);
+    private static boolean removeMessages(ID entity) {
+        String path = getMsgFilePath(entity);
         try {
             return delete(path);
         } catch (IOException e) {
@@ -69,9 +68,9 @@ public class MessageTable extends ExternalStorage {
         }
     }
 
-    private static boolean clearMessages(ID identifier) {
+    private static boolean clearMessages(ID entity) {
         List<InstantMessage> messages = new ArrayList<>();
-        String path = getFilePath(identifier.address);
+        String path = getMsgFilePath(entity);
         try {
             return writeJSON(messages, path);
         } catch (IOException e) {

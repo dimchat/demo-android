@@ -5,23 +5,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Profile;
 
 public class ProfileTable extends ExternalStorage {
 
     // profile cache
-    static Map<Address, Profile> profileTable = new HashMap<>();
+    private static Map<ID, Profile> profileTable = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
 
-    static String getFilePath(Address address) {
-        return root + "/mkm/" + address + "/profile.js";
+    private static String getProfilePath(ID entity) {
+        return root + "/mkm/" + entity.address + "/profile.js";
     }
 
-    private static Profile loadProfile(Address address) {
-        String path = getFilePath(address);
+    private static Profile loadProfile(ID entity) {
+        String path = getProfilePath(entity);
         try {
             Object dict = readJSON(path);
             return Profile.getInstance(dict);
@@ -31,9 +30,9 @@ public class ProfileTable extends ExternalStorage {
         }
     }
 
-    public static Profile getProfile(ID identifier) {
+    public static Profile getProfile(ID entity) {
         // 1. try from profile cache
-        Profile profile = profileTable.get(identifier.address);
+        Profile profile = profileTable.get(entity);
         if (profile != null) {
             // check cache expires
             Date now = new Date();
@@ -45,7 +44,7 @@ public class ProfileTable extends ExternalStorage {
                 long dt = now.getTime() - lastTime.getTime();
                 if (Math.abs(dt / 1000) > 3600) {
                     // profile expired
-                    profileTable.remove(identifier.address);
+                    profileTable.remove(entity);
                 }
             }
             return profile;
@@ -53,16 +52,16 @@ public class ProfileTable extends ExternalStorage {
         // TODO: 2. send query profile for updating from network
 
         // 3. load from JsON file
-        profile = loadProfile(identifier.address);
+        profile = loadProfile(entity);
         if (profile != null) {
-            profileTable.put(identifier.address, profile);
+            profileTable.put(entity, profile);
         }
         return profile;
     }
 
     public static boolean saveProfile(Profile profile) {
         // write into JsON file
-        String path = getFilePath(profile.identifier.address);
+        String path = getProfilePath(profile.identifier);
         try {
             return writeJSON(profile, path);
         } catch (IOException e) {

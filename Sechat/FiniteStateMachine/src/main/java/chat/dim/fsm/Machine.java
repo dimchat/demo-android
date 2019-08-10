@@ -30,9 +30,10 @@ import java.util.Map;
 
 public class Machine {
 
+    private Map<String, State> stateMap;
+
     private String defaultStateName;
     private State currentState;
-    private Map<String, State> stateMap;
 
     enum Status {
         Stopped (0),
@@ -53,6 +54,10 @@ public class Machine {
         this.currentState = null;
         this.stateMap = new HashMap<>();
         this.status = Status.Stopped;
+    }
+
+    public State getCurrentState() {
+        return currentState;
     }
 
     /**

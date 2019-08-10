@@ -144,7 +144,7 @@ public class Mars implements Star {
 
         Object value;
         // LongLink
-        value = (String) options.get("LongLinkAddress");
+        value = options.get("LongLinkAddress");
         if (value != null) {
             longLinkAddress = (String) value;
         }

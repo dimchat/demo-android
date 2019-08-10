@@ -25,6 +25,9 @@
  */
 package chat.dim.network;
 
+import java.lang.ref.WeakReference;
+
+import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
@@ -41,20 +44,46 @@ class ServerStateMachine extends Machine {
     static final String errorState       = "error";
     static final String stoppedState     = "stopped";
 
-    public Server server;
-    public String session;
+    WeakReference<Connection> connection = null;
+
+    public ServerStateMachine() {
+        this(defaultState);
+    }
 
     public ServerStateMachine(String defaultStateName) {
         super(defaultStateName);
-        server = null;
-        session = null;
 
         // add states
         addState(defaultState, getDefaultState());
         addState(connectingState, getConnectingState());
+        addState(connectedState, getConnectedState());
+        addState(handshakingState, getHandshakingState());
+        addState(runningState, getRunningState());
+        addState(errorState, getErrorState());
+        //addState(stoppedState, getStoppedState());
+    }
+
+    private Connection getConnection(Machine machine) {
+        ServerStateMachine ssm = (ServerStateMachine)machine;
+        return ssm.connection.get();
+    }
+
+    private Server getServer(Machine machine) {
+        return getConnection(machine).server;
+    }
+
+    private User getUser(Machine machine) {
+        return getServer(machine).currentUser;
     }
 
     abstract class ServerState extends State {
+
+        public final String name;
+
+        ServerState(String name) {
+            super();
+            this.name = name;
+        }
 
         @Override
         protected void onExit(Machine machine) {
@@ -70,10 +99,11 @@ class ServerStateMachine extends Machine {
     }
 
     private State getDefaultState() {
-        State state = new ServerState() {
+        State state = new ServerState(defaultState) {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
+                System.out.println("onEnter: default state");
             }
         };
 
@@ -81,11 +111,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(connectingState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
-                User user = server.currentUser;
-                if (user == null) {
-                    return false;
-                }
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status == StarStatus.Connecting || status == StarStatus.Connected;
             }
@@ -95,10 +121,11 @@ class ServerStateMachine extends Machine {
     }
 
     private State getConnectingState() {
-        State state = new ServerState() {
+        State state = new ServerState(connectingState) {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
+                System.out.println("onEnter: connecting state");
             }
         };
 
@@ -106,7 +133,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(connectedState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status == StarStatus.Connected;
             }
@@ -116,7 +143,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status == StarStatus.Error;
             }
@@ -126,10 +153,11 @@ class ServerStateMachine extends Machine {
     }
 
     private State getConnectedState() {
-        State state = new ServerState() {
+        State state = new ServerState(connectedState) {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
+                System.out.println("onEnter: connected state");
             }
         };
 
@@ -137,8 +165,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(handshakingState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
-                User user = server.currentUser;
+                User user = SocialNetworkDatabase.getInstance().getCurrentUser();
                 return user != null;
             }
         });
@@ -147,14 +174,13 @@ class ServerStateMachine extends Machine {
     }
 
     private State getHandshakingState() {
-        State state = new ServerState() {
+        State state = new ServerState(handshakingState) {
             @Override
             protected void onEnter(Machine machine) {
                 // start handshake
-                ServerStateMachine ssm = (ServerStateMachine) machine;
-                Server server = ssm.server;
-                String session = ssm.session;
-                server.handshake(session);
+                System.out.println("onEnter: handshaking state");
+                Connection connection = getConnection(machine);
+                connection.handshake(null);
             }
         };
 
@@ -162,10 +188,10 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(runningState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                // when current user changed, the server will clear this session, so
-                // if it's set again, it means handshake accepted
-                String session = ((ServerStateMachine) machine).session;
-                return session != null;
+                // when user logout/changed, the server's current user will be clear,
+                // after handshake accepted with new session key, this will be set again,
+                // so if it's not empty, it means handshake accepted
+                return getUser(machine) != null;
             }
         });
 
@@ -173,7 +199,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Connected;
             }
@@ -183,10 +209,11 @@ class ServerStateMachine extends Machine {
     }
 
     private State getRunningState() {
-        State state = new ServerState() {
+        State state = new ServerState(runningState) {
             @Override
             protected void onEnter(Machine machine) {
                 // TODO: send all packages waiting
+                System.out.println("onEnter: running state");
             }
         };
 
@@ -194,7 +221,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Connected;
             }
@@ -204,9 +231,8 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(defaultState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                String session = ((ServerStateMachine) machine).session;
                 // user switched?
-                return session == null;
+                return getUser(machine) == null;
             }
         });
 
@@ -214,10 +240,11 @@ class ServerStateMachine extends Machine {
     }
 
     private State getErrorState() {
-        State state = new ServerState() {
+        State state = new ServerState(errorState) {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
+                System.out.println("onEnter: error state");
             }
         };
 
@@ -225,7 +252,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(defaultState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                Server server = ((ServerStateMachine) machine).server;
+                Server server = getServer(machine);
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Error;
             }

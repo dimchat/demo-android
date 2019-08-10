@@ -25,7 +25,6 @@
  */
 package chat.dim.network;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,34 +35,31 @@ import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.Base64;
-import chat.dim.format.JSON;
 import chat.dim.fsm.Machine;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.protocol.CommandContent;
-import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
 import chat.dim.stargate.simplegate.Fence;
 
-public class Server extends Station implements TransceiverDelegate, StarDelegate {
+public class Server extends Station implements Runnable, TransceiverDelegate, StarDelegate {
 
-    public User currentUser;
+    User currentUser = null;
 
-    private Machine fsm;
-    private Star star;
+    ServerStateMachine fsm = new ServerStateMachine();
+    Star star;
 
     public Server(ID identifier) {
         super(identifier);
+        Messanger.getInstance().delegate = this;
     }
 
     public Server(ID identifier, String host, int port) {
         super(identifier, host, port);
+        Messanger.getInstance().delegate = this;
     }
 
     public Server(Map<String, Object> dictionary) {
@@ -79,86 +75,51 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         return star.getStatus();
     }
 
-    public void sendCommand(CommandContent cmd) {
-        sendCommand(cmd, null);
-    }
-
-    private void sendCommand(CommandContent cmd, Meta meta) {
-        InstantMessage iMsg = new InstantMessage(cmd, currentUser.identifier, identifier);
-        if (cmd.command.equals(CommandContent.HANDSHAKE)) {
-            HandshakeCommand handshake = (HandshakeCommand)cmd;
-            // first handshake?
-            if (handshake.state == HandshakeCommand.START) {
-                iMsg.put("meta", currentUser.getMeta());
-                //iMsg.put("profile", currentUser.getProfile());
-            }
-        }
-        Messanger messanger = Messanger.getInstance();
-        ReliableMessage rMsg = null;
-        try {
-            rMsg = messanger.encryptAndSignMessage(iMsg);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-        if (rMsg == null) {
-            throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
-        }
-        // send out directly
-        String json = JSON.encode(rMsg) + "\n";
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        star.send(data);
-    }
-
-    public void handshake(String session) {
-        // TODO: check FSM state == 'Handshaking'
-
-        if (star == null || star.getStatus() != StarStatus.Connected) {
-            // FIXME: sometimes the connection will be lost while handshaking
-        }
-        HandshakeCommand cmd = new HandshakeCommand(session);
-        if (cmd.state == HandshakeCommand.START) {
-            sendCommand(cmd, currentUser.getMeta());
-        } else {
-            sendCommand(cmd, null);
-        }
-    }
-
-    public void handshakeAccepted(String session, boolean success) {
-        // TODO: check FSM state == 'Handshaking'
-
-        if (success) {
-            //_fsm.session = session;
-        }
-    }
-
     public void start(Map<String, Object> options) {
-        //_fsm.start()
 
-        Messanger messanger = Messanger.getInstance();
-        messanger.delegate = this;
+        fsm.start();
 
         star = new Fence(this);
         //star = new Mars(this);
         star.launch(options);
+
+        Thread thread = new Thread(this);
+        thread.start();
     }
 
     public void end() {
         star.terminate();
-        //_fsm.stop();
+        fsm.stop();
     }
 
     public void pause() {
         star.enterBackground();
-        //_fsm.pause();
+        fsm.pause();
     }
 
     public void resume() {
         star.enterForeground();
-        //_fsm.resume();
+        fsm.resume();
     }
 
-    private void run() {
-        // TODO: fsm.tick()
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void run() {
+
+        ServerStateMachine.ServerState state;
+        String name = null;
+        while (!ServerStateMachine.stoppedState.equals(name)) {
+            sleep(500);
+            fsm.tick();
+            state = (ServerStateMachine.ServerState) fsm.getCurrentState();
+            name = state.name;
+        }
     }
 
     //---- TransceiverDelegate
@@ -224,7 +185,8 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
 
     @Override
     public void onConnectionStatusChanged(StarStatus status, Star star) {
-        //_fsm.tick()
+        System.out.println("status changed: " + status);
+        fsm.tick();
     }
 
     @Override

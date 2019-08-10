@@ -66,8 +66,8 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mTitleView = (TextView) view.findViewById(R.id.title);
-            mDescView = (TextView) view.findViewById(R.id.desc);
+            mTitleView = view.findViewById(R.id.title);
+            mDescView = view.findViewById(R.id.desc);
         }
 
         @Override

@@ -15,7 +15,7 @@ public class ConversationTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dkd/*"
 
-    private static String getPath(Address address) {
+    private static String getPath(ID user) {
         return root + "/dkd";
     }
 
@@ -26,7 +26,7 @@ public class ConversationTable extends ExternalStorage {
      */
     static void reloadData(ID user) {
         // scan 'message.js' in sub dirs of 'dkd'
-        String path = getPath(user.address);
+        String path = getPath(user);
         File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) {
             return;

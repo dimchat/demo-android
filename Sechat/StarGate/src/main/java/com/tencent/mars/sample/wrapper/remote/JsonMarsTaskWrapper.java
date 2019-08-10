@@ -6,6 +6,8 @@ import com.tencent.mars.sample.utils.print.MemoryDump;
 import com.tencent.mars.stn.StnLogic;
 import com.tencent.mars.xlog.Log;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * MarsTaskWrapper using json encoding
  * <p></p>
@@ -29,7 +31,7 @@ public abstract class JsonMarsTaskWrapper extends AbstractTaskWrapper {
     public byte[] req2buf() {
         try {
             onPreEncode(request);
-            final byte[] flatArray = request.toString().getBytes("utf-8");
+            final byte[] flatArray = request.toString().getBytes(StandardCharsets.UTF_8);
             Log.d(TAG, "encoded request to buffer, [%s]", MemoryDump.dumpHex(flatArray));
 
             return flatArray;
@@ -45,7 +47,7 @@ public abstract class JsonMarsTaskWrapper extends AbstractTaskWrapper {
     public int buf2resp(byte[] buf) {
         try {
             Log.d(TAG, "decode response buffer, [%s]", MemoryDump.dumpHex(buf));
-            response = new JsonParser().parse(new String(buf, "utf-8")).getAsJsonObject();
+            response = new JsonParser().parse(new String(buf, StandardCharsets.UTF_8)).getAsJsonObject();
             onPostDecode(response);
             return StnLogic.RESP_FAIL_HANDLE_NORMAL;
 

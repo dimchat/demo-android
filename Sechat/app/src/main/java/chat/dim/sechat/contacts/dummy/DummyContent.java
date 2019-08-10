@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
+import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
@@ -18,6 +19,9 @@ import chat.dim.sechat.Client;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class DummyContent {
+
+    static Facebook facebook = Facebook.getInstance();
+    static SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
 
     /**
      * An array of sample (dummy) items.
@@ -36,10 +40,7 @@ public class DummyContent {
     public static void reloadData() {
         ITEMS.clear();
 
-        Facebook facebook = Facebook.getInstance();
-        Client client = Client.getInstance();
-
-        User user = client.getCurrentUser();
+        User user = userDB.getCurrentUser();
         ID uid = user == null ? null : user.identifier;
         List<ID> contacts = facebook.getContacts(uid);
         for (ID identifier : contacts) {
