@@ -1,5 +1,6 @@
 package chat.dim.database;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,17 +9,14 @@ import chat.dim.client.Conversation;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
-public class ConversationTable extends Resource {
+public class ConversationTable extends ExternalStorage {
 
     private static List<ID> conversationList = new ArrayList<>();
 
-    // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
+    // "/sdcard/chat.dim.sechat/dkd/*"
 
-    private static String getMessageDirectory(Address address) {
-        return publicDirectory + "/dkd/" + address;
-    }
-    private static String getMessageDirectory(ID identifier) {
-        return getMessageDirectory(identifier.address);
+    private static String getPath(Address address) {
+        return root + "/dkd";
     }
 
     /**
@@ -27,10 +25,26 @@ public class ConversationTable extends Resource {
      * @param user - user ID
      */
     static void reloadData(ID user) {
-        // TODO: scan 'message.js' in sub dirs of 'dkd'
-        conversationList.add(ID.getInstance("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj"));
-        conversationList.add(ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk"));
-
+        // scan 'message.js' in sub dirs of 'dkd'
+        String path = getPath(user.address);
+        File dir = new File(path);
+        if (!dir.exists() || !dir.isDirectory()) {
+            return;
+        }
+        File[] items = dir.listFiles();
+        if (items == null || items.length == 0) {
+            return;
+        }
+        for (File file : items) {
+            if (!file.isDirectory()) {
+                continue;
+            }
+            if (!(new File(file.getPath(), "messages.js")).exists()) {
+                continue;
+            }
+            conversationList.add(ID.getInstance(file.getPath()));
+        }
+        // sort with last message's time
         sortConversations();
     }
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import chat.dim.mkm.entity.ID;
 
-public class GroupTable extends Resource {
+public class GroupTable extends ExternalStorage {
 
     public static ID getFounder(ID group) {
         // TODO: get founder of group

@@ -14,6 +14,7 @@ import chat.dim.network.Server;
 import chat.dim.network.ServiceProvider;
 import chat.dim.network.Terminal;
 import chat.dim.protocol.CommandContent;
+import chat.dim.protocol.command.HandshakeCommand;
 
 public class Client extends Terminal {
     private static final Client ourInstance = new Client();
@@ -23,6 +24,8 @@ public class Client extends Terminal {
         ID user = getLastUser();
         SocialNetworkDatabase.getInstance().reloadData(user);
     }
+
+    private final Facebook facebook = Facebook.getInstance();
 
     public String getDisplayName() {
         return "DIM!";
@@ -40,32 +43,27 @@ public class Client extends Terminal {
 
     private void startServer(Map<String, Object> station, ServiceProvider sp) {
 
-        ID identifier = ID.getInstance("gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
-        String ip = "134.175.87.98"; // from stationConfig["host"]
-        Number port = 9394; // from stationConfig["port"]
+        ID identifier = ID.getInstance(station.get("ID"));
+        String host = (String) station.get("host");
+        int port = (int) station.get("port");
 
         // prepare for launch star
-        Map<String, Object> serverOptions = new HashMap<>();
-        serverOptions.put("ID", identifier);
-        serverOptions.put("host", ip);
-        serverOptions.put("port", port);
-
-        if (ip != null) {
-            serverOptions.put("LongLinkAddress", "dim.chat");
+        if (host != null) {
+            station.put("LongLinkAddress", "dim.chat");
             List<String> list = new ArrayList<>();
-            list.add(ip);
+            list.add(host);
             Map<String, Object> ipTable = new HashMap<>();
             ipTable.put("dim.chat", list);
-            serverOptions.put("NewDNS", ipTable);
+            station.put("NewDNS", ipTable);
         }
-        if (port != null) {
-            serverOptions.put("LongLinkPort", port);
+        if (port != 0) {
+            station.put("LongLinkPort", port);
         }
 
         // TODO: config FTP server
 
         // connect server
-        Server server = new Server(serverOptions);
+        Server server = new Server(station);
         server.delegate = this;
         server.start(station);
         currentStation = server;
@@ -75,12 +73,20 @@ public class Client extends Terminal {
         if (last != null) {
             addUser(getUser(last));
         }
+
+        // FIXME: handshake after connected
+        server.handshake(null);
     }
 
+    @SuppressWarnings("unchecked")
     private void launchServiceProvider(Map<String, Object> spConfig) {
         ServiceProvider sp = null;
+
+        List stations = (List) spConfig.get("stations");
+        assert stations != null;
+
         // choose the fast station
-        Map<String, Object> stationConfig = null; // from spConfig["stations"]
+        Map<String, Object> stationConfig = (Map<String, Object>) stations.get(0);
 
         startServer(stationConfig, sp);
     }
@@ -88,6 +94,13 @@ public class Client extends Terminal {
     //-------- AppDelegate
 
     public void launch(Map<String, Object> options) {
+
+        // station IP
+        String host = "127.0.0.1";
+        //String host = "134.175.87.98";
+
+        // station Port
+        int port = 9394;
 
         // station ID
         ID identifier = ID.getInstance("gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
@@ -112,21 +125,36 @@ public class Client extends Terminal {
             e.printStackTrace();
         }
 
-        // APNs?
-        // Icon badge?
+        // station config
+        Map<String, Object> srvConfig = new HashMap<>();
+        srvConfig.put("ID", identifier);
+        srvConfig.put("meta", metaDict);
+        srvConfig.put("host", host);
+        srvConfig.put("port", port);
+
+        // station list
+        List<Map> stations = new ArrayList<>();
+        stations.add(srvConfig);
+
+        // SP config
+        String spConfigFilePath = (String) options.get("ConfigFilePath");
+        Map<String, Object> spConfig = new HashMap<>(); // from spConfig file
+        spConfig.put("stations", stations);
 
         //
         // launch server
         //
-
-        // config Service Provider
-        String spConfigFilePath = (String) options.get("ConfigFilePath");
-        Map<String, Object> spConfig = null; // from spConfig file
         launchServiceProvider(spConfig);
 
         // TODO: scan users
+        identifier = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
+        User user = facebook.getUser(identifier);
+        setCurrentUser(user);
 
         // TODO: notice("ProfileUpdated")
+
+        // APNs?
+        // Icon badge?
     }
 
     public void terminate() {
@@ -156,25 +184,5 @@ public class Client extends Terminal {
         cmd.put("title", "report");
         cmd.put("state", "foreground");
         sendCommand(cmd);
-    }
-
-    static {
-        // test
-        Facebook facebook = Facebook.getInstance();
-
-        Client client = Client.getInstance();
-
-        if (false) {
-            Map<String, Object> dictioanry = new HashMap<>();
-            dictioanry.put("ID", "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
-            dictioanry.put("host", "134.175.87.98");
-            dictioanry.put("port", 9527);
-
-            client.currentStation = new Server(dictioanry);
-
-            ID identifier = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-            User user = facebook.getUser(identifier);
-            client.setCurrentUser(user);
-        }
     }
 }

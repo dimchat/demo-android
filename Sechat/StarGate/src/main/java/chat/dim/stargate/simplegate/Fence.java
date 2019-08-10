@@ -135,8 +135,8 @@ public class Fence implements Star {
     @Override
     public boolean launch(Map<String, Object> options) {
 
-        String host = "127.0.0.1";
-        int port = 9394;
+        String host = (String) options.get("host");
+        int port = (int) options.get("port");
 
         Thread thread = new Thread(new SocketClient(host, port));
         thread.start();

@@ -1,6 +1,7 @@
 package chat.dim.database;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.mkm.entity.Profile;
@@ -95,15 +97,21 @@ public class Immortals implements UserDataSource {
         return profile;
     }
 
+    @SuppressWarnings("unchecked")
     private void loadBuiltInAccount(String filename) throws IOException, ClassNotFoundException {
-        String jsonString = Resource.readTextFile(filename);
-        Map<String, Object> dictionary = JSON.decode(jsonString);
-        System.out.println(filename + ":" + dictionary);
+        // load from resource directory
+        Resource file = new Resource();
+        if (file.load(filename) <= 0) {
+            throw new IOException("failed to load built-in account file: " + filename);
+        }
+        String jsonString = new String(file.getData(), Charset.forName("UTF-8"));
+        Map<String, Object> dict = (Map<String, Object>) JSON.decode(jsonString);
+        System.out.println(filename + ":" + dict);
         // ID
-        ID identifier = ID.getInstance(dictionary.get("ID"));
+        ID identifier = ID.getInstance(dict.get("ID"));
         assert identifier != null;
         // meta
-        Meta meta = Meta.getInstance(dictionary.get("meta"));
+        Meta meta = Meta.getInstance(dict.get("meta"));
         assert meta != null;
         if (meta.matches(identifier)) {
             metaMap.put(identifier.address, meta);
@@ -111,7 +119,7 @@ public class Immortals implements UserDataSource {
             throw new IllegalArgumentException("meta not match ID:" + identifier + ", " + meta);
         }
         // private key
-        PrivateKey privateKey = PrivateKeyImpl.getInstance(dictionary.get("privateKey"));
+        PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
         assert privateKey != null;
         if (meta.key.matches(privateKey)) {
             // TODO: store private key into keychain
@@ -120,7 +128,7 @@ public class Immortals implements UserDataSource {
             throw new IllegalArgumentException("private key not match meta public key:" + privateKey);
         }
         // profile
-        Map profile = (Map) dictionary.get("profile");
+        Map profile = (Map) dict.get("profile");
         if (profile != null) {
             profileMap.put(identifier.address, getProfile(profile, identifier, privateKey));
         }

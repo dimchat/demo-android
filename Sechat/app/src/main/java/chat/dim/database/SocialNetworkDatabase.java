@@ -50,7 +50,7 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     @Override
     public Profile getProfile(ID identifier) {
-        Profile profile = ProfileTable.loadProfile(identifier);
+        Profile profile = ProfileTable.getProfile(identifier);
         if (profile == null && identifier.getType().isPerson()) {
             profile = immortals.getProfile(identifier);
         }
@@ -61,7 +61,7 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = PrivateKeyTable.getPrivateKeyForSignature(user);
+        PrivateKey key = UserTable.getPrivateKeyForSignature(user);
         if (key == null && user.getType().isPerson()) {
             key = immortals.getPrivateKeyForSignature(user);
         }
@@ -70,7 +70,7 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        List<PrivateKey> keys = PrivateKeyTable.getPrivateKeysForDecryption(user);
+        List<PrivateKey> keys = UserTable.getPrivateKeysForDecryption(user);
         if (keys == null && user.getType().isPerson()) {
             keys = immortals.getPrivateKeysForDecryption(user);
         }
@@ -103,7 +103,7 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
 
     @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        return PrivateKeyTable.savePrivateKey(privateKey, identifier);
+        return UserTable.savePrivateKey(privateKey, identifier);
     }
 
     @Override

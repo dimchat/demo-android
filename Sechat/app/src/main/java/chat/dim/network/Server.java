@@ -42,6 +42,8 @@ import chat.dim.format.JSON;
 import chat.dim.fsm.Machine;
 import chat.dim.mkm.User;
 import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.entity.Meta;
+import chat.dim.protocol.CommandContent;
 import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.stargate.Star;
@@ -77,20 +79,20 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         return star.getStatus();
     }
 
-    public void handshake(String session) {
-        ID userID = currentUser == null ? null : currentUser.identifier;
-        if (userID == null || !userID.isValid()) {
-            throw new NullPointerException("current user error: " + currentUser);
-        }
-        // TODO: check FSM state == 'Handshaking'
+    public void sendCommand(CommandContent cmd) {
+        sendCommand(cmd, null);
+    }
 
-        if (star == null || star.getStatus() != StarStatus.Connected) {
-            // FIXME: sometimes the connection will be lost while handshaking
-            return;
+    private void sendCommand(CommandContent cmd, Meta meta) {
+        InstantMessage iMsg = new InstantMessage(cmd, currentUser.identifier, identifier);
+        if (cmd.command.equals(CommandContent.HANDSHAKE)) {
+            HandshakeCommand handshake = (HandshakeCommand)cmd;
+            // first handshake?
+            if (handshake.state == HandshakeCommand.START) {
+                iMsg.put("meta", currentUser.getMeta());
+                //iMsg.put("profile", currentUser.getProfile());
+            }
         }
-        ID serverID = identifier;
-        HandshakeCommand cmd = new HandshakeCommand(session);
-        InstantMessage iMsg = new InstantMessage(cmd, userID, serverID);
         Messanger messanger = Messanger.getInstance();
         ReliableMessage rMsg = null;
         try {
@@ -101,16 +103,24 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         if (rMsg == null) {
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }
-
-        // first handshake?
-        if (cmd.state == HandshakeCommand.START) {
-            rMsg.setMeta(currentUser.getMeta());
-        }
-
         // send out directly
-        String json = JSON.encode(rMsg);
+        String json = JSON.encode(rMsg) + "\n";
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
         star.send(data);
+    }
+
+    public void handshake(String session) {
+        // TODO: check FSM state == 'Handshaking'
+
+        if (star == null || star.getStatus() != StarStatus.Connected) {
+            // FIXME: sometimes the connection will be lost while handshaking
+        }
+        HandshakeCommand cmd = new HandshakeCommand(session);
+        if (cmd.state == HandshakeCommand.START) {
+            sendCommand(cmd, currentUser.getMeta());
+        } else {
+            sendCommand(cmd, null);
+        }
     }
 
     public void handshakeAccepted(String session, boolean success) {
@@ -130,23 +140,6 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         star = new Fence(this);
         //star = new Mars(this);
         star.launch(options);
-
-        // TODO: perform run() in background
-        String session = null;
-        HandshakeCommand handshake = new HandshakeCommand(session);
-        ID sender = ID.getInstance("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-        ID receiver = identifier;
-        InstantMessage iMsg = new InstantMessage(handshake, sender, receiver);
-        byte[] requestData = null;
-        try {
-            ReliableMessage rMsg = messanger.encryptAndSignMessage(iMsg);
-            String string = JSON.encode(rMsg);
-            string = string + "\n";
-            requestData = string.getBytes(Charset.forName("UTF-8"));
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-        star.send(requestData);
     }
 
     public void end() {

@@ -8,80 +8,72 @@ import java.util.Map;
 
 import chat.dim.client.Conversation;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.format.JSON;
 import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
-public class MessageTable extends Resource {
+public class MessageTable extends ExternalStorage {
 
     private static Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
 
-    private static String getMessageDirectory(Address address) {
-        return publicDirectory + "/dkd/" + address;
-    }
-    private static String getMessageDirectory(ID identifier) {
-        return getMessageDirectory(identifier.address);
+    private static String getFilePath(Address address) {
+        return root + "/dkd/" + address + "/messages.js";
     }
 
-    /**
-     *  Load messages for entity ID
-     *
-     * @param identifier - contact/group ID
-     * @return message list
-     */
-    @SuppressWarnings("unchecked")
-    static List<InstantMessage> loadMessages(ID identifier) {
-        String dir = getMessageDirectory(identifier);
+    private static List cacheMessages(Object array, ID identifier) {
+        if (!(array instanceof List)) {
+            return null;
+        }
+        List list = (List) array;
+        List<InstantMessage> messages = new ArrayList<>();
+        for (Object msg : list) {
+            messages.add(InstantMessage.getInstance(msg));
+        }
+        chatHistory.put(identifier, messages);
+        return messages;
+    }
+
+    private static List loadMessages(ID identifier) {
+        String path = getFilePath(identifier.address);
         try {
-            String json = readTextFile("messages.js", dir);
-            return (List<InstantMessage>) JSON.parser.decode(json);
+            Object array = readJSON(path);
+            return cacheMessages(array, identifier);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         }
     }
 
-    /**
-     *  Save messages for entity ID
-     *
-     * @param messages - message list
-     * @param identifier - contact/group ID
-     * @return true on success
-     */
-    static boolean saveMessages(List<InstantMessage> messages, ID identifier) {
-        String dir = getMessageDirectory(identifier.address);
+    private static boolean saveMessages(ID identifier) {
+        List<InstantMessage> messages = chatHistory.get(identifier);
+        if (messages == null) {
+            return false;
+        }
+        String path = getFilePath(identifier.address);
         try {
-            return writeJSONFile(messages, "messages.js", dir);
+            return writeJSON(messages, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     *  Remove all messages of entity
-     *
-     * @param identifier - entity ID
-     * @return true on success
-     */
-    static boolean removeMessages(ID identifier) {
-        String dir = getMessageDirectory(identifier);
-        return removeFile("messages.js", dir);
+    private static boolean removeMessages(ID identifier) {
+        String path = getFilePath(identifier.address);
+        try {
+            return delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    /**
-     *  Empty messages of entity
-     *
-     * @param identifier - entity ID
-     * @return true on success
-     */
-    static boolean clearMessages(ID identifier) {
+    private static boolean clearMessages(ID identifier) {
         List<InstantMessage> messages = new ArrayList<>();
-        String dir = getMessageDirectory(identifier);
+        String path = getFilePath(identifier.address);
         try {
-            return writeJSONFile(messages, "messages.js", dir);
+            return writeJSON(messages, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -91,31 +83,34 @@ public class MessageTable extends Resource {
     //-------- messages
 
     public static int numberOfMessages(Conversation chatBox) {
-        ID identifier = chatBox.identifier;
-        List<InstantMessage> msgList = chatHistory.get(identifier);
-        return msgList == null ? 0 : msgList.size();
+        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
+        if (msgList == null) {
+            return 0;
+        }
+        return msgList.size();
     }
 
     public static InstantMessage messageAtIndex(int index, Conversation chatBox) {
-        ID identifier = chatBox.identifier;
-        List<InstantMessage> msgList = chatHistory.get(identifier);
-        return msgList == null ? null : msgList.get(index);
+        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
+        assert msgList != null;
+        return msgList.get(index);
     }
 
     public static boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        ID identifier = chatBox.identifier;
-        List<InstantMessage> msgList = chatHistory.get(identifier);
+        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
         if (msgList == null) {
             msgList = new ArrayList<>();
-            chatHistory.put(identifier, msgList);
+            chatHistory.put(chatBox.identifier, msgList);
         }
-        return msgList.add(iMsg);
+        msgList.add(iMsg);
+        return saveMessages(chatBox.identifier);
     }
 
     public static boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
-        ID identifier = chatBox.identifier;
-        List<InstantMessage> msgList = chatHistory.get(identifier);
-        return msgList != null && msgList.remove(iMsg);
+        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
+        assert msgList != null;
+        msgList.remove(iMsg);
+        return saveMessages(chatBox.identifier);
     }
 
     public static boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
@@ -126,5 +121,13 @@ public class MessageTable extends Resource {
     public static boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
         // TODO: save receipt of instant message
         return false;
+    }
+
+    public static boolean removeMessages(Conversation chatBox) {
+        return removeMessages(chatBox.identifier);
+    }
+
+    public static boolean clearMessages(Conversation chatBox) {
+        return clearMessages(chatBox.identifier);
     }
 }
