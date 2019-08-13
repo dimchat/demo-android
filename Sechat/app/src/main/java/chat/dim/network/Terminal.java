@@ -33,14 +33,13 @@ import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messanger;
-import chat.dim.database.ConversationDatabase;
 import chat.dim.database.GroupTable;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.JSON;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.Profile;
@@ -70,7 +69,7 @@ public class Terminal implements StationDelegate {
             // not connect yet
             return false;
         }
-        User user = SocialNetworkDatabase.getInstance().getCurrentUser();
+        LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
         if (user == null) {
             // user not found
             return false;
@@ -176,13 +175,13 @@ public class Terminal implements StationDelegate {
         // 3. check receiver
         ID receiver = facebook.getID(rMsg.envelope.receiver);
         List<ID> users = SocialNetworkDatabase.getInstance().allUsers();
-        User user = null;
+        LocalUser user = null;
         if (receiver.getType().isGroup()) {
             // group message, check group membership
             for (ID item : users) {
                 if (GroupTable.existsMember(item, receiver)) {
                     // got group message for this user
-                    user = facebook.getUser(item);
+                    user = (LocalUser) facebook.getUser(item);
                     break;
                 }
             }
@@ -194,7 +193,7 @@ public class Terminal implements StationDelegate {
             for (ID item : users) {
                 if (item.equals(receiver)) {
                     // got personal message for this user
-                    user = facebook.getUser(item);
+                    user = (LocalUser) facebook.getUser(item);
                     break;
                 }
             }

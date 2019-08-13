@@ -43,7 +43,7 @@ public class Amanuensis {
         Facebook facebook = Facebook.getInstance();
         Entity entity = null;
         if (identifier.getType().isCommunicator()) {
-            entity = facebook.getAccount(identifier);
+            entity = facebook.getUser(identifier);
         } else if (identifier.getType().isGroup()) {
             entity = facebook.getGroup(identifier);
         }

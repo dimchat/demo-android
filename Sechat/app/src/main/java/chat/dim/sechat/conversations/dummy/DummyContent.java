@@ -8,8 +8,8 @@ import java.util.Map;
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
-import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.entity.Profile;
 
 /**
  * Helper class for providing sample content for user interfaces created by

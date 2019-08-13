@@ -11,7 +11,7 @@ import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.JSON;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.Profile;
@@ -39,7 +39,7 @@ public class Connection {
      * @return InstantMessage been sent
      */
     public InstantMessage sendContent(Content content, ID receiver) {
-        User user = server.currentUser;
+        LocalUser user = server.currentUser;
         if (user == null) {
             // TODO: save the message content in waiting queue
             return null;
@@ -102,7 +102,7 @@ public class Connection {
         if (server.star == null || server.star.getStatus() != StarStatus.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
         }
-        User user = SocialNetworkDatabase.getInstance().getCurrentUser();
+        LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
         if (newSession != null) {
             session = newSession;
         }
@@ -132,7 +132,7 @@ public class Connection {
         // TODO: check FSM state == 'Handshaking'
 
         if (success) {
-            User user = SocialNetworkDatabase.getInstance().getCurrentUser();
+            LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
             server.currentUser = user;
             // broadcast profile to DIM network
             postProfile(user.getProfile());

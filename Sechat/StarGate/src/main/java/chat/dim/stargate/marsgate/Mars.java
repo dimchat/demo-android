@@ -12,14 +12,11 @@ import java.util.Map;
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
-
 import chat.dim.stargate.mars.bussiness.CGITask;
 import chat.dim.stargate.mars.bussiness.ChannelType;
 import chat.dim.stargate.mars.bussiness.NetworkEvent;
 import chat.dim.stargate.mars.bussiness.NetworkService;
-import chat.dim.stargate.mars.bussiness.NetworkStatus;
 
-import static chat.dim.stargate.mars.bussiness.NetworkEvent.PUSH_MSG;
 import static chat.dim.stargate.mars.bussiness.NetworkEvent.SEND_MSG;
 
 public class Mars implements Star {

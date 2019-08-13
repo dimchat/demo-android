@@ -3,16 +3,16 @@ package chat.dim.database;
 import java.util.List;
 
 import chat.dim.client.Facebook;
-import chat.dim.client.FacebookDelegate;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.GroupDataSource;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.UserDataSource;
+import chat.dim.core.EntityDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.Profile;
 
-public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, FacebookDelegate {
+public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, GroupDataSource {
     private static final SocialNetworkDatabase ourInstance = new SocialNetworkDatabase();
     public static SocialNetworkDatabase getInstance() { return ourInstance; }
     private SocialNetworkDatabase() {
@@ -21,7 +21,6 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
         facebook.entityDataSource = this;
         facebook.userDataSource = this;
         facebook.groupDataSource = this;
-        facebook.delegate = this;
     }
 
     private static Immortals immortals = Immortals.getInstance();
@@ -38,12 +37,12 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
         ConversationDatabase.getInstance().reloadData(user);
     }
 
-    public User getCurrentUser() {
+    public LocalUser getCurrentUser() {
         Facebook facebook = Facebook.getInstance();
-        return facebook.getUser(UserTable.getCurrentUser());
+        return (LocalUser) facebook.getUser(UserTable.getCurrentUser());
     }
 
-    public void setCurrentUser(User user) {
+    public void setCurrentUser(LocalUser user) {
         UserTable.setCurrentUser(user.identifier);
     }
 
@@ -70,8 +69,18 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
     //---- EntityDataSource
 
     @Override
+    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
+        return UserTable.savePrivateKey(privateKey, identifier);
+    }
+
+    @Override
     public boolean saveMeta(Meta meta, ID identifier) {
         return MetaTable.saveMeta(meta, identifier);
+    }
+
+    @Override
+    public boolean saveProfile(Profile profile) {
+        return ProfileTable.saveProfile(profile);
     }
 
     @Override
@@ -132,17 +141,5 @@ public class SocialNetworkDatabase implements UserDataSource, GroupDataSource, F
     @Override
     public List<ID> getMembers(ID group) {
         return GroupTable.getMembers(group);
-    }
-
-    //-------- FacebookDelegate
-
-    @Override
-    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        return UserTable.savePrivateKey(privateKey, identifier);
-    }
-
-    @Override
-    public boolean saveProfile(Profile profile) {
-        return ProfileTable.saveProfile(profile);
     }
 }

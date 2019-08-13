@@ -25,13 +25,15 @@
  */
 package chat.dim.client;
 
+import java.util.List;
+
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
-import chat.dim.mkm.Account;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
 import chat.dim.mkm.entity.NetworkType;
@@ -45,23 +47,17 @@ public class Facebook extends Barrack {
         super();
     }
 
-    public FacebookDelegate delegate = null;
-
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        if (delegate == null) {
-            throw new NullPointerException("Facebook delegate not set yet");
-        }
-        return delegate.savePrivateKey(privateKey, identifier);
+        // TODO: save private key into local storage
+        return false;
     }
 
     public boolean saveProfile(Profile profile) {
         if (!verifyProfile(profile)) {
             throw new IllegalArgumentException("profile error: " + profile);
         }
-        if (delegate == null) {
-            throw new NullPointerException("Facebook delegate not set yet");
-        }
-        return delegate.saveProfile(profile);
+        // TODO: save profile into local storage
+        return false;
     }
 
     private boolean verifyProfile(Profile profile) {
@@ -90,29 +86,6 @@ public class Facebook extends Barrack {
     //-------- SocialNetworkDataSource
 
     @Override
-    public Account getAccount(ID identifier) {
-        Account account = super.getAccount(identifier);
-        if (account != null) {
-            return account;
-        }
-        // check meta
-        Meta meta = getMeta(identifier);
-        if (meta == null) {
-            throw new NullPointerException("meta not found: " + identifier);
-        }
-        // create it with type
-        NetworkType type = identifier.getType();
-        if (type.isStation()) {
-            account = new Station(identifier);
-        } else if (type.isPerson()) {
-            account = new Account(identifier);
-        }
-        assert account != null;
-        cacheAccount(account);
-        return account;
-    }
-
-    @Override
     public User getUser(ID identifier) {
         if (!identifier.getType().isPerson()) {
             return null;
@@ -123,12 +96,23 @@ public class Facebook extends Barrack {
         }
         // check meta and private key
         Meta meta = getMeta(identifier);
-        PrivateKey key = getPrivateKeyForSignature(identifier);
-        if (meta == null || key == null) {
+        if (meta == null) {
             throw new NullPointerException("meta/private key not found: " + identifier);
         }
-        // create it
-        user = new User(identifier);
+        NetworkType type = identifier.getType();
+        if (type.isPerson()) {
+            PrivateKey key = getPrivateKeyForSignature(identifier);
+            if (key == null) {
+                user = new User(identifier);
+            } else {
+                user = new LocalUser(identifier);
+            }
+        } else if (type.isStation()) {
+            // FIXME: prevent station to be erased from memory cache
+            user = new Station(identifier);
+        } else {
+            throw new UnsupportedOperationException("unsupported user type: " + type);
+        }
         cacheUser(user);
         return user;
     }
@@ -154,5 +138,34 @@ public class Facebook extends Barrack {
         assert group != null;
         cacheGroup(group);
         return group;
+    }
+
+    //-------- GroupDataSource
+
+    @Override
+    public ID getFounder(ID group) {
+        ID founder = super.getFounder(group);
+        if (founder != null) {
+            return founder;
+        }
+        // check each member's public key with group meta
+        Meta gMeta = getMeta(group);
+        List<ID> members = groupDataSource.getMembers(group);
+        if (gMeta == null || members == null) {
+            //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
+            return null;
+        }
+        for (ID member : members) {
+            Meta meta = getMeta(member);
+            if (meta == null) {
+                // TODO: query meta for this member from DIM network
+                continue;
+            }
+            if (gMeta.matches(meta.key)) {
+                // if public key matched, means the group is created by this member
+                return member;
+            }
+        }
+        return null;
     }
 }

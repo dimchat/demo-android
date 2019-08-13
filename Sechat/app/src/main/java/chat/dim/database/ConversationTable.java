@@ -6,7 +6,6 @@ import java.util.List;
 
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
-import chat.dim.mkm.entity.Address;
 import chat.dim.mkm.entity.ID;
 
 public class ConversationTable extends ExternalStorage {

@@ -12,12 +12,11 @@ import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
-import chat.dim.format.DataParser;
 import chat.dim.format.JSON;
-import chat.dim.mkm.entity.Profile;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.entity.ID;
 import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.entity.Profile;
 
 public class Immortals implements UserDataSource {
     private static final Immortals ourInstance = new Immortals();
@@ -112,12 +111,6 @@ public class Immortals implements UserDataSource {
     //---- EntityDataSource
 
     @Override
-    public boolean saveMeta(Meta meta, ID identifier) {
-        // NOTICE: no need to save immortals meta
-        return true;
-    }
-
-    @Override
     public Meta getMeta(ID identifier) {
         return metaMap.get(identifier);
     }
@@ -162,19 +155,6 @@ public class Immortals implements UserDataSource {
         };
 
         // FIXME: test
-
-        // mkm.JSON
-        JSON.parser = new DataParser() {
-            @Override
-            public String encode(Object container) {
-                return com.alibaba.fastjson.JSON.toJSONString(container);
-            }
-
-            @Override
-            public Object decode(String jsonString) {
-                return com.alibaba.fastjson.JSON.parse(jsonString);
-            }
-        };
 
         // load data
         Immortals immortals = Immortals.getInstance();

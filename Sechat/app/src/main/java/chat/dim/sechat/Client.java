@@ -8,7 +8,7 @@ import java.util.Map;
 import chat.dim.client.Facebook;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.database.StationTable;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.network.Connection;
 import chat.dim.network.Server;
@@ -30,9 +30,9 @@ public class Client extends Terminal {
         return "DIM!";
     }
 
-    private User getUser(Object identifier) {
+    private LocalUser getUser(Object identifier) {
         Facebook facebook = Facebook.getInstance();
-        return facebook.getUser(facebook.getID(identifier));
+        return (LocalUser) facebook.getUser(facebook.getID(identifier));
     }
 
     private void startServer(Map<String, Object> station, ServiceProvider sp) {
@@ -75,7 +75,7 @@ public class Client extends Terminal {
         }
 
         // choose the fast station
-        Map<String, Object> neighbor = (Map<String, Object>) stations.get(0);
+        Map<String, Object> neighbor = new HashMap<>(stations.get(0));
 
         startServer(neighbor, sp);
     }

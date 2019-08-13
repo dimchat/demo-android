@@ -14,8 +14,6 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.dummy.DummyContent;
 import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;
 
-import java.util.List;
-
 /**
  * A fragment representing a list of Items.
  * <p/>

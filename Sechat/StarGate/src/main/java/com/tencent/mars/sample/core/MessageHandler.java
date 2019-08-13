@@ -14,15 +14,13 @@
 
 package com.tencent.mars.sample.core;
 
-import android.content.Intent;
-
-//import com.google.protobuf.MessageLite;
-//import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.tencent.mars.sample.SampleApplicaton;
-//import com.tencent.mars.sample.chat.proto.Messagepush;
 import com.tencent.mars.sample.utils.Constants;
 import com.tencent.mars.sample.wrapper.remote.PushMessage;
 import com.tencent.mars.xlog.Log;
+
+//import com.google.protobuf.MessageLite;
+//import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+//import com.tencent.mars.sample.chat.proto.Messagepush;
 
 /**
  * Created by caoshaokun on 16/12/20.

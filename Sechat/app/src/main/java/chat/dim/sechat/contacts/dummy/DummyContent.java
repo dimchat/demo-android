@@ -7,10 +7,9 @@ import java.util.Map;
 
 import chat.dim.client.Facebook;
 import chat.dim.database.SocialNetworkDatabase;
-import chat.dim.mkm.Account;
 import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
-import chat.dim.sechat.Client;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -40,7 +39,7 @@ public class DummyContent {
     public static void reloadData() {
         ITEMS.clear();
 
-        User user = userDB.getCurrentUser();
+        LocalUser user = userDB.getCurrentUser();
         ID uid = user == null ? null : user.identifier;
         List<ID> contacts = facebook.getContacts(uid);
         for (ID identifier : contacts) {
@@ -67,10 +66,10 @@ public class DummyContent {
      */
     public static class DummyItem {
 
-        private final Account account;
+        private final User account;
 
         public DummyItem(Object id) {
-            account = Facebook.getInstance().getAccount(ID.getInstance(id));
+            account = Facebook.getInstance().getUser(ID.getInstance(id));
         }
 
         public ID getIdentifier() {

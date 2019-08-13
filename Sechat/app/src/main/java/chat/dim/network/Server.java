@@ -36,8 +36,7 @@ import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.format.Base64;
-import chat.dim.fsm.Machine;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.entity.ID;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.stargate.Star;
@@ -47,7 +46,7 @@ import chat.dim.stargate.simplegate.Fence;
 
 public class Server extends Station implements Runnable, TransceiverDelegate, StarDelegate {
 
-    User currentUser = null;
+    LocalUser currentUser = null;
 
     ServerStateMachine fsm = new ServerStateMachine();
     Star star;

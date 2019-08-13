@@ -31,7 +31,7 @@ import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
-import chat.dim.mkm.User;
+import chat.dim.mkm.LocalUser;
 import chat.dim.stargate.StarStatus;
 
 class ServerStateMachine extends Machine {
@@ -72,7 +72,7 @@ class ServerStateMachine extends Machine {
         return getConnection(machine).server;
     }
 
-    private User getUser(Machine machine) {
+    private LocalUser getUser(Machine machine) {
         return getServer(machine).currentUser;
     }
 
@@ -165,7 +165,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(handshakingState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                User user = SocialNetworkDatabase.getInstance().getCurrentUser();
+                LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
                 return user != null;
             }
         });
