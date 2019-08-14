@@ -26,7 +26,7 @@
 package chat.dim.client;
 
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public interface ConversationDataSource {
 

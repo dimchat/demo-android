@@ -8,8 +8,8 @@ import java.util.Map;
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Profile;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Profile;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -81,7 +81,7 @@ public class DummyContent {
             String nickname = profile == null ? null : profile.getName();
             String username = identifier.name;
             if (nickname != null) {
-                if (username != null && identifier.getType().isCommunicator()) {
+                if (username != null && identifier.getType().isUser()) {
                     return nickname + " (" + username + ")";
                 }
                 return nickname;

@@ -2,7 +2,7 @@ package chat.dim.database;
 
 import java.util.List;
 
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class GroupTable extends ExternalStorage {
 

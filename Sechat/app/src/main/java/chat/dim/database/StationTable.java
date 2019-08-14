@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
 
 public class StationTable extends ExternalStorage {
 
@@ -132,8 +132,8 @@ public class StationTable extends ExternalStorage {
         metaDict.put("fingerprint", "R+Bv3RlVi8pNuVWDJ8uEp+N3l+B04ftlaNFxo7u8+V6eSQsQJNv7tfQNFdC633UpXDw3zZHvQNnkUBwthaCJTbEmy2CYqMSx/BLuaS7spkSZJJAT7++xqif+pRjdw9yM/aPufKHS4PAvGec21PsUpQzOV5TQFyF5CDEDVLC8HVY=");
         try {
             Meta meta = Meta.getInstance(metaDict);
-            Facebook facebook = Facebook.getInstance();
-            facebook.saveMeta(meta, stationID);
+            SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
+            userDB.saveMeta(meta, stationID);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

@@ -9,7 +9,7 @@ import chat.dim.client.Facebook;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.User;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 /**
  * Helper class for providing sample content for user interfaces created by

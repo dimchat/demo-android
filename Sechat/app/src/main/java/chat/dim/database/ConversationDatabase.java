@@ -4,7 +4,7 @@ import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.ConversationDataSource;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class ConversationDatabase implements ConversationDataSource {
     private static final ConversationDatabase ourInstance = new ConversationDatabase();

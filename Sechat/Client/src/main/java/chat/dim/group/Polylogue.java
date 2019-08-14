@@ -26,7 +26,7 @@
 package chat.dim.group;
 
 import chat.dim.mkm.Group;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class Polylogue extends Group {
 

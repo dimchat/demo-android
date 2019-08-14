@@ -9,8 +9,8 @@ import java.util.Map;
 import chat.dim.client.Facebook;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
-import chat.dim.mkm.entity.Address;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.Address;
+import chat.dim.mkm.ID;
 
 public class UserTable extends ExternalStorage {
 

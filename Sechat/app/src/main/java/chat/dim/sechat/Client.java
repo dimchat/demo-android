@@ -9,12 +9,12 @@ import chat.dim.client.Facebook;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.database.StationTable;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 import chat.dim.network.Connection;
 import chat.dim.network.Server;
 import chat.dim.network.ServiceProvider;
 import chat.dim.network.Terminal;
-import chat.dim.protocol.CommandContent;
+import chat.dim.protocol.Command;
 
 public class Client extends Terminal {
     private static final Client ourInstance = new Client();
@@ -110,7 +110,7 @@ public class Client extends Terminal {
     public void enterBackground() {
         if (connection != null) {
             // report client state
-            CommandContent cmd = new CommandContent("broadcast");
+            Command cmd = new Command("broadcast");
             cmd.put("title", "report");
             cmd.put("state", "background");
             connection.sendCommand(cmd);
@@ -127,7 +127,7 @@ public class Client extends Terminal {
             // clear icon badge
 
             // report client state
-            CommandContent cmd = new CommandContent("broadcast");
+            Command cmd = new Command("broadcast");
             cmd.put("title", "report");
             cmd.put("state", "foreground");
             connection.sendCommand(cmd);

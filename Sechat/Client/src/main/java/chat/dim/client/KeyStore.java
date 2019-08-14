@@ -29,7 +29,7 @@ import java.util.Map;
 
 import chat.dim.core.KeyCache;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class KeyStore extends KeyCache {
     private static final KeyStore ourInstance = new KeyStore();

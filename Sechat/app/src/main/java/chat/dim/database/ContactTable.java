@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.client.Facebook;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class ContactTable extends ExternalStorage {
 

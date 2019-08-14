@@ -40,10 +40,10 @@ import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.JSON;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
-import chat.dim.protocol.CommandContent;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.command.MetaCommand;
@@ -112,8 +112,8 @@ public class Terminal implements StationDelegate {
             throw new IllegalArgumentException("meta error: " + meta);
         }
         // got new meta
-        Facebook facebook = Facebook.getInstance();
-        facebook.saveMeta(meta, identifier);
+        SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
+        userDB.saveMeta(meta, identifier);
     }
 
     public void processProfileCommand(ProfileCommand cmd) {
@@ -133,12 +133,12 @@ public class Terminal implements StationDelegate {
         // TODO: postNotification("ProfileUpdated")
     }
 
-    public void processOnlineUsersCommand(CommandContent cmd) {
+    public void processOnlineUsersCommand(Command cmd) {
         List users = (List) cmd.get("users");
         // TODO: postNotification("OnlineUsersUpdated");
     }
 
-    public void processSearchUsersCommand(CommandContent cmd) {
+    public void processSearchUsersCommand(Command cmd) {
         List users = (List) cmd.get("users");
         Map results = (Map) cmd.get("results");
         // TODO: postNotification("SearchUsersUpdated")
@@ -225,17 +225,17 @@ public class Terminal implements StationDelegate {
             }
             // NOTE: let the message processor to do the job
             //return;
-        } else if (content instanceof CommandContent) {
-            CommandContent cmd = (CommandContent) content;
-            if (cmd.command.equalsIgnoreCase(CommandContent.HANDSHAKE)) {
+        } else if (content instanceof Command) {
+            Command cmd = (Command) content;
+            if (cmd.command.equalsIgnoreCase(Command.HANDSHAKE)) {
                 // handshake
                 processHandshakeCommand((HandshakeCommand) cmd);
                 return;
-            } else if (cmd.command.equalsIgnoreCase(CommandContent.META)) {
+            } else if (cmd.command.equalsIgnoreCase(Command.META)) {
                 // query meta response
                 processMetaCommand((MetaCommand) cmd);
                 return;
-            } else if (cmd.command.equalsIgnoreCase(CommandContent.PROFILE)) {
+            } else if (cmd.command.equalsIgnoreCase(Command.PROFILE)) {
                 // query profile response
                 processProfileCommand((ProfileCommand) cmd);
                 return;
@@ -247,7 +247,7 @@ public class Terminal implements StationDelegate {
                 // search users response
                 processSearchUsersCommand(cmd);
                 return;
-            } else if (cmd.command.equalsIgnoreCase(CommandContent.RECEIPT)) {
+            } else if (cmd.command.equalsIgnoreCase(Command.RECEIPT)) {
                 // receipt
                 Amanuensis clerk = Amanuensis.getInstance();
                 Conversation chatBox = clerk.getConversation(iMsg);

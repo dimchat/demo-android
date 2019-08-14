@@ -52,6 +52,7 @@ public class ExternalStorage {
         Storage file = new Storage();
         file.setData(data);
         int len = file.save(filename);
+        System.out.println("wrote " + len + " byte(s) into " + filename);
         return len == data.length;
     }
 

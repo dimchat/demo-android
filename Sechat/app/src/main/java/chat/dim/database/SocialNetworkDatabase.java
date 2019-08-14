@@ -4,13 +4,13 @@ import java.util.List;
 
 import chat.dim.client.Facebook;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.mkm.EntityDataSource;
 import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.UserDataSource;
-import chat.dim.core.EntityDataSource;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
 
 public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, GroupDataSource {
     private static final SocialNetworkDatabase ourInstance = new SocialNetworkDatabase();
@@ -66,22 +66,19 @@ public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, 
         return ContactTable.removeContact(contact, user);
     }
 
-    //---- EntityDataSource
-
-    @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
         return UserTable.savePrivateKey(privateKey, identifier);
     }
 
-    @Override
     public boolean saveMeta(Meta meta, ID identifier) {
         return MetaTable.saveMeta(meta, identifier);
     }
 
-    @Override
     public boolean saveProfile(Profile profile) {
         return ProfileTable.saveProfile(profile);
     }
+
+    //---- EntityDataSource
 
     @Override
     public Meta getMeta(ID identifier) {

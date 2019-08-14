@@ -28,7 +28,7 @@ package chat.dim.group;
 import java.util.List;
 
 import chat.dim.mkm.GroupDataSource;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public interface ChatroomDataSource extends GroupDataSource {
 

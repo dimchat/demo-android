@@ -12,10 +12,10 @@ import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.JSON;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
-import chat.dim.protocol.CommandContent;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.command.MetaCommand;
 import chat.dim.protocol.command.ProfileCommand;
@@ -85,7 +85,7 @@ public class Connection {
      * @param cmd - command should be sent to station
      * @return InstantMessage been sent
      */
-    public InstantMessage sendCommand(CommandContent cmd) {
+    public InstantMessage sendCommand(Command cmd) {
         if (server == null) {
             // TODO: save the command in wating queue
             return null;
@@ -162,11 +162,11 @@ public class Connection {
     }
 
     public InstantMessage queryOnlineUsers() {
-        return sendCommand(new CommandContent("users"));
+        return sendCommand(new Command("users"));
     }
 
     public InstantMessage searchUsers(String keywords) {
-        CommandContent cmd = new CommandContent("search");
+        Command cmd = new Command("search");
         cmd.put("keywords", keywords);
         return sendCommand(cmd);
     }

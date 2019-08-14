@@ -29,9 +29,9 @@ import java.util.List;
 
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.Group;
-import chat.dim.mkm.entity.Entity;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.NetworkType;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.NetworkType;
 
 public class Conversation {
     public static int PersonalChat = NetworkType.Main.value;

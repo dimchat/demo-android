@@ -25,19 +25,25 @@
  */
 package chat.dim.client;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
+import chat.dim.mkm.Address;
+import chat.dim.mkm.EntityDataSource;
+import chat.dim.mkm.GroupDataSource;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.NetworkType;
+import chat.dim.mkm.Profile;
 import chat.dim.mkm.User;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.NetworkType;
-import chat.dim.mkm.entity.Profile;
+import chat.dim.mkm.UserDataSource;
 import chat.dim.network.Station;
 
 public class Facebook extends Barrack {
@@ -47,31 +53,42 @@ public class Facebook extends Barrack {
         super();
     }
 
-    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        // TODO: save private key into local storage
-        return false;
+    // memory caches
+    private Map<ID, Profile>    profileMap = new HashMap<>();
+
+    // delegates
+    public EntityDataSource entityDataSource = null;
+    public UserDataSource userDataSource   = null;
+    public GroupDataSource groupDataSource  = null;
+
+    public int reduceMemory() {
+        int finger = 0;
+        finger = thanos(profileMap, finger);
+        return finger + super.reduceMemory();
     }
 
-    public boolean saveProfile(Profile profile) {
+    //---- Profile
+
+    protected boolean cacheProfile(Profile profile) {
         if (!verifyProfile(profile)) {
-            throw new IllegalArgumentException("profile error: " + profile);
+            return false;
         }
-        // TODO: save profile into local storage
-        return false;
+        profileMap.put(profile.identifier, profile);
+        return true;
     }
 
     private boolean verifyProfile(Profile profile) {
         if (profile == null) {
             return false;
         } else if (profile.isValid()) {
-            // already verified
             return true;
         }
         ID identifier = profile.identifier;
+        assert identifier.isValid();
         NetworkType type = identifier.getType();
         Meta meta = null;
-        if (type.isCommunicator()) {
-            // verify with account's meta.key
+        if (type.isUser()) {
+            // verify with user's meta.key
             meta = getMeta(identifier);
         } else if (type.isGroup()) {
             // verify with group owner's meta.key
@@ -87,9 +104,6 @@ public class Facebook extends Barrack {
 
     @Override
     public User getUser(ID identifier) {
-        if (!identifier.getType().isPerson()) {
-            return null;
-        }
         User user = super.getUser(identifier);
         if (user != null) {
             return user;
@@ -97,7 +111,7 @@ public class Facebook extends Barrack {
         // check meta and private key
         Meta meta = getMeta(identifier);
         if (meta == null) {
-            throw new NullPointerException("meta/private key not found: " + identifier);
+            throw new NullPointerException("meta not found: " + identifier);
         }
         NetworkType type = identifier.getType();
         if (type.isPerson()) {
@@ -140,11 +154,53 @@ public class Facebook extends Barrack {
         return group;
     }
 
+    //-------- EntityDataSource
+
+    @Override
+    public Meta getMeta(ID entity) {
+        Meta meta = super.getMeta(entity);
+        if (meta != null) {
+            return meta;
+        }
+        meta = entityDataSource.getMeta(entity);
+        if (meta != null && cacheMeta(meta, entity)) {
+            return meta;
+        }
+        return null;
+    }
+
+    @Override
+    public Profile getProfile(ID entity) {
+        Profile tai = entityDataSource.getProfile(entity);
+        if (tai != null && cacheProfile(tai)) {
+            return tai;
+        }
+        // profile error? let the subclass to process it
+        return tai;
+    }
+
+    //-------- UserDataSource
+
+    @Override
+    public PrivateKey getPrivateKeyForSignature(ID user) {
+        return userDataSource.getPrivateKeyForSignature(user);
+    }
+
+    @Override
+    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+        return userDataSource.getPrivateKeysForDecryption(user);
+    }
+
+    @Override
+    public List<ID> getContacts(ID user) {
+        return userDataSource.getContacts(user);
+    }
+
     //-------- GroupDataSource
 
     @Override
     public ID getFounder(ID group) {
-        ID founder = super.getFounder(group);
+        ID founder = groupDataSource.getFounder(group);
         if (founder != null) {
             return founder;
         }
@@ -167,5 +223,15 @@ public class Facebook extends Barrack {
             }
         }
         return null;
+    }
+
+    @Override
+    public ID getOwner(ID group) {
+        return groupDataSource.getOwner(group);
+    }
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        return groupDataSource.getMembers(group);
     }
 }

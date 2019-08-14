@@ -8,7 +8,7 @@ import java.util.Map;
 
 import chat.dim.client.Conversation;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.ID;
 
 public class MessageTable extends ExternalStorage {
 

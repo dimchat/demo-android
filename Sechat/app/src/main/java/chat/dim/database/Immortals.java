@@ -14,9 +14,9 @@ import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.format.JSON;
 import chat.dim.mkm.UserDataSource;
-import chat.dim.mkm.entity.ID;
-import chat.dim.mkm.entity.Meta;
-import chat.dim.mkm.entity.Profile;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
 
 public class Immortals implements UserDataSource {
     private static final Immortals ourInstance = new Immortals();

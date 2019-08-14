@@ -26,8 +26,8 @@
 package chat.dim.client;
 
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.entity.Entity;
-import chat.dim.mkm.entity.ID;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.ID;
 
 public class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
@@ -42,7 +42,7 @@ public class Amanuensis {
         // create directly if we can find the entity
         Facebook facebook = Facebook.getInstance();
         Entity entity = null;
-        if (identifier.getType().isCommunicator()) {
+        if (identifier.getType().isUser()) {
             entity = facebook.getUser(identifier);
         } else if (identifier.getType().isGroup()) {
             entity = facebook.getGroup(identifier);
@@ -50,7 +50,9 @@ public class Amanuensis {
         if (entity == null) {
             throw new NullPointerException("failed to create conversation:" + identifier);
         }
-        return new Conversation(entity);
+        Conversation chatBox = new Conversation(entity);
+        chatBox.dataSource = conversationDataSource;
+        return chatBox;
     }
 
     public Conversation getConversation(InstantMessage iMsg) {
