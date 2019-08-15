@@ -34,6 +34,9 @@ public class MetaTable extends ExternalStorage {
 //    }
 
     public static boolean saveMeta(Meta meta, ID entity) {
+        if (!meta.matches(entity)) {
+            return false;
+        }
         // save into JsON file
         String path = getMetaFilePath(entity);
         try {

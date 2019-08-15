@@ -204,12 +204,7 @@ public class Terminal implements StationDelegate {
         }
 
         // 4. trans to instant message
-        InstantMessage iMsg = null;
-        try {
-            iMsg = Messanger.getInstance().verifyAndDecryptMessage(rMsg);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        InstantMessage iMsg = Messanger.getInstance().verifyAndDecryptMessage(rMsg);
         if (iMsg == null) {
             // failed to verify/decrypt message
             return;
