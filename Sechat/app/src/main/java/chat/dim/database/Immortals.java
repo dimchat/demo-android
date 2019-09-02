@@ -17,6 +17,7 @@ import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
+import chat.dim.utils.Log;
 
 public class Immortals implements UserDataSource {
     private static final Immortals ourInstance = new Immortals();
@@ -80,7 +81,7 @@ public class Immortals implements UserDataSource {
         }
         String jsonString = new String(file.getData(), Charset.forName("UTF-8"));
         Map<String, Object> dict = (Map<String, Object>) JSON.decode(jsonString);
-        System.out.println(filename + ":" + dict);
+        Log.info(filename + ":" + dict);
         // ID
         ID identifier = ID.getInstance(dict.get("ID"));
         assert identifier != null;

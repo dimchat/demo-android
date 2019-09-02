@@ -20,6 +20,7 @@ import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.command.MetaCommand;
 import chat.dim.protocol.command.ProfileCommand;
 import chat.dim.stargate.StarStatus;
+import chat.dim.utils.Log;
 
 public class Connection {
 
@@ -134,11 +135,13 @@ public class Connection {
         if (success) {
             LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
             server.currentUser = user;
+            Log.info("handshake accepted for user: " + user);
             // broadcast profile to DIM network
             postProfile(user.getProfile());
         } else {
             // new session key from station
             session = newSession;
+            Log.info("handshake again with session: " + newSession);
         }
     }
 

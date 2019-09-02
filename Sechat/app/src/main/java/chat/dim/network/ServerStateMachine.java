@@ -33,6 +33,7 @@ import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
 import chat.dim.mkm.LocalUser;
 import chat.dim.stargate.StarStatus;
+import chat.dim.utils.Log;
 
 class ServerStateMachine extends Machine {
 
@@ -103,7 +104,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
-                System.out.println("onEnter: default state");
+                Log.info("onEnter: default state");
             }
         };
 
@@ -125,7 +126,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
-                System.out.println("onEnter: connecting state");
+                Log.info("onEnter: connecting state");
             }
         };
 
@@ -157,7 +158,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
-                System.out.println("onEnter: connected state");
+                Log.info("onEnter: connected state");
             }
         };
 
@@ -178,7 +179,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // start handshake
-                System.out.println("onEnter: handshaking state");
+                Log.info("onEnter: handshaking state");
                 Connection connection = getConnection(machine);
                 connection.handshake(null);
             }
@@ -213,7 +214,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // TODO: send all packages waiting
-                System.out.println("onEnter: running state");
+                Log.info("onEnter: running state");
             }
         };
 
@@ -244,7 +245,7 @@ class ServerStateMachine extends Machine {
             @Override
             protected void onEnter(Machine machine) {
                 // do nothing
-                System.out.println("onEnter: error state");
+                Log.info("onEnter: error state");
             }
         };
 

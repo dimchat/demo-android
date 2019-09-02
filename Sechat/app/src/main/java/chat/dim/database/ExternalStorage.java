@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 
 import chat.dim.filesys.Storage;
 import chat.dim.format.JSON;
+import chat.dim.utils.Log;
 
 public class ExternalStorage {
 
@@ -52,7 +53,7 @@ public class ExternalStorage {
         Storage file = new Storage();
         file.setData(data);
         int len = file.save(filename);
-        System.out.println("wrote " + len + " byte(s) into " + filename);
+        Log.info("wrote " + len + " byte(s) into " + filename);
         return len == data.length;
     }
 

@@ -43,6 +43,7 @@ import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
 import chat.dim.stargate.simplegate.Fence;
+import chat.dim.utils.Log;
 
 public class Server extends Station implements Runnable, TransceiverDelegate, StarDelegate {
 
@@ -184,7 +185,7 @@ public class Server extends Station implements Runnable, TransceiverDelegate, St
 
     @Override
     public void onConnectionStatusChanged(StarStatus status, Star star) {
-        System.out.println("status changed: " + status);
+        Log.info("status changed: " + status);
         fsm.tick();
     }
 

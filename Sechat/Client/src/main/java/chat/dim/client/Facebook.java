@@ -67,6 +67,13 @@ public class Facebook extends Barrack {
         return finger + super.reduceMemory();
     }
 
+    //---- Meta
+
+    public boolean saveMeta(Meta meta, ID entity) {
+        // TODO: save meta in local storage
+        return false;
+    }
+
     //---- Profile
 
     protected boolean cacheProfile(Profile profile) {
