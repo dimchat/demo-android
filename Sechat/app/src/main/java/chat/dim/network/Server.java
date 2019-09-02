@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Messanger;
+import chat.dim.client.Messenger;
 import chat.dim.core.CompletionHandler;
 import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
@@ -54,12 +54,12 @@ public class Server extends Station implements Runnable, TransceiverDelegate, St
 
     public Server(ID identifier) {
         super(identifier);
-        Messanger.getInstance().delegate = this;
+        Messenger.getInstance().delegate = this;
     }
 
     public Server(ID identifier, String host, int port) {
         super(identifier, host, port);
-        Messanger.getInstance().delegate = this;
+        Messenger.getInstance().delegate = this;
     }
 
     public Server(Map<String, Object> dictionary) {

@@ -32,7 +32,7 @@ import java.util.Map;
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
-import chat.dim.client.Messanger;
+import chat.dim.client.Messenger;
 import chat.dim.database.GroupTable;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.dkd.Content;
@@ -204,7 +204,7 @@ public class Terminal implements StationDelegate {
         }
 
         // 4. trans to instant message
-        InstantMessage iMsg = Messanger.getInstance().verifyAndDecryptMessage(rMsg);
+        InstantMessage iMsg = Messenger.getInstance().verifyAndDecryptMessage(rMsg);
         if (iMsg == null) {
             // failed to verify/decrypt message
             return;

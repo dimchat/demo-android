@@ -41,10 +41,10 @@ import chat.dim.mkm.Meta;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ForwardContent;
 
-public class Messanger extends Transceiver {
-    private static final Messanger ourInstance = new Messanger();
-    public static Messanger getInstance() { return ourInstance; }
-    private Messanger()  {
+public class Messenger extends Transceiver {
+    private static final Messenger ourInstance = new Messenger();
+    public static Messenger getInstance() { return ourInstance; }
+    private Messenger()  {
         super();
 
         barrack = Facebook.getInstance();
@@ -108,9 +108,8 @@ public class Messanger extends Transceiver {
      *
      * @param iMsg - instant message
      * @return ReliableMessage Object
-     * @throws NoSuchFieldException when encrypt message content
      */
-    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) throws NoSuchFieldException {
+    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) {
 
         // 1. encrypt 'content' to 'data' for receiver
         SecureMessage sMsg = encryptMessage(iMsg);
@@ -155,10 +154,8 @@ public class Messanger extends Transceiver {
      * @param callback - callback function
      * @param split - if it's a group message, split it before sending out
      * @return NO on data/delegate error
-     * @throws NoSuchFieldException when 'group' not found
      */
-    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split)
-            throws NoSuchFieldException {
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, boolean split) {
         // transforming
         ReliableMessage rMsg = encryptAndSignMessage(iMsg);
         if (rMsg == null) {

@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 
 import chat.dim.client.Facebook;
-import chat.dim.client.Messanger;
+import chat.dim.client.Messenger;
 import chat.dim.core.Callback;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.dkd.Content;
@@ -70,13 +70,10 @@ public class Connection {
             }
         };
         // send out
-        try {
-            if (Messanger.getInstance().sendMessage(iMsg, callback, true)) {
-                return iMsg;
-            }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
+        if (Messenger.getInstance().sendMessage(iMsg, callback, true)) {
+            return iMsg;
         }
+        // error
         return null;
     }
 
@@ -111,12 +108,7 @@ public class Connection {
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         InstantMessage iMsg = new InstantMessage(cmd, user.identifier, server.identifier);
-        ReliableMessage rMsg = null;
-        try {
-            rMsg = Messanger.getInstance().encryptAndSignMessage(iMsg);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+        ReliableMessage rMsg = Messenger.getInstance().encryptAndSignMessage(iMsg);
         if (rMsg == null) {
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }
