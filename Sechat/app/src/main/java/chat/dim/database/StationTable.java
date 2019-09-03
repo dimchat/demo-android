@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 

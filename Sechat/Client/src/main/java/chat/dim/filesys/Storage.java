@@ -58,7 +58,7 @@ public class Storage implements Writable {
             // check parent directory exists
             File dir = file.getParentFile();
             if (!dir.exists() && !dir.mkdirs()) {
-                return -1;
+                throw new IOException("failed to create directory: " + dir);
             }
         }
         FileOutputStream fos = new FileOutputStream(file);
