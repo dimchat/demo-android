@@ -1,3 +1,28 @@
+/* license: https://mit-license.org
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2019 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
 package chat.dim.database;
 
 import java.util.List;
@@ -8,6 +33,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.EntityDataSource;
 import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.NetworkType;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
@@ -17,11 +43,6 @@ public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, 
     private static final SocialNetworkDatabase ourInstance = new SocialNetworkDatabase();
     public static SocialNetworkDatabase getInstance() { return ourInstance; }
     private SocialNetworkDatabase() {
-        // initialized delegates of facebook
-        Facebook facebook = Facebook.getInstance();
-        facebook.entityDataSource = this;
-        facebook.userDataSource = this;
-        facebook.groupDataSource = this;
     }
 
     private static Immortals immortals = Immortals.getInstance();
@@ -76,7 +97,30 @@ public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, 
     }
 
     public boolean saveProfile(Profile profile) {
+        if (!verifyProfile(profile)) {
+            return false;
+        }
         return ProfileTable.saveProfile(profile);
+    }
+
+    public boolean verifyProfile(Profile profile) {
+        if (profile == null) {
+            return false;
+        } else if (profile.isValid()) {
+            return true;
+        }
+        ID identifier = profile.identifier;
+        assert identifier.isValid();
+        NetworkType type = identifier.getType();
+        if (type.isUser() || type.value == NetworkType.Polylogue.value) {
+            // if this is a user profile,
+            //     verify it with the user's meta.key
+            // else if this is a polylogue profile,
+            //     verify it with the founder's meta.key (which equals to the group's meta.key)
+            Meta meta = getMeta(identifier);
+            return meta != null && profile.verify(meta.key);
+        }
+        throw new UnsupportedOperationException("unsupported profile ID: " + profile);
     }
 
     // Address Name Service

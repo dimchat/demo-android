@@ -31,6 +31,8 @@ import java.util.Map;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.database.ConversationDatabase;
+import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.EntityDataSource;
@@ -52,64 +54,64 @@ public class Facebook extends Barrack {
         super();
     }
 
-    // memory caches
-    private Map<ID, Profile>    profileMap = new HashMap<>();
+    SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
+    ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     // delegates
-    public EntityDataSource entityDataSource = null;
-    public UserDataSource userDataSource   = null;
-    public GroupDataSource groupDataSource  = null;
+    public EntityDataSource entityDataSource = userDB;
+    public UserDataSource userDataSource   = userDB;
+    public GroupDataSource groupDataSource  = userDB;
 
-    public int reduceMemory() {
-        int finger = 0;
-        finger = thanos(profileMap, finger);
-        return finger + super.reduceMemory();
+    //---- Private Key
+
+    public boolean saveProvateKey(PrivateKey privateKey, ID identifier) {
+        return userDB.savePrivateKey(privateKey, identifier);
     }
 
     //---- Meta
 
     public boolean saveMeta(Meta meta, ID entity) {
-        // TODO: save meta in local storage
-        return false;
+        return userDB.saveMeta(meta, entity);
     }
 
     //---- Profile
 
-    protected boolean cacheProfile(Profile profile) {
-        if (!verifyProfile(profile)) {
-            return false;
-        }
-        profileMap.put(profile.identifier, profile);
-        return true;
+    public boolean saveProfile(Profile profile) {
+        return userDB.saveProfile(profile);
     }
 
-    private boolean verifyProfile(Profile profile) {
-        if (profile == null) {
-            return false;
-        } else if (profile.isValid()) {
-            return true;
-        }
-        ID identifier = profile.identifier;
-        assert identifier.isValid();
-        NetworkType type = identifier.getType();
-        Meta meta = null;
-        if (type.isUser()) {
-            // verify with user's meta.key
-            meta = getMeta(identifier);
-        } else if (type.isGroup()) {
-            // verify with group owner's meta.key
-            Group group = getGroup(identifier);
-            if (group != null) {
-                meta = getMeta(group.getOwner());
-            }
-        }
-        return meta != null && profile.verify(meta.key);
+    public boolean verifyProfile(Profile profile) {
+        return userDB.verifyProfile(profile);
+    }
+
+    public String getNickname(ID identifier) {
+        assert identifier.getType().isUser();
+        User user = getUser(identifier);
+        return user == null ? null : user.getName();
     }
 
     //-------- SocialNetworkDataSource
 
     @Override
+    public ID getID(Object string) {
+        if (string == null) {
+            return null;
+        } else if (string instanceof ID) {
+            return (ID) string;
+        }
+        assert string instanceof String;
+        // try ANS record
+        ID identifier = userDB.ansRecord((String) string);
+        if (identifier != null) {
+            return identifier;
+        }
+        // get from barrack
+        return super.getID(string);
+    }
+
+    @Override
     public User getUser(ID identifier) {
+        // get from barrack cache
         User user = super.getUser(identifier);
         if (user != null) {
             return user;
@@ -133,12 +135,14 @@ public class Facebook extends Barrack {
         } else {
             throw new UnsupportedOperationException("unsupported user type: " + type);
         }
+        // cache it in barrack
         cacheUser(user);
         return user;
     }
 
     @Override
     public Group getGroup(ID identifier) {
+        // get from barrack cache
         Group group = super.getGroup(identifier);
         if (group != null) {
             return group;
@@ -156,6 +160,7 @@ public class Facebook extends Barrack {
             group = new Chatroom(identifier);
         }
         assert group != null;
+        // cache it in barrack
         cacheGroup(group);
         return group;
     }
@@ -177,12 +182,7 @@ public class Facebook extends Barrack {
 
     @Override
     public Profile getProfile(ID entity) {
-        Profile tai = entityDataSource.getProfile(entity);
-        if (tai != null && cacheProfile(tai)) {
-            return tai;
-        }
-        // profile error? let the subclass to process it
-        return tai;
+        return entityDataSource.getProfile(entity);
     }
 
     //-------- UserDataSource

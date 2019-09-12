@@ -23,35 +23,31 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.filesys;
+package chat.dim.database;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 
-public class Resource implements Readable {
+import chat.dim.mkm.ID;
 
-    private byte[] fileContent = null;
+public class GroupTable extends ExternalStorage {
 
-    @Override
-    public boolean exists(String filename) throws IOException {
-        InputStream is = Resource.class.getResourceAsStream(filename);
-        return is.available() > 0;
+    public static ID getFounder(ID group) {
+        // TODO: get founder of group
+        return null;
     }
 
-    @Override
-    public int load(String filename) throws IOException {
-        InputStream is = Resource.class.getResourceAsStream(filename);
-        int size = is.available();
-        fileContent = new byte[size];
-        int len = is.read(fileContent, 0, size);
-        if (len != size) {
-            throw new IOException("reading error(" + len + " != " + size + "): " + filename);
-        }
-        return len;
+    public static ID getOwner(ID group) {
+        // TODO: get owner of group
+        return null;
     }
 
-    @Override
-    public byte[] getData() {
-        return fileContent;
+    public static List<ID> getMembers(ID group) {
+        // TODO: get members of group
+        return null;
+    }
+
+    public static boolean existsMember(ID member, ID group) {
+        // TODO: check whether exists the member
+        return false;
     }
 }

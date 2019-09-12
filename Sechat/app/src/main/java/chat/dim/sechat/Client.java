@@ -1,13 +1,18 @@
 package chat.dim.sechat;
 
+import android.os.Environment;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
+import chat.dim.database.ExternalStorage;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.database.StationTable;
+import chat.dim.format.Base64;
+import chat.dim.format.BaseCoder;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.network.Connection;
@@ -132,5 +137,23 @@ public class Client extends Terminal {
             cmd.put("state", "foreground");
             connection.sendCommand(cmd);
         }
+    }
+
+    static {
+        // mkm.Base64
+        Base64.coder = new BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+
+        String path = Environment.getExternalStorageDirectory().getPath();
+        ExternalStorage.root = path + "/chat.dim.sechat";
     }
 }
