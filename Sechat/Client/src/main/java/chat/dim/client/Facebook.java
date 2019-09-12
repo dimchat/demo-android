@@ -33,7 +33,6 @@ import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
-import chat.dim.mkm.Address;
 import chat.dim.mkm.EntityDataSource;
 import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.ID;

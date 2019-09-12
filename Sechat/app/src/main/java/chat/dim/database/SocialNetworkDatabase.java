@@ -1,6 +1,7 @@
 package chat.dim.database;
 
 import java.util.List;
+import java.util.Set;
 
 import chat.dim.client.Facebook;
 import chat.dim.crypto.PrivateKey;
@@ -76,6 +77,20 @@ public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, 
 
     public boolean saveProfile(Profile profile) {
         return ProfileTable.saveProfile(profile);
+    }
+
+    // Address Name Service
+
+    public boolean saveAnsRecord(String name, ID identifier) {
+        return AddressNameTable.saveRecord(name, identifier);
+    }
+
+    public ID ansRecord(String name) {
+        return AddressNameTable.record(name);
+    }
+
+    public Set<String> ansNames(String identifier) {
+        return AddressNameTable.names(identifier);
     }
 
     //---- EntityDataSource
