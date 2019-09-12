@@ -25,18 +25,15 @@
  */
 package chat.dim.client;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.database.ConversationDatabase;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
-import chat.dim.mkm.EntityDataSource;
-import chat.dim.mkm.GroupDataSource;
+import chat.dim.mkm.Address;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.NetworkType;
@@ -44,7 +41,6 @@ import chat.dim.mkm.Profile;
 import chat.dim.mkm.User;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.UserDataSource;
 import chat.dim.network.Station;
 
 public class Facebook extends Barrack {
@@ -54,13 +50,7 @@ public class Facebook extends Barrack {
         super();
     }
 
-    SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
-    ConversationDatabase msgDB = ConversationDatabase.getInstance();
-
-    // delegates
-    public EntityDataSource entityDataSource = userDB;
-    public UserDataSource userDataSource   = userDB;
-    public GroupDataSource groupDataSource  = userDB;
+    public SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
 
     //---- Private Key
 
@@ -173,7 +163,7 @@ public class Facebook extends Barrack {
         if (meta != null) {
             return meta;
         }
-        meta = entityDataSource.getMeta(entity);
+        meta = userDB.getMeta(entity);
         if (meta != null && cacheMeta(meta, entity)) {
             return meta;
         }
@@ -182,37 +172,48 @@ public class Facebook extends Barrack {
 
     @Override
     public Profile getProfile(ID entity) {
-        return entityDataSource.getProfile(entity);
+        return userDB.getProfile(entity);
     }
 
     //-------- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        return userDataSource.getPrivateKeyForSignature(user);
+        return userDB.getPrivateKeyForSignature(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        return userDataSource.getPrivateKeysForDecryption(user);
+        return userDB.getPrivateKeysForDecryption(user);
     }
 
     @Override
     public List<ID> getContacts(ID user) {
-        return userDataSource.getContacts(user);
+        return userDB.getContacts(user);
     }
 
     //-------- GroupDataSource
 
     @Override
     public ID getFounder(ID group) {
-        ID founder = groupDataSource.getFounder(group);
+        if (group == ID.EVERYONE) {
+            // Consensus: the founder of group 'everyone@everywhere'
+            //            'Albert Moky'
+            return getID("founder");
+        }
+        if (group.address == Address.EVERYWHERE) {
+            // DISCUSS: who should be the founder of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx.founder@anywhere'
+            return getID("owner");
+        }
+        // get from database
+        ID founder = userDB.getFounder(group);
         if (founder != null) {
             return founder;
         }
-        // check each member's public key with group meta
+        // check each member's public key with group's meta.key
         Meta gMeta = getMeta(group);
-        List<ID> members = groupDataSource.getMembers(group);
+        List<ID> members = userDB.getMembers(group);
         if (gMeta == null || members == null) {
             //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
             return null;
@@ -233,11 +234,45 @@ public class Facebook extends Barrack {
 
     @Override
     public ID getOwner(ID group) {
-        return groupDataSource.getOwner(group);
+        if (group == ID.EVERYONE) {
+            // Consensus: the owner of group 'everyone@everywhere'
+            //            'anyone@anywhere'
+            return ID.ANYONE;
+        }
+        if (group.address == Address.EVERYWHERE) {
+            // DISCUSS: who should be the owner of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx.owner@anywhere'
+            return ID.ANYONE;
+        }
+        // get from database
+        ID owner = userDB.getOwner(group);
+        if (owner != null) {
+            return owner;
+        }
+        if (group.getType().value == NetworkType.Polylogue.value) {
+            // Polylogue's owner is the founder
+            return getFounder(group);
+        }
+        return null;
     }
 
     @Override
     public List<ID> getMembers(ID group) {
-        return groupDataSource.getMembers(group);
+        if (group == ID.EVERYONE) {
+            // Consensus: the member of group 'everyone@everywhere'
+            //            'anyone@anywhere'
+            List<ID> members = new ArrayList<>();
+            members.add(ID.ANYONE);
+            return members;
+        }
+        if (group.address == Address.EVERYWHERE) {
+            // DISCUSS: who should be the member of group 'xxx@everywhere'?
+            //          'anyone@anywhere', or 'xxx@anywhere', or 'xxx.member@anywhere'
+            List<ID> members = new ArrayList<>();
+            members.add(new ID(group.name, Address.ANYWHERE));
+            return members;
+        }
+        // get from database
+        return userDB.getMembers(group);
     }
 }
