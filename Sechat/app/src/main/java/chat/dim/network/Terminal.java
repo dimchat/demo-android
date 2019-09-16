@@ -264,6 +264,22 @@ public class Terminal implements StationDelegate {
         }
         */
 
+        // check meta for new group ID
+        Object group = iMsg.getGroup();
+        if (group != null) {
+            ID gid = facebook.getID(group);
+            if (!gid.isBroadcast()) {
+                // check meta
+                meta = facebook.getMeta(gid);
+                if (meta == null) {
+                    // NOTICE: if meta for group not found,
+                    //         the client will query it automatically
+                    // TODO: insert the message to a temporary queue to waiting meta
+                    return;
+                }
+            }
+        }
+
         // normal message, let the clerk to deliver it
         Amanuensis clerk = Amanuensis.getInstance();
         Conversation chatBox = clerk.getConversation(iMsg);

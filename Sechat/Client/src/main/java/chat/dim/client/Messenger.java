@@ -114,6 +114,12 @@ public class Messenger extends Transceiver {
         // 1. encrypt 'content' to 'data' for receiver
         SecureMessage sMsg = encryptMessage(iMsg);
 
+        // 1.1. check group
+        Object group = iMsg.getGroup();
+        if (group != null) {
+            sMsg.setGroup(group);
+        }
+
         // 2. sign 'data' by sender
         ReliableMessage rMsg = signMessage(sMsg);
 
