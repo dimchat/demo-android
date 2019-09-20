@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -60,30 +61,72 @@ public class Fence implements Star {
             return connectionStatus == StarStatus.Error ? -1 : 0;
         }
 
-        private int read(Messenger messenger) {
-            InputStream inputStream;
-            int length = 0;
-            byte[] responseData = null;
+        private byte[] process(byte[] data, Messenger task) {
+            if (data == null || data.length < 3) {
+                return null;
+            }
+            if (data[0] != '{') {
+                throw new IllegalArgumentException("unknown protocol: " + data);
+            }
+            int pos = 0;
+            while (++pos < data.length) {
+                if (data[pos] == '\n') {
+                    break;
+                }
+            }
+            if (pos >= data.length) {
+                // incomplete data
+                return data;
+            }
+            pos += 1;
+            byte[] pack;
+            byte[] tail;
+            if (pos == data.length) {
+                pack = data;
+                tail = null;
+            } else {
+                pack = new byte[pos];
+                System.arraycopy(data, 0, pack, 0, pos);
+                // next package
+                tail = new byte[data.length - pos];
+                System.arraycopy(data, pos, tail, 0, data.length - pos);
+            }
+
+            if (task == null) {
+                onReceive(pack);
+            } else {
+                task.onResponse(pack);
+                task.onSuccess();
+            }
+
+            return tail;
+        }
+
+        private byte[] read(byte[] incomplete) {
+            byte[] data;
+            int length;
             try {
-                inputStream = socket.getInputStream();
+                InputStream inputStream = socket.getInputStream();
                 length = inputStream.available();
                 if (length <= 0) {
-                    return length;
+                    return incomplete;
                 }
-                responseData = new byte[length];
-                int count = inputStream.read(responseData);
+                data = new byte[length];
+                int count = inputStream.read(data);
                 assert count == length;
             } catch (IOException e) {
-                e.printStackTrace();
-                return -1;
+                e.printStackTrace();;
+                return incomplete;
             }
-            if (messenger == null) {
-                onReceive(responseData);
-            } else {
-                messenger.onResponse(responseData);
-                messenger.onSuccess();
+            if (incomplete == null) {
+                return data;
             }
-            return length;
+            // merge with incomplete data
+            int incompleteLength = incomplete.length;
+            byte[] total = new byte[incompleteLength + length];
+            System.arraycopy(incomplete, 0, total, 0, incompleteLength);
+            System.arraycopy(data, 0, total, incompleteLength, length);
+            return total;
         }
 
         private void write(byte[] data) {
@@ -120,9 +163,12 @@ public class Fence implements Star {
             if (socket == null) {
                 throw new NullPointerException("socket not connected");
             }
+            byte[] data = null;
             while (socket.isConnected()) {
-                if (read(null) > 0) {
+                data = read(data);
+                if (data != null) {
                     // push message
+                    data = process(data, null);
                     continue;
                 }
                 if (waitingList.size() > 0) {
@@ -130,7 +176,8 @@ public class Fence implements Star {
                     Messenger task = waitingList.remove(0);
                     write(packRequestData(task));
                     // response
-                    read(task);
+                    data = read(data);
+                    data = process(data, task);
                     continue;
                 }
                 // sleep

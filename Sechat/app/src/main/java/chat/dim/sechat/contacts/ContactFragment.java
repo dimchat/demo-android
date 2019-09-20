@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.dummy.DummyContent;
 import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;
+import chat.dim.sechat.profile.ProfileFragment;
 
 /**
  * A fragment representing a list of Items.
@@ -26,7 +27,19 @@ public class ContactFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+
+    private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
+        @Override
+        public void onListFragmentInteraction(DummyItem item) {
+            ProfileFragment profileFragment = ProfileFragment.newInstance(item.getIdentifier());
+            assert getFragmentManager() != null;
+            getFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.content, profileFragment)
+                    .commit();
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

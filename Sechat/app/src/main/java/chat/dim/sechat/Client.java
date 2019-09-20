@@ -22,6 +22,25 @@ import chat.dim.network.Terminal;
 import chat.dim.protocol.Command;
 
 public class Client extends Terminal {
+
+    static {
+        // mkm.Base64
+        Base64.coder = new BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+
+        String path = Environment.getExternalStorageDirectory().getPath();
+        ExternalStorage.root = path + "/chat.dim.sechat";
+    }
+
     private static final Client ourInstance = new Client();
     public static Client getInstance() { return ourInstance; }
     private Client() {
@@ -137,23 +156,5 @@ public class Client extends Terminal {
             cmd.put("state", "foreground");
             connection.sendCommand(cmd);
         }
-    }
-
-    static {
-        // mkm.Base64
-        Base64.coder = new BaseCoder() {
-            @Override
-            public String encode(byte[] data) {
-                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
-            }
-
-            @Override
-            public byte[] decode(String string) {
-                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
-            }
-        };
-
-        String path = Environment.getExternalStorageDirectory().getPath();
-        ExternalStorage.root = path + "/chat.dim.sechat";
     }
 }

@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
 
