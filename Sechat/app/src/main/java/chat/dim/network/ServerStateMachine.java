@@ -74,7 +74,7 @@ class ServerStateMachine extends Machine {
     }
 
     private LocalUser getUser(Machine machine) {
-        return getServer(machine).currentUser;
+        return getConnection(machine).currentUser;
     }
 
     abstract class ServerState extends State {

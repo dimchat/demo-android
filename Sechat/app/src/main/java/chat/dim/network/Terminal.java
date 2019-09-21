@@ -64,6 +64,10 @@ public class Terminal implements StationDelegate {
         return "zh-CN";
     }
 
+    public LocalUser getCurrentUser() {
+        return connection == null ? null : connection.currentUser;
+    }
+
     public boolean login() {
         if (connection == null || connection.server.getStatus() != StarStatus.Connected) {
             // not connect yet
@@ -73,13 +77,13 @@ public class Terminal implements StationDelegate {
         if (user == null) {
             // user not found
             return false;
-        } else if (user.equals(connection.server.currentUser)) {
+        } else if (user.equals(connection.currentUser)) {
             // user not change
             return true;
         }
 
         // switch user,session and handshake again
-        connection.server.currentUser = null;
+        connection.currentUser = null;
         connection.session = null;
         connection.handshake(null);
         return true;

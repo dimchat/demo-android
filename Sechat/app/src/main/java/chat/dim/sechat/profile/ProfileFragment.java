@@ -1,6 +1,7 @@
 package chat.dim.sechat.profile;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,11 +9,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.mkm.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.chatbox.ChatboxActivity;
 
 public class ProfileFragment extends Fragment {
 
@@ -24,6 +27,9 @@ public class ProfileFragment extends Fragment {
     private TextView seedView;
     private TextView addressView;
     private TextView numberView;
+
+    private Button addButton;
+    private Button messageButton;
 
     public static ProfileFragment newInstance(ID identifier) {
         ProfileFragment object = new ProfileFragment();
@@ -41,6 +47,19 @@ public class ProfileFragment extends Fragment {
         addressView = view.findViewById(R.id.address);
         numberView = view.findViewById(R.id.number);
 
+        addButton = view.findViewById(R.id.addContact);
+        messageButton = view.findViewById(R.id.sendMessage);
+
+        messageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                assert getContext() != null;
+                Intent intent = new Intent();
+                intent.setClass(getContext(), ChatboxActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 
@@ -53,6 +72,14 @@ public class ProfileFragment extends Fragment {
         seedView.setText(identifier.name);
         addressView.setText(identifier.address.toString());
         numberView.setText(mViewModel.getNumberString(identifier));
+
+        if (mViewModel.existsContact(identifier)) {
+            addButton.setVisibility(View.INVISIBLE);
+            messageButton.setVisibility(View.VISIBLE);
+        } else {
+            addButton.setVisibility(View.VISIBLE);
+            messageButton.setVisibility(View.INVISIBLE);
+        }
     }
 
 }

@@ -49,6 +49,7 @@ import chat.dim.utils.Log;
 
 public class Connection {
 
+    LocalUser currentUser = null;
     String session = null;
     public final Server server;
 
@@ -65,8 +66,7 @@ public class Connection {
      * @return InstantMessage been sent
      */
     public InstantMessage sendContent(Content content, ID receiver) {
-        LocalUser user = server.currentUser;
-        if (user == null) {
+        if (currentUser == null) {
             // TODO: save the message content in waiting queue
             return null;
         }
@@ -77,7 +77,7 @@ public class Connection {
         }
 
         // make instant message
-        InstantMessage iMsg = new InstantMessage(content, user.identifier, receiver);
+        InstantMessage iMsg = new InstantMessage(content, currentUser.identifier, receiver);
         // callback
         Callback callback = new Callback() {
             @Override
@@ -151,7 +151,7 @@ public class Connection {
 
         if (success) {
             LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
-            server.currentUser = user;
+            currentUser = user;
             Log.info("handshake accepted for user: " + user);
             // broadcast profile to DIM network
             postProfile(user.getProfile());

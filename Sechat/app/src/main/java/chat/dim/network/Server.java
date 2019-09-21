@@ -47,8 +47,6 @@ import chat.dim.utils.Log;
 
 public class Server extends Station implements Runnable, TransceiverDelegate, StarDelegate {
 
-    LocalUser currentUser = null;
-
     ServerStateMachine fsm = new ServerStateMachine();
     Star star;
 
