@@ -31,7 +31,9 @@ import java.util.List;
 
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
+import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
+import chat.dim.utils.Log;
 
 public class ConversationTable extends ExternalStorage {
 
@@ -59,6 +61,8 @@ public class ConversationTable extends ExternalStorage {
         if (items == null || items.length == 0) {
             return;
         }
+        Facebook facebook = Facebook.getInstance();
+        ID identifier;
         for (File file : items) {
             if (!file.isDirectory()) {
                 continue;
@@ -66,7 +70,15 @@ public class ConversationTable extends ExternalStorage {
             if (!(new File(file.getPath(), "messages.js")).exists()) {
                 continue;
             }
-            conversationList.add(ID.getInstance(file.getPath()));
+            identifier = ID.getInstance(file.getName());
+            identifier = facebook.getID(identifier.address);
+            if (identifier == null) {
+                //throw new NullPointerException("failed to get ID with name: " + file.getName());
+                Log.error("failed to get ID with name: " + file.getName());
+                // FIXME: meta not found?
+                return;
+            }
+            conversationList.add(identifier);
         }
         // sort with last message's time
         sortConversations();

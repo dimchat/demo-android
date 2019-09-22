@@ -80,6 +80,12 @@ public class Facebook extends Barrack {
         return user == null ? null : user.getName();
     }
 
+    public ID getID(Address address) {
+        ID identifier = new ID(null, address);
+        Meta meta = userDB.getMeta(identifier);
+        return meta == null ? null : meta.generateID(address.getNetwork());
+    }
+
     //-------- SocialNetworkDataSource
 
     @Override

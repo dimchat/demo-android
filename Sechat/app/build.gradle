@@ -31,7 +31,7 @@ dependencies {
     implementation project(':FiniteStateMachine')
     implementation project(':StarGate')
     implementation project(':Client')
-    implementation group: 'chat.dim', name: 'DIMP', version: '0.4.8'
+    implementation group: 'chat.dim', name: 'DIMP', version: '0.4.9'
 
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:design:28.0.0'

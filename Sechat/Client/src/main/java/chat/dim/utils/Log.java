@@ -27,7 +27,11 @@ package chat.dim.utils;
 
 public class Log {
 
-    public static void info(String log) {
-        System.out.println(log);
+    public static void info(String msg) {
+        System.out.println(msg);
+    }
+
+    public static void error(String msg) {
+        System.out.println("ERROR: " + msg);
     }
 }

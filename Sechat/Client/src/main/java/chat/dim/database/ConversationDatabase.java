@@ -25,6 +25,8 @@
  */
 package chat.dim.database;
 
+import java.util.List;
+
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.ConversationDataSource;
@@ -68,6 +70,10 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     // messages
+
+    public List<InstantMessage> messagesInConversation(Conversation chatBox) {
+        return MessageTable.messagesInConversation(chatBox);
+    }
 
     @Override
     public int numberOfMessages(Conversation chatBox) {

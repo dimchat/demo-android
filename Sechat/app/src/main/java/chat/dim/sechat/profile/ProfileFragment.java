@@ -56,6 +56,7 @@ public class ProfileFragment extends Fragment {
                 assert getContext() != null;
                 Intent intent = new Intent();
                 intent.setClass(getContext(), ChatboxActivity.class);
+                intent.putExtra("ID", identifier.toString());
                 startActivity(intent);
             }
         });

@@ -106,33 +106,44 @@ public class MessageTable extends ExternalStorage {
 
     //-------- messages
 
-    public static int numberOfMessages(Conversation chatBox) {
+    public static List<InstantMessage> messagesInConversation(Conversation chatBox) {
         List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
         if (msgList == null) {
-            return 0;
+            msgList = new ArrayList<>();
+            List messages = loadMessages(chatBox.identifier);
+            if (messages != null) {
+                InstantMessage msg;
+                for (Object item : messages) {
+                    msg = InstantMessage.getInstance(item);
+                    if (msg == null) {
+                        throw new NullPointerException("message error: " + item);
+                    }
+                    msgList.add(msg);
+                }
+            }
+            chatHistory.put(chatBox.identifier, msgList);
         }
+        return msgList;
+    }
+
+    public static int numberOfMessages(Conversation chatBox) {
+        List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.size();
     }
 
     public static InstantMessage messageAtIndex(int index, Conversation chatBox) {
-        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
-        assert msgList != null;
+        List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.get(index);
     }
 
     public static boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
-        if (msgList == null) {
-            msgList = new ArrayList<>();
-            chatHistory.put(chatBox.identifier, msgList);
-        }
+        List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.add(iMsg);
         return saveMessages(chatBox.identifier);
     }
 
     public static boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
-        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
-        assert msgList != null;
+        List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.remove(iMsg);
         return saveMessages(chatBox.identifier);
     }

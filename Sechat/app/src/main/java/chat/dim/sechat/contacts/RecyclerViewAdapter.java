@@ -1,4 +1,4 @@
-package chat.dim.sechat.conversations;
+package chat.dim.sechat.contacts;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,20 +9,20 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.sechat.R;
-import chat.dim.sechat.conversations.ConversationFragment.OnListFragmentInteractionListener;
-import chat.dim.sechat.conversations.dummy.DummyContent.DummyItem;
+import chat.dim.sechat.contacts.ContactFragment.OnListFragmentInteractionListener;
+import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MyConversationRecyclerViewAdapter extends RecyclerView.Adapter<MyConversationRecyclerViewAdapter.ViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyConversationRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public RecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -30,7 +30,7 @@ public class MyConversationRecyclerViewAdapter extends RecyclerView.Adapter<MyCo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_conversation, parent, false);
+                .inflate(R.layout.fragment_contact, parent, false);
         return new ViewHolder(view);
     }
 
