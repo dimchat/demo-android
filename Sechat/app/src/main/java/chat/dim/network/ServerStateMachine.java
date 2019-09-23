@@ -27,11 +27,11 @@ package chat.dim.network;
 
 import java.lang.ref.WeakReference;
 
-import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
 import chat.dim.mkm.LocalUser;
+import chat.dim.model.AccountDatabase;
 import chat.dim.stargate.StarStatus;
 import chat.dim.utils.Log;
 
@@ -166,7 +166,7 @@ class ServerStateMachine extends Machine {
         state.addTransition(new Transition(handshakingState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
+                LocalUser user = AccountDatabase.getInstance().getCurrentUser();
                 return user != null;
             }
         });

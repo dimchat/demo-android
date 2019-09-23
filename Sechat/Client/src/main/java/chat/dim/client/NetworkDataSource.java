@@ -23,48 +23,24 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.database;
+package chat.dim.client;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
 
-class MetaTable extends ExternalStorage {
+public interface NetworkDataSource {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    List<String> allProviders();
 
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
-    }
+    Map<String, Object> getProviderConfig(ID sp);
 
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            Object dict = readJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
+    boolean saveProviders(List<String> providers);
 
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            return writeJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    //-------- Station
 
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
-    }
+    List<Map<String, Object>> allStations(ID sp);
+
+    boolean saveStations(List<Map<String, Object>> stations, ID sp);
 }

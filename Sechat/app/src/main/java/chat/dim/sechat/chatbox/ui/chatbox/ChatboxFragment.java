@@ -1,14 +1,11 @@
 package chat.dim.sechat.chatbox.ui.chatbox;
 
-import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,12 +15,10 @@ import android.widget.ListView;
 import java.util.List;
 
 import chat.dim.client.Conversation;
-import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
@@ -45,6 +40,7 @@ public class ChatboxFragment extends Fragment {
 
     private Conversation getConversation() {
         ChatboxActivity activity = (ChatboxActivity) getActivity();
+        assert activity != null;
         return activity.chatBox;
     }
 

@@ -34,9 +34,9 @@ import java.util.Set;
 import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
 
-public class AddressNameTable extends ExternalStorage {
+class AddressNameTable extends ExternalStorage {
 
-    private static Map<String, ID> ansTable = loadRecords();
+    private Map<String, ID> ansTable = loadRecords();
 
     // "/sdcard/chat.dim.sechat/dim/ans.txt"
 
@@ -44,16 +44,15 @@ public class AddressNameTable extends ExternalStorage {
         return root + "/dim/ans.txt";
     }
 
-    private static boolean cacheRecord(String name, ID identifier) {
+    private boolean cacheRecord(String name, ID identifier) {
         if (name.length() == 0) {
             return false;
         }
-        assert identifier.isValid();
         ansTable.put(name, identifier);
         return true;
     }
 
-    private static Map<String, ID> loadRecords() {
+    private Map<String, ID> loadRecords() {
         Map<String, ID> dictionary = new HashMap<>();
         String path = getAnsFilePath();
         // loading ANS records
@@ -88,7 +87,7 @@ public class AddressNameTable extends ExternalStorage {
         return dictionary;
     }
 
-    private static boolean saveRecords(Map<String, ID> caches) {
+    private boolean saveRecords(Map<String, ID> caches) {
         StringBuilder text = new StringBuilder();
         Set<String> allKeys = caches.keySet();
         ID identifier;
@@ -117,7 +116,7 @@ public class AddressNameTable extends ExternalStorage {
      * @param identifier - user ID
      * @return true on success
      */
-    public static boolean saveRecord(String name, ID identifier) {
+    boolean saveRecord(String name, ID identifier) {
         if (!cacheRecord(name, identifier)) {
             return false;
         }
@@ -131,7 +130,7 @@ public class AddressNameTable extends ExternalStorage {
      * @param name - short name
      * @return user ID
      */
-    public static ID record(String name) {
+    ID record(String name) {
         return ansTable.get(name.toLowerCase());
     }
 
@@ -141,7 +140,7 @@ public class AddressNameTable extends ExternalStorage {
      * @param identifier - user ID
      * @return all short names pointing to this same ID
      */
-    public static Set<String> names(String identifier) {
+    Set<String> names(String identifier) {
         Set<String> allKeys = ansTable.keySet();
         // all names
         if (identifier.equals("*")) {

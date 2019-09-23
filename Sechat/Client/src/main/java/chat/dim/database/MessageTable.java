@@ -35,9 +35,9 @@ import chat.dim.client.Conversation;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 
-public class MessageTable extends ExternalStorage {
+class MessageTable extends ExternalStorage {
 
-    private static Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
+    private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
 
@@ -45,7 +45,7 @@ public class MessageTable extends ExternalStorage {
         return root + "/dkd/" + entity.address + "/messages.js";
     }
 
-    private static List cacheMessages(Object array, ID entity) {
+    private List cacheMessages(Object array, ID entity) {
         if (!(array instanceof List)) {
             return null;
         }
@@ -58,7 +58,7 @@ public class MessageTable extends ExternalStorage {
         return messages;
     }
 
-    private static List loadMessages(ID entity) {
+    private List loadMessages(ID entity) {
         String path = getMsgFilePath(entity);
         try {
             Object array = readJSON(path);
@@ -69,7 +69,7 @@ public class MessageTable extends ExternalStorage {
         }
     }
 
-    private static boolean saveMessages(ID entity) {
+    private boolean saveMessages(ID entity) {
         List<InstantMessage> messages = chatHistory.get(entity);
         if (messages == null) {
             return false;
@@ -83,7 +83,7 @@ public class MessageTable extends ExternalStorage {
         }
     }
 
-    private static boolean removeMessages(ID entity) {
+    private boolean removeMessages(ID entity) {
         String path = getMsgFilePath(entity);
         try {
             return delete(path);
@@ -93,7 +93,7 @@ public class MessageTable extends ExternalStorage {
         }
     }
 
-    private static boolean clearMessages(ID entity) {
+    private boolean clearMessages(ID entity) {
         List<InstantMessage> messages = new ArrayList<>();
         String path = getMsgFilePath(entity);
         try {
@@ -106,7 +106,7 @@ public class MessageTable extends ExternalStorage {
 
     //-------- messages
 
-    public static List<InstantMessage> messagesInConversation(Conversation chatBox) {
+    List<InstantMessage> messagesInConversation(Conversation chatBox) {
         List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
         if (msgList == null) {
             msgList = new ArrayList<>();
@@ -126,43 +126,43 @@ public class MessageTable extends ExternalStorage {
         return msgList;
     }
 
-    public static int numberOfMessages(Conversation chatBox) {
+    int numberOfMessages(Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.size();
     }
 
-    public static InstantMessage messageAtIndex(int index, Conversation chatBox) {
+    InstantMessage messageAtIndex(int index, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.get(index);
     }
 
-    public static boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+    boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.add(iMsg);
         return saveMessages(chatBox.identifier);
     }
 
-    public static boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
+    boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.remove(iMsg);
         return saveMessages(chatBox.identifier);
     }
 
-    public static boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
+    boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
         // TODO: withdraw a message;
         return false;
     }
 
-    public static boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
+    boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
         // TODO: save receipt of instant message
         return false;
     }
 
-    public static boolean removeMessages(Conversation chatBox) {
+    boolean removeMessages(Conversation chatBox) {
         return removeMessages(chatBox.identifier);
     }
 
-    public static boolean clearMessages(Conversation chatBox) {
+    boolean clearMessages(Conversation chatBox) {
         return clearMessages(chatBox.identifier);
     }
 }

@@ -29,80 +29,81 @@ import java.util.List;
 import java.util.Set;
 
 import chat.dim.client.Facebook;
+import chat.dim.client.SocialNetworkDataSource;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.EntityDataSource;
-import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.NetworkType;
-import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 
-public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, GroupDataSource {
-    private static final SocialNetworkDatabase ourInstance = new SocialNetworkDatabase();
-    public static SocialNetworkDatabase getInstance() { return ourInstance; }
-    private SocialNetworkDatabase() {
-    }
+public class SocialNetworkDatabase implements SocialNetworkDataSource {
 
-    private static Immortals immortals = Immortals.getInstance();
+    private PrivateTable privateTable = new PrivateTable();
+    private MetaTable metaTable = new MetaTable();
+    private ProfileTable profileTable = new ProfileTable();
 
-    public void reloadData() {
-        UserTable.loadUsers();
-        ID user = UserTable.getCurrentUser();
-        if (user == null) {
-            return;
-        }
-        // reload contacts for current user
-        ContactTable.reloadContacts(user);
-        // reload conversation database
-        ConversationDatabase.getInstance().reloadData(user);
-    }
+    private AddressNameTable ansTable = new AddressNameTable();
 
+    private UserTable userTable = new UserTable();
+    private GroupTable groupTable = new GroupTable();
+    private ContactTable contactTable = new ContactTable();
+
+    @Override
     public LocalUser getCurrentUser() {
         Facebook facebook = Facebook.getInstance();
-        return (LocalUser) facebook.getUser(UserTable.getCurrentUser());
+        return (LocalUser) facebook.getUser(userTable.getCurrentUser());
     }
 
+    @Override
     public void setCurrentUser(LocalUser user) {
-        UserTable.setCurrentUser(user.identifier);
+        userTable.setCurrentUser(user.identifier);
     }
 
+    @Override
     public List<ID> allUsers() {
-        return UserTable.allUsers();
+        return userTable.allUsers();
     }
 
+    @Override
     public boolean addUser(ID user) {
-        return UserTable.addUser(user);
+        return userTable.addUser(user);
     }
 
+    @Override
     public boolean removeUser(ID user) {
-        return UserTable.removeUser(user);
+        return userTable.removeUser(user);
     }
 
+    @Override
     public boolean addContact(ID contact, ID user) {
-        return ContactTable.addContact(contact, user);
+        return contactTable.addContact(contact, user);
     }
 
+    @Override
     public boolean removeContact(ID contact, ID user) {
-        return ContactTable.removeContact(contact, user);
+        return contactTable.removeContact(contact, user);
     }
 
+    @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        return UserTable.savePrivateKey(privateKey, identifier);
+        return privateTable.savePrivateKey(privateKey, identifier);
     }
 
+    @Override
     public boolean saveMeta(Meta meta, ID identifier) {
-        return MetaTable.saveMeta(meta, identifier);
+        return metaTable.saveMeta(meta, identifier);
     }
 
+    @Override
     public boolean saveProfile(Profile profile) {
         if (!verifyProfile(profile)) {
             return false;
         }
-        return ProfileTable.saveProfile(profile);
+        return profileTable.saveProfile(profile);
     }
 
+    @Override
     public boolean verifyProfile(Profile profile) {
         if (profile == null) {
             return false;
@@ -125,77 +126,76 @@ public class SocialNetworkDatabase implements EntityDataSource, UserDataSource, 
 
     // Address Name Service
 
+    @Override
     public boolean saveAnsRecord(String name, ID identifier) {
-        return AddressNameTable.saveRecord(name, identifier);
+        return ansTable.saveRecord(name, identifier);
     }
 
+    @Override
     public ID ansRecord(String name) {
-        return AddressNameTable.record(name);
+        return ansTable.record(name);
     }
 
+    @Override
     public Set<String> ansNames(String identifier) {
-        return AddressNameTable.names(identifier);
+        return ansTable.names(identifier);
     }
 
     //---- EntityDataSource
 
     @Override
     public Meta getMeta(ID identifier) {
-        Meta meta = MetaTable.getMeta(identifier);
-        if (meta == null && identifier.getType().isPerson()) {
-            meta = immortals.getMeta(identifier);
-        }
-        return meta;
+        return metaTable.getMeta(identifier);
     }
 
     @Override
     public Profile getProfile(ID identifier) {
-        Profile profile = ProfileTable.getProfile(identifier);
-        if (profile == null && identifier.getType().isPerson()) {
-            profile = immortals.getProfile(identifier);
-        }
-        return profile;
+        return profileTable.getProfile(identifier);
     }
 
     //-------- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = UserTable.getPrivateKeyForSignature(user);
-        if (key == null && user.getType().isPerson()) {
-            key = immortals.getPrivateKeyForSignature(user);
-        }
-        return key;
+        return privateTable.getPrivateKeyForSignature(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        List<PrivateKey> keys = UserTable.getPrivateKeysForDecryption(user);
-        if (keys == null && user.getType().isPerson()) {
-            keys = immortals.getPrivateKeysForDecryption(user);
-        }
-        return keys;
+        return privateTable.getPrivateKeysForDecryption(user);
     }
 
     @Override
     public List<ID> getContacts(ID user) {
-        return ContactTable.getContacts(user);
+        return contactTable.getContacts(user);
     }
 
     //-------- GroupDataSource
 
     @Override
     public ID getFounder(ID group) {
-        return GroupTable.getFounder(group);
+        return groupTable.getFounder(group);
     }
 
     @Override
     public ID getOwner(ID group) {
-        return GroupTable.getOwner(group);
+        return groupTable.getOwner(group);
     }
 
     @Override
     public List<ID> getMembers(ID group) {
-        return GroupTable.getMembers(group);
+        return groupTable.getMembers(group);
+    }
+
+    @Override
+    public boolean existsMember(ID member, ID group) {
+        List<ID> members = getMembers(group);
+        for (ID item : members) {
+            if (item.equals(member)) {
+                return true;
+            }
+        }
+        ID owner = getOwner(group);
+        return owner == null || owner.equals(member);
     }
 }

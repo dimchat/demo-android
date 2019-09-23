@@ -10,6 +10,7 @@ import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
+import chat.dim.model.MessageProcessor;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -33,14 +34,20 @@ public class DummyContent {
         reloadData();
     }
 
-    public static void reloadData() {
+    private static void reloadData() {
         ITEMS.clear();
 
+        MessageProcessor msgDB = MessageProcessor.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();
-        int count = clerk.numberOfConversations();
+        int count = msgDB.numberOfConversations();
+        ID identifier;
         Conversation chatBox;
         for (int index = 0; index < count; index++) {
-            chatBox = clerk.conversationAtIndex(index);
+            identifier = msgDB.conversationAtIndex(index);
+            chatBox = clerk.getConversation(identifier);
+            if (chatBox == null) {
+                throw new NullPointerException("failed to create chat box: " + identifier);
+            }
             addItem(new DummyItem(chatBox));
         }
     }
@@ -66,7 +73,7 @@ public class DummyContent {
 
         private final Conversation chatBox;
 
-        public DummyItem(Conversation chatBox) {
+        DummyItem(Conversation chatBox) {
             this.chatBox = chatBox;
         }
 

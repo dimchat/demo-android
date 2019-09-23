@@ -35,7 +35,7 @@ public class Amanuensis {
     private Amanuensis() {
     }
 
-    public ConversationDataSource conversationDataSource = null;
+    public ConversationDataSource database = null;
 
     // conversation factory
     public Conversation getConversation(ID identifier) {
@@ -51,7 +51,7 @@ public class Amanuensis {
             throw new NullPointerException("failed to create conversation:" + identifier);
         }
         Conversation chatBox = new Conversation(entity);
-        chatBox.dataSource = conversationDataSource;
+        chatBox.dataSource = database;
         return chatBox;
     }
 
@@ -69,23 +69,5 @@ public class Amanuensis {
         // personal chat, get chat box with contact ID
         ID sender = ID.getInstance(iMsg.envelope.sender);
         return getConversation(sender);
-    }
-
-    // interfaces for ConversationDataSource
-
-    public int numberOfConversations() {
-        return conversationDataSource.numberOfConversations();
-    }
-
-    public Conversation conversationAtIndex(int index) {
-        return conversationDataSource.conversationAtIndex(index);
-    }
-
-    public ID removeConversationAtIndex(int index) {
-        return conversationDataSource.removeConversationAtIndex(index);
-    }
-
-    public boolean removeConversation(Conversation chatBox) {
-        return conversationDataSource.removeConversation(chatBox);
     }
 }

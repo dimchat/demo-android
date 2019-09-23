@@ -26,45 +26,60 @@
 package chat.dim.database;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
 
-class MetaTable extends ExternalStorage {
+public class ProviderTable extends ExternalStorage {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
 
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
+    private String getConfigFilePath(ID sp) {
+        return root + "/dim/" + sp.address + "/config.js";
     }
 
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
+    @SuppressWarnings("unchecked")
+    Map<String, Object> getProviderConfig(ID sp) {
+        String path = getConfigFilePath(sp);
+        Map<String, Object> config = null;
         try {
-            Object dict = readJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
+            config = (Map<String, Object>) readJSON(path);
+        } catch (IOException e) {
             //e.printStackTrace();
+        }
+        if (config == null) {
+            config = new HashMap<>();
+            config.put("ID", sp);
+        }
+        return config;
+    }
+
+    // "/sdcard/chat.dim.sechat/dim/service_providers.js"
+
+    private static String getProvidersFilePath() {
+        return root + "/dim/service_providers.js";
+    }
+
+    @SuppressWarnings("unchecked")
+    List<String> allProviders() {
+        String path = getProvidersFilePath();
+        try {
+            return (List<String>) readJSON(path);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
+    boolean saveProviders(List<String> providers) {
+        String path = getProvidersFilePath();
         try {
-            return writeJSON(meta, path);
+            return writeJSON(providers, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
-    }
-
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
     }
 }

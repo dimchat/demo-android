@@ -33,10 +33,10 @@ import java.util.Map;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
 
-public class ProfileTable extends ExternalStorage {
+class ProfileTable extends ExternalStorage {
 
     // profile cache
-    private static Map<ID, Profile> profileTable = new HashMap<>();
+    private Map<ID, Profile> profileTable = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
 
@@ -44,9 +44,8 @@ public class ProfileTable extends ExternalStorage {
         return root + "/mkm/" + entity.address + "/profile.js";
     }
 
-    private static boolean cacheProfile(Profile profile) {
+    private boolean cacheProfile(Profile profile) {
         ID identifier = profile.identifier;
-        assert identifier.isValid();
         if (profile.isValid()) {
             profileTable.put(identifier, profile);
             return true;
@@ -54,7 +53,7 @@ public class ProfileTable extends ExternalStorage {
         return false;
     }
 
-    private static Profile loadProfile(ID entity) {
+    private Profile loadProfile(ID entity) {
         String path = getProfilePath(entity);
         try {
             Object dict = readJSON(path);
@@ -65,7 +64,7 @@ public class ProfileTable extends ExternalStorage {
         }
     }
 
-    public static boolean saveProfile(Profile profile) {
+    boolean saveProfile(Profile profile) {
         if (!cacheProfile(profile)) {
             return false;
         }
@@ -79,7 +78,7 @@ public class ProfileTable extends ExternalStorage {
         }
     }
 
-    public static Profile getProfile(ID entity) {
+    Profile getProfile(ID entity) {
         // 1. try from profile cache
         Profile profile = profileTable.get(entity);
         if (profile != null) {

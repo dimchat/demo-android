@@ -30,7 +30,6 @@ import java.util.List;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.Address;
@@ -50,28 +49,28 @@ public class Facebook extends Barrack {
         super();
     }
 
-    public SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
+    public SocialNetworkDataSource database = null;
 
     //---- Private Key
 
     public boolean saveProvateKey(PrivateKey privateKey, ID identifier) {
-        return userDB.savePrivateKey(privateKey, identifier);
+        return database.savePrivateKey(privateKey, identifier);
     }
 
     //---- Meta
 
     public boolean saveMeta(Meta meta, ID entity) {
-        return userDB.saveMeta(meta, entity);
+        return database.saveMeta(meta, entity);
     }
 
     //---- Profile
 
     public boolean saveProfile(Profile profile) {
-        return userDB.saveProfile(profile);
+        return database.saveProfile(profile);
     }
 
     public boolean verifyProfile(Profile profile) {
-        return userDB.verifyProfile(profile);
+        return database.verifyProfile(profile);
     }
 
     public String getNickname(ID identifier) {
@@ -82,8 +81,18 @@ public class Facebook extends Barrack {
 
     public ID getID(Address address) {
         ID identifier = new ID(null, address);
-        Meta meta = userDB.getMeta(identifier);
-        return meta == null ? null : meta.generateID(address.getNetwork());
+        Meta meta = database.getMeta(identifier);
+        if (meta == null) {
+            // failed to get meta for this ID
+            return null;
+        }
+        String seed = meta.seed;
+        if (seed == null) {
+            return identifier;
+        }
+        identifier = new ID(seed, address);
+        cacheID(identifier);
+        return identifier;
     }
 
     //-------- SocialNetworkDataSource
@@ -97,7 +106,7 @@ public class Facebook extends Barrack {
         }
         assert string instanceof String;
         // try ANS record
-        ID identifier = userDB.ansRecord((String) string);
+        ID identifier = database.ansRecord((String) string);
         if (identifier != null) {
             return identifier;
         }
@@ -169,7 +178,7 @@ public class Facebook extends Barrack {
         if (meta != null) {
             return meta;
         }
-        meta = userDB.getMeta(entity);
+        meta = database.getMeta(entity);
         if (meta != null && cacheMeta(meta, entity)) {
             return meta;
         }
@@ -178,24 +187,24 @@ public class Facebook extends Barrack {
 
     @Override
     public Profile getProfile(ID entity) {
-        return userDB.getProfile(entity);
+        return database.getProfile(entity);
     }
 
     //-------- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        return userDB.getPrivateKeyForSignature(user);
+        return database.getPrivateKeyForSignature(user);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        return userDB.getPrivateKeysForDecryption(user);
+        return database.getPrivateKeysForDecryption(user);
     }
 
     @Override
     public List<ID> getContacts(ID user) {
-        return userDB.getContacts(user);
+        return database.getContacts(user);
     }
 
     //-------- GroupDataSource
@@ -213,13 +222,13 @@ public class Facebook extends Barrack {
             return getID("owner");
         }
         // get from database
-        ID founder = userDB.getFounder(group);
+        ID founder = database.getFounder(group);
         if (founder != null) {
             return founder;
         }
         // check each member's public key with group's meta.key
         Meta gMeta = getMeta(group);
-        List<ID> members = userDB.getMembers(group);
+        List<ID> members = database.getMembers(group);
         if (gMeta == null || members == null) {
             //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
             return null;
@@ -251,7 +260,7 @@ public class Facebook extends Barrack {
             return ID.ANYONE;
         }
         // get from database
-        ID owner = userDB.getOwner(group);
+        ID owner = database.getOwner(group);
         if (owner != null) {
             return owner;
         }
@@ -279,6 +288,10 @@ public class Facebook extends Barrack {
             return members;
         }
         // get from database
-        return userDB.getMembers(group);
+        return database.getMembers(group);
+    }
+
+    public boolean existsMember(ID member, ID group) {
+        return database.existsMember(member, group);
     }
 }

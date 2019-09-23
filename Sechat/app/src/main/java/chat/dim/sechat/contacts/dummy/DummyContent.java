@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
-import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.User;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
+import chat.dim.model.AccountDatabase;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -18,9 +18,6 @@ import chat.dim.mkm.ID;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class DummyContent {
-
-    static Facebook facebook = Facebook.getInstance();
-    static SocialNetworkDatabase userDB = SocialNetworkDatabase.getInstance();
 
     /**
      * An array of sample (dummy) items.
@@ -36,12 +33,13 @@ public class DummyContent {
         reloadData();
     }
 
-    public static void reloadData() {
+    private static void reloadData() {
         ITEMS.clear();
 
+        AccountDatabase userDB = AccountDatabase.getInstance();
         LocalUser user = userDB.getCurrentUser();
         ID uid = user == null ? null : user.identifier;
-        List<ID> contacts = facebook.getContacts(uid);
+        List<ID> contacts = userDB.getContacts(uid);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }
@@ -68,7 +66,7 @@ public class DummyContent {
 
         private final User account;
 
-        public DummyItem(Object id) {
+        DummyItem(Object id) {
             account = Facebook.getInstance().getUser(ID.getInstance(id));
         }
 

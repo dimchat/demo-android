@@ -23,48 +23,16 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.database;
+package chat.dim.model;
 
-import java.io.IOException;
+import chat.dim.client.Amanuensis;
+import chat.dim.database.ConversationDatabase;
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
-
-class MetaTable extends ExternalStorage {
-
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
-
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
-    }
-
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            Object dict = readJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            return writeJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
+public class MessageProcessor extends ConversationDatabase {
+    private static final MessageProcessor ourInstance = new MessageProcessor();
+    public static MessageProcessor getInstance() { return ourInstance; }
+    private MessageProcessor() {
+        super();
+        Amanuensis.getInstance().database = this;
     }
 }

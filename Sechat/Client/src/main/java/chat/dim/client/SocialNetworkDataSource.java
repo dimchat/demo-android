@@ -23,48 +23,58 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.database;
+package chat.dim.client;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
+import chat.dim.crypto.PrivateKey;
+import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.ID;
+import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
+import chat.dim.mkm.UserDataSource;
 
-class MetaTable extends ExternalStorage {
+public interface SocialNetworkDataSource extends UserDataSource, GroupDataSource {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    boolean savePrivateKey(PrivateKey privateKey, ID identifier);
 
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
-    }
+    //-------- Meta
 
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            Object dict = readJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
+    boolean saveMeta(Meta meta, ID identifier);
 
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            return writeJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    //-------- Profile
 
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
-    }
+    boolean verifyProfile(Profile profile);
+
+    boolean saveProfile(Profile profile);
+
+    //-------- Address Name Service
+
+    boolean saveAnsRecord(String name, ID identifier);
+
+    ID ansRecord(String name);
+
+    Set<String> ansNames(String identifier);
+
+    //-------- User
+
+    LocalUser getCurrentUser();
+
+    void setCurrentUser(LocalUser user);
+
+    List<ID> allUsers();
+
+    boolean addUser(ID user);
+
+    boolean removeUser(ID user);
+
+    boolean addContact(ID contact, ID user);
+
+    boolean removeContact(ID contact, ID user);
+
+    //-------- Group
+
+    boolean existsMember(ID member, ID group);
 }

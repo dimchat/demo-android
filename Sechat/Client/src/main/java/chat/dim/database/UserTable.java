@@ -27,19 +27,14 @@ package chat.dim.database;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.client.Facebook;
-import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
-import chat.dim.mkm.Address;
 import chat.dim.mkm.ID;
 
-public class UserTable extends ExternalStorage {
+class UserTable extends ExternalStorage {
 
-    private static List<ID> userList = new ArrayList<>();
+    private List<ID> userList = null;
 
     // "/sdcard/chat.dim.sechat/dim/users.js"
 
@@ -47,7 +42,9 @@ public class UserTable extends ExternalStorage {
         return root + "/dim/users.js";
     }
 
-    private static boolean saveUsers() {
+    private boolean saveUsers() {
+        assert userList != null;
+        // save into storage
         String path = getUsersFilePath();
         try {
             return writeJSON(userList, path);
@@ -57,16 +54,20 @@ public class UserTable extends ExternalStorage {
         }
     }
 
-    public static void loadUsers() {
+    private boolean loadUsers() {
+        assert userList == null;
+        userList = new ArrayList<>();
+        // loading from storage
         String path = getUsersFilePath();
-        List list = null;
+        List list;
         try {
             list = (List) readJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        if (list == null) {
-            return;
+        if (list == null || list.size() == 0) {
+            return false;
         }
         Facebook facebook = Facebook.getInstance();
         ID user;
@@ -77,21 +78,31 @@ public class UserTable extends ExternalStorage {
             }
             userList.add(user);
         }
+        return true;
     }
 
-    public static List<ID> allUsers() {
+    List<ID> allUsers() {
+        if (userList == null && !loadUsers()) {
+            return null;
+        }
         return userList;
     }
 
-    public static boolean addUser(ID user) {
+    boolean addUser(ID user) {
+        if (userList == null) {
+            loadUsers();
+        }
         if (userList.contains(user)) {
             return false;
         }
-        boolean added = userList.add(user);
-        return added && saveUsers();
+        userList.add(user);
+        return saveUsers();
     }
 
-    public static boolean removeUser(ID user) {
+    boolean removeUser(ID user) {
+        if (userList == null) {
+            loadUsers();
+        }
         if (!userList.contains(user)) {
             return false;
         }
@@ -99,7 +110,10 @@ public class UserTable extends ExternalStorage {
         return removed && saveUsers();
     }
 
-    public static void setCurrentUser(ID user) {
+    void setCurrentUser(ID user) {
+        if (userList == null) {
+            loadUsers();
+        }
         int index = userList.indexOf(user);
         if (index == 0) {
             // already the first user
@@ -113,71 +127,13 @@ public class UserTable extends ExternalStorage {
         saveUsers();
     }
 
-    public static ID getCurrentUser() {
+    ID getCurrentUser() {
+        if (userList == null) {
+            loadUsers();
+        }
         if (userList.size() > 0) {
             return userList.get(0);
         }
         return null;
-    }
-
-    //-------- Private Key
-
-    private static Map<Address, PrivateKey> keys = new HashMap<>();
-
-    // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
-
-    private static String getKeyFilePath(Address address) {
-        return root + "/.private/" + address + "/secret.js";
-    }
-
-    public static boolean savePrivateKey(PrivateKey key, ID user) {
-        keys.put(user.address, key);
-        String path = getKeyFilePath(user.address);
-        try {
-            return writeJSON(key, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private static PrivateKey loadKey(Address address) {
-        // load from JsON file
-        String path = getKeyFilePath(address);
-        try {
-            Object dict = readJSON(path);
-            return PrivateKeyImpl.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = keys.get(user.address);
-        if (key == null) {
-            key = loadKey(user.address);
-            if (key != null) {
-                keys.put(user.address, key);
-            }
-        }
-        return key;
-    }
-
-    public static List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        // FIXME: get private key matches profile key
-        PrivateKey key = getPrivateKeyForSignature(user);
-        if (key == null) {
-            return null;
-        }
-        List<PrivateKey> keys = new ArrayList<>();
-        keys.add(key);
-        return keys;
-    }
-
-    static {
-        // FIXME: test
-        Facebook facebook = Facebook.getInstance();
-        userList.add(facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk"));
     }
 }

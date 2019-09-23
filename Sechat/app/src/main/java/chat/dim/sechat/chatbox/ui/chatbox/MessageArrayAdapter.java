@@ -12,7 +12,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.client.Facebook;
-import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.TextContent;
@@ -22,7 +21,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
     private final int resId;
 
-    public MessageArrayAdapter(Context context, int resource, List<InstantMessage> objects) {
+    MessageArrayAdapter(Context context, int resource, List<InstantMessage> objects) {
         super(context, resource, objects);
         resId = resource;
     }

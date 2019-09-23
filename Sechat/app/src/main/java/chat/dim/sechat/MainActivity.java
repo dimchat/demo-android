@@ -76,8 +76,4 @@ public class MainActivity extends AppCompatActivity {
                     PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
         }
     }
-
-    static {
-        Client client = Client.getInstance();
-    }
 }

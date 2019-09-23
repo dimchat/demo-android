@@ -58,10 +58,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mTitleView;
-        public final TextView mDescView;
-        public DummyItem mItem;
+        final View mView;
+        final TextView mTitleView;
+        final TextView mDescView;
+        DummyItem mItem;
 
         public ViewHolder(View view) {
             super(view);

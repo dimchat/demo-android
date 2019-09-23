@@ -29,37 +29,32 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.client.Amanuensis;
-import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.utils.Log;
 
-public class ConversationTable extends ExternalStorage {
+class ConversationTable extends ExternalStorage {
 
-    private static List<ID> conversationList = new ArrayList<>();
+    private List<ID> conversationList = null;
 
     // "/sdcard/chat.dim.sechat/dkd/*"
 
-    private static String getPath(ID user) {
+    private static String getPath() {
         return root + "/dkd";
     }
 
-    /**
-     *  Refresh conversation list for current user
-     *
-     * @param user - user ID
-     */
-    static void reloadData(ID user) {
+    private boolean scanConversations() {
+        assert conversationList == null;
+        conversationList = new ArrayList<>();
         // scan 'message.js' in sub dirs of 'dkd'
-        String path = getPath(user);
+        String path = getPath();
         File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) {
-            return;
+            return false;
         }
         File[] items = dir.listFiles();
         if (items == null || items.length == 0) {
-            return;
+            return false;
         }
         Facebook facebook = Facebook.getInstance();
         ID identifier;
@@ -76,36 +71,39 @@ public class ConversationTable extends ExternalStorage {
                 //throw new NullPointerException("failed to get ID with name: " + file.getName());
                 Log.error("failed to get ID with name: " + file.getName());
                 // FIXME: meta not found?
-                return;
+                continue;
             }
             conversationList.add(identifier);
         }
         // sort with last message's time
         sortConversations();
+        return true;
     }
 
-    private static void sortConversations() {
+    private void sortConversations() {
         // TODO: get last time of each conversations and sort
     }
 
     //---- conversations
 
-    public static int numberOfConversations() {
+    int numberOfConversations() {
+        if (conversationList == null && ! scanConversations()) {
+            return 0;
+        }
         return conversationList.size();
     }
 
-    public static Conversation conversationAtIndex(int index) {
+    ID conversationAtIndex(int index) {
+        return conversationList.get(index);
+    }
+
+    boolean removeConversationAtIndex(int index) {
         ID identifier = conversationList.get(index);
-        Amanuensis clerk = Amanuensis.getInstance();
-        return clerk.getConversation(identifier);
+        return removeConversation(identifier);
     }
 
-    public static ID removeConversationAtIndex(int index) {
-        return conversationList.remove(index);
-    }
-
-    public static boolean removeConversation(Conversation chatBox) {
-        ID identifier = chatBox.identifier;
+    boolean removeConversation(ID identifier) {
+        // TODO: remove '{address}/messages.js'
         return conversationList.remove(identifier);
     }
 }

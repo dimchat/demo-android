@@ -10,17 +10,17 @@ import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.sechat.Client;
 
-public class ProfileViewModel extends ViewModel {
+class ProfileViewModel extends ViewModel {
 
     @SuppressLint("DefaultLocale")
-    public String getNumberString(ID identifier) {
+    String getNumberString(ID identifier) {
         long number = identifier.getNumber();
         String string = String.format("%010d", number);
         string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
         return string;
     }
 
-    public boolean existsContact(ID contact) {
+    boolean existsContact(ID contact) {
         Client client = Client.getInstance();
         LocalUser user = client.getCurrentUser();
         if (user == null) {

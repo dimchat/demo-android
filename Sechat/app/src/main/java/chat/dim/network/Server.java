@@ -36,7 +36,6 @@ import chat.dim.core.TransceiverDelegate;
 import chat.dim.crypto.Digest;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.format.Base64;
-import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.file.FileContent;
 import chat.dim.stargate.Star;

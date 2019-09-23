@@ -26,45 +26,72 @@
 package chat.dim.database;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.mkm.Address;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
 
-class MetaTable extends ExternalStorage {
+class PrivateTable extends ExternalStorage {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    private Map<Address, PrivateKey> keys = new HashMap<>();
 
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
+    // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
+
+    private String getKeyFilePath(Address address) {
+        return root + "/.private/" + address + "/secret.js";
     }
 
-    private Meta loadMeta(ID entity) {
+    private PrivateKey loadKey(Address address) {
         // load from JsON file
-        String path = getMetaFilePath(entity);
+        String path = getKeyFilePath(address);
         try {
             Object dict = readJSON(path);
-            return Meta.getInstance(dict);
+            return PrivateKeyImpl.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
             //e.printStackTrace();
             return null;
         }
     }
 
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
+    private boolean savePrivateKey(PrivateKey key, Address address) {
+        keys.put(address, key);
+        String path = getKeyFilePath(address);
         try {
-            return writeJSON(meta, path);
+            return writeJSON(key, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
+    boolean savePrivateKey(PrivateKey key, ID user) {
+        return savePrivateKey(key, user.address);
+    }
+
+    PrivateKey getPrivateKeyForSignature(ID user) {
+        PrivateKey key = keys.get(user.address);
+        if (key == null) {
+            key = loadKey(user.address);
+            if (key != null) {
+                keys.put(user.address, key);
+            }
+        }
+        return key;
+    }
+
+    List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+        // FIXME: get private key matches profile key
+        PrivateKey key = getPrivateKeyForSignature(user);
+        if (key == null) {
+            return null;
+        }
+        List<PrivateKey> keys = new ArrayList<>();
+        keys.add(key);
+        return keys;
     }
 }

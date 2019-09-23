@@ -3,15 +3,12 @@ package chat.dim.sechat.chatbox;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import java.util.List;
-
 import chat.dim.client.Amanuensis;
 import chat.dim.client.Conversation;
 import chat.dim.client.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ui.chatbox.ChatboxFragment;
-import chat.dim.sechat.chatbox.ui.chatbox.ChatboxViewModel;
 
 public class ChatboxActivity extends AppCompatActivity {
 

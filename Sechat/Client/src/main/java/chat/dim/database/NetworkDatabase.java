@@ -25,46 +25,49 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
+import chat.dim.client.NetworkDataSource;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
 
-class MetaTable extends ExternalStorage {
+public class NetworkDatabase implements NetworkDataSource {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    private ProviderTable providerTable = new ProviderTable();
+    private StationTable stationTable = new StationTable();
 
-    private static String getMetaFilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/meta.js";
+    @Override
+    public List<String> allProviders() {
+        return providerTable.allProviders();
     }
 
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            Object dict = readJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
+    @Override
+    public Map<String, Object> getProviderConfig(ID sp) {
+        Map config = providerTable.getProviderConfig(sp);
+        Object stations = config.get("stations");
+        if (stations == null) {
+            stations = allStations(sp);
+            if (stations != null) {
+                config.put("stations", stations);
+            }
         }
+        return config;
     }
 
-    boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            return writeJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    @Override
+    public boolean saveProviders(List<String> providers) {
+        return providerTable.saveProviders(providers);
     }
 
-    Meta getMeta(ID entity) {
-        return loadMeta(entity);
+    //-------- Station
+
+    @Override
+    public List<Map<String, Object>> allStations(ID sp) {
+        return stationTable.allStations(sp);
+    }
+
+    @Override
+    public boolean saveStations(List<Map<String, Object>> stations, ID sp) {
+        return stationTable.saveStations(stations, sp);
     }
 }

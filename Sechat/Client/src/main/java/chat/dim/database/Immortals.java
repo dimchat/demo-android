@@ -37,6 +37,7 @@ import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.mkm.Address;
 import chat.dim.mkm.UserDataSource;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
@@ -49,9 +50,9 @@ public class Immortals implements UserDataSource {
     private Immortals() {
     }
 
-    private final Map<ID, Meta>    metaMap       = new HashMap<>();
-    private Map<ID, PrivateKey>    privateKeyMap = new HashMap<>();
-    private final Map<ID, Profile> profileMap    = new HashMap<>();
+    private final Map<Address, Meta>    metaMap       = new HashMap<>();
+    private Map<Address, PrivateKey>    privateKeyMap = new HashMap<>();
+    private final Map<Address, Profile> profileMap    = new HashMap<>();
 
     @SuppressWarnings("unchecked")
     private Profile getProfile(Map dictionary, ID identifier, PrivateKey privateKey) {
@@ -113,7 +114,7 @@ public class Immortals implements UserDataSource {
         Meta meta = Meta.getInstance(dict.get("meta"));
         assert meta != null;
         if (meta.matches(identifier)) {
-            metaMap.put(identifier, meta);
+            metaMap.put(identifier.address, meta);
         } else {
             throw new IllegalArgumentException("meta not match ID:" + identifier + ", " + meta);
         }
@@ -122,14 +123,14 @@ public class Immortals implements UserDataSource {
         assert privateKey != null;
         if (meta.key.matches(privateKey)) {
             // TODO: store private key into keychain
-            privateKeyMap.put(identifier, privateKey);
+            privateKeyMap.put(identifier.address, privateKey);
         } else {
             throw new IllegalArgumentException("private key not match meta public key:" + privateKey);
         }
         // profile
         Map profile = (Map) dict.get("profile");
         if (profile != null) {
-            profileMap.put(identifier, getProfile(profile, identifier, privateKey));
+            profileMap.put(identifier.address, getProfile(profile, identifier, privateKey));
         }
     }
 
@@ -137,24 +138,24 @@ public class Immortals implements UserDataSource {
 
     @Override
     public Meta getMeta(ID identifier) {
-        return metaMap.get(identifier);
+        return metaMap.get(identifier.address);
     }
 
     @Override
     public Profile getProfile(ID identifier) {
-        return profileMap.get(identifier);
+        return profileMap.get(identifier.address);
     }
 
     //---- UserDataSource
 
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        return privateKeyMap.get(user);
+        return privateKeyMap.get(user.address);
     }
 
     @Override
     public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        PrivateKey privateKey = privateKeyMap.get(user);
+        PrivateKey privateKey = privateKeyMap.get(user.address);
         List<PrivateKey> list = new ArrayList<>();
         list.add(privateKey);
         return list;

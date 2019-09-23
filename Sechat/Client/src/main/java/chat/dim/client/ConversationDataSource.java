@@ -43,9 +43,9 @@ public interface ConversationDataSource {
      *  Get chat box info
      *
      * @param index - sorted index
-     * @return conversation instance
+     * @return conversation ID
      */
-    Conversation conversationAtIndex(int index);
+    ID conversationAtIndex(int index);
 
     /**
      *  Remove one chat box
@@ -53,15 +53,15 @@ public interface ConversationDataSource {
      * @param index - chat box index
      * @return false on error
      */
-    ID removeConversationAtIndex(int index);
+    boolean removeConversationAtIndex(int index);
 
     /**
      *  Remove the chat box
      *
-     * @param chatBox - conversation instance
+     * @param identifier - conversation ID
      * @return false on error
      */
-    boolean removeConversation(Conversation chatBox);
+    boolean removeConversation(ID identifier);
 
     //-------- messages
 

@@ -1,6 +1,7 @@
 package chat.dim.sechat.conversations;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import chat.dim.mkm.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.conversations.dummy.DummyContent;
 import chat.dim.sechat.conversations.dummy.DummyContent.DummyItem;
 
@@ -26,7 +29,18 @@ public class ConversationFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+
+    private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
+        @Override
+        public void onListFragmentInteraction(DummyItem item) {
+            ID identifier = item.getIdentifier();
+            assert getContext() != null;
+            Intent intent = new Intent();
+            intent.setClass(getContext(), ChatboxActivity.class);
+            intent.putExtra("ID", identifier.toString());
+            startActivity(intent);
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

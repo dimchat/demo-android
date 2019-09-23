@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.core.Callback;
-import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -40,6 +39,7 @@ import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
+import chat.dim.model.AccountDatabase;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.command.HandshakeCommand;
 import chat.dim.protocol.command.MetaCommand;
@@ -125,7 +125,7 @@ public class Connection {
         if (server.star == null || server.star.getStatus() != StarStatus.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
         }
-        LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
+        LocalUser user = AccountDatabase.getInstance().getCurrentUser();
         if (newSession != null) {
             session = newSession;
         }
@@ -150,7 +150,7 @@ public class Connection {
         // TODO: check FSM state == 'Handshaking'
 
         if (success) {
-            LocalUser user = SocialNetworkDatabase.getInstance().getCurrentUser();
+            LocalUser user = AccountDatabase.getInstance().getCurrentUser();
             currentUser = user;
             Log.info("handshake accepted for user: " + user);
             // broadcast profile to DIM network
