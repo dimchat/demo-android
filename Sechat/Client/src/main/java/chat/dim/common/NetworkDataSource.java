@@ -23,56 +23,24 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.common;
 
+import java.util.List;
 import java.util.Map;
 
-/**
- *  Server
- */
-public interface Star {
+import chat.dim.mkm.ID;
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
+public interface NetworkDataSource {
 
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
+    List<String> allProviders();
 
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
+    Map<String, Object> getProviderConfig(ID sp);
 
-    /**
-     *  Paused
-     */
-    void enterBackground();
+    boolean saveProviders(List<String> providers);
 
-    /**
-     *  Resumed
-     */
-    void enterForeground();
+    //-------- Station
 
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
+    List<Map<String, Object>> allStations(ID sp);
 
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    boolean saveStations(List<Map<String, Object>> stations, ID sp);
 }

@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Conversation;
+import chat.dim.common.Conversation;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 

@@ -23,56 +23,13 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.fsm;
 
-import java.util.Map;
+public interface StateDelegate {
 
-/**
- *  Server
- */
-public interface Star {
+    void enterState(State state, Machine machine);
+    void exitState(State state, Machine machine);
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
-
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
-
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
-
-    /**
-     *  Paused
-     */
-    void enterBackground();
-
-    /**
-     *  Resumed
-     */
-    void enterForeground();
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    void pauseState(State state, Machine machine);
+    void resumeState(State state, Machine machine);
 }

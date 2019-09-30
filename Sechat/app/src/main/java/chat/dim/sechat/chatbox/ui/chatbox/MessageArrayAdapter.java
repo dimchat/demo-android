@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.TextContent;

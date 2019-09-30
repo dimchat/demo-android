@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Amanuensis;
-import chat.dim.client.Conversation;
-import chat.dim.client.Facebook;
+import chat.dim.common.Amanuensis;
+import chat.dim.common.Conversation;
+import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
 import chat.dim.model.MessageProcessor;

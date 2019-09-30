@@ -25,7 +25,7 @@
  */
 package chat.dim.model;
 
-import chat.dim.client.Amanuensis;
+import chat.dim.common.Amanuensis;
 import chat.dim.database.ConversationDatabase;
 
 public class MessageProcessor extends ConversationDatabase {

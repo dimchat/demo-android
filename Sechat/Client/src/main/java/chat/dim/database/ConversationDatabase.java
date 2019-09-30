@@ -27,8 +27,8 @@ package chat.dim.database;
 
 import java.util.List;
 
-import chat.dim.client.Conversation;
-import chat.dim.client.ConversationDataSource;
+import chat.dim.common.Conversation;
+import chat.dim.common.ConversationDataSource;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 

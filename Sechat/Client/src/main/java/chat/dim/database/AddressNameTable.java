@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 
 class AddressNameTable extends ExternalStorage {

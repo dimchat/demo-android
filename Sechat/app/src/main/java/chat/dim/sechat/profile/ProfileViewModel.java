@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModel;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.sechat.Client;

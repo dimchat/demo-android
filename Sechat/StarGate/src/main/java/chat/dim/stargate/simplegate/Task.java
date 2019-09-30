@@ -23,56 +23,36 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.stargate.simplegate;
 
-import java.util.Map;
+import chat.dim.stargate.Star;
+import chat.dim.stargate.StarDelegate;
 
-/**
- *  Server
- */
-public interface Star {
+class Task {
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
+    private final byte[] requestData;
+    private final StarDelegate delegate;
+    Star star = null;
 
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
+    Task(byte[] data, StarDelegate handler) {
+        super();
+        requestData = data;
+        delegate = handler;
+    }
 
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
+    byte[] getRequestData() {
+        return requestData;
+    }
 
-    /**
-     *  Paused
-     */
-    void enterBackground();
+    void onResponse(byte[] responseData) {
+        delegate.onReceive(responseData, star);
+    }
 
-    /**
-     *  Resumed
-     */
-    void enterForeground();
+    void onSuccess() {
+        delegate.onFinishSend(requestData, null, star);
+    }
 
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    public void onError(Error error) {
+        delegate.onFinishSend(requestData, error, star);
+    }
 }

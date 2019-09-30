@@ -14,8 +14,8 @@ import android.widget.ListView;
 
 import java.util.List;
 
-import chat.dim.client.Conversation;
-import chat.dim.client.Messenger;
+import chat.dim.common.Conversation;
+import chat.dim.common.Messenger;
 import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;

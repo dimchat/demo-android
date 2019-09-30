@@ -28,8 +28,8 @@ package chat.dim.database;
 import java.util.List;
 import java.util.Set;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.SocialNetworkDataSource;
+import chat.dim.common.Facebook;
+import chat.dim.common.SocialNetworkDataSource;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.NetworkType;

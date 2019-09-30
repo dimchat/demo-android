@@ -23,56 +23,33 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.common;
 
 import java.util.Map;
 
-/**
- *  Server
- */
-public interface Star {
+import chat.dim.core.KeyCache;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.mkm.ID;
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
+public class KeyStore extends KeyCache {
+    private static final KeyStore ourInstance = new KeyStore();
+    public static KeyStore getInstance() { return ourInstance; }
+    private KeyStore() {
+        super();
+    }
 
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
+    @Override
+    public boolean saveKeys(Map keyMap) {
+        return false;
+    }
 
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
+    @Override
+    public Map loadKeys() {
+        return null;
+    }
 
-    /**
-     *  Paused
-     */
-    void enterBackground();
-
-    /**
-     *  Resumed
-     */
-    void enterForeground();
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    @Override
+    public SymmetricKey reuseCipherKey(ID sender, ID receiver, SymmetricKey key) {
+        return super.reuseCipherKey(sender, receiver, key);
+    }
 }

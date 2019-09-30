@@ -30,6 +30,8 @@ import java.util.Map;
 
 public class Machine {
 
+    public StateDelegate delegate;
+
     private Map<String, State> stateMap;
 
     private String defaultStateName;
@@ -73,14 +75,15 @@ public class Machine {
     void changeState(String stateName) {
         // exit current state
         if (currentState != null) {
+            delegate.exitState(currentState, this);
             currentState.onExit(this);
-            currentState = null;
         }
         // enter new state
         State newState = stateMap.get(stateName);
+        currentState = newState;
         if (newState != null) {
+            delegate.enterState(newState, this);
             newState.onEnter(this);
-            currentState = newState;
         }
     }
 
@@ -113,6 +116,7 @@ public class Machine {
         if (status != Status.Running || currentState == null) {
             throw new AssertionError("FSM pause error: " + status + ", " + currentState);
         }
+        delegate.pauseState(currentState, this);
         status = Status.Paused;
         currentState.onPause(this);
     }
@@ -124,8 +128,9 @@ public class Machine {
         if (status != Status.Paused || currentState == null) {
             throw new AssertionError("FSM resume error: " + status + ", " + currentState);
         }
-        currentState.onResume(this);
+        delegate.resumeState(currentState, this);
         status = Status.Running;
+        currentState.onResume(this);
     }
 
     /**

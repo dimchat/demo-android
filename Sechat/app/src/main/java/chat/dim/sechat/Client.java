@@ -7,18 +7,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.database.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.model.NetworkConfig;
-import chat.dim.network.Connection;
 import chat.dim.network.Server;
 import chat.dim.network.ServiceProvider;
 import chat.dim.network.Terminal;
 import chat.dim.protocol.Command;
+import chat.dim.stargate.simplegate.Fence;
 
 public class Client extends Terminal {
 
@@ -77,10 +77,13 @@ public class Client extends Terminal {
         // TODO: config FTP server
 
         // connect server
-        Server server = new Server(station);
-        server.delegate = this;
-        connection = new Connection(server);
-        server.start(station);
+        currentServer = new Server(station);
+        currentServer.delegate = this;
+        currentServer.star = new Fence(currentServer);
+        currentServer.start(station);
+
+        // get user from database and login
+        login(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -122,28 +125,28 @@ public class Client extends Terminal {
     }
 
     public void terminate() {
-        if (connection != null) {
-            connection.server.end();
+        if (currentServer != null) {
+            currentServer.end();
         }
     }
 
 
     public void enterBackground() {
-        if (connection != null) {
+        if (currentServer != null) {
             // report client state
             Command cmd = new Command("broadcast");
             cmd.put("title", "report");
             cmd.put("state", "background");
-            connection.sendCommand(cmd);
+            sendCommand(cmd);
             // pause the server
-            connection.server.pause();
+            currentServer.pause();
         }
     }
 
     public void enterForeground() {
-        if (connection != null) {
+        if (currentServer != null) {
             // resume the server
-            connection.server.resume();
+            currentServer.resume();
 
             // clear icon badge
 
@@ -151,7 +154,7 @@ public class Client extends Terminal {
             Command cmd = new Command("broadcast");
             cmd.put("title", "report");
             cmd.put("state", "foreground");
-            connection.sendCommand(cmd);
+            sendCommand(cmd);
         }
     }
 }

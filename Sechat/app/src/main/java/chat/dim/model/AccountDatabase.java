@@ -27,7 +27,7 @@ package chat.dim.model;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.Immortals;
 import chat.dim.database.SocialNetworkDatabase;
@@ -35,6 +35,7 @@ import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
+import chat.dim.sechat.Client;
 
 public class AccountDatabase extends SocialNetworkDatabase {
     private static final AccountDatabase ourInstance = new AccountDatabase();
@@ -48,9 +49,20 @@ public class AccountDatabase extends SocialNetworkDatabase {
 
     @Override
     public Meta getMeta(ID identifier) {
+        if (identifier.isBroadcast()) {
+            return null;
+        }
         Meta meta = super.getMeta(identifier);
-        if (meta == null && identifier.getType().isPerson()) {
-            meta = immortals.getMeta(identifier);
+        if (meta == null) {
+            if (identifier.getType().isPerson()) {
+                // try immortals
+                meta = immortals.getMeta(identifier);
+            }
+            if (meta == null) {
+                // query from DIM network
+                Client client = Client.getInstance();
+                client.queryMeta(identifier);
+            }
         }
         return meta;
     }

@@ -23,56 +23,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.network;
 
-import java.util.Map;
+import chat.dim.core.CompletionHandler;
+import chat.dim.crypto.Digest;
+import chat.dim.format.Base64;
 
-/**
- *  Server
- */
-public interface Star {
+class RequestWrapper {
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
+    final byte[] data;
+    final CompletionHandler handler;
 
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
+    RequestWrapper(byte[] payload, CompletionHandler callback) {
+        super();
+        data = payload;
+        handler = callback;
+    }
 
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
-
-    /**
-     *  Paused
-     */
-    void enterBackground();
-
-    /**
-     *  Resumed
-     */
-    void enterForeground();
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
-
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    static String getKey(byte[] payload) {
+        byte[] hash = Digest.sha256(payload);
+        return Base64.encode(hash);
+    }
 }

@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.database.NetworkDatabase;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;

@@ -28,7 +28,7 @@ package chat.dim.database;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.NetworkDataSource;
+import chat.dim.common.NetworkDataSource;
 import chat.dim.mkm.ID;
 
 public class NetworkDatabase implements NetworkDataSource {

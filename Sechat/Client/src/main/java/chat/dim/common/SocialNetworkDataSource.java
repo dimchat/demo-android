@@ -23,56 +23,58 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.stargate;
+package chat.dim.common;
 
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
-/**
- *  Server
- */
-public interface Star {
+import chat.dim.crypto.PrivateKey;
+import chat.dim.mkm.GroupDataSource;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.Meta;
+import chat.dim.mkm.Profile;
+import chat.dim.mkm.UserDataSource;
 
-    /**
-     *  Get connection status
-     *
-     * @return connection status
-     */
-    StarStatus getStatus();
+public interface SocialNetworkDataSource extends UserDataSource, GroupDataSource {
 
-    /**
-     *  Connect to a server
-     *
-     * @param options - launch options
-     */
-    void launch(Map<String, Object> options);
+    boolean savePrivateKey(PrivateKey privateKey, ID identifier);
 
-    /**
-     *  Disconnect from the server
-     */
-    void terminate();
+    //-------- Meta
 
-    /**
-     *  Paused
-     */
-    void enterBackground();
+    boolean saveMeta(Meta meta, ID identifier);
 
-    /**
-     *  Resumed
-     */
-    void enterForeground();
+    //-------- Profile
 
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     */
-    void send(byte[] payload);
+    boolean verifyProfile(Profile profile);
 
-    /**
-     *  Send data to the connected server
-     *
-     * @param payload - data to be sent
-     * @param completionHandler - callback
-     */
-    void send(byte[] payload, StarDelegate completionHandler);
+    boolean saveProfile(Profile profile);
+
+    //-------- Address Name Service
+
+    boolean saveAnsRecord(String name, ID identifier);
+
+    ID ansRecord(String name);
+
+    Set<String> ansNames(String identifier);
+
+    //-------- User
+
+    LocalUser getCurrentUser();
+
+    void setCurrentUser(LocalUser user);
+
+    List<ID> allUsers();
+
+    boolean addUser(ID user);
+
+    boolean removeUser(ID user);
+
+    boolean addContact(ID contact, ID user);
+
+    boolean removeContact(ID contact, ID user);
+
+    //-------- Group
+
+    boolean existsMember(ID member, ID group);
 }
