@@ -23,64 +23,19 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.network;
 
-import java.util.List;
-import java.util.Set;
-
-import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.GroupDataSource;
+import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
-import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
-import chat.dim.mkm.UserDataSource;
+import chat.dim.protocol.HistoryCommand;
 
-public interface SocialNetworkDataSource extends UserDataSource, GroupDataSource {
+class HistoryCommandProcessor {
 
-    boolean savePrivateKey(PrivateKey privateKey, ID identifier);
-
-    //-------- Meta
-
-    boolean saveMeta(Meta meta, ID identifier);
-
-    //-------- Profile
-
-    boolean verifyProfile(Profile profile);
-
-    boolean saveProfile(Profile profile);
-
-    //-------- Address Name Service
-
-    boolean saveAnsRecord(String name, ID identifier);
-
-    ID ansRecord(String name);
-
-    Set<String> ansNames(String identifier);
-
-    //-------- User
-
-    LocalUser getCurrentUser();
-
-    void setCurrentUser(LocalUser user);
-
-    List<ID> allUsers();
-
-    boolean addUser(ID user);
-
-    boolean removeUser(ID user);
-
-    boolean addContact(ID contact, ID user);
-
-    boolean removeContact(ID contact, ID user);
-
-    boolean saveContacts(List<ID> contacts, ID user);
-
-    //-------- Group
-
-    boolean addMember(ID member, ID group);
-
-    boolean removeMember(ID member, ID group);
-
-    boolean saveMembers(List<ID> members, ID group);
+    boolean process(HistoryCommand cmd) {
+        Facebook facebook = Facebook.getInstance();
+        ID group = facebook.getID(cmd.getGroup());
+        assert group == null;
+        // NOTE: let the message processor to do the job
+        return false;
+    }
 }

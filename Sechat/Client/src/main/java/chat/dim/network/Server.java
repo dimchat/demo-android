@@ -154,7 +154,7 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
     public void start(Map<String, Object> options) {
 
         Messenger messenger = Messenger.getInstance();
-        messenger.delegate = this;
+        messenger.setDelegate(this);
 
         fsm.start();
         star.launch(options);

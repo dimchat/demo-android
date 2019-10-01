@@ -48,10 +48,10 @@ class CommandProcessor {
 
     Server server = null;
 
-    boolean process(Command cmd) {
+    boolean process(Command cmd, ID sender) {
         // group commands
         if (cmd instanceof GroupCommand) {
-            return gCmd.process((GroupCommand) cmd);
+            return gCmd.process((GroupCommand) cmd, sender);
         }
 
         // history commands
@@ -159,25 +159,6 @@ class CommandProcessor {
         // TODO: process receipt
         return false;
     }
-
-    //--------
-
-    private class HistoryCommandProcessor {
-
-        boolean process(HistoryCommand cmd) {
-            Facebook facebook = Facebook.getInstance();
-            ID group = facebook.getID(cmd.getGroup());
-            assert group == null;
-            // NOTE: let the message processor to do the job
-            return false;
-        }
-    }
-
-    private class GroupCommandProcessor {
-
-        boolean process(GroupCommand cmd) {
-            // TODO: process group command
-            return false;
-        }
-    }
 }
+
+

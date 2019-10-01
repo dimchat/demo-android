@@ -44,36 +44,40 @@ class ContactTable extends ExternalStorage {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean loadContacts(ID user) {
-        assert current == null || contactList == null || user != current;
-        contactList = new ArrayList<>();
+    private List<ID> loadContacts(ID user) {
+        assert user != current;
         // reading contacts file in the user's directory
         String path = getContactsFilePath(user);
-        List<String> contacts;
+        List<String> array;
         try {
-            contacts = (List<String>) readJSON(path);
+            array = (List<String>) readJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
-        if (contacts == null || contacts.size() == 0) {
-            return false;
+        if (array == null || array.size() == 0) {
+            return null;
         }
         // add contacts
         Facebook facebook = Facebook.getInstance();
+        List<ID> contacts = new ArrayList<>();
         ID contact;
-        for (String item : contacts) {
+        for (String item : array) {
             contact = facebook.getID(item);
-            if (contactList.contains(contact)) {
+            assert contact.isValid();
+            if (contacts.contains(contact)) {
                 continue;
             }
-            contactList.add(contact);
+            contacts.add(contact);
         }
-        sortContacts();
-        return true;
+        // TODO: sort it
+        return contacts;
     }
 
     private boolean saveContacts(ID user) {
+        if (contactList == null) {
+            throw new NullPointerException("contacts cannot be empty: " + user);
+        }
         String path = getContactsFilePath(user);
         try {
             return writeJSON(contactList, path);
@@ -83,39 +87,50 @@ class ContactTable extends ExternalStorage {
         }
     }
 
-    private void sortContacts() {
+    List<ID> getContacts(ID user) {
+        assert user != null;
+        if (user != current) {
+            // user switched, clear contacts
+            contactList = null;
+        }
+        if (contactList == null) {
+            contactList = loadContacts(user);
+            if (contactList == null) {
+                // no need to load again
+                contactList = new ArrayList<>();
+            }
+        }
+        current = user;
+        return contactList;
+    }
+
+    private void sortContacts(List<ID> contacts) {
         // TODO: sort contact list
     }
 
     boolean addContact(ID contact, ID user) {
-        if (user != current) {
-            loadContacts(user);
-            current = user;
-        }
-        if (contactList.contains(contact)) {
+        List<ID> contacts = getContacts(user);
+        if (contacts.contains(contact)) {
             return false;
         }
-        contactList.add(contact);
-        sortContacts();
+        contacts.add(contact);
+        sortContacts(contacts);
         return saveContacts(user);
     }
 
     boolean removeContact(ID contact, ID user) {
-        if (user != current) {
-            loadContacts(user);
-            current = user;
-        }
-        if (!contactList.contains(contact)) {
+        List<ID> contacts = getContacts(user);
+        if (!contacts.contains(contact)) {
             return false;
         }
-        contactList.remove(contact);
+        contacts.remove(contact);
+        sortContacts(contacts);
         return saveContacts(user);
     }
 
-    List<ID> getContacts(ID user) {
-        if (user != current && !loadContacts(user)) {
-            return null;
-        }
-        return contactList;
+    boolean saveContacts(List<ID> contacts, ID user) {
+        contactList = contacts;
+        current = user;
+        return saveContacts(user);
     }
 }

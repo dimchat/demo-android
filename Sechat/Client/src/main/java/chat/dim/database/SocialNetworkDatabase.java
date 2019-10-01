@@ -170,16 +170,51 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
         return contactTable.getContacts(user);
     }
 
+    @Override
+    public boolean saveContacts(List<ID> contacts, ID user) {
+        return contactTable.saveContacts(contacts, user);
+    }
+
     //-------- GroupDataSource
 
     @Override
     public ID getFounder(ID group) {
-        return groupTable.getFounder(group);
+        ID founder = groupTable.getFounder(group);
+        if (founder != null) {
+            return founder;
+        }
+        // check each member's public key with group's meta.key
+        Meta gMeta = getMeta(group);
+        List<ID> members = getMembers(group);
+        if (gMeta == null || members == null) {
+            //throw new NullPointerException("failed to get group info: " + gMeta + ", " + members);
+            return null;
+        }
+        for (ID member : members) {
+            Meta meta = getMeta(member);
+            if (meta == null) {
+                // TODO: query meta for this member from DIM network
+                continue;
+            }
+            if (gMeta.matches(meta.key)) {
+                // if public key matched, means the group is created by this member
+                return member;
+            }
+        }
+        return null;
     }
 
     @Override
     public ID getOwner(ID group) {
-        return groupTable.getOwner(group);
+        ID owner = groupTable.getOwner(group);
+        if (owner != null) {
+            return owner;
+        }
+        if (group.getType() == NetworkType.Polylogue) {
+            // Polylogue's owner is its founder
+            return getFounder(group);
+        }
+        return null;
     }
 
     @Override
@@ -188,14 +223,17 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
     }
 
     @Override
-    public boolean existsMember(ID member, ID group) {
-        List<ID> members = getMembers(group);
-        for (ID item : members) {
-            if (item.equals(member)) {
-                return true;
-            }
-        }
-        ID owner = getOwner(group);
-        return owner == null || owner.equals(member);
+    public boolean addMember(ID member, ID group) {
+        return groupTable.addMember(member, group);
+    }
+
+    @Override
+    public boolean removeMember(ID member, ID group) {
+        return groupTable.removeMember(member, group);
+    }
+
+    @Override
+    public boolean saveMembers(List<ID> members, ID group) {
+        return groupTable.saveMembers(members, group);
     }
 }

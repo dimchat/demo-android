@@ -47,16 +47,16 @@ public class Messenger extends Transceiver {
     private Messenger()  {
         super();
 
-        barrack = Facebook.getInstance();
-        keyCache = KeyStore.getInstance();
+        setSocialNetworkDataSource(Facebook.getInstance());
+        setCipherKeyDataSource(KeyStore.getInstance());
     }
 
     //-------- Transform
 
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
         // [Meta Protocol] check meta in first contact message
-        ID sender = barrack.getID(rMsg.envelope.sender);
-        Meta meta = barrack.getMeta(sender);
+        ID sender = getID(rMsg.envelope.sender);
+        Meta meta = getMeta(sender);
         if (meta == null) {
             // first contact, try meta in message package
             try {
@@ -121,10 +121,7 @@ public class Messenger extends Transceiver {
         }
 
         // 2. sign 'data' by sender
-        ReliableMessage rMsg = signMessage(sMsg);
-
-        // OK
-        return rMsg;
+        return signMessage(sMsg);
     }
 
     /**
@@ -139,16 +136,13 @@ public class Messenger extends Transceiver {
         SecureMessage sMsg = verifyMessage(rMsg);
 
         // 2. check group message
-        ID receiver = barrack.getID(sMsg.envelope.receiver);
+        ID receiver = getID(sMsg.envelope.receiver);
         if (receiver.getType().isGroup()) {
             // TODO: split it
         }
 
         // 3. decrypt 'data' to 'content'
-        InstantMessage iMsg = decryptMessage(sMsg);
-
-        // OK
-        return iMsg;
+        return decryptMessage(sMsg);
     }
 
     //-------- Send
@@ -171,9 +165,9 @@ public class Messenger extends Transceiver {
 
         // trying to send out
         boolean OK = true;
-        ID receiver = barrack.getID(iMsg.envelope.receiver);
+        ID receiver = getID(iMsg.envelope.receiver);
         if (split && receiver.getType().isGroup()) {
-            Group group = barrack.getGroup(receiver);
+            Group group = getGroup(receiver);
             List<ID> members = group == null ? null : group.getMembers();
             List<SecureMessage> messages = members == null ? null : rMsg.split(members);
             if (messages == null || messages.size() == 0) {
@@ -209,6 +203,6 @@ public class Messenger extends Transceiver {
         };
         String json = JSON.encode(rMsg);
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        return delegate.sendPackage(data, handler);
+        return sendPackage(data, handler);
     }
 }

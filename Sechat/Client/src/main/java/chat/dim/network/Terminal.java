@@ -45,7 +45,7 @@ import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.command.MetaCommand;
 import chat.dim.protocol.command.ProfileCommand;
-import chat.dim.stargate.StarStatus;
+import chat.dim.utils.Log;
 
 public class Terminal implements StationDelegate {
 
@@ -252,11 +252,11 @@ public class Terminal implements StationDelegate {
         return true;
     }
 
-    private boolean processCommand(Command cmd) {
+    private boolean processCommand(Command cmd, ID sender) {
         if (processor.server == null) {
             processor.server = currentServer;
         }
-        return processor.process(cmd);
+        return processor.process(cmd, sender);
     }
 
     //---- StationDelegate
@@ -322,11 +322,14 @@ public class Terminal implements StationDelegate {
         // 5. process commands
         Content content = iMsg.content;
         if (content instanceof Command) {
-            if (processCommand((Command) content)) {
-                return;
+            ID sender = facebook.getID(iMsg.envelope.sender);
+            if (processCommand((Command) content, sender)) {
+                Log.info("command OK: " + content);
+            } else {
+                Log.error("command error: " + content);
+                // NOTE: let the message processor to do the job
+                //return;
             }
-            // NOTE: let the message processor to do the job
-            //return;
         }
         /*
         if (sender.getType().isStation()) {

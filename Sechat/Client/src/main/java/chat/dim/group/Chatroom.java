@@ -36,8 +36,14 @@ public class Chatroom extends Group {
         super(identifier);
     }
 
+    @Override
+    public ChatroomDataSource getDataSource() {
+        return (ChatroomDataSource) super.getDataSource();
+    }
+
     public List<ID> getAdmins() {
-        ChatroomDataSource dataSource = (ChatroomDataSource) this.dataSource;
+        ChatroomDataSource dataSource = getDataSource();
+        assert dataSource != null;
         return dataSource.getAdmins(identifier);
     }
 }

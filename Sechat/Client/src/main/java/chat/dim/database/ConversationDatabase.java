@@ -29,8 +29,12 @@ import java.util.List;
 
 import chat.dim.common.Conversation;
 import chat.dim.common.ConversationDataSource;
+import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.group.GroupCommand;
 
 public class ConversationDatabase implements ConversationDataSource {
 
@@ -77,6 +81,22 @@ public class ConversationDatabase implements ConversationDataSource {
 
     @Override
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+
+        // pre-process
+        Content content = iMsg.content;
+        if (content instanceof GroupCommand) {
+            // group history command
+
+        } else if (content instanceof HistoryCommand) {
+            // entity history command
+
+        } else if (content instanceof Command) {
+            // system command
+            Command cmd = (Command) content;
+
+            // TODO: parse & execute system command
+        }
+
         return messageTable.insertMessage(iMsg, chatBox);
     }
 
