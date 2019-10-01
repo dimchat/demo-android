@@ -19,6 +19,7 @@ import chat.dim.common.Messenger;
 import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
+import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
@@ -63,8 +64,13 @@ public class ChatboxFragment extends Fragment {
             throw new NullPointerException("conversation ID should not be empty");
         }
         // pack message content
+        ID sender = user.identifier;
+        ID receiver = chatBox.identifier;
         Content content = new TextContent(text);
-        InstantMessage iMsg = new InstantMessage(content, user.identifier, chatBox.identifier);
+        if (receiver.getType().isGroup()) {
+            content.setGroup(receiver);
+        }
+        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
         // prepare to send
         Callback callback = new Callback() {
             @Override
