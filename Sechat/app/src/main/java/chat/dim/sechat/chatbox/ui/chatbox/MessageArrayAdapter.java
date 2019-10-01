@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import chat.dim.common.Conversation;
 import chat.dim.common.Facebook;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
@@ -22,6 +23,8 @@ import chat.dim.sechat.R;
 public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
     private final int resId;
+
+    public Conversation chatBox = null;
 
     MessageArrayAdapter(Context context, int resource, List<InstantMessage> objects) {
         super(context, resource, objects);
@@ -46,7 +49,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        MsgType type = ChatboxViewModel.getType(iMsg);
+        MsgType type = ChatboxViewModel.getType(iMsg, chatBox);
         if (MsgType.SENT == type) {
             viewHolder.leftLayout.setVisibility(View.GONE);
             viewHolder.centerLayout.setVisibility(View.GONE);

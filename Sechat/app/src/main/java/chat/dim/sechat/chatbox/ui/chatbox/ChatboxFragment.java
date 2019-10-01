@@ -124,6 +124,7 @@ public class ChatboxFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
 
         adapter = new MessageArrayAdapter(getContext(), R.layout.chatbox_message, getMessages());
+        adapter.chatBox = getConversation();
         msgListView.setAdapter(adapter);
     }
 }

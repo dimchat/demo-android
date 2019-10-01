@@ -38,6 +38,7 @@ import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.dkd.SecureMessage;
 import chat.dim.format.JSON;
+import chat.dim.mkm.Group;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
@@ -45,6 +46,8 @@ import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.command.MetaCommand;
 import chat.dim.protocol.command.ProfileCommand;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
 
 public class Terminal implements StationDelegate {
@@ -272,7 +275,6 @@ public class Terminal implements StationDelegate {
         }
 
         // 2. verify it with sender's meta.key
-
         SecureMessage sMsg = messenger.verifyMessage(rMsg);
         if (sMsg == null) {
             // NOTICE: if meta for sender not found,
@@ -318,30 +320,12 @@ public class Terminal implements StationDelegate {
             // failed to decrypt message
             return;
         }
-
-        // 5. process commands
+        ID sender = facebook.getID(iMsg.envelope.sender);
         Content content = iMsg.content;
-        if (content instanceof Command) {
-            ID sender = facebook.getID(iMsg.envelope.sender);
-            if (processCommand((Command) content, sender)) {
-                Log.info("command OK: " + content);
-            } else {
-                Log.error("command error: " + content);
-                // NOTE: let the message processor to do the job
-                //return;
-            }
-        }
-        /*
-        if (sender.getType().isStation()) {
-            // ignore station
-            return;
-        }
-        */
 
         // check meta for new group ID
-        Object group = iMsg.getGroup();
-        if (group != null) {
-            ID gid = facebook.getID(group);
+        ID gid = facebook.getID(content.getGroup());
+        if (gid != null) {
             if (!gid.isBroadcast()) {
                 // check meta
                 Meta meta = facebook.getMeta(gid);
@@ -352,10 +336,52 @@ public class Terminal implements StationDelegate {
                     return;
                 }
             }
+            // check whether the group members info needs update
+            Group group = facebook.getGroup(gid);
+            // if the group info not found, and this is not an 'invite' command
+            //     query group info from the sender
+            boolean needsUpdate = group.getFounder() == null;
+            if (content instanceof InviteCommand) {
+                // FIXME: can we trust this stranger?
+                //        may be we should keep this members list temporary,
+                //        and send 'query' to the founder immediately.
+                // TODO: check whether the members list is a full list,
+                //       it should contain the group owner(founder)
+                needsUpdate = false;
+            }
+            if (needsUpdate) {
+                QueryCommand query = new QueryCommand(gid);
+                sendContent(query, sender);
+            }
+        }
+
+        Amanuensis clerk = Amanuensis.getInstance();
+
+        // 5. process commands
+        if (content instanceof Command) {
+            Command cmd = (Command) content;
+            if (!processCommand(cmd, sender)) {
+                Log.info("command processed: " + content);
+                return;
+            }
+            String command = cmd.command;
+            if (command.equalsIgnoreCase(Command.RECEIPT)) {
+                // receipt
+                if (clerk.saveReceipt(iMsg)) {
+                    Log.info("target message state updated with receipt: " + cmd);
+                }
+                return;
+            }
+            // NOTE: let the message processor to do the job
+            //return;
+        }
+
+        if (sender.getType().isStation()) {
+            Log.info("*** message from station: " + content);
+            //return;
         }
 
         // normal message, let the clerk to deliver it
-        Amanuensis clerk = Amanuensis.getInstance();
         clerk.saveMessage(iMsg);
     }
 

@@ -39,7 +39,7 @@ class ChatboxViewModel extends ViewModel {
         return msgDB.insertMessage(iMsg, chatBox);
     }
 
-    static MsgType getType(InstantMessage iMsg) {
+    static MsgType getType(InstantMessage iMsg, Conversation chatBox) {
         Content content = iMsg.content;
         if (content instanceof Command) {
             return MsgType.COMMAND;
@@ -47,6 +47,10 @@ class ChatboxViewModel extends ViewModel {
 
         Facebook facebook = Facebook.getInstance();
         ID sender = facebook.getID(iMsg.envelope.sender);
+        if (sender.equals(chatBox.identifier)) {
+            return MsgType.RECEIVED;
+        }
+
         Client client = Client.getInstance();
         List<LocalUser> users = client.allUsers();
         for (LocalUser user : users) {

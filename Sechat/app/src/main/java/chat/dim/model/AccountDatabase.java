@@ -111,9 +111,9 @@ public class AccountDatabase extends SocialNetworkDatabase {
         ID hulk = facebook.getID("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
         ID moki = facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
 
-        LocalUser user = (LocalUser) facebook.getUser(moki);
+        LocalUser user = (LocalUser) facebook.getUser(hulk);
         userDB.setCurrentUser(user);
 
-        userDB.addContact(hulk, user.identifier);
+        userDB.addContact(moki, user.identifier);
     }
 }
