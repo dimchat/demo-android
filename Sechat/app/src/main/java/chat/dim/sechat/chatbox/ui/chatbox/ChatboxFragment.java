@@ -1,7 +1,10 @@
 package chat.dim.sechat.chatbox.ui.chatbox;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,20 +16,25 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.common.Conversation;
 import chat.dim.common.Messenger;
 import chat.dim.core.Callback;
+import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.LocalUser;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.Observer;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 
-public class ChatboxFragment extends Fragment {
+public class ChatboxFragment extends Fragment implements Observer {
 
     private ChatboxViewModel mViewModel;
     private MessageArrayAdapter adapter;
@@ -35,14 +43,56 @@ public class ChatboxFragment extends Fragment {
     private EditText inputText;
     private Button sendButton;
 
+    private Conversation chatBox = null;
+
     public static ChatboxFragment newInstance() {
         return new ChatboxFragment();
     }
 
+    public ChatboxFragment() {
+        super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, ConversationDatabase.MessageUpdated);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            adapter.notifyDataSetChanged();
+            scrollToBottom();
+        }
+    };
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        Map userInfo = notification.userInfo;
+        if (userInfo == null) {
+            return;
+        }
+        Conversation chatBox = getConversation();
+        ID identifier = (ID) userInfo.get("ID");
+        if (identifier == null || !identifier.equals(chatBox.identifier)) {
+            return;
+        }
+        // OK
+        Message msg = new Message();
+        msgHandler.sendMessage(msg);
+    }
+
+    void scrollToBottom() {
+        Conversation chatBox = getConversation();
+        List messages = mViewModel.getMessages(chatBox);
+        msgListView.setSelection(messages.size());
+    }
+
     private Conversation getConversation() {
-        ChatboxActivity activity = (ChatboxActivity) getActivity();
-        assert activity != null;
-        return activity.chatBox;
+        if (chatBox == null) {
+            ChatboxActivity activity = (ChatboxActivity) getActivity();
+            assert activity != null;
+            chatBox = activity.chatBox;
+        }
+        return chatBox;
     }
 
     private List<InstantMessage> getMessages() {
@@ -93,10 +143,10 @@ public class ChatboxFragment extends Fragment {
         if (iMsg == null) {
             return false;
         }
-        mViewModel.insertMessage(iMsg, getConversation());
-        List messages = getMessages();
-        adapter.notifyDataSetChanged();
-        msgListView.setSelection(messages.size());
+        Conversation chatBox = getConversation();
+        if (chatBox.identifier.getType().isUser()) {
+            return mViewModel.insertMessage(iMsg, chatBox);
+        }
         return true;
     }
 

@@ -25,11 +25,12 @@
  */
 package chat.dim.notification;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.lang.ref.WeakReference;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 /**
  *  Notification center
@@ -42,7 +43,7 @@ public final class NotificationCenter {
     private NotificationCenter() {
     }
 
-    private Map<String, List<Observer>> observerMap = new HashMap<>();
+    private Map<String, List<WeakReference>> observerMap = new Hashtable<>();
 
     /**
      *  Add observer with notification name
@@ -50,15 +51,20 @@ public final class NotificationCenter {
      * @param observer - who will receive notification
      * @param name - notification name
      */
-    public void addObserver(Observer observer, String name) {
-        List<Observer> list = observerMap.get(name);
+    public synchronized void addObserver(Observer observer, String name) {
+        List<WeakReference> list = observerMap.get(name);
         if (list == null) {
-            list = new ArrayList<>();
+            list = new Vector<>();
             observerMap.put(name, list);
-        } else if (list.contains(observer)) {
-            return;
+        } else {
+            for (WeakReference ref : list) {
+                if (observer == ref.get()) {
+                    // already exists
+                    return;
+                }
+            }
         }
-        list.add(observer);
+        list.add(new WeakReference<>(observer));
     }
 
     /**
@@ -67,12 +73,18 @@ public final class NotificationCenter {
      * @param observer - who will receive notification
      * @param name - notification name
      */
-    public void removeObserver(Observer observer, String name) {
-        List<Observer> list = observerMap.get(name);
+    public synchronized void removeObserver(Observer observer, String name) {
+        List<WeakReference> list = observerMap.get(name);
         if (list == null) {
             return;
         }
-        list.remove(observer);
+        for (WeakReference ref : list) {
+            if (observer == ref.get()) {
+                // got it
+                list.remove(ref);
+                break;
+            }
+        }
     }
 
     /**
@@ -80,7 +92,7 @@ public final class NotificationCenter {
      *
      * @param observer - who will receive notification
      */
-    public void removeObserver(Observer observer) {
+    public synchronized void removeObserver(Observer observer) {
         Set<String> keys = observerMap.keySet();
         for (String name : keys) {
             removeObserver(observer, name);
@@ -114,12 +126,28 @@ public final class NotificationCenter {
      *
      * @param notification - notification object
      */
-    public void postNotification(Notification notification) {
-        List<Observer> list = observerMap.get(notification.name);
-        if (list == null) {
+    private void postNotification(Notification notification) {
+        // a temporary array buffer, used as a snapshot of the state of current observers
+        Object[] array;
+
+        synchronized (this) {
+            List list = observerMap.get(notification.name);
+            if (list == null) {
+                array = null;
+            } else  {
+                array = list.toArray();
+            }
+        }
+        if (array == null) {
             return;
         }
-        for (Observer observer : list) {
+
+        Observer observer;
+        for (Object item : array) {
+            observer = (Observer) ((WeakReference) item).get();
+            if (observer == null) {
+                continue;
+            }
             observer.onReceiveNotification(notification);
         }
     }

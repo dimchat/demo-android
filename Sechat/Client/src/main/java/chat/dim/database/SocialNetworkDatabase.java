@@ -39,6 +39,9 @@ import chat.dim.mkm.Profile;
 
 public class SocialNetworkDatabase implements SocialNetworkDataSource {
 
+    // constants
+    public static final String UsersUpdated = "UsersUpdated";
+
     private PrivateTable privateTable = new PrivateTable();
     private MetaTable metaTable = new MetaTable();
     private ProfileTable profileTable = new ProfileTable();

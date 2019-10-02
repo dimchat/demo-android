@@ -1,8 +1,11 @@
 package chat.dim.sechat.conversations;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Map;
+
+import chat.dim.common.Conversation;
+import chat.dim.database.ConversationDatabase;
 import chat.dim.mkm.ID;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.conversations.dummy.DummyContent;
@@ -23,7 +33,7 @@ import chat.dim.sechat.conversations.dummy.DummyContent.DummyItem;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class ConversationFragment extends Fragment {
+public class ConversationFragment extends Fragment implements Observer {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -42,11 +52,31 @@ public class ConversationFragment extends Fragment {
         }
     };
 
+    private RecyclerViewAdapter adapter = null;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public ConversationFragment() {
+        super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, ConversationDatabase.MessageUpdated);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            DummyContent.reloadData();
+            adapter.notifyDataSetChanged();
+        }
+    };
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        Message msg = new Message();
+        msgHandler.sendMessage(msg);
     }
 
     // TODO: Customize parameter initialization
@@ -82,7 +112,8 @@ public class ConversationFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new RecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            adapter = new RecyclerViewAdapter(DummyContent.ITEMS, mListener);
+            recyclerView.setAdapter(adapter);
         }
         return view;
     }

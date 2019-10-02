@@ -42,7 +42,7 @@ public class DummyContent {
         reloadData();
     }
 
-    private static void reloadData() {
+    public static void reloadData() {
         ITEMS.clear();
 
         List<Conversation> conversationList = new ArrayList<>();
