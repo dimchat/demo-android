@@ -1,6 +1,7 @@
 package chat.dim.sechat.contacts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,10 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import chat.dim.mkm.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.dummy.DummyContent;
 import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;
-import chat.dim.sechat.profile.ProfileFragment;
+import chat.dim.sechat.profile.ProfileActivity;
 
 /**
  * A fragment representing a list of Items.
@@ -31,13 +33,12 @@ public class ContactFragment extends Fragment {
     private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
         @Override
         public void onListFragmentInteraction(DummyItem item) {
-            ProfileFragment profileFragment = ProfileFragment.newInstance(item.getIdentifier());
-            assert getFragmentManager() != null;
-            getFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.content, profileFragment)
-                    .commit();
+            ID identifier = item.getIdentifier();
+            assert getContext() != null;
+            Intent intent = new Intent();
+            intent.setClass(getContext(), ProfileActivity.class);
+            intent.putExtra("ID", identifier.toString());
+            startActivity(intent);
         }
     };
 

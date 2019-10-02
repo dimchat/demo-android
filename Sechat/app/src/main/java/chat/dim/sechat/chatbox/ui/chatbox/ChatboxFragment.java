@@ -45,8 +45,10 @@ public class ChatboxFragment extends Fragment implements Observer {
 
     private Conversation chatBox = null;
 
-    public static ChatboxFragment newInstance() {
-        return new ChatboxFragment();
+    public static ChatboxFragment newInstance(Conversation chatBox) {
+        ChatboxFragment fragment = new ChatboxFragment();
+        fragment.chatBox = chatBox;
+        return fragment;
     }
 
     public ChatboxFragment() {
@@ -70,7 +72,6 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (userInfo == null) {
             return;
         }
-        Conversation chatBox = getConversation();
         ID identifier = (ID) userInfo.get("ID");
         if (identifier == null || !identifier.equals(chatBox.identifier)) {
             return;
@@ -81,22 +82,11 @@ public class ChatboxFragment extends Fragment implements Observer {
     }
 
     void scrollToBottom() {
-        Conversation chatBox = getConversation();
         List messages = mViewModel.getMessages(chatBox);
         msgListView.setSelection(messages.size());
     }
 
-    private Conversation getConversation() {
-        if (chatBox == null) {
-            ChatboxActivity activity = (ChatboxActivity) getActivity();
-            assert activity != null;
-            chatBox = activity.chatBox;
-        }
-        return chatBox;
-    }
-
     private List<InstantMessage> getMessages() {
-        Conversation chatBox = getConversation();
         if (chatBox == null) {
             return null;
         }
@@ -109,7 +99,6 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (user == null) {
             throw new NullPointerException("current user cannot be empty");
         }
-        Conversation chatBox = getConversation();
         if (chatBox == null) {
             throw new NullPointerException("conversation ID should not be empty");
         }
@@ -143,7 +132,6 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (iMsg == null) {
             return false;
         }
-        Conversation chatBox = getConversation();
         if (chatBox.identifier.getType().isUser()) {
             return mViewModel.insertMessage(iMsg, chatBox);
         }
@@ -180,7 +168,8 @@ public class ChatboxFragment extends Fragment implements Observer {
         mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
 
         adapter = new MessageArrayAdapter(getContext(), R.layout.chatbox_message, getMessages());
-        adapter.chatBox = getConversation();
+        adapter.chatBox = chatBox;
         msgListView.setAdapter(adapter);
+        scrollToBottom();
     }
 }

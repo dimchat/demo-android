@@ -1,4 +1,4 @@
-package chat.dim.sechat.profile;
+package chat.dim.sechat.profile.ui.profile;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;

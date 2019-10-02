@@ -1,4 +1,4 @@
-package chat.dim.sechat.profile;
+package chat.dim.sechat.profile.ui.profile;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -32,9 +32,9 @@ public class ProfileFragment extends Fragment {
     private Button messageButton;
 
     public static ProfileFragment newInstance(ID identifier) {
-        ProfileFragment object = new ProfileFragment();
-        object.identifier = identifier;
-        return object;
+        ProfileFragment fragment = new ProfileFragment();
+        fragment.identifier = identifier;
+        return fragment;
     }
 
     @Override
