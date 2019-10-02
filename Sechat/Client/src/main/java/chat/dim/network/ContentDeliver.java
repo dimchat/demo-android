@@ -44,7 +44,12 @@ class ContentDeliver {
 
     private Facebook facebook = Facebook.getInstance();
 
-    Server server = null;
+    private final Server server;
+
+    ContentDeliver(Server server) {
+        super();
+        this.server = server;
+    }
 
     /**
      *  Pack and send message content to receiver

@@ -44,6 +44,15 @@ class GroupCommandProcessor {
 
     private Facebook facebook = Facebook.getInstance();
 
+    private final Server server;
+    private final ContentDeliver deliver;
+
+    GroupCommandProcessor(Server server, ContentDeliver deliver) {
+        super();
+        this.server = server;
+        this.deliver = deliver;
+    }
+
     boolean process(GroupCommand cmd, ID sender) {
         boolean OK;
 
@@ -250,7 +259,9 @@ class GroupCommandProcessor {
             return false;
         }
 
-        // TODO: send group info to commander
+        // pack command and sent out
+        InviteCommand invite = new InviteCommand(group.identifier, group.getMembers());
+        deliver.sendContent(invite, commander);
 
         return true;
     }

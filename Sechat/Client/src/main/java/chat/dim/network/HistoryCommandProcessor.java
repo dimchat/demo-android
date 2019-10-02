@@ -31,6 +31,15 @@ import chat.dim.protocol.HistoryCommand;
 
 class HistoryCommandProcessor {
 
+    private final Server server;
+    private final ContentDeliver deliver;
+
+    HistoryCommandProcessor(Server server, ContentDeliver deliver) {
+        super();
+        this.server = server;
+        this.deliver = deliver;
+    }
+
     boolean process(HistoryCommand cmd) {
         Facebook facebook = Facebook.getInstance();
         ID group = facebook.getID(cmd.getGroup());

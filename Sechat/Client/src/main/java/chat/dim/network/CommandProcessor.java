@@ -43,10 +43,19 @@ class CommandProcessor {
 
     private Facebook facebook = Facebook.getInstance();
 
-    Server server = null;
+    private final Server server;
+    private final ContentDeliver deliver;
 
-    private GroupCommandProcessor gCmd = new GroupCommandProcessor();
-    private HistoryCommandProcessor hCmd = new HistoryCommandProcessor();
+    private final GroupCommandProcessor gCmd;
+    private final HistoryCommandProcessor hCmd;
+
+    CommandProcessor(Server server, ContentDeliver deliver) {
+        super();
+        this.server = server;
+        this.deliver = deliver;
+        gCmd = new GroupCommandProcessor(server, deliver);
+        hCmd = new HistoryCommandProcessor(server, deliver);
+    }
 
     boolean process(Command cmd, ID sender) {
         // group commands

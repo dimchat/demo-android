@@ -51,8 +51,8 @@ public class Terminal implements StationDelegate {
     private Facebook facebook = Facebook.getInstance();
     private Messenger messenger = Messenger.getInstance();
 
-    private CommandProcessor processor = new CommandProcessor();
-    private ContentDeliver deliver = new ContentDeliver();
+    private CommandProcessor processor;
+    private ContentDeliver deliver;
 
     private Server currentServer = null;
 
@@ -81,8 +81,8 @@ public class Terminal implements StationDelegate {
 
     protected void setCurrentServer(Server server) {
         currentServer = server;
-        processor.server = server;
-        deliver.server = server;
+        deliver = new ContentDeliver(server);
+        processor = new CommandProcessor(server, deliver);
     }
 
     public LocalUser getCurrentUser() {
@@ -114,40 +114,24 @@ public class Terminal implements StationDelegate {
 
     //---- Content/processor and deliver
 
-    private CommandProcessor getProcessor() {
-        if (processor.server == null) {
-            assert currentServer != null;
-            processor.server = currentServer;
-        }
-        return processor;
-    }
-
     private boolean processCommand(Command cmd, ID sender) {
-        return getProcessor().process(cmd, sender);
-    }
-
-    private ContentDeliver getDeliver() {
-        if (deliver.server == null) {
-            assert currentServer != null;
-            deliver.server = currentServer;
-        }
-        return deliver;
+        return processor.process(cmd, sender);
     }
 
     private void sendContent(Content content, ID receiver) {
-        getDeliver().sendContent(content, receiver);
+        deliver.sendContent(content, receiver);
     }
 
     protected void sendCommand(Command cmd) {
-        getDeliver().sendCommand(cmd);
+        deliver.sendCommand(cmd);
     }
 
     public void queryMeta(ID identifier) {
-        getDeliver().queryMeta(identifier);
+        deliver.queryMeta(identifier);
     }
 
     protected void login(LocalUser user) {
-        getDeliver().login(user);
+        deliver.login(user);
     }
 
     //---- StationDelegate
