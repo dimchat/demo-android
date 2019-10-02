@@ -32,7 +32,6 @@ import java.util.List;
 import chat.dim.common.Amanuensis;
 import chat.dim.common.Facebook;
 import chat.dim.common.Messenger;
-import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -42,10 +41,7 @@ import chat.dim.mkm.Group;
 import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.command.MetaCommand;
-import chat.dim.protocol.command.ProfileCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
@@ -56,10 +52,15 @@ public class Terminal implements StationDelegate {
     private Messenger messenger = Messenger.getInstance();
 
     private CommandProcessor processor = new CommandProcessor();
+    private ContentDeliver deliver = new ContentDeliver();
 
-    public Server currentServer = null;
+    private Server currentServer = null;
 
     private List<LocalUser> users = null;
+
+    public Terminal() {
+        super();
+    }
 
     /**
      *  format: "DIMP/1.0 (Linux; U; Android 4.1; zh-CN) DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1"
@@ -72,6 +73,16 @@ public class Terminal implements StationDelegate {
 
     public String getLanguage() {
         return "zh-CN";
+    }
+
+    protected Server getCurrentServer() {
+        return currentServer;
+    }
+
+    protected void setCurrentServer(Server server) {
+        currentServer = server;
+        processor.server = server;
+        deliver.server = server;
     }
 
     public LocalUser getCurrentUser() {
@@ -101,165 +112,42 @@ public class Terminal implements StationDelegate {
         return users;
     }
 
-    //---- Request
+    //---- Content/processor and deliver
 
-    /**
-     *  Pack and send message content to receiver
-     *
-     * @param content - message content
-     * @param receiver - contact/group ID
-     * @return InstantMessage been sent
-     */
-    public InstantMessage sendContent(Content content, ID receiver) {
-        LocalUser user = getCurrentUser();
-        if (user == null) {
-            // TODO: save the message content in waiting queue
-            throw new IllegalStateException("login first");
+    private CommandProcessor getProcessor() {
+        if (processor.server == null) {
+            assert currentServer != null;
+            processor.server = currentServer;
         }
-        Facebook facebook = Facebook.getInstance();
-        if (!receiver.isBroadcast() && facebook.getMeta(receiver) == null) {
-            // NOTICE: if meta for sender not found,
-            //         the client will query it automatically
-            // TODO: save the message content in waiting queue
-            return null;
-        }
-        // make instant message
-        InstantMessage iMsg = new InstantMessage(content, user.identifier, receiver);
-        // callback
-        Callback callback = new Callback() {
-            @Override
-            public void onFinished(Object result, Error error) {
-                String event;
-                if (error == null) {
-                    event = "MessageSent";
-                    //iMsg.state = Accepted;
-                } else {
-                    event = "SendMessageFailed";
-                    //iMsg.state = Error;
-                    //iMsg.error = error;
-                }
-                // TODO: post notification with event name and message
-            }
-        };
-        // send out
-        Messenger messenger = Messenger.getInstance();
-        if (messenger.sendMessage(iMsg, callback, true)) {
-            return iMsg;
-        }
-        // error
-        return null;
-    }
-
-    /**
-     *  Pack and send command to station
-     *
-     * @param cmd - command should be sent to station
-     * @return InstantMessage been sent
-     */
-    public InstantMessage sendCommand(Command cmd) {
-        if (currentServer == null) {
-            throw new IllegalStateException("not connect yet");
-        }
-        return sendContent(cmd, currentServer.identifier);
-    }
-
-    /**
-     *  Pack and broadcast content to everyone
-     *
-     * @param content - message content
-     * @return InstantMessage been sent
-     */
-    public InstantMessage broadcastContent(Content content) {
-        content.setGroup(ID.EVERYONE);
-        return sendContent(content, ID.ANYONE);
-    }
-
-    //-------- commands
-
-    public void broadcastProfile(Profile profile) {
-        LocalUser user = getCurrentUser();
-        if (user == null) {
-            // TODO: save the message content in waiting queue
-            throw new IllegalStateException("login first");
-        }
-        assert profile.identifier.equals(user.identifier);
-        // pack and send profile to every contact
-        Command cmd = new ProfileCommand(profile.identifier, profile);
-        List<ID> contacts = user.getContacts();
-        for (ID contact : contacts) {
-            sendContent(cmd, contact);
-        }
-    }
-
-    public InstantMessage postProfile(Profile profile) {
-        return postProfile(profile, null);
-    }
-
-    public InstantMessage postProfile(Profile profile, Meta meta) {
-        Command cmd = new ProfileCommand(profile.identifier, meta, profile);
-        return sendCommand(cmd);
-    }
-
-    public void postContacts(List<ID> contacts) {
-        // TODO: encrypt contacts and send to station
-    }
-
-    public InstantMessage queryMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
-            return null;
-        }
-        Command cmd = new MetaCommand(identifier);
-        return sendCommand(cmd);
-    }
-
-    public InstantMessage queryProfile(ID identifier) {
-        if (identifier.isBroadcast()) {
-            return null;
-        }
-        Command cmd = new ProfileCommand(identifier);
-        return sendCommand(cmd);
-    }
-
-    public InstantMessage queryOnlineUsers() {
-        Command cmd = new Command("users");
-        return sendCommand(cmd);
-    }
-
-    public InstantMessage searchUsers(String keywords) {
-        Command cmd = new Command("search");
-        cmd.put("keywords", keywords);
-        return sendCommand(cmd);
-    }
-
-    public boolean login(LocalUser user) {
-        if (currentServer == null) {
-            throw new NullPointerException("not connect yet");
-        }
-        if (user == null) {
-            user = facebook.database.getCurrentUser();
-            if (user == null) {
-                // user not found
-                return false;
-            }
-        }
-        if (user.equals(getCurrentUser())) {
-            // user not change
-            return true;
-        }
-        // clear session
-        currentServer.session = null;
-
-        setCurrentUser(user);
-
-        currentServer.handshake(null);
-        return true;
+        return processor;
     }
 
     private boolean processCommand(Command cmd, ID sender) {
-        if (processor.server == null) {
-            processor.server = currentServer;
+        return getProcessor().process(cmd, sender);
+    }
+
+    private ContentDeliver getDeliver() {
+        if (deliver.server == null) {
+            assert currentServer != null;
+            deliver.server = currentServer;
         }
-        return processor.process(cmd, sender);
+        return deliver;
+    }
+
+    private void sendContent(Content content, ID receiver) {
+        getDeliver().sendContent(content, receiver);
+    }
+
+    protected void sendCommand(Command cmd) {
+        getDeliver().sendCommand(cmd);
+    }
+
+    public void queryMeta(ID identifier) {
+        getDeliver().queryMeta(identifier);
+    }
+
+    protected void login(LocalUser user) {
+        getDeliver().login(user);
     }
 
     //---- StationDelegate
@@ -360,10 +248,12 @@ public class Terminal implements StationDelegate {
         // 5. process commands
         if (content instanceof Command) {
             Command cmd = (Command) content;
-            if (!processCommand(cmd, sender)) {
-                Log.info("command processed: " + content);
+            boolean needToStore = processCommand(cmd, sender);
+            if (!needToStore) {
+                Log.info("command processed, drop it: " + content);
                 return;
             }
+            // other commands
             String command = cmd.command;
             if (command.equalsIgnoreCase(Command.RECEIPT)) {
                 // receipt

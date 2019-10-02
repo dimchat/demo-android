@@ -77,10 +77,11 @@ public class Client extends Terminal {
         // TODO: config FTP server
 
         // connect server
-        currentServer = new Server(station);
-        currentServer.delegate = this;
-        currentServer.star = new Fence(currentServer);
-        currentServer.start(station);
+        Server server = new Server(station);
+        server.delegate = this;
+        server.star = new Fence(server);
+        server.start(station);
+        setCurrentServer(server);
 
         // get user from database and login
         login(null);
@@ -125,28 +126,31 @@ public class Client extends Terminal {
     }
 
     public void terminate() {
-        if (currentServer != null) {
-            currentServer.end();
+        Server server = getCurrentServer();
+        if (server != null) {
+            server.end();
         }
     }
 
 
     public void enterBackground() {
-        if (currentServer != null) {
+        Server server = getCurrentServer();
+        if (server != null) {
             // report client state
             Command cmd = new Command("broadcast");
             cmd.put("title", "report");
             cmd.put("state", "background");
             sendCommand(cmd);
             // pause the server
-            currentServer.pause();
+            server.pause();
         }
     }
 
     public void enterForeground() {
-        if (currentServer != null) {
+        Server server = getCurrentServer();
+        if (server != null) {
             // resume the server
-            currentServer.resume();
+            server.resume();
 
             // clear icon badge
 

@@ -16,6 +16,7 @@ import chat.dim.common.Facebook;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
+import chat.dim.model.MessageProcessor;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
@@ -96,14 +97,9 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.msgView.setText(textContent.getText());
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
-            Object text = cmd.get("text");
-            if (text == null) {
-                text = cmd.get("message");
-                if (text == null) {
-                    text = cmd.command;
-                }
-            }
-            viewHolder.msgView.setText((String) text);
+            MessageProcessor processor = MessageProcessor.getInstance();
+            String text = processor.getCommandText(cmd, sender);
+            viewHolder.msgView.setText(text);
         }
     }
 

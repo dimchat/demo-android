@@ -25,8 +25,23 @@
  */
 package chat.dim.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import chat.dim.common.Amanuensis;
+import chat.dim.common.Facebook;
 import chat.dim.database.ConversationDatabase;
+import chat.dim.mkm.ID;
+import chat.dim.mkm.Profile;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.group.ExpelCommand;
+import chat.dim.protocol.group.GroupCommand;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.QueryCommand;
+import chat.dim.protocol.group.QuitCommand;
+import chat.dim.protocol.group.ResetCommand;
+import chat.dim.utils.StringUtils;
 
 public class MessageProcessor extends ConversationDatabase {
     private static final MessageProcessor ourInstance = new MessageProcessor();
@@ -34,5 +49,154 @@ public class MessageProcessor extends ConversationDatabase {
     private MessageProcessor() {
         super();
         Amanuensis.getInstance().database = this;
+    }
+
+    private Facebook facebook = Facebook.getInstance();
+
+    private String getUsername(Object string) {
+        return getUsername(facebook.getID(string));
+    }
+
+    private String getUsername(ID identifier) {
+        Profile profile = facebook.getProfile(identifier);
+        String nickname = profile == null ? null : profile.getName();
+        String username = identifier.name;
+        if (nickname != null) {
+            if (username != null && identifier.getType().isUser()) {
+                return nickname + " (" + username + ")";
+            }
+            return nickname;
+        } else if (username != null) {
+            return username;
+        } else {
+            // BTC address
+            return identifier.address.toString();
+        }
+    }
+
+    public String getCommandText(Command cmd, ID commander) {
+        if (cmd instanceof GroupCommand) {
+            return getGroupCommandText((GroupCommand) cmd, commander);
+        }
+        if (cmd instanceof HistoryCommand) {
+            // TODO: process history command
+        }
+        return String.format("Current version doesn't support this command(%s)", cmd.command);
+    }
+
+    //-------- System commands
+
+    //...
+
+    //-------- Group Commands
+
+    private String getGroupCommandText(GroupCommand cmd, ID commander) {
+        if (cmd instanceof InviteCommand) {
+            return getInviteCommandText((InviteCommand) cmd, commander);
+        }
+        if (cmd instanceof ExpelCommand) {
+            return getExpelCommandText((ExpelCommand) cmd, commander);
+        }
+        if (cmd instanceof QuitCommand) {
+            return getQuitCommandText((QuitCommand) cmd, commander);
+        }
+        if (cmd instanceof ResetCommand) {
+            return getResetCommandText((ResetCommand) cmd, commander);
+        }
+        if (cmd instanceof QueryCommand) {
+            return getQueryCommandText((QueryCommand) cmd, commander);
+        }
+        throw new UnsupportedOperationException("unsupported group command: " + cmd);
+    }
+
+    private String getInviteCommandText(InviteCommand cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+        List addedList = (List) cmd.get("added");
+        if (addedList == null || addedList.size() == 0) {
+            return null;
+        }
+        List<String> names = new ArrayList<>();
+        for (Object item : addedList) {
+            names.add(getUsername(item));
+        }
+        String string = StringUtils.join(names, ", ");
+
+        text = String.format("%s has invited members: %s", getUsername(commander), string);
+        cmd.put("text", text);
+        return text;
+    }
+
+    private String getExpelCommandText(ExpelCommand cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+        List removedList = (List) cmd.get("removed");
+        if (removedList == null || removedList.size() == 0) {
+            return null;
+        }
+        List<String> names = new ArrayList<>();
+        for (Object item : removedList) {
+            names.add(getUsername(item));
+        }
+        String string = StringUtils.join(names, ", ");
+
+        text = String.format("%s has removed members: %s", getUsername(commander), string);
+        cmd.put("text", text);
+        return text;
+    }
+
+    private String getQuitCommandText(QuitCommand cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+
+        text = String.format("%s has quit group chat.", getUsername(commander));
+        cmd.put("text", text);
+        return text;
+    }
+
+    private String getResetCommandText(ResetCommand cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+        List addedList = (List) cmd.get("added");
+        List removedList = (List) cmd.get("removed");
+
+        String string = "";
+        if (removedList != null && removedList.size() > 0) {
+            List<String> names = new ArrayList<>();
+            for (Object item : removedList) {
+                names.add(getUsername(item));
+            }
+            string = string + ", removed: " + StringUtils.join(names, ", ");
+        }
+        if (addedList != null && addedList.size() > 0) {
+            List<String> names = new ArrayList<>();
+            for (Object item : addedList) {
+                names.add(getUsername(item));
+            }
+            string = string + ", added: " + StringUtils.join(names, ", ");
+        }
+
+        text = String.format("%s has updated members %s", getUsername(commander), string);
+        cmd.put("text", text);
+        return text;
+    }
+
+    private String getQueryCommandText(QueryCommand cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+
+        text = String.format("%s was querying group info, responding...", getUsername(commander));
+        cmd.put("text", text);
+        return text;
     }
 }

@@ -32,7 +32,6 @@ import chat.dim.common.Facebook;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.NetworkType;
-import chat.dim.mkm.Profile;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.InviteCommand;
@@ -40,7 +39,6 @@ import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.utils.Log;
-import chat.dim.utils.StringUtils;
 
 class GroupCommandProcessor {
 
@@ -70,23 +68,6 @@ class GroupCommandProcessor {
         }
 
         return OK;
-    }
-
-    private String getUsername(ID identifier) {
-        Profile profile = facebook.getProfile(identifier);
-        String nickname = profile == null ? null : profile.getName();
-        String username = identifier.name;
-        if (nickname != null) {
-            if (username != null && identifier.getType().isUser()) {
-                return nickname + " (" + username + ")";
-            }
-            return nickname;
-        } else if (username != null) {
-            return username;
-        } else {
-            // BTC address
-            return identifier.address.toString();
-        }
     }
 
     private boolean processInvite(InviteCommand cmd, ID commander, Polylogue group) {
@@ -136,6 +117,7 @@ class GroupCommandProcessor {
         }
 
         if (addedList.size() > 0) {
+            cmd.put("added", addedList);
             Log.info("invite members to group: " + group + ", " + addedList);
 
             // 3. save new member list
@@ -144,20 +126,6 @@ class GroupCommandProcessor {
                 return false;
             }
         }
-
-        // 4. build message
-        String format = "%s has invited group members";
-        String text = String.format(format, getUsername(commander));
-        if (addedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (ID item : addedList) {
-                names.add(getUsername(item));
-            }
-            String string = StringUtils.join(names, ", ");
-            text = text + ": " + string;
-            cmd.put("added", addedList);
-        }
-        cmd.put("text", text);
 
         return true;
     }
@@ -193,6 +161,7 @@ class GroupCommandProcessor {
             //    just ignore this assert.
         }
         if (removedList.size() > 0) {
+            cmd.put("removed", removedList);
             Log.error("expel members from group: " + group + ", " + removedList);
 
             // 3. save new member list
@@ -201,20 +170,6 @@ class GroupCommandProcessor {
                 return false;
             }
         }
-
-        // 4. build message
-        String format = "%s has removed group members";
-        String text = String.format(format, getUsername(commander));
-        if (removedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (ID item : removedList) {
-                names.add(getUsername(item));
-            }
-            String string = StringUtils.join(names, ", ");
-            text = text + ": " + string;
-            cmd.put("removed", removedList);
-        }
-        cmd.put("text", text);
 
         return true;
     }
@@ -235,12 +190,6 @@ class GroupCommandProcessor {
             Log.error("failed to remove member " + commander + " from group: " + group);
             return false;
         }
-
-        // 3. build message
-        String format = "%s has quit group chat.";
-        String text = String.format(format, getUsername(commander));
-        assert cmd.get("text") == null;
-        cmd.put("text", text);
 
         return true;
     }
@@ -280,6 +229,8 @@ class GroupCommandProcessor {
         }
 
         if (addedList.size() > 0 || removedList.size() > 0) {
+            cmd.put("added", addedList);
+            cmd.put("removed", removedList);
             Log.info("reset group members: " + group + ",\n" + oldMembers + " ->\n" + newMembers);
 
             // 3. save new members list
@@ -288,29 +239,6 @@ class GroupCommandProcessor {
                 return false;
             }
         }
-
-        // 4. build message
-        String format = "%s has updated group members";
-        String text = String.format(format, getUsername(commander));
-        if (removedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (ID item : removedList) {
-                names.add(getUsername(item));
-            }
-            String string = StringUtils.join(names, ", ");
-            text = text + ", removed: " + string;
-            cmd.put("removed", removedList);
-        }
-        if (addedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (ID item : addedList) {
-                names.add(getUsername(item));
-            }
-            String string = StringUtils.join(names, ", ");
-            text = text + ", added: " + string;
-            cmd.put("added", addedList);
-        }
-        cmd.put("text", text);
 
         return true;
     }
@@ -322,11 +250,7 @@ class GroupCommandProcessor {
             return false;
         }
 
-        // 2. build message
-        String format = "%s was querying group info, responding...";
-        String text = String.format(format, getUsername(commander));
-        assert cmd.get("text") == null;
-        cmd.put("text", text);
+        // TODO: send group info to commander
 
         return true;
     }

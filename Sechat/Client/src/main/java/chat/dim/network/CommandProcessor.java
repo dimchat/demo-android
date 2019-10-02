@@ -43,10 +43,10 @@ class CommandProcessor {
 
     private Facebook facebook = Facebook.getInstance();
 
+    Server server = null;
+
     private GroupCommandProcessor gCmd = new GroupCommandProcessor();
     private HistoryCommandProcessor hCmd = new HistoryCommandProcessor();
-
-    Server server = null;
 
     boolean process(Command cmd, ID sender) {
         // group commands
@@ -82,13 +82,9 @@ class CommandProcessor {
             // query search users response
             return processSearchUsers(cmd);
         }
-        if (command.equalsIgnoreCase(Command.RECEIPT)) {
-            // receipt
-            return processReceipt(cmd);
-        }
 
         // NOTE: let the message processor to do the job
-        return false;
+        return true;
     }
 
     private boolean processHandshake(HandshakeCommand cmd) {
@@ -96,15 +92,14 @@ class CommandProcessor {
         if (state == HandshakeCommand.AGAIN) {
             // update session and handshake again
             server.handshake(cmd.sessionKey);
-            return true;
-        }
-        if (state == HandshakeCommand.SUCCESS) {
+        } else if (state == HandshakeCommand.SUCCESS) {
             // handshake OK
             server.handshakeAccepted(null, true);
-            return true;
+        } else {
+            // handshake rejected
+            server.handshakeAccepted(cmd.sessionKey, false);
         }
-        // handshake rejected
-        server.handshakeAccepted(cmd.sessionKey, false);
+        // no need to store handshake command
         return false;
     }
 
@@ -152,11 +147,6 @@ class CommandProcessor {
         List users = (List) cmd.get("users");
         Map results = (Map) cmd.get("results");
         // TODO: postNotification("SearchUsersUpdated")
-        return false;
-    }
-
-    private boolean processReceipt(Command cmd) {
-        // TODO: process receipt
         return false;
     }
 }
