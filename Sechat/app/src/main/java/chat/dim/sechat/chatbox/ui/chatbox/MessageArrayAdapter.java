@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.List;
 
 import chat.dim.common.Conversation;
@@ -41,7 +42,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(resId, null);
             viewHolder = new ViewHolder();
-            viewHolder.leftLayout = (LinearLayout) view.findViewById(R.id.received_msg);
+            viewHolder.leftLayout = (LinearLayout) view.findViewById(R.id.recv_msg);
             viewHolder.centerLayout = (LinearLayout) view.findViewById(R.id.cmd_msg);
             viewHolder.rightLayout = (LinearLayout) view.findViewById(R.id.sent_msg);
             view.setTag(viewHolder);
@@ -55,33 +56,47 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.leftLayout.setVisibility(View.GONE);
             viewHolder.centerLayout.setVisibility(View.GONE);
             viewHolder.rightLayout.setVisibility(View.VISIBLE);
-            viewHolder.avatarView = view.findViewById(R.id.right_avatar);
-            viewHolder.nameView = view.findViewById(R.id.right_name);
-            viewHolder.msgView = view.findViewById(R.id.right_message);
+            viewHolder.timeView = view.findViewById(R.id.time_text);
+            viewHolder.avatarView = view.findViewById(R.id.sent_avatar);
+            viewHolder.nameView = view.findViewById(R.id.sent_name);
+            viewHolder.msgView = view.findViewById(R.id.sent_text);
         } else if (MsgType.RECEIVED == type) {
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.centerLayout.setVisibility(View.GONE);
             viewHolder.rightLayout.setVisibility(View.GONE);
-            viewHolder.avatarView = view.findViewById(R.id.left_avatar);
-            viewHolder.nameView = view.findViewById(R.id.left_name);
-            viewHolder.msgView = view.findViewById(R.id.left_message);
+            viewHolder.timeView = view.findViewById(R.id.time_text);
+            viewHolder.avatarView = view.findViewById(R.id.recv_avatar);
+            viewHolder.nameView = view.findViewById(R.id.recv_name);
+            viewHolder.msgView = view.findViewById(R.id.recv_text);
         } else if (MsgType.COMMAND == type) {
             viewHolder.leftLayout.setVisibility(View.GONE);
             viewHolder.centerLayout.setVisibility(View.VISIBLE);
             viewHolder.rightLayout.setVisibility(View.GONE);
+            viewHolder.timeView = view.findViewById(R.id.time_text);
             viewHolder.avatarView = null;
             viewHolder.nameView = null;
-            viewHolder.msgView = view.findViewById(R.id.center_message);
+            viewHolder.msgView = view.findViewById(R.id.cmd_text);
         }
         showMessage(iMsg, viewHolder);
 
         return view;
     }
 
+    private Facebook facebook = Facebook.getInstance();
+    private MessageProcessor messageProcessor = MessageProcessor.getInstance();
+
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
-        Facebook facebook = Facebook.getInstance();
         ID sender = facebook.getID(iMsg.envelope.sender);
         Content content = iMsg.content;
+
+        // time
+        String time = messageProcessor.getTimeString(iMsg);
+        if (time == null) {
+            viewHolder.timeView.setVisibility(View.GONE);
+        } else {
+            viewHolder.timeView.setVisibility(View.VISIBLE);
+            viewHolder.timeView.setText(time);
+        }
 
         // avatar
 
@@ -108,6 +123,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         LinearLayout rightLayout = null;
         LinearLayout centerLayout = null;
 
+        TextView timeView = null;
         ImageView avatarView = null;
         TextView nameView = null;
         TextView msgView = null;

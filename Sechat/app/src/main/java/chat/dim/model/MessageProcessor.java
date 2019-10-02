@@ -25,7 +25,9 @@
  */
 package chat.dim.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,6 +35,8 @@ import chat.dim.common.Amanuensis;
 import chat.dim.common.Facebook;
 import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
+import chat.dim.dkd.InstantMessage;
+import chat.dim.dkd.Message;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
@@ -79,6 +83,19 @@ public class MessageProcessor extends ConversationDatabase {
             // BTC address
             return identifier.address.toString();
         }
+    }
+
+    public String getTimeString(Message msg) {
+        Date time = msg.envelope.time;
+        if (time == null) {
+            return null;
+        }
+        return getTimeString(time);
+    }
+
+    private String getTimeString(Date time) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+        return formatter.format(time);
     }
 
     //-------- Content

@@ -6,15 +6,22 @@
     android:orientation="vertical"
     android:padding="10dp">
 
+    <TextView
+        android:id="@+id/time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="time" />
+
     <LinearLayout
-        android:id="@+id/received_msg"
+        android:id="@+id/recv_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/left_avatar"
+            android:id="@+id/recv_avatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -28,14 +35,14 @@
             android:padding="4dp">
 
             <TextView
-                android:id="@+id/left_name"
+                android:id="@+id/recv_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="name" />
 
             <TextView
-                android:id="@+id/left_message"
+                android:id="@+id/recv_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -60,7 +67,7 @@
             android:padding="4dp">
 
             <TextView
-                android:id="@+id/right_name"
+                android:id="@+id/sent_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -68,7 +75,7 @@
                 android:text="me" />
 
             <TextView
-                android:id="@+id/right_message"
+                android:id="@+id/sent_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -76,7 +83,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/right_avatar"
+            android:id="@+id/sent_avatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -91,7 +98,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/center_message"
+            android:id="@+id/cmd_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
