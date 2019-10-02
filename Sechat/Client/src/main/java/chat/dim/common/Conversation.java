@@ -25,6 +25,7 @@
  */
 package chat.dim.common;
 
+import java.util.Date;
 import java.util.List;
 
 import chat.dim.dkd.InstantMessage;
@@ -32,6 +33,7 @@ import chat.dim.mkm.Group;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.NetworkType;
+import chat.dim.protocol.ContentType;
 
 public class Conversation {
     public static int PersonalChat = NetworkType.Main.value;
@@ -74,6 +76,46 @@ public class Conversation {
         }
         // Person: "xxx"
         return name;
+    }
+
+    public Date getLastTime() {
+        Date time = null;
+        InstantMessage iMsg = getLastMessage();
+        if (iMsg != null) {
+            time = iMsg.envelope.time;
+        }
+        if (time == null) {
+            time = new Date(0);
+        }
+        return time;
+    }
+
+    public InstantMessage getLastMessage() {
+        int count = numberOfMessages();
+        if (count <= 0) {
+            return null;
+        }
+        return messageAtIndex(count - 1);
+    }
+
+    public InstantMessage getLastVisibleMessage() {
+        int count = numberOfMessages();
+        InstantMessage iMsg;
+        int msgType;
+        for (int index = count - 1; index >= 0; --index) {
+            iMsg = messageAtIndex(index);
+            msgType = iMsg.content.type;
+            if (ContentType.TEXT.value == msgType ||
+                    ContentType.FILE.value == msgType ||
+                    ContentType.IMAGE.value == msgType ||
+                    ContentType.AUDIO.value == msgType ||
+                    ContentType.VIDEO.value == msgType ||
+                    ContentType.PAGE.value == msgType) {
+                // got it
+                return iMsg;
+            }
+        }
+        return null;
     }
 
     // interfaces for ConversationDataSource

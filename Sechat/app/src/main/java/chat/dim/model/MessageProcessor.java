@@ -27,14 +27,21 @@ package chat.dim.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import chat.dim.common.Amanuensis;
 import chat.dim.common.Facebook;
 import chat.dim.database.ConversationDatabase;
+import chat.dim.dkd.Content;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.TextContent;
+import chat.dim.protocol.file.AudioContent;
+import chat.dim.protocol.file.FileContent;
+import chat.dim.protocol.file.ImageContent;
+import chat.dim.protocol.file.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.GroupCommand;
 import chat.dim.protocol.group.InviteCommand;
@@ -73,6 +80,32 @@ public class MessageProcessor extends ConversationDatabase {
             return identifier.address.toString();
         }
     }
+
+    //-------- Content
+
+    public String getContentText(Content content) {
+        if (content instanceof TextContent) {
+            TextContent text = (TextContent) content;
+            return text.getText();
+        }
+        // File: Image, Audio, Video
+        if (content instanceof FileContent) {
+            FileContent file = (FileContent) content;
+            if (content instanceof ImageContent) {
+                return String.format("[Image:%s]", file.getFilename());
+            }
+            if (content instanceof AudioContent) {
+                return String.format("[Voice:%s]", file.getFilename());
+            }
+            if (content instanceof VideoContent) {
+                return String.format("[Movie:%s]", file.getFilename());
+            }
+            return String.format("[File:%s]", file.getFilename());
+        }
+        return String.format(Locale.CHINA,"Current version doesn't support this message type(%d)", content.type);
+    }
+
+    //-------- Command
 
     public String getCommandText(Command cmd, ID commander) {
         if (cmd instanceof GroupCommand) {
