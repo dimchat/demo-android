@@ -13,11 +13,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 
 public class ProfileFragment extends Fragment {
+
+    private Facebook facebook = Facebook.getInstance();
 
     private ProfileViewModel mViewModel;
 
@@ -72,7 +75,7 @@ public class ProfileFragment extends Fragment {
 
         seedView.setText(identifier.name);
         addressView.setText(identifier.address.toString());
-        numberView.setText(mViewModel.getNumberString(identifier));
+        numberView.setText(facebook.getNumberString(identifier));
 
         if (mViewModel.existsContact(identifier)) {
             addButton.setVisibility(View.INVISIBLE);

@@ -25,8 +25,8 @@
  */
 package chat.dim.common;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
@@ -97,6 +97,13 @@ public class Facebook extends Barrack {
         assert identifier.getType().isUser();
         User user = getUser(identifier);
         return user == null ? null : user.getName();
+    }
+
+    public String getNumberString(ID identifier) {
+        long number = identifier.getNumber();
+        String string = String.format(Locale.CHINA, "%010d", number);
+        string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
+        return string;
     }
 
     public ID getID(Address address) {

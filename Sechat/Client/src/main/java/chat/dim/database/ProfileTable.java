@@ -88,7 +88,7 @@ class ProfileTable extends ExternalStorage {
             if (timestamp == null) {
                 profile.put("lastTime", now.getTime() / 1000);
             } else {
-                Date lastTime = new Date((long) timestamp * 1000);
+                Date lastTime = new Date(((Number) timestamp).longValue() * 1000);
                 long dt = now.getTime() - lastTime.getTime();
                 if (Math.abs(dt / 1000) > 3600) {
                     // profile expired

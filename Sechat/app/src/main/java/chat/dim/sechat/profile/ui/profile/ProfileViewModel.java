@@ -1,6 +1,5 @@
 package chat.dim.sechat.profile.ui.profile;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModel;
 
 import java.util.List;
@@ -11,14 +10,6 @@ import chat.dim.mkm.LocalUser;
 import chat.dim.sechat.Client;
 
 class ProfileViewModel extends ViewModel {
-
-    @SuppressLint("DefaultLocale")
-    String getNumberString(ID identifier) {
-        long number = identifier.getNumber();
-        String string = String.format("%010d", number);
-        string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
-        return string;
-    }
 
     boolean existsContact(ID contact) {
         Client client = Client.getInstance();
