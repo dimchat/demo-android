@@ -31,13 +31,9 @@ import java.util.Map;
 
 import chat.dim.common.Conversation;
 import chat.dim.common.ConversationDataSource;
-import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.notification.NotificationCenter;
-import chat.dim.protocol.Command;
-import chat.dim.protocol.HistoryCommand;
-import chat.dim.protocol.group.GroupCommand;
 
 public class ConversationDatabase implements ConversationDataSource {
 
