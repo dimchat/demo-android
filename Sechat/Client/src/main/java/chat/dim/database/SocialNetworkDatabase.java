@@ -209,15 +209,7 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
 
     @Override
     public ID getOwner(ID group) {
-        ID owner = groupTable.getOwner(group);
-        if (owner != null) {
-            return owner;
-        }
-        if (group.getType() == NetworkType.Polylogue) {
-            // Polylogue's owner is its founder
-            return getFounder(group);
-        }
-        return null;
+        return groupTable.getOwner(group);
     }
 
     @Override

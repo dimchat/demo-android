@@ -61,21 +61,21 @@ public class Messenger extends Transceiver {
             // first contact, try meta in message package
             try {
                 meta = Meta.getInstance(rMsg.getMeta());
-                if (meta == null) {
-                    // TODO: query meta for sender from DIM network
-                    //       (do it by application)
-                    return null;
-                } else if (meta.matches(sender)) {
-                    Facebook facebook = Facebook.getInstance();
-                    if (!facebook.saveMeta(meta, sender)) {
-                        throw new RuntimeException("save meta error: " + sender + ", " + meta);
-                    }
-                } else {
-                    throw new IllegalArgumentException("meta not match: " + sender + ", " + meta);
-                }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 return null;
+            }
+            if (null == meta) {
+                // TODO: query meta for sender from DIM network
+                //       (do it by application)
+                return null;
+            } else if (meta.matches(sender)) {
+                Facebook facebook = Facebook.getInstance();
+                if (!facebook.saveMeta(meta, sender)) {
+                    throw new RuntimeException("save meta error: " + sender + ", " + meta);
+                }
+            } else {
+                throw new IllegalArgumentException("meta not match: " + sender + ", " + meta);
             }
         }
         return super.verifyMessage(rMsg);

@@ -6,7 +6,7 @@ dependencies {
     implementation project(':FiniteStateMachine')
     implementation project(':StarGate')
 
-    implementation group: 'chat.dim', name: 'DIMP', version: '0.4.11'
+    implementation group: 'chat.dim', name: 'DIMP', version: '0.4.12'
 }
 
 sourceCompatibility = "7"
