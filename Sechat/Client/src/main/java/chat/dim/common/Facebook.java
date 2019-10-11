@@ -30,6 +30,13 @@ import java.util.Locale;
 
 import chat.dim.core.Barrack;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.crypto.impl.PublicKeyImpl;
+import chat.dim.extension.BTCMeta;
+import chat.dim.extension.ECCPrivateKey;
+import chat.dim.extension.ECCPublicKey;
+import chat.dim.extension.ETHMeta;
 import chat.dim.group.Chatroom;
 import chat.dim.group.Polylogue;
 import chat.dim.mkm.Address;
@@ -288,5 +295,21 @@ public class Facebook extends Barrack {
         }
         ID owner = getOwner(group);
         return owner == null || owner.equals(member);
+    }
+
+    static {
+        // register new asymmetric cryptography key classes
+        PrivateKeyImpl.register(PrivateKey.ECC, ECCPrivateKey.class);
+        PublicKeyImpl.register(PublicKey.ECC, ECCPublicKey.class);
+
+        // register new address classes
+//        Address.register(BTCAddress.class);
+//        Address.register(ETHAddress.class);
+
+        // register new meta classes
+        Meta.register(Meta.VersionBTC, BTCMeta.class);
+        Meta.register(Meta.VersionExBTC, BTCMeta.class);
+        Meta.register(Meta.VersionETH, ETHMeta.class);
+        Meta.register(Meta.VersionExETH, ETHMeta.class);
     }
 }

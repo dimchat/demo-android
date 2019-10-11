@@ -35,7 +35,6 @@ import chat.dim.common.Amanuensis;
 import chat.dim.common.Facebook;
 import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
-import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.Message;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
