@@ -37,8 +37,8 @@ import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.command.MetaCommand;
-import chat.dim.protocol.command.ProfileCommand;
+import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.ProfileCommand;
 
 class ContentDeliver {
 

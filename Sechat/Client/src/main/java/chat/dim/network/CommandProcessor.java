@@ -33,11 +33,11 @@ import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.HistoryCommand;
-import chat.dim.protocol.command.HandshakeCommand;
-import chat.dim.protocol.command.MetaCommand;
-import chat.dim.protocol.command.ProfileCommand;
-import chat.dim.protocol.group.GroupCommand;
+import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.ProfileCommand;
 
 class CommandProcessor {
 
