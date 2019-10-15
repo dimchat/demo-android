@@ -140,6 +140,8 @@ class SocketClient implements Runnable {
             outputStream.write(data);
         } catch (IOException e) {
             e.printStackTrace();
+            // TODO: socket broken, try to reconnect
+            connect();
         }
     }
 
@@ -162,28 +164,53 @@ class SocketClient implements Runnable {
         return pack;
     }
 
+    private byte[] packHeartbeatData() {
+        // TODO: the python station support two packing format now
+        //    1. NetMsg format
+        //    2. Plaintext format ends with '\n'
+        byte[] empty = new byte[1];
+        empty[0] = '\n';
+        return empty;
+    }
+
     @Override
     public void run() {
         if (connect() < 0 || socket == null) {
             throw new NullPointerException("socket not connected");
         }
+        final long HEARTBEAT_INTERVAL = 5 * 60 * 1000;
+        long lastTimestamp = System.currentTimeMillis();
+        long currentTimestamp;
+
         byte[] data = null;
         while (socket.isConnected()) {
+            currentTimestamp = System.currentTimeMillis();
+            // checking network pushed messages
             data = read(data);
             if (data != null) {
-                // push message
                 data = process(data, null);
+                lastTimestamp = currentTimestamp;
                 continue;
             }
+            // checking waiting (sending) tasks
             Task task = connection.popTask();
             if (task != null) {
+                // pack and send request data
                 write(packRequestData(task));
-                // response
+                // checking response for this task
                 data = read(null);
                 data = process(data, task);
+                lastTimestamp = currentTimestamp;
                 continue;
             }
-            // sleep
+            // checking heartbeats
+            if (currentTimestamp - lastTimestamp > HEARTBEAT_INTERVAL) {
+                // pack and send NOOP
+                write(packHeartbeatData());
+                lastTimestamp = currentTimestamp;
+                continue;
+            }
+            // nothing to do, just sleep
             sleep(500);
         }
         connection.setStatus(StarStatus.Error);
