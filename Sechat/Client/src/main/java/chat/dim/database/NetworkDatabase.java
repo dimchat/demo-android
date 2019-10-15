@@ -43,7 +43,7 @@ public class NetworkDatabase implements NetworkDataSource {
 
     @Override
     public Map<String, Object> getProviderConfig(ID sp) {
-        Map config = providerTable.getProviderConfig(sp);
+        Map<String, Object> config = providerTable.getProviderConfig(sp);
         Object stations = config.get("stations");
         if (stations == null) {
             stations = allStations(sp);

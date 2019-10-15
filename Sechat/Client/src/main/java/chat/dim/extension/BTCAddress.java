@@ -74,7 +74,7 @@ public final class BTCAddress extends Address {
      * @param network - address type
      * @return Address object
      */
-    static chat.dim.mkm.plugins.BTCAddress generate(byte[] fingerprint, NetworkType network) {
+    static BTCAddress generate(byte[] fingerprint, NetworkType network) {
         // 1. digest = ripemd160(sha256(fingerprint))
         byte[] digest = Digest.ripemd160(Digest.sha256(fingerprint));
         // 2. head = network + digest
@@ -87,7 +87,7 @@ public final class BTCAddress extends Address {
         byte[] data = new byte[25];
         System.arraycopy(head, 0, data, 0, 21);
         System.arraycopy(cc,0, data, 21, 4);
-        return new chat.dim.mkm.plugins.BTCAddress(Base58.encode(data));
+        return new BTCAddress(Base58.encode(data));
     }
 
     private static byte[] checkCode(byte[] data) {
