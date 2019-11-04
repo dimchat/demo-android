@@ -138,7 +138,7 @@ class CommandProcessor {
             // TODO: query profile?
             return false;
         }
-        if (!identifier.equals(profile.identifier)) {
+        if (!identifier.equals(profile.getIdentifier())) {
             throw new IllegalArgumentException("profile error: " + cmd);
         }
         // got new profile

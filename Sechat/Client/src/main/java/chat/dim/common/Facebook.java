@@ -60,7 +60,7 @@ public class Facebook extends Barrack {
 
     //---- Private Key
 
-    public boolean saveProvateKey(PrivateKey privateKey, ID identifier) {
+    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
         return database.savePrivateKey(privateKey, identifier);
     }
 
@@ -125,7 +125,7 @@ public class Facebook extends Barrack {
             return identifier;
         }
         identifier = new ID(seed, address);
-        cacheID(identifier);
+        cache(identifier);
         return identifier;
     }
 
@@ -175,7 +175,7 @@ public class Facebook extends Barrack {
             throw new UnsupportedOperationException("unsupported user type: " + type);
         }
         // cache it in barrack
-        cacheUser(user);
+        cache(user);
         return user;
     }
 
@@ -200,7 +200,7 @@ public class Facebook extends Barrack {
         }
         assert group != null;
         // cache it in barrack
-        cacheGroup(group);
+        cache(group);
         return group;
     }
 
@@ -213,7 +213,7 @@ public class Facebook extends Barrack {
             return meta;
         }
         meta = database.getMeta(entity);
-        if (meta != null && cacheMeta(meta, entity)) {
+        if (meta != null && cache(meta, entity)) {
             return meta;
         }
         return null;

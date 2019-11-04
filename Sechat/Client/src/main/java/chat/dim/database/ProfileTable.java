@@ -45,7 +45,7 @@ class ProfileTable extends ExternalStorage {
     }
 
     private boolean cacheProfile(Profile profile) {
-        ID identifier = profile.identifier;
+        ID identifier = ID.getInstance(profile.getIdentifier());
         if (profile.isValid()) {
             profileTable.put(identifier, profile);
             return true;
@@ -69,7 +69,8 @@ class ProfileTable extends ExternalStorage {
             return false;
         }
         // write into JsON file
-        String path = getProfilePath(profile.identifier);
+        ID identifier = ID.getInstance(profile.getIdentifier());
+        String path = getProfilePath(identifier);
         try {
             return writeJSON(profile, path);
         } catch (IOException e) {

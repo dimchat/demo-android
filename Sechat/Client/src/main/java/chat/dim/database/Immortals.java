@@ -78,7 +78,7 @@ public class Immortals implements UserDataSource {
                 if (key.equals("name") || key.equals("names")) {
                     continue;
                 }
-                profile.setData((String) key, dictionary.get(key));
+                profile.setProperty((String) key, dictionary.get(key));
             }
             // sign profile
             profile.sign(privateKey);

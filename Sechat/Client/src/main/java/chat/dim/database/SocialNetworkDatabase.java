@@ -113,7 +113,7 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
         } else if (profile.isValid()) {
             return true;
         }
-        ID identifier = profile.identifier;
+        ID identifier = ID.getInstance(profile.getIdentifier());
         assert identifier.isValid();
         NetworkType type = identifier.getType();
         if (type.isUser() || type.value == NetworkType.Polylogue.value) {

@@ -130,9 +130,10 @@ class ContentDeliver {
             // TODO: save the message content in waiting queue
             throw new IllegalStateException("login first");
         }
-        assert profile.identifier.equals(user.identifier);
+        ID identifier = ID.getInstance(profile.getIdentifier());
+        assert identifier.equals(user.identifier);
         // pack and send profile to every contact
-        Command cmd = new ProfileCommand(profile.identifier, profile);
+        Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
         for (ID contact : contacts) {
             sendContent(cmd, contact);
@@ -144,7 +145,8 @@ class ContentDeliver {
     }
 
     InstantMessage postProfile(Profile profile, Meta meta) {
-        Command cmd = new ProfileCommand(profile.identifier, meta, profile);
+        ID identifier = ID.getInstance(profile.getIdentifier());
+        Command cmd = new ProfileCommand(identifier, meta, profile);
         return sendCommand(cmd);
     }
 
