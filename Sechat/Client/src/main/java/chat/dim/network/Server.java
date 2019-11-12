@@ -53,7 +53,7 @@ import chat.dim.utils.Log;
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
 
     private LocalUser currentUser = null;
-    String session = null;
+    public String session = null;
 
     final StateMachine fsm;
 
@@ -78,11 +78,11 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         // CA
     }
 
-    LocalUser getCurrentUser() {
+    public LocalUser getCurrentUser() {
         return currentUser;
     }
 
-    void setCurrentUser(LocalUser user) {
+    public void setCurrentUser(LocalUser user) {
         if (user.equals(currentUser)) {
             return;
         }
@@ -101,7 +101,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     //---- urgent command for connection
 
-    void handshake(String newSession) {
+    public void handshake(String newSession) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
         if (!StateMachine.handshakingState.equals(state.name)) {

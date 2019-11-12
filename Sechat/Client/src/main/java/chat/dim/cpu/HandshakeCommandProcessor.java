@@ -23,28 +23,47 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.network;
+package chat.dim.cpu;
 
-import chat.dim.common.Facebook;
+import chat.dim.Messenger;
+import chat.dim.dkd.Content;
+import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
-import chat.dim.protocol.HistoryCommand;
+import chat.dim.protocol.HandshakeCommand;
 
-class HistoryCommandProcessor {
+public class HandshakeCommandProcessor extends CommandProcessor {
 
-    private final Server server;
-    private final ContentDeliver deliver;
-
-    HistoryCommandProcessor(Server server, ContentDeliver deliver) {
-        super();
-        this.server = server;
-        this.deliver = deliver;
+    public HandshakeCommandProcessor(Messenger messenger) {
+        super(messenger);
     }
 
-    boolean process(HistoryCommand cmd) {
-        Facebook facebook = Facebook.getInstance();
-        ID group = facebook.getID(cmd.getGroup());
-        assert group == null;
-        // NOTE: let the message processor to do the job
-        return false;
+    private Content success() {
+        return null;
+    }
+
+    private Content ask(String sessionKey) {
+        return new HandshakeCommand(sessionKey);
+    }
+
+    private Content offer(String sessionKey, ID sender) {
+        // TODO: check session key in session server
+        return null;
+    }
+
+    //-------- Main --------
+
+    public Content process(Content content, ID sender, InstantMessage iMsg) {
+        assert content instanceof HandshakeCommand;
+        String message = ((HandshakeCommand) content).message;
+        if ("DIM!".equals(message)) {
+            // S -> C
+            return success();
+        } else if ("DIM?".equals(message)) {
+            // S -> C
+            return ask(((HandshakeCommand) content).sessionKey);
+        } else {
+            // C -> S: Hello world!
+            return offer(((HandshakeCommand) content).sessionKey, sender);
+        }
     }
 }
