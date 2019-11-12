@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.CompletionHandler;
+import chat.dim.ConnectionDelegate;
 import chat.dim.MessengerDelegate;
 import chat.dim.common.Messenger;
 import chat.dim.dkd.Content;
@@ -60,6 +61,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public Star star = null;
 
     public StationDelegate delegate;
+    public ConnectionDelegate messenger;
 
     public Server(ID identifier, String host, int port) {
         super(identifier, host, port);
@@ -184,7 +186,10 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public void onReceive(byte[] responseData, Star star) {
-        delegate.didReceivePackage(responseData, this);
+        byte[] response = messenger.receivedPackage(responseData);
+        if (response != null && response.length > 0) {
+            star.send(response);
+        }
     }
 
     @Override

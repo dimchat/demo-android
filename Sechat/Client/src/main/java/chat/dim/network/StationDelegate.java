@@ -33,14 +33,6 @@ package chat.dim.network;
 public interface StationDelegate {
 
     /**
-     *  Received a new data package from the station
-     *
-     * @param data - data package to send
-     * @param server - current station
-     */
-    void didReceivePackage(byte[] data, Station server);
-
-    /**
      *  Send data package to station success
      *
      * @param data - data package sent

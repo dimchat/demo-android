@@ -67,6 +67,7 @@ public class Terminal implements StationDelegate {
 
     protected void setCurrentServer(Server server) {
         server.delegate = this;
+        server.messenger = messenger;
         messenger.server = server;
         messenger.setContext("remote_user", server);
         currentServer = server;
@@ -118,12 +119,6 @@ public class Terminal implements StationDelegate {
     }
 
     //---- StationDelegate
-
-    @Override
-    public void didReceivePackage(byte[] data, Station server) {
-        byte[] response = messenger.receivedPackage(data);
-        getCurrentServer().star.send(response);
-    }
 
     @Override
     public void didSendPackage(byte[] data, Station server) {
