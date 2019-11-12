@@ -31,9 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.CompletionHandler;
+import chat.dim.MessengerDelegate;
 import chat.dim.common.Messenger;
-import chat.dim.core.CompletionHandler;
-import chat.dim.core.TransceiverDelegate;
+import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
 import chat.dim.format.JSON;
@@ -49,7 +50,7 @@ import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements TransceiverDelegate, StarDelegate, StateDelegate {
+public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
 
     private LocalUser currentUser = null;
     String session = null;
@@ -57,6 +58,8 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
     final StateMachine fsm;
 
     public Star star = null;
+
+    public StationDelegate delegate;
 
     public Server(ID identifier, String host, int port) {
         super(identifier, host, port);
@@ -218,7 +221,7 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         }
     }
 
-    //---- TransceiverDelegate
+    //---- MessengerDelegate
 
     private List<RequestWrapper> waitingList = new ArrayList<>();
     private Map<String, RequestWrapper> sendingTable = new HashMap<>();
@@ -241,6 +244,21 @@ public class Server extends Station implements TransceiverDelegate, StarDelegate
         }
 
         return true;
+    }
+
+    @Override
+    public Content broadcastMessage(ReliableMessage msg) {
+        return null;
+    }
+
+    @Override
+    public Content deliverMessage(ReliableMessage msg) {
+        return null;
+    }
+
+    @Override
+    public Content forwardMessage(ReliableMessage msg) {
+        return null;
     }
 
     @Override

@@ -93,7 +93,7 @@ class GroupCommandProcessor {
 
         // 2. get member(s)
         List<ID> invitedList = new ArrayList<>();
-        List array = cmd.members;
+        List array = cmd.getMembers();
         if (array != null && array.size() > 0) {
             // replace item to ID objects
             for (Object item : array) {
@@ -148,7 +148,7 @@ class GroupCommandProcessor {
 
         // 2. get member(s)
         List<ID> expelledList = new ArrayList<>();
-        List array = cmd.members;
+        List array = cmd.getMembers();
         if (array != null && array.size() > 0) {
             // replace item to ID objects
             for (Object item : array) {
@@ -212,7 +212,7 @@ class GroupCommandProcessor {
 
         // 2. get member(s)
         List<ID> newMembers = new ArrayList<>();
-        List array = cmd.members;
+        List array = cmd.getMembers();
         if (array != null && array.size() > 0) {
             // replace item to ID objects
             for (Object item : array) {

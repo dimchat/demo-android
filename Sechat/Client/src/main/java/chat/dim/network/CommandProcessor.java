@@ -114,8 +114,13 @@ class CommandProcessor {
 
     private boolean processMeta(MetaCommand cmd) {
         // check meta
-        ID identifier = cmd.identifier;
-        Meta meta = cmd.meta;
+        ID identifier = facebook.getID(cmd.getIdentifier());
+        Meta meta = null;
+        try {
+            meta = cmd.getMeta();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         if (meta == null) {
             // TODO: query meta?
             return false;
@@ -132,8 +137,8 @@ class CommandProcessor {
         processMeta(cmd);
 
         // check profile
-        ID identifier = cmd.identifier;
-        Profile profile = cmd.profile;
+        ID identifier = facebook.getID(cmd.getIdentifier());
+        Profile profile = cmd.getProfile();
         if (profile == null) {
             // TODO: query profile?
             return false;

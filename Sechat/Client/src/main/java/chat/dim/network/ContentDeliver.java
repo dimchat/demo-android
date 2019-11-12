@@ -27,9 +27,9 @@ package chat.dim.network;
 
 import java.util.List;
 
+import chat.dim.Callback;
 import chat.dim.common.Facebook;
 import chat.dim.common.Messenger;
-import chat.dim.core.Callback;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;

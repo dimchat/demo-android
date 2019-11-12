@@ -1,4 +1,9 @@
 /* license: https://mit-license.org
+ *
+ *  DIMP : Decentralized Instant Messaging Protocol
+ *
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -25,23 +30,30 @@
  */
 package chat.dim.network;
 
-import chat.dim.CompletionHandler;
-import chat.dim.crypto.Digest;
-import chat.dim.format.Base64;
+public interface StationDelegate {
 
-class RequestWrapper {
+    /**
+     *  Received a new data package from the station
+     *
+     * @param data - data package to send
+     * @param server - current station
+     */
+    void didReceivePackage(byte[] data, Station server);
 
-    final byte[] data;
-    final CompletionHandler handler;
+    /**
+     *  Send data package to station success
+     *
+     * @param data - data package sent
+     * @param server - current station
+     */
+    void didSendPackage(byte[] data, Station server);
 
-    RequestWrapper(byte[] payload, CompletionHandler callback) {
-        super();
-        data = payload;
-        handler = callback;
-    }
-
-    static String getKey(byte[] payload) {
-        byte[] hash = Digest.sha256(payload);
-        return Base64.encode(hash);
-    }
+    /**
+     *  Failed to send data package to station
+     *
+     * @param error - error information
+     * @param data - data package to send
+     * @param server - current station
+     */
+    void didFailToSendPackage(Error error, byte[] data, Station server);
 }
