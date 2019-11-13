@@ -26,6 +26,7 @@
 package chat.dim.common;
 
 import java.util.List;
+import java.util.Locale;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
@@ -38,6 +39,7 @@ import chat.dim.extension.ETHMeta;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
+import chat.dim.mkm.User;
 
 public class Facebook extends chat.dim.Facebook {
     private static final Facebook ourInstance = new Facebook();
@@ -112,6 +114,21 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     protected List<ID> loadMembers(ID group) {
         return database.getMembers(group);
+    }
+
+    //--------
+
+    public String getNickname(ID identifier) {
+        assert identifier.getType().isUser();
+        User user = getUser(identifier);
+        return user == null ? null : user.getName();
+    }
+
+    public String getNumberString(ID identifier) {
+        long number = identifier.getNumber();
+        String string = String.format(Locale.CHINA, "%010d", number);
+        string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
+        return string;
     }
 
     //-------- GroupDataSource
