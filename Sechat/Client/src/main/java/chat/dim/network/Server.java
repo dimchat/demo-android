@@ -252,21 +252,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     @Override
-    public Content broadcastMessage(ReliableMessage msg) {
-        return null;
-    }
-
-    @Override
-    public Content deliverMessage(ReliableMessage msg) {
-        return null;
-    }
-
-    @Override
-    public Content forwardMessage(ReliableMessage msg) {
-        return null;
-    }
-
-    @Override
     public String uploadFileData(byte[] data, InstantMessage iMsg) {
         ID sender = ID.getInstance(iMsg.envelope.sender);
         FileContent content = (FileContent) iMsg.content;

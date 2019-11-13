@@ -55,6 +55,7 @@ public class Messenger extends chat.dim.Messenger {
 
     public Server server = null;
 
+    @Override
     public LocalUser getCurrentUser() {
         Facebook facebook = (Facebook) getFacebook();
         return facebook.database.getCurrentUser();
