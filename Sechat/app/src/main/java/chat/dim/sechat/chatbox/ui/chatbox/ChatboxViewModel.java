@@ -9,7 +9,7 @@ import chat.dim.common.Facebook;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.model.MessageProcessor;
 import chat.dim.protocol.Command;
 import chat.dim.sechat.Client;
@@ -52,8 +52,8 @@ class ChatboxViewModel extends ViewModel {
         }
 
         Client client = Client.getInstance();
-        List<LocalUser> users = client.allUsers();
-        for (LocalUser user : users) {
+        List<User> users = client.allUsers();
+        for (User user : users) {
             if (user.identifier.equals(sender)) {
                 return MsgType.SENT;
             }

@@ -25,7 +25,7 @@ import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
@@ -95,7 +95,7 @@ public class ChatboxFragment extends Fragment implements Observer {
 
     private InstantMessage sendText(String text) {
         Client client = Client.getInstance();
-        LocalUser user = client.getCurrentUser();
+        User user = client.getCurrentUser();
         if (user == null) {
             throw new NullPointerException("current user cannot be empty");
         }

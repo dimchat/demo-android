@@ -31,7 +31,7 @@ import java.util.Set;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.GroupDataSource;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.mkm.UserDataSource;
@@ -60,9 +60,9 @@ public interface SocialNetworkDataSource extends UserDataSource, GroupDataSource
 
     //-------- User
 
-    LocalUser getCurrentUser();
+    User getCurrentUser();
 
-    void setCurrentUser(LocalUser user);
+    void setCurrentUser(User user);
 
     List<ID> allUsers();
 

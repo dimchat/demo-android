@@ -31,7 +31,8 @@ import java.util.Set;
 import chat.dim.common.Facebook;
 import chat.dim.common.SocialNetworkDataSource;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.LocalUser;
+import chat.dim.crypto.PublicKey;
+import chat.dim.mkm.User;
 import chat.dim.mkm.NetworkType;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
@@ -53,13 +54,13 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
     private ContactTable contactTable = new ContactTable();
 
     @Override
-    public LocalUser getCurrentUser() {
+    public User getCurrentUser() {
         Facebook facebook = Facebook.getInstance();
-        return (LocalUser) facebook.getUser(userTable.getCurrentUser());
+        return facebook.getUser(userTable.getCurrentUser());
     }
 
     @Override
-    public void setCurrentUser(LocalUser user) {
+    public void setCurrentUser(User user) {
         userTable.setCurrentUser(user.identifier);
     }
 
@@ -159,18 +160,28 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
     //-------- UserDataSource
 
     @Override
+    public List<ID> getContacts(ID user) {
+        return contactTable.getContacts(user);
+    }
+
+    @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
         return privateTable.getPrivateKeyForSignature(user);
     }
 
     @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        return privateTable.getPrivateKeysForDecryption(user);
+    public List<PublicKey> getPublicKeysForVerification(ID user) {
+        return null;
     }
 
     @Override
-    public List<ID> getContacts(ID user) {
-        return contactTable.getContacts(user);
+    public PublicKey getPublicKeyForEncryption(ID user) {
+        return null;
+    }
+
+    @Override
+    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+        return privateTable.getPrivateKeysForDecryption(user);
     }
 
     @Override

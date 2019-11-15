@@ -31,9 +31,8 @@ import chat.dim.cpu.CommandProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
-import chat.dim.dkd.SecureMessage;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.network.Server;
@@ -56,9 +55,25 @@ public class Messenger extends chat.dim.Messenger {
     public Server server = null;
 
     @Override
-    public LocalUser getCurrentUser() {
+    public User getCurrentUser() {
         Facebook facebook = (Facebook) getFacebook();
         return facebook.database.getCurrentUser();
+    }
+
+    @Override
+    protected boolean saveMessage(InstantMessage msg) {
+        Amanuensis clerk = Amanuensis.getInstance();
+        return clerk.saveMessage(msg);
+    }
+
+    @Override
+    protected Content broadcastMessage(ReliableMessage msg) {
+        return null;
+    }
+
+    @Override
+    protected Content deliverMessage(ReliableMessage msg) {
+        return null;
     }
 
     /**
@@ -84,7 +99,7 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     public void broadcastProfile(Profile profile) {
-        LocalUser user = server.getCurrentUser();
+        User user = server.getCurrentUser();
         if (user == null) {
             // TODO: save the message content in waiting queue
             throw new IllegalStateException("login first");
@@ -140,7 +155,7 @@ public class Messenger extends chat.dim.Messenger {
         return sendCommand(cmd);
     }
 
-    public boolean login(LocalUser user) {
+    public boolean login(User user) {
         assert server != null;
         if (user == null) {
             user = getCurrentUser();
@@ -160,50 +175,6 @@ public class Messenger extends chat.dim.Messenger {
 
         server.handshake(null);
         return true;
-    }
-
-    //-------- Convenient
-
-    /**
-     *  Pack instant message to reliable message for delivering
-     *
-     * @param iMsg - instant message
-     * @return ReliableMessage Object
-     */
-    public ReliableMessage encryptAndSignMessage(InstantMessage iMsg) {
-
-        // 1. encrypt 'content' to 'data' for receiver
-        SecureMessage sMsg = encryptMessage(iMsg);
-
-        // 1.1. check group
-        Object group = iMsg.getGroup();
-        if (group != null) {
-            sMsg.setGroup(group);
-        }
-
-        // 2. sign 'data' by sender
-        return signMessage(sMsg);
-    }
-
-    /**
-     *  Extract instant message from a reliable message received
-     *
-     * @param rMsg - reliable message
-     * @return InstantMessage object
-     */
-    public InstantMessage verifyAndDecryptMessage(ReliableMessage rMsg) {
-
-        // 1. verify 'data' with 'signature'
-        SecureMessage sMsg = verifyMessage(rMsg);
-
-        // 2. check group message
-        ID receiver = getID(sMsg.envelope.receiver);
-        if (receiver.getType().isGroup()) {
-            // TODO: split it
-        }
-
-        // 3. decrypt 'data' to 'content'
-        return decryptMessage(sMsg);
     }
 
     //-------- Send

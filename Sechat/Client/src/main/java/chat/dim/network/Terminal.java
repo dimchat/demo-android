@@ -31,7 +31,7 @@ import java.util.List;
 import chat.dim.common.Facebook;
 import chat.dim.common.Messenger;
 import chat.dim.dkd.Content;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
 import chat.dim.protocol.Command;
 
@@ -42,7 +42,7 @@ public class Terminal implements StationDelegate {
 
     private Server currentServer = null;
 
-    private List<LocalUser> users = null;
+    private List<User> users = null;
 
     public Terminal() {
         super();
@@ -73,24 +73,24 @@ public class Terminal implements StationDelegate {
         currentServer = server;
     }
 
-    public LocalUser getCurrentUser() {
+    public User getCurrentUser() {
         return currentServer == null ? null : currentServer.getCurrentUser();
     }
 
-    private void setCurrentUser(LocalUser user) {
+    private void setCurrentUser(User user) {
         if (currentServer != null) {
             currentServer.setCurrentUser(user);
         }
         // TODO: update users list
     }
 
-    public List<LocalUser> allUsers() {
+    public List<User> allUsers() {
         if (users == null) {
             users = new ArrayList<>();
             List<ID> list = facebook.database.allUsers();
-            LocalUser user;
+            User user;
             for (ID item : list) {
-                user = (LocalUser) facebook.getUser(item);
+                user = facebook.getUser(item);
                 if (user == null) {
                     throw new NullPointerException("failed to get local user: " + item);
                 }
@@ -114,7 +114,7 @@ public class Terminal implements StationDelegate {
         messenger.queryMeta(identifier);
     }
 
-    protected void login(LocalUser user) {
+    protected void login(User user) {
         messenger.login(user);
     }
 

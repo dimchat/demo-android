@@ -52,6 +52,7 @@ public class Facebook extends chat.dim.Facebook {
 
     //---- Private Key
 
+    @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
         return database.savePrivateKey(privateKey, identifier);
     }
@@ -64,6 +65,7 @@ public class Facebook extends chat.dim.Facebook {
 
     //---- Meta
 
+    @Override
     public boolean saveMeta(Meta meta, ID entity) {
         return database.saveMeta(meta, entity);
     }
@@ -75,6 +77,7 @@ public class Facebook extends chat.dim.Facebook {
 
     //---- Profile
 
+    @Override
     public boolean saveProfile(Profile profile) {
         return database.saveProfile(profile);
     }
@@ -90,6 +93,7 @@ public class Facebook extends chat.dim.Facebook {
 
     //---- Relationship
 
+    @Override
     public boolean saveContacts(List<ID> contacts, ID user) {
         return database.saveContacts(contacts, user);
     }
@@ -107,6 +111,7 @@ public class Facebook extends chat.dim.Facebook {
         return database.removeMember(member, group);
     }
 
+    @Override
     public boolean saveMembers(List<ID> members, ID group) {
         return database.saveMembers(members, group);
     }

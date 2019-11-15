@@ -11,7 +11,7 @@ import chat.dim.common.Facebook;
 import chat.dim.database.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
 import chat.dim.model.NetworkConfig;
 import chat.dim.network.Server;
@@ -50,9 +50,9 @@ public class Client extends Terminal {
         return "DIM!";
     }
 
-    private LocalUser getUser(Object identifier) {
+    private User getUser(Object identifier) {
         Facebook facebook = Facebook.getInstance();
-        return (LocalUser) facebook.getUser(facebook.getID(identifier));
+        return facebook.getUser(facebook.getID(identifier));
     }
 
     private void startServer(Map<String, Object> station, ServiceProvider sp) {

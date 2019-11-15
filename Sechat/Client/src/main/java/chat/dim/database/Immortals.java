@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
@@ -149,8 +150,23 @@ public class Immortals implements UserDataSource {
     //---- UserDataSource
 
     @Override
+    public List<ID> getContacts(ID user) {
+        return null;
+    }
+
+    @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
         return privateKeyMap.get(user.address);
+    }
+
+    @Override
+    public List<PublicKey> getPublicKeysForVerification(ID user) {
+        return null;
+    }
+
+    @Override
+    public PublicKey getPublicKeyForEncryption(ID user) {
+        return null;
     }
 
     @Override
@@ -159,11 +175,6 @@ public class Immortals implements UserDataSource {
         List<PrivateKey> list = new ArrayList<>();
         list.add(privateKey);
         return list;
-    }
-
-    @Override
-    public List<ID> getContacts(ID user) {
-        return null;
     }
 
     static {

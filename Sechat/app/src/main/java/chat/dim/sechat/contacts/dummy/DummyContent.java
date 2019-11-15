@@ -7,7 +7,6 @@ import java.util.Map;
 
 import chat.dim.common.Facebook;
 import chat.dim.mkm.User;
-import chat.dim.mkm.LocalUser;
 import chat.dim.mkm.ID;
 import chat.dim.model.AccountDatabase;
 
@@ -37,7 +36,7 @@ public class DummyContent {
         ITEMS.clear();
 
         AccountDatabase userDB = AccountDatabase.getInstance();
-        LocalUser user = userDB.getCurrentUser();
+        User user = userDB.getCurrentUser();
         ID uid = user == null ? null : user.identifier;
         List<ID> contacts = userDB.getContacts(uid);
         for (ID identifier : contacts) {

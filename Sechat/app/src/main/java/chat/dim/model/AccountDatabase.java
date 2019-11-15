@@ -32,7 +32,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.database.Immortals;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.sechat.Client;
@@ -111,7 +111,7 @@ public class AccountDatabase extends SocialNetworkDatabase {
         ID hulk = facebook.getID("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
         ID moki = facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
 
-        LocalUser user = (LocalUser) facebook.getUser(hulk);
+        User user = facebook.getUser(hulk);
         userDB.setCurrentUser(user);
 
         userDB.addContact(moki, user.identifier);

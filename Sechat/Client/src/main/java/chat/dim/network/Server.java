@@ -38,12 +38,13 @@ import chat.dim.common.Messenger;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
+import chat.dim.dkd.SecureMessage;
 import chat.dim.format.JSON;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.stargate.Star;
@@ -53,7 +54,7 @@ import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
 
-    private LocalUser currentUser = null;
+    private User currentUser = null;
     public String session = null;
 
     final StateMachine fsm;
@@ -80,11 +81,11 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         // CA
     }
 
-    public LocalUser getCurrentUser() {
+    public User getCurrentUser() {
         return currentUser;
     }
 
-    public void setCurrentUser(LocalUser user) {
+    public void setCurrentUser(User user) {
         if (user.equals(currentUser)) {
             return;
         }
@@ -122,7 +123,8 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         HandshakeCommand cmd = new HandshakeCommand(session);
         InstantMessage iMsg = new InstantMessage(cmd, currentUser.identifier, identifier);
         Messenger messenger = Messenger.getInstance();
-        ReliableMessage rMsg = messenger.encryptAndSignMessage(iMsg);
+        SecureMessage sMsg = messenger.encryptMessage(iMsg);
+        ReliableMessage rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }

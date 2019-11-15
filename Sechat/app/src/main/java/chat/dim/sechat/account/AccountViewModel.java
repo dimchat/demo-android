@@ -3,15 +3,15 @@ package chat.dim.sechat.account;
 import android.arch.lifecycle.ViewModel;
 
 import chat.dim.common.Facebook;
-import chat.dim.mkm.LocalUser;
+import chat.dim.mkm.User;
 
 class AccountViewModel extends ViewModel {
 
     private Facebook facebook = Facebook.getInstance();
 
-    private LocalUser currentUser = null;
+    private User currentUser = null;
 
-    private LocalUser getCurrentUser() {
+    private User getCurrentUser() {
         if (currentUser == null) {
             currentUser = facebook.database.getCurrentUser();
         }
@@ -19,7 +19,7 @@ class AccountViewModel extends ViewModel {
     }
 
     String getAccountTitle() {
-        LocalUser user = getCurrentUser();
+        User user = getCurrentUser();
         if (user == null) {
             return null;
         }
@@ -29,7 +29,7 @@ class AccountViewModel extends ViewModel {
     }
 
     String getAccountDesc() {
-        LocalUser user = getCurrentUser();
+        User user = getCurrentUser();
         if (user == null) {
             return null;
         }
