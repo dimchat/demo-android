@@ -38,12 +38,6 @@ public final class ECCPrivateKey extends PrivateKeyImpl {
     }
 
     @Override
-    public byte[] decrypt(byte[] ciphertext) {
-        // TODO: decrypt plaintext from ciphertext
-        return new byte[0];
-    }
-
-    @Override
     public byte[] sign(byte[] data) {
         // TODO: sign data and return the signature
         return new byte[0];

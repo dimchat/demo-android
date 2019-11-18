@@ -28,7 +28,9 @@ package chat.dim.model;
 import java.util.List;
 
 import chat.dim.common.Facebook;
+import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.SignKey;
 import chat.dim.database.Immortals;
 import chat.dim.database.SocialNetworkDatabase;
 import chat.dim.mkm.ID;
@@ -77,8 +79,8 @@ public class AccountDatabase extends SocialNetworkDatabase {
     }
 
     @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = super.getPrivateKeyForSignature(user);
+    public SignKey getPrivateKeyForSignature(ID user) {
+        SignKey key = super.getPrivateKeyForSignature(user);
         if (key == null && user.getType().isPerson()) {
             key = immortals.getPrivateKeyForSignature(user);
         }
@@ -86,8 +88,8 @@ public class AccountDatabase extends SocialNetworkDatabase {
     }
 
     @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        List<PrivateKey> keys = super.getPrivateKeysForDecryption(user);
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        List<DecryptKey> keys = super.getPrivateKeysForDecryption(user);
         if (keys == null && user.getType().isPerson()) {
             keys = immortals.getPrivateKeysForDecryption(user);
         }

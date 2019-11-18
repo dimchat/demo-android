@@ -32,8 +32,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.SignKey;
+import chat.dim.crypto.VerifyKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
@@ -122,7 +126,7 @@ public class Immortals implements UserDataSource {
         // private key
         PrivateKey privateKey = PrivateKeyImpl.getInstance(dict.get("privateKey"));
         assert privateKey != null;
-        if (meta.key.matches(privateKey)) {
+        if (meta.getKey().matches(privateKey)) {
             // TODO: store private key into keychain
             privateKeyMap.put(identifier.address, privateKey);
         } else {
@@ -155,26 +159,30 @@ public class Immortals implements UserDataSource {
     }
 
     @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
+    public SignKey getPrivateKeyForSignature(ID user) {
         return privateKeyMap.get(user.address);
     }
 
     @Override
-    public List<PublicKey> getPublicKeysForVerification(ID user) {
+    public List<VerifyKey> getPublicKeysForVerification(ID user) {
         return null;
     }
 
     @Override
-    public PublicKey getPublicKeyForEncryption(ID user) {
+    public EncryptKey getPublicKeyForEncryption(ID user) {
         return null;
     }
 
     @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
-        PrivateKey privateKey = privateKeyMap.get(user.address);
-        List<PrivateKey> list = new ArrayList<>();
-        list.add(privateKey);
-        return list;
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        List<DecryptKey> keys = new ArrayList<>();
+        PrivateKey key = privateKeyMap.get(user.address);
+        if (key != null) {
+            // TODO: support profile.key
+            assert key instanceof DecryptKey;
+            keys.add((DecryptKey) key);
+        }
+        return keys;
     }
 
     static {

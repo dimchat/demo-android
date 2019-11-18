@@ -60,7 +60,7 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     protected PrivateKey loadPrivateKey(ID user) {
         // FIXME: which key?
-        return database.getPrivateKeyForSignature(user);
+        return (PrivateKey) database.getPrivateKeyForSignature(user);
     }
 
     //---- Meta

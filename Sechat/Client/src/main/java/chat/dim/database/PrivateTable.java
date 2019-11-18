@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.mkm.Address;
@@ -84,14 +85,15 @@ class PrivateTable extends ExternalStorage {
         return key;
     }
 
-    List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+    List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        List<DecryptKey> keys = new ArrayList<>();
         // FIXME: get private key matches profile key
         PrivateKey key = getPrivateKeyForSignature(user);
-        if (key == null) {
-            return null;
+        if (key != null) {
+            // TODO: support profile.key
+            assert key instanceof DecryptKey;
+            keys.add((DecryptKey) key);
         }
-        List<PrivateKey> keys = new ArrayList<>();
-        keys.add(key);
         return keys;
     }
 }

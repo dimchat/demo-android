@@ -37,12 +37,6 @@ public final class ECCPublicKey extends PublicKeyImpl {
     }
 
     @Override
-    public byte[] encrypt(byte[] plaintext) {
-        // TODO: encrypt plaintext to ciphertext
-        return new byte[0];
-    }
-
-    @Override
     public boolean verify(byte[] data, byte[] signature) {
         // TODO: verify data with signature
         return false;

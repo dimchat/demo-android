@@ -33,13 +33,13 @@ import chat.dim.mkm.NetworkType;
 
 public final class BTCMeta extends Meta {
 
-    public BTCMeta(Map<String, Object> dictionary) throws NoSuchFieldException, ClassNotFoundException {
+    public BTCMeta(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
     @Override
     public Address generateAddress(NetworkType network) {
-        assert (version & VersionBTC) == VersionBTC;
-        return BTCAddress.generate(key.getData(), network);
+        assert (getVersion() & VersionBTC) == VersionBTC;
+        return BTCAddress.generate(getKey().getData(), network);
     }
 }

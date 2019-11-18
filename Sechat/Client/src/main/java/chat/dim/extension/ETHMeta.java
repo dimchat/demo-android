@@ -33,13 +33,13 @@ import chat.dim.mkm.NetworkType;
 
 public final class ETHMeta extends Meta {
 
-    public ETHMeta(Map<String, Object> dictionary) throws NoSuchFieldException, ClassNotFoundException {
+    public ETHMeta(Map<String, Object> dictionary) {
         super(dictionary);
     }
 
     @Override
     public Address generateAddress(NetworkType network) {
-        assert (version & VersionETH) == VersionETH;
-        return ETHAddress.generate(key.getData());
+        assert (getVersion() & VersionETH) == VersionETH;
+        return ETHAddress.generate(getKey().getData());
     }
 }

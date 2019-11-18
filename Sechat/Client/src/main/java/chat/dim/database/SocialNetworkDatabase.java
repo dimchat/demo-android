@@ -30,8 +30,12 @@ import java.util.Set;
 
 import chat.dim.common.Facebook;
 import chat.dim.common.SocialNetworkDataSource;
+import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.SignKey;
+import chat.dim.crypto.VerifyKey;
 import chat.dim.mkm.User;
 import chat.dim.mkm.NetworkType;
 import chat.dim.mkm.ID;
@@ -123,7 +127,7 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
             // else if this is a polylogue profile,
             //     verify it with the founder's meta.key (which equals to the group's meta.key)
             Meta meta = getMeta(identifier);
-            return meta != null && profile.verify(meta.key);
+            return meta != null && profile.verify(meta.getKey());
         }
         throw new UnsupportedOperationException("unsupported profile ID: " + profile);
     }
@@ -165,22 +169,22 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
     }
 
     @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
+    public SignKey getPrivateKeyForSignature(ID user) {
         return privateTable.getPrivateKeyForSignature(user);
     }
 
     @Override
-    public List<PublicKey> getPublicKeysForVerification(ID user) {
+    public List<VerifyKey> getPublicKeysForVerification(ID user) {
         return null;
     }
 
     @Override
-    public PublicKey getPublicKeyForEncryption(ID user) {
+    public EncryptKey getPublicKeyForEncryption(ID user) {
         return null;
     }
 
     @Override
-    public List<PrivateKey> getPrivateKeysForDecryption(ID user) {
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
         return privateTable.getPrivateKeysForDecryption(user);
     }
 
@@ -210,7 +214,7 @@ public class SocialNetworkDatabase implements SocialNetworkDataSource {
                 // TODO: query meta for this member from DIM network
                 continue;
             }
-            if (gMeta.matches(meta.key)) {
+            if (gMeta.matches(meta.getKey())) {
                 // if public key matched, means the group is created by this member
                 return member;
             }
