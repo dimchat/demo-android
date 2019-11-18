@@ -29,7 +29,9 @@ import chat.dim.Messenger;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
+import chat.dim.network.Server;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.utils.Log;
 
 public class HandshakeCommandProcessor extends CommandProcessor {
 
@@ -38,32 +40,34 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     }
 
     private Content success() {
+        Log.info("handshake success!");
+        String sessionKey = (String) getContext("session_key");
+        Server server = (Server) getContext("server");
+        server.handshakeAccepted(sessionKey, true);
         return null;
     }
 
     private Content ask(String sessionKey) {
+        Log.info("handshake again, session key: " + sessionKey);
+        setContext("session_key", sessionKey);
         return new HandshakeCommand(sessionKey);
-    }
-
-    private Content offer(String sessionKey, ID sender) {
-        // TODO: check session key in session server
-        return null;
     }
 
     //-------- Main --------
 
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof HandshakeCommand;
-        String message = ((HandshakeCommand) content).message;
+        HandshakeCommand cmd = (HandshakeCommand) content;
+        String message = cmd.message;
         if ("DIM!".equals(message)) {
             // S -> C
             return success();
         } else if ("DIM?".equals(message)) {
             // S -> C
-            return ask(((HandshakeCommand) content).sessionKey);
+            return ask(cmd.sessionKey);
         } else {
             // C -> S: Hello world!
-            return offer(((HandshakeCommand) content).sessionKey, sender);
+            throw new IllegalStateException("handshake command error: " + content);
         }
     }
 }

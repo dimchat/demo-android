@@ -75,18 +75,18 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected boolean saveMessage(InstantMessage msg) {
+    public boolean saveMessage(InstantMessage msg) {
         Amanuensis clerk = Amanuensis.getInstance();
         return clerk.saveMessage(msg);
     }
 
     @Override
-    protected Content broadcastMessage(ReliableMessage msg) {
+    public Content broadcastMessage(ReliableMessage msg) {
         return null;
     }
 
     @Override
-    protected Content deliverMessage(ReliableMessage msg) {
+    public Content deliverMessage(ReliableMessage msg) {
         return null;
     }
 

@@ -69,7 +69,7 @@ public class Terminal implements StationDelegate {
         server.delegate = this;
         server.messenger = messenger;
         messenger.server = server;
-        messenger.setContext("remote_user", server);
+        messenger.setContext("server", server);
         currentServer = server;
     }
 

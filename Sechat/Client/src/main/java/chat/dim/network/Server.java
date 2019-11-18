@@ -139,7 +139,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         star.send(data);
     }
 
-    void handshakeAccepted(String newSession, boolean success) {
+    public void handshakeAccepted(String newSession, boolean success) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
         if (!state.name.equals(StateMachine.handshakingState)) {
@@ -188,7 +188,13 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public void onReceive(byte[] responseData, Star star) {
-        byte[] response = messenger.receivedPackage(responseData);
+        byte[] response;
+        try {
+            response = messenger.receivedPackage(responseData);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            response = null;
+        }
         if (response != null && response.length > 0) {
             star.send(response);
         }
