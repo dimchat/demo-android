@@ -25,9 +25,11 @@
  */
 package chat.dim.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -39,8 +41,6 @@ import chat.dim.network.Server;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
-
-import chat.dim.cpu.HandshakeCommandProcessor;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();
@@ -55,9 +55,23 @@ public class Messenger extends chat.dim.Messenger {
     public Server server = null;
 
     @Override
-    public User getCurrentUser() {
-        Facebook facebook = (Facebook) getFacebook();
-        return facebook.database.getCurrentUser();
+    public List<User> getLocalUsers() {
+        List<User> users = super.getLocalUsers();
+        if (users == null) {
+            Facebook facebook = (Facebook) getFacebook();
+            List<ID> allUsers = facebook.database.allUsers();
+            users = new ArrayList<>();
+            User user;
+            for (ID item : allUsers) {
+                user = facebook.getUser(item);
+                if (user == null) {
+                    throw new NullPointerException("failed to create user: " + item);
+                }
+                users.add(user);
+            }
+            setLocalUsers(users);
+        }
+        return users;
     }
 
     @Override
@@ -128,6 +142,7 @@ public class Messenger extends chat.dim.Messenger {
         // TODO: encrypt contacts and send to station
     }
 
+    @Override
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
             return false;
