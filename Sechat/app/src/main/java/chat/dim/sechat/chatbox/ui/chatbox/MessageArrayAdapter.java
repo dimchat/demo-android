@@ -1,9 +1,6 @@
 package chat.dim.sechat.chatbox.ui.chatbox;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +10,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.common.Conversation;
 import chat.dim.common.Facebook;
+import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
-import chat.dim.model.MessageProcessor;
-import chat.dim.notification.Notification;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;

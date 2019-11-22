@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
+import chat.dim.cpu.TextContentProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -39,6 +41,7 @@ import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
 
@@ -59,7 +62,7 @@ public class Messenger extends chat.dim.Messenger {
         List<User> users = super.getLocalUsers();
         if (users == null) {
             Facebook facebook = (Facebook) getFacebook();
-            List<ID> allUsers = facebook.database.allUsers();
+            List<ID> allUsers = facebook.allUsers();
             users = new ArrayList<>();
             User user;
             for (ID item : allUsers) {
@@ -196,6 +199,8 @@ public class Messenger extends chat.dim.Messenger {
 
 
     static {
+        // register CPUs
+        ContentProcessor.register(ContentType.TEXT, TextContentProcessor.class);
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
     }
 }

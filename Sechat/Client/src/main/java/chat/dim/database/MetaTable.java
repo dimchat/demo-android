@@ -30,7 +30,7 @@ import java.io.IOException;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Meta;
 
-class MetaTable extends ExternalStorage {
+public class MetaTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
 
@@ -50,7 +50,7 @@ class MetaTable extends ExternalStorage {
         }
     }
 
-    boolean saveMeta(Meta meta, ID entity) {
+    public boolean saveMeta(Meta meta, ID entity) {
         if (!meta.matches(entity)) {
             return false;
         }
@@ -64,7 +64,7 @@ class MetaTable extends ExternalStorage {
         }
     }
 
-    Meta getMeta(ID entity) {
+    public Meta getMeta(ID entity) {
         return loadMeta(entity);
     }
 }

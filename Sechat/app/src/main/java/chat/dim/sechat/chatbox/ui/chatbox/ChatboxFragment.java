@@ -32,7 +32,6 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.sechat.chatbox.ChatboxActivity;
 
 public class ChatboxFragment extends Fragment implements Observer {
 

@@ -6,11 +6,11 @@ import java.util.List;
 
 import chat.dim.common.Conversation;
 import chat.dim.common.Facebook;
+import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.User;
-import chat.dim.model.MessageProcessor;
 import chat.dim.protocol.Command;
 import chat.dim.sechat.Client;
 

@@ -11,10 +11,10 @@ import java.util.Map;
 import chat.dim.common.Amanuensis;
 import chat.dim.common.Conversation;
 import chat.dim.common.Facebook;
+import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
-import chat.dim.model.MessageProcessor;
 
 /**
  * Helper class for providing sample content for user interfaces created by

@@ -32,7 +32,7 @@ import java.util.List;
 import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 
-class ContactTable extends ExternalStorage {
+public class ContactTable extends ExternalStorage {
 
     private List<ID> contactList = null;
     private ID current = null;
@@ -87,7 +87,7 @@ class ContactTable extends ExternalStorage {
         }
     }
 
-    List<ID> getContacts(ID user) {
+    public List<ID> getContacts(ID user) {
         assert user != null;
         if (user != current) {
             // user switched, clear contacts
@@ -108,7 +108,7 @@ class ContactTable extends ExternalStorage {
         // TODO: sort contact list
     }
 
-    boolean addContact(ID contact, ID user) {
+    public boolean addContact(ID contact, ID user) {
         List<ID> contacts = getContacts(user);
         if (contacts.contains(contact)) {
             return false;
@@ -118,7 +118,7 @@ class ContactTable extends ExternalStorage {
         return saveContacts(user);
     }
 
-    boolean removeContact(ID contact, ID user) {
+    public boolean removeContact(ID contact, ID user) {
         List<ID> contacts = getContacts(user);
         if (!contacts.contains(contact)) {
             return false;
@@ -128,7 +128,7 @@ class ContactTable extends ExternalStorage {
         return saveContacts(user);
     }
 
-    boolean saveContacts(List<ID> contacts, ID user) {
+    public boolean saveContacts(List<ID> contacts, ID user) {
         contactList = contacts;
         current = user;
         return saveContacts(user);

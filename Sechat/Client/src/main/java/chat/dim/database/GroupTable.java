@@ -34,7 +34,7 @@ import java.util.Map;
 import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 
-class GroupTable extends ExternalStorage {
+public class GroupTable extends ExternalStorage {
 
     private Map<ID, List<ID>> membersMap = new HashMap<>();
 
@@ -86,17 +86,17 @@ class GroupTable extends ExternalStorage {
         }
     }
 
-    ID getFounder(ID group) {
+    public ID getFounder(ID group) {
         // TODO: get founder of group
         return null;
     }
 
-    ID getOwner(ID group) {
+    public ID getOwner(ID group) {
         // TODO: get owner of group
         return null;
     }
 
-    List<ID> getMembers(ID group) {
+    public List<ID> getMembers(ID group) {
         List<ID> members = membersMap.get(group);
         if (members == null) {
             members = loadMembers(group);
@@ -109,7 +109,7 @@ class GroupTable extends ExternalStorage {
         return members;
     }
 
-    boolean addMember(ID member, ID group) {
+    public boolean addMember(ID member, ID group) {
         List<ID> members = getMembers(group);
         if (members.contains(member)) {
             return false;
@@ -118,7 +118,7 @@ class GroupTable extends ExternalStorage {
         return saveMembers(group);
     }
 
-    boolean removeMember(ID member, ID group) {
+    public boolean removeMember(ID member, ID group) {
         List<ID> members = getMembers(group);
         if (!members.contains(member)) {
             return false;
@@ -127,7 +127,7 @@ class GroupTable extends ExternalStorage {
         return saveMembers(group);
     }
 
-    boolean saveMembers(List<ID> members, ID group) {
+    public boolean saveMembers(List<ID> members, ID group) {
         assert members.size() > 0;
         membersMap.put(group, members);
         return saveMembers(group);

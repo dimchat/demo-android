@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.model;
+package chat.dim.common;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import chat.dim.common.Amanuensis;
-import chat.dim.common.Facebook;
 import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.Message;

@@ -34,7 +34,7 @@ import java.util.Set;
 import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 
-class AddressNameTable extends ExternalStorage {
+public class AddressNameTable extends ExternalStorage {
 
     private Map<String, ID> ansTable = loadRecords();
 
@@ -116,7 +116,7 @@ class AddressNameTable extends ExternalStorage {
      * @param identifier - user ID
      * @return true on success
      */
-    boolean saveRecord(String name, ID identifier) {
+    public boolean saveRecord(String name, ID identifier) {
         if (!cacheRecord(name, identifier)) {
             return false;
         }
@@ -130,7 +130,7 @@ class AddressNameTable extends ExternalStorage {
      * @param name - short name
      * @return user ID
      */
-    ID record(String name) {
+    public ID record(String name) {
         return ansTable.get(name.toLowerCase());
     }
 
@@ -140,7 +140,7 @@ class AddressNameTable extends ExternalStorage {
      * @param identifier - user ID
      * @return all short names pointing to this same ID
      */
-    Set<String> names(String identifier) {
+    public Set<String> names(String identifier) {
         Set<String> allKeys = ansTable.keySet();
         // all names
         if (identifier.equals("*")) {

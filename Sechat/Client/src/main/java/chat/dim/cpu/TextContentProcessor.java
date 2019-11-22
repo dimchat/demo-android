@@ -23,64 +23,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.cpu;
 
-import java.util.List;
-import java.util.Set;
-
-import chat.dim.crypto.PrivateKey;
-import chat.dim.mkm.GroupDataSource;
+import chat.dim.Messenger;
+import chat.dim.dkd.Content;
+import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.User;
-import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
-import chat.dim.mkm.UserDataSource;
+import chat.dim.protocol.TextContent;
+import chat.dim.utils.Log;
 
-public interface SocialNetworkDataSource extends UserDataSource, GroupDataSource {
+public class TextContentProcessor extends ContentProcessor {
 
-    boolean savePrivateKey(PrivateKey privateKey, ID identifier);
+    public TextContentProcessor(Messenger messenger) {
+        super(messenger);
+    }
 
-    //-------- Meta
-
-    boolean saveMeta(Meta meta, ID identifier);
-
-    //-------- Profile
-
-    boolean verifyProfile(Profile profile);
-
-    boolean saveProfile(Profile profile);
-
-    //-------- Address Name Service
-
-    boolean saveAnsRecord(String name, ID identifier);
-
-    ID ansRecord(String name);
-
-    Set<String> ansNames(String identifier);
-
-    //-------- User
-
-    User getCurrentUser();
-
-    void setCurrentUser(User user);
-
-    List<ID> allUsers();
-
-    boolean addUser(ID user);
-
-    boolean removeUser(ID user);
-
-    boolean addContact(ID contact, ID user);
-
-    boolean removeContact(ID contact, ID user);
-
-    boolean saveContacts(List<ID> contacts, ID user);
-
-    //-------- Group
-
-    boolean addMember(ID member, ID group);
-
-    boolean removeMember(ID member, ID group);
-
-    boolean saveMembers(List<ID> members, ID group);
+    public Content process(Content content, ID sender, InstantMessage iMsg) {
+        assert content instanceof TextContent;
+        TextContent info = (TextContent) content;
+        Log.info("get text message from: " + sender + ", " + info.getText());
+        return null;
+    }
 }

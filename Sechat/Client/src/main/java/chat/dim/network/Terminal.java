@@ -87,7 +87,7 @@ public class Terminal implements StationDelegate {
     public List<User> allUsers() {
         if (users == null) {
             users = new ArrayList<>();
-            List<ID> list = facebook.database.allUsers();
+            List<ID> list = facebook.allUsers();
             User user;
             for (ID item : list) {
                 user = facebook.getUser(item);

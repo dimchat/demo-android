@@ -27,11 +27,20 @@ package chat.dim.common;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.crypto.impl.PublicKeyImpl;
+import chat.dim.database.AddressNameTable;
+import chat.dim.database.ContactTable;
+import chat.dim.database.GroupTable;
+import chat.dim.database.Immortals;
+import chat.dim.database.MetaTable;
+import chat.dim.database.PrivateTable;
+import chat.dim.database.ProfileTable;
+import chat.dim.database.UserTable;
 import chat.dim.extension.BTCMeta;
 import chat.dim.extension.ECCPrivateKey;
 import chat.dim.extension.ECCPublicKey;
@@ -48,77 +57,165 @@ public class Facebook extends chat.dim.Facebook {
         super();
     }
 
-    public SocialNetworkDataSource database = null;
+    private Immortals immortals = Immortals.getInstance();
+
+    private PrivateTable privateTable = new PrivateTable();
+    private MetaTable metaTable = new MetaTable();
+    private ProfileTable profileTable = new ProfileTable();
+
+    private AddressNameTable ansTable = new AddressNameTable();
+
+    private UserTable userTable = new UserTable();
+    private GroupTable groupTable = new GroupTable();
+    private ContactTable contactTable = new ContactTable();
+
+    //-------- Address Name Service
+
+    public boolean saveAnsRecord(String name, ID identifier) {
+        return ansTable.saveRecord(name, identifier);
+    }
+
+    public ID ansRecord(String name) {
+        return ansTable.record(name);
+    }
+
+    public Set<String> ansNames(String identifier) {
+        return ansTable.names(identifier);
+    }
+
+    //-------- User
+
+    public User getCurrentUser() {
+        return getUser(userTable.getCurrentUser());
+    }
+
+    public void setCurrentUser(User user) {
+        userTable.setCurrentUser(user.identifier);
+    }
+
+    public List<ID> allUsers() {
+        return userTable.allUsers();
+    }
+
+    public boolean addUser(ID user) {
+        return userTable.addUser(user);
+    }
+
+    public boolean removeUser(ID user) {
+        return userTable.removeUser(user);
+    }
+
+    public boolean addContact(ID contact, ID user) {
+        return contactTable.addContact(contact, user);
+    }
+
+    public boolean removeContact(ID contact, ID user) {
+        return contactTable.removeContact(contact, user);
+    }
 
     //---- Private Key
 
     @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        return database.savePrivateKey(privateKey, identifier);
+        return privateTable.savePrivateKey(privateKey, identifier);
     }
 
     @Override
     protected PrivateKey loadPrivateKey(ID user) {
         // FIXME: which key?
-        return (PrivateKey) database.getPrivateKeyForSignature(user);
+        PrivateKey key = privateTable.getPrivateKeyForSignature(user);
+        if (key == null) {
+            // try immortals
+            key = (PrivateKey) immortals.getPrivateKeyForSignature(user);
+        }
+        return key;
     }
 
     //---- Meta
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        return database.saveMeta(meta, entity);
+        if (!verify(meta, entity)) {
+            // meta not match ID
+            return false;
+        }
+        return metaTable.saveMeta(meta, entity);
     }
 
     @Override
     protected Meta loadMeta(ID identifier) {
-        return database.getMeta(identifier);
+        if (identifier.isBroadcast()) {
+            // broadcast ID has not meta
+            return null;
+        }
+        Meta meta = metaTable.getMeta(identifier);
+        if (meta == null) {
+            // try immortals
+            meta = immortals.getMeta(identifier);
+            if (meta == null) {
+                // TODO: query from DIM network
+            }
+        }
+        return meta;
     }
 
     //---- Profile
 
     @Override
     public boolean saveProfile(Profile profile) {
-        return database.saveProfile(profile);
+        if (!verify(profile)) {
+            // profile's signature not match
+            return false;
+        }
+        return profileTable.saveProfile(profile);
     }
 
     @Override
     protected Profile loadProfile(ID identifier) {
-        return database.getProfile(identifier);
-    }
-
-    public boolean verifyProfile(Profile profile) {
-        return database.verifyProfile(profile);
+        Profile profile = profileTable.getProfile(identifier);
+        if (profile == null) {
+            // try immortals
+            profile = immortals.getProfile(identifier);
+            if (profile == null) {
+                // TODO: query from DIM network
+            }
+        }
+        return profile;
     }
 
     //---- Relationship
 
     @Override
     public boolean saveContacts(List<ID> contacts, ID user) {
-        return database.saveContacts(contacts, user);
+        return contactTable.saveContacts(contacts, user);
     }
 
     @Override
     protected List<ID> loadContacts(ID user) {
-        return database.getContacts(user);
+        List<ID> contacts = contactTable.getContacts(user);
+        if (contacts == null || contacts.size() == 0) {
+            // try immortals
+            contacts = immortals.getContacts(user);
+        }
+        return contacts;
     }
 
     public boolean addMember(ID member, ID group) {
-        return database.addMember(member, group);
+        return groupTable.addMember(member, group);
     }
 
     public boolean removeMember(ID member, ID group) {
-        return database.removeMember(member, group);
+        return groupTable.removeMember(member, group);
     }
 
     @Override
     public boolean saveMembers(List<ID> members, ID group) {
-        return database.saveMembers(members, group);
+        return groupTable.saveMembers(members, group);
     }
 
     @Override
     protected List<ID> loadMembers(ID group) {
-        return database.getMembers(group);
+        return groupTable.getMembers(group);
     }
 
     //--------
@@ -141,7 +238,7 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public ID getFounder(ID group) {
         // get from database
-        ID founder = database.getFounder(group);
+        ID founder = groupTable.getFounder(group);
         if (founder != null) {
             return founder;
         }
@@ -151,7 +248,7 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public ID getOwner(ID group) {
         // get from database
-        ID owner = database.getOwner(group);
+        ID owner = groupTable.getOwner(group);
         if (owner != null) {
             return owner;
         }

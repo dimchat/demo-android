@@ -13,7 +13,7 @@ class AccountViewModel extends ViewModel {
 
     private User getCurrentUser() {
         if (currentUser == null) {
-            currentUser = facebook.database.getCurrentUser();
+            currentUser = facebook.getCurrentUser();
         }
         return currentUser;
     }

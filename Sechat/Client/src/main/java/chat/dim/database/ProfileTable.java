@@ -33,7 +33,7 @@ import java.util.Map;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
 
-class ProfileTable extends ExternalStorage {
+public class ProfileTable extends ExternalStorage {
 
     // profile cache
     private Map<ID, Profile> profileTable = new HashMap<>();
@@ -64,7 +64,7 @@ class ProfileTable extends ExternalStorage {
         }
     }
 
-    boolean saveProfile(Profile profile) {
+    public boolean saveProfile(Profile profile) {
         if (!cacheProfile(profile)) {
             return false;
         }
@@ -79,7 +79,7 @@ class ProfileTable extends ExternalStorage {
         }
     }
 
-    Profile getProfile(ID entity) {
+    public Profile getProfile(ID entity) {
         // 1. try from profile cache
         Profile profile = profileTable.get(entity);
         if (profile != null) {

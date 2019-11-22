@@ -8,7 +8,6 @@ import java.util.Map;
 import chat.dim.common.Facebook;
 import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
-import chat.dim.model.AccountDatabase;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -35,10 +34,10 @@ public class DummyContent {
     private static void reloadData() {
         ITEMS.clear();
 
-        AccountDatabase userDB = AccountDatabase.getInstance();
-        User user = userDB.getCurrentUser();
+        Facebook facebook = Facebook.getInstance();
+        User user = facebook.getCurrentUser();
         ID uid = user == null ? null : user.identifier;
-        List<ID> contacts = userDB.getContacts(uid);
+        List<ID> contacts = facebook.getContacts(uid);
         for (ID identifier : contacts) {
             addItem(new DummyItem(identifier));
         }

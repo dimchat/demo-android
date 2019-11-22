@@ -37,7 +37,7 @@ import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.mkm.Address;
 import chat.dim.mkm.ID;
 
-class PrivateTable extends ExternalStorage {
+public class PrivateTable extends ExternalStorage {
 
     private Map<Address, PrivateKey> keys = new HashMap<>();
 
@@ -70,11 +70,11 @@ class PrivateTable extends ExternalStorage {
         }
     }
 
-    boolean savePrivateKey(PrivateKey key, ID user) {
+    public boolean savePrivateKey(PrivateKey key, ID user) {
         return savePrivateKey(key, user.address);
     }
 
-    PrivateKey getPrivateKeyForSignature(ID user) {
+    public PrivateKey getPrivateKeyForSignature(ID user) {
         PrivateKey key = keys.get(user.address);
         if (key == null) {
             key = loadKey(user.address);
@@ -85,7 +85,7 @@ class PrivateTable extends ExternalStorage {
         return key;
     }
 
-    List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
         List<DecryptKey> keys = new ArrayList<>();
         // FIXME: get private key matches profile key
         PrivateKey key = getPrivateKeyForSignature(user);

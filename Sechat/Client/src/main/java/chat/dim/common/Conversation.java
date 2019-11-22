@@ -101,16 +101,16 @@ public class Conversation {
     public InstantMessage getLastVisibleMessage() {
         int count = numberOfMessages();
         InstantMessage iMsg;
-        int msgType;
+        ContentType msgType;
         for (int index = count - 1; index >= 0; --index) {
             iMsg = messageAtIndex(index);
             msgType = iMsg.content.type;
-            if (ContentType.TEXT.value == msgType ||
-                    ContentType.FILE.value == msgType ||
-                    ContentType.IMAGE.value == msgType ||
-                    ContentType.AUDIO.value == msgType ||
-                    ContentType.VIDEO.value == msgType ||
-                    ContentType.PAGE.value == msgType) {
+            if (ContentType.TEXT == msgType ||
+                    ContentType.FILE == msgType ||
+                    ContentType.IMAGE == msgType ||
+                    ContentType.AUDIO == msgType ||
+                    ContentType.VIDEO == msgType ||
+                    ContentType.PAGE == msgType) {
                 // got it
                 return iMsg;
             }

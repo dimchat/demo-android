@@ -161,4 +161,16 @@ public class Client extends Terminal {
             sendCommand(cmd);
         }
     }
+
+    static {
+        Facebook facebook = Facebook.getInstance();
+
+        // FIXME: test data
+        ID hulk = facebook.getID("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
+        ID moki = facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
+
+        User user = facebook.getUser(hulk);
+        facebook.setCurrentUser(user);
+        facebook.addContact(moki, user.identifier);
+    }
 }

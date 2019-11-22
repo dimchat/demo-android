@@ -32,7 +32,7 @@ import java.util.List;
 import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
 
-class UserTable extends ExternalStorage {
+public class UserTable extends ExternalStorage {
 
     private List<ID> userList = null;
 
@@ -81,14 +81,14 @@ class UserTable extends ExternalStorage {
         return true;
     }
 
-    List<ID> allUsers() {
+    public List<ID> allUsers() {
         if (userList == null && !loadUsers()) {
             return null;
         }
         return userList;
     }
 
-    boolean addUser(ID user) {
+    public boolean addUser(ID user) {
         if (userList == null) {
             loadUsers();
         }
@@ -99,7 +99,7 @@ class UserTable extends ExternalStorage {
         return saveUsers();
     }
 
-    boolean removeUser(ID user) {
+    public boolean removeUser(ID user) {
         if (userList == null) {
             loadUsers();
         }
@@ -110,7 +110,7 @@ class UserTable extends ExternalStorage {
         return removed && saveUsers();
     }
 
-    void setCurrentUser(ID user) {
+    public void setCurrentUser(ID user) {
         if (userList == null) {
             loadUsers();
         }
@@ -127,7 +127,7 @@ class UserTable extends ExternalStorage {
         saveUsers();
     }
 
-    ID getCurrentUser() {
+    public ID getCurrentUser() {
         if (userList == null) {
             loadUsers();
         }

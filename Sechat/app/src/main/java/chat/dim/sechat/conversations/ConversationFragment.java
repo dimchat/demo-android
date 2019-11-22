@@ -14,9 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Map;
-
-import chat.dim.common.Conversation;
 import chat.dim.database.ConversationDatabase;
 import chat.dim.mkm.ID;
 import chat.dim.notification.Notification;
