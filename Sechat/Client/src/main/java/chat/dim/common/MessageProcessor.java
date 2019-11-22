@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import chat.dim.cpu.CommandProcessor;
 import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.Message;
@@ -40,8 +41,10 @@ import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
@@ -106,17 +109,17 @@ public class MessageProcessor extends ConversationDatabase {
         if (content instanceof FileContent) {
             FileContent file = (FileContent) content;
             if (content instanceof ImageContent) {
-                return String.format("[Image:%s]", file.getFilename());
+                return String.format(Locale.CHINA, "[Image:%s]", file.getFilename());
             }
             if (content instanceof AudioContent) {
-                return String.format("[Voice:%s]", file.getFilename());
+                return String.format(Locale.CHINA, "[Voice:%s]", file.getFilename());
             }
             if (content instanceof VideoContent) {
-                return String.format("[Movie:%s]", file.getFilename());
+                return String.format(Locale.CHINA, "[Movie:%s]", file.getFilename());
             }
-            return String.format("[File:%s]", file.getFilename());
+            return String.format(Locale.CHINA, "[File:%s]", file.getFilename());
         }
-        return String.format(Locale.CHINA,"Current version doesn't support this message type(%d)", content.type);
+        return String.format(Locale.CHINA, "Current version doesn't support this message type: %s", content.type);
     }
 
     //-------- Command
@@ -128,12 +131,20 @@ public class MessageProcessor extends ConversationDatabase {
         if (cmd instanceof HistoryCommand) {
             // TODO: process history command
         }
-        return String.format("Current version doesn't support this command(%s)", cmd.command);
+
+        // receipt
+        if (cmd instanceof ReceiptCommand) {
+            return getReceiptCommandText((ReceiptCommand) cmd, commander);
+        }
+
+        return String.format(Locale.CHINA, "Current version doesn't support this command: %s", cmd.command);
     }
 
     //-------- System commands
 
-    //...
+    private String getReceiptCommandText(ReceiptCommand cmd, ID commander) {
+        return String.format(Locale.CHINA, "Receipt from: %s", getUsername(commander));
+    }
 
     //-------- Group Commands
 
@@ -171,7 +182,7 @@ public class MessageProcessor extends ConversationDatabase {
         }
         String string = StringUtils.join(names, ", ");
 
-        text = String.format("%s has invited members: %s", getUsername(commander), string);
+        text = String.format(Locale.CHINA, "%s has invited members: %s", getUsername(commander), string);
         cmd.put("text", text);
         return text;
     }
@@ -191,7 +202,7 @@ public class MessageProcessor extends ConversationDatabase {
         }
         String string = StringUtils.join(names, ", ");
 
-        text = String.format("%s has removed members: %s", getUsername(commander), string);
+        text = String.format(Locale.CHINA, "%s has removed members: %s", getUsername(commander), string);
         cmd.put("text", text);
         return text;
     }
@@ -202,7 +213,7 @@ public class MessageProcessor extends ConversationDatabase {
             return text;
         }
 
-        text = String.format("%s has quit group chat.", getUsername(commander));
+        text = String.format(Locale.CHINA, "%s has quit group chat.", getUsername(commander));
         cmd.put("text", text);
         return text;
     }
@@ -231,7 +242,7 @@ public class MessageProcessor extends ConversationDatabase {
             string = string + ", added: " + StringUtils.join(names, ", ");
         }
 
-        text = String.format("%s has updated members %s", getUsername(commander), string);
+        text = String.format(Locale.CHINA, "%s has updated members %s", getUsername(commander), string);
         cmd.put("text", text);
         return text;
     }
@@ -242,7 +253,7 @@ public class MessageProcessor extends ConversationDatabase {
             return text;
         }
 
-        text = String.format("%s was querying group info, responding...", getUsername(commander));
+        text = String.format(Locale.CHINA, "%s was querying group info, responding...", getUsername(commander));
         cmd.put("text", text);
         return text;
     }

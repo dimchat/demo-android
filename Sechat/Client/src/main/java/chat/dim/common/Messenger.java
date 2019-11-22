@@ -42,8 +42,10 @@ import chat.dim.mkm.Profile;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
+import chat.dim.protocol.ReceiptCommand;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();
@@ -79,6 +81,17 @@ public class Messenger extends chat.dim.Messenger {
 
     @Override
     public boolean saveMessage(InstantMessage msg) {
+        Content content = msg.content;
+        // TODO: check message type
+        //       only save normal message and group commands
+        //       ignore 'Handshake', ...
+        //       return true to allow responding
+
+        if (content instanceof HandshakeCommand) {
+            // no need to save handshake command
+            return true;
+        }
+
         Amanuensis clerk = Amanuensis.getInstance();
         return clerk.saveMessage(msg);
     }
