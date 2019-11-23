@@ -28,8 +28,10 @@ package chat.dim.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
+import chat.dim.cpu.MuteCommandProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -38,9 +40,11 @@ import chat.dim.mkm.User;
 import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.network.Server;
+import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
 
@@ -85,7 +89,18 @@ public class Messenger extends chat.dim.Messenger {
         //       return true to allow responding
 
         if (content instanceof HandshakeCommand) {
-            // no need to save handshake command
+            // handshake command will be processed by CPUs
+            // no need to save handshake command here
+            return true;
+        }
+        if (content instanceof MetaCommand) {
+            // meta & profile command will be checked and saved by CPUs
+            // no need to save meta & profile command here
+            return true;
+        }
+        if (content instanceof MuteCommand || content instanceof BlockCommand) {
+            // TODO: create CPUs for mute & block command
+            // no need to save mute & block command here
             return true;
         }
 
@@ -93,9 +108,9 @@ public class Messenger extends chat.dim.Messenger {
 
         if (content instanceof ReceiptCommand) {
             return clerk.saveReceipt(msg);
+        } else {
+            return clerk.saveMessage(msg);
         }
-
-        return clerk.saveMessage(msg);
     }
 
     @Override
@@ -216,5 +231,8 @@ public class Messenger extends chat.dim.Messenger {
     static {
         // register CPUs
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
+
+        CommandProcessor.register(MuteCommand.MUTE, MuteCommandProcessor.class);
+        CommandProcessor.register(BlockCommand.BLOCK, BlockCommandProcessor.class);
     }
 }
