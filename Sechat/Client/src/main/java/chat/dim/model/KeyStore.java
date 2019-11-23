@@ -23,24 +23,26 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.model;
 
-import java.util.List;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
+public class KeyStore extends chat.dim.KeyStore {
+    private static final KeyStore ourInstance = new KeyStore();
+    public static KeyStore getInstance() { return ourInstance; }
+    private KeyStore() {
+        super();
+    }
 
-public interface NetworkDataSource {
+    @Override
+    public boolean saveKeys(Map keyMap) {
+        // TODO: save key map into local cache
+        return super.saveKeys(keyMap);
+    }
 
-    List<String> allProviders();
-
-    Map<String, Object> getProviderConfig(ID sp);
-
-    boolean saveProviders(List<String> providers);
-
-    //-------- Station
-
-    List<Map<String, Object>> allStations(ID sp);
-
-    boolean saveStations(List<Map<String, Object>> stations, ID sp);
+    @Override
+    public Map loadKeys() {
+        // TODO: load key map from local cache
+        return super.loadKeys();
+    }
 }

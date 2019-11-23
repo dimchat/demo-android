@@ -29,11 +29,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
+import chat.dim.model.Facebook;
 import chat.dim.utils.Log;
 
-class ConversationTable extends ExternalStorage {
+public class ConversationTable extends ExternalStorage {
 
     private List<ID> conversationList = null;
 
@@ -86,23 +86,23 @@ class ConversationTable extends ExternalStorage {
 
     //---- conversations
 
-    int numberOfConversations() {
+    public int numberOfConversations() {
         if (conversationList == null && ! scanConversations()) {
             return 0;
         }
         return conversationList.size();
     }
 
-    ID conversationAtIndex(int index) {
+    public ID conversationAtIndex(int index) {
         return conversationList.get(index);
     }
 
-    boolean removeConversationAtIndex(int index) {
+    public boolean removeConversationAtIndex(int index) {
         ID identifier = conversationList.get(index);
         return removeConversation(identifier);
     }
 
-    boolean removeConversation(ID identifier) {
+    public boolean removeConversation(ID identifier) {
         // TODO: remove '{address}/messages.js'
         return conversationList.remove(identifier);
     }

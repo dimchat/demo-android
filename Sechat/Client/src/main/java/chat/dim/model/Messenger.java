@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,6 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
-import chat.dim.protocol.ReceiptCommand;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();

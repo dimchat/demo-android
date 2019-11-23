@@ -41,7 +41,7 @@ public class ProviderTable extends ExternalStorage {
     }
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> getProviderConfig(ID sp) {
+    public Map<String, Object> getProviderConfig(ID sp) {
         String path = getConfigFilePath(sp);
         Map<String, Object> config = null;
         try {
@@ -63,7 +63,7 @@ public class ProviderTable extends ExternalStorage {
     }
 
     @SuppressWarnings("unchecked")
-    List<String> allProviders() {
+    public List<String> allProviders() {
         String path = getProvidersFilePath();
         try {
             return (List<String>) readJSON(path);
@@ -73,7 +73,7 @@ public class ProviderTable extends ExternalStorage {
         }
     }
 
-    boolean saveProviders(List<String> providers) {
+    public boolean saveProviders(List<String> providers) {
         String path = getProvidersFilePath();
         try {
             return writeJSON(providers, path);

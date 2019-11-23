@@ -13,8 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
+import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 

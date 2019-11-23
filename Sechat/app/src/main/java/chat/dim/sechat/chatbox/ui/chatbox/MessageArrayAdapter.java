@@ -11,12 +11,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.common.Conversation;
-import chat.dim.common.Facebook;
-import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
+import chat.dim.model.Conversation;
+import chat.dim.model.ConversationDatabase;
+import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
@@ -82,14 +82,14 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
     }
 
     private Facebook facebook = Facebook.getInstance();
-    private MessageProcessor messageProcessor = MessageProcessor.getInstance();
+    private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
         ID sender = facebook.getID(iMsg.envelope.sender);
         Content content = iMsg.content;
 
         // time
-        String time = messageProcessor.getTimeString(iMsg);
+        String time = msgDB.getTimeString(iMsg);
         if (time == null) {
             viewHolder.timeView.setVisibility(View.GONE);
         } else {
@@ -111,8 +111,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.msgView.setText(textContent.getText());
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
-            MessageProcessor processor = MessageProcessor.getInstance();
-            String text = processor.getCommandText(cmd, sender);
+            String text = msgDB.getCommandText(cmd, sender);
             viewHolder.msgView.setText(text);
         }
     }

@@ -4,13 +4,13 @@ import android.arch.lifecycle.ViewModel;
 
 import java.util.List;
 
-import chat.dim.common.Conversation;
-import chat.dim.common.Facebook;
-import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.User;
+import chat.dim.model.Conversation;
+import chat.dim.model.ConversationDatabase;
+import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
 import chat.dim.sechat.Client;
 
@@ -30,12 +30,12 @@ enum MsgType {
 class ChatboxViewModel extends ViewModel {
 
     List<InstantMessage> getMessages(Conversation chatBox) {
-        MessageProcessor msgDB = MessageProcessor.getInstance();
+        ConversationDatabase msgDB = ConversationDatabase.getInstance();
         return msgDB.messagesInConversation(chatBox);
     }
 
     boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        MessageProcessor msgDB = MessageProcessor.getInstance();
+        ConversationDatabase msgDB = ConversationDatabase.getInstance();
         return msgDB.insertMessage(iMsg, chatBox);
     }
 

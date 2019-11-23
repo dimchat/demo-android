@@ -19,13 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.common.Conversation;
-import chat.dim.common.Messenger;
-import chat.dim.database.ConversationDatabase;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.User;
+import chat.dim.model.Conversation;
+import chat.dim.model.ConversationDatabase;
+import chat.dim.model.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;

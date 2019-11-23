@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.model;
 
 import java.util.List;
 import java.util.Locale;
@@ -220,10 +220,31 @@ public class Facebook extends chat.dim.Facebook {
 
     //--------
 
+    public String getUsername(Object string) {
+        return getUsername(getID(string));
+    }
+
+    public String getUsername(ID identifier) {
+        String username = identifier.name;
+        String nickname = getNickname(identifier);
+        if (nickname != null && nickname.length() > 0) {
+            if (identifier.getType().isUser()) {
+                if (username != null && username.length() > 0) {
+                    return nickname + " (" + username + ")";
+                }
+            }
+            return nickname;
+        } else if (username != null && username.length() > 0) {
+            return username;
+        }
+        // ID only contains address: BTC, ETH, ...
+        return identifier.address.toString();
+    }
+
     public String getNickname(ID identifier) {
         assert identifier.getType().isUser();
-        User user = getUser(identifier);
-        return user == null ? null : user.getName();
+        Profile profile = getProfile(identifier);
+        return profile == null ? null : profile.getName();
     }
 
     public String getNumberString(ID identifier) {

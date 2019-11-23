@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.common.Amanuensis;
-import chat.dim.common.Conversation;
-import chat.dim.common.Facebook;
-import chat.dim.common.MessageProcessor;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
 import chat.dim.mkm.Profile;
+import chat.dim.model.Amanuensis;
+import chat.dim.model.Conversation;
+import chat.dim.model.ConversationDatabase;
+import chat.dim.model.Facebook;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -26,7 +26,7 @@ public class DummyContent {
 
     private static Facebook facebook = Facebook.getInstance();
     private static Amanuensis clerk = Amanuensis.getInstance();
-    private static MessageProcessor messageProcessor = MessageProcessor.getInstance();
+    private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     /**
      * An array of sample (dummy) items.
@@ -48,10 +48,10 @@ public class DummyContent {
         List<Conversation> conversationList = new ArrayList<>();
         Conversation chatBox;
         // load
-        int count = messageProcessor.numberOfConversations();
+        int count = msgDB.numberOfConversations();
         ID identifier;
         for (int index = 0; index < count; index++) {
-            identifier = messageProcessor.conversationAtIndex(index);
+            identifier = msgDB.conversationAtIndex(index);
             chatBox = clerk.getConversation(identifier);
             if (chatBox == null) {
                 throw new NullPointerException("failed to create chat box: " + identifier);
@@ -127,7 +127,7 @@ public class DummyContent {
             String text = "(last message)";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
             if (iMsg != null) {
-                text = messageProcessor.getContentText(iMsg.content);
+                text = msgDB.getContentText(iMsg.content);
             }
             return text;
         }

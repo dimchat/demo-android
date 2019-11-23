@@ -28,11 +28,11 @@ package chat.dim.network;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.common.Facebook;
-import chat.dim.common.Messenger;
 import chat.dim.dkd.Content;
 import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
+import chat.dim.model.Facebook;
+import chat.dim.model.Messenger;
 import chat.dim.protocol.Command;
 
 public class Terminal implements StationDelegate {

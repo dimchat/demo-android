@@ -39,7 +39,7 @@ public class StationTable extends ExternalStorage {
         return root + "/dim/" + sp.address + "/stations.js";
     }
 
-    boolean saveStations(List<Map<String, Object>> stations, ID sp) {
+    public boolean saveStations(List<Map<String, Object>> stations, ID sp) {
         String path = getStationsFilePath(sp);
         try {
             return writeJSON(stations, path);
@@ -50,7 +50,7 @@ public class StationTable extends ExternalStorage {
     }
 
     @SuppressWarnings("unchecked")
-    List<Map<String, Object>> allStations(ID sp) {
+    public List<Map<String, Object>> allStations(ID sp) {
         String path = getStationsFilePath(sp);
         try {
             return (List<Map<String, Object>>) readJSON(path);

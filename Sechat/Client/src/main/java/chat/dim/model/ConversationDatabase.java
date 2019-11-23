@@ -23,25 +23,27 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.model;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-import chat.dim.cpu.CommandProcessor;
-import chat.dim.database.ConversationDatabase;
+import chat.dim.database.ConversationTable;
+import chat.dim.database.MessageTable;
 import chat.dim.dkd.Content;
+import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.Message;
 import chat.dim.mkm.ID;
-import chat.dim.mkm.Profile;
+import chat.dim.notification.NotificationCenter;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.ReceiptCommand;
@@ -54,36 +56,20 @@ import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.utils.StringUtils;
 
-public class MessageProcessor extends ConversationDatabase {
-    private static final MessageProcessor ourInstance = new MessageProcessor();
-    public static MessageProcessor getInstance() { return ourInstance; }
-    private MessageProcessor() {
+public class ConversationDatabase implements ConversationDataSource {
+    private static final ConversationDatabase ourInstance = new ConversationDatabase();
+    public static ConversationDatabase getInstance() { return ourInstance; }
+    private ConversationDatabase() {
         super();
         Amanuensis.getInstance().database = this;
     }
 
-    private Facebook facebook = Facebook.getInstance();
+    // constants
+    public static final String MessageUpdated = "MessageUpdated";
+    public static final String MessageCleaned = "MessageCleaned";
 
-    private String getUsername(Object string) {
-        return getUsername(facebook.getID(string));
-    }
-
-    private String getUsername(ID identifier) {
-        Profile profile = facebook.getProfile(identifier);
-        String nickname = profile == null ? null : profile.getName();
-        String username = identifier.name;
-        if (nickname != null) {
-            if (username != null && identifier.getType().isUser()) {
-                return nickname + " (" + username + ")";
-            }
-            return nickname;
-        } else if (username != null) {
-            return username;
-        } else {
-            // BTC address
-            return identifier.address.toString();
-        }
-    }
+    private ConversationTable conversationTable = new ConversationTable();
+    private MessageTable messageTable = new MessageTable();
 
     public String getTimeString(Message msg) {
         Date time = msg.envelope.time;
@@ -98,9 +84,106 @@ public class MessageProcessor extends ConversationDatabase {
         return formatter.format(time);
     }
 
+    public String getContentText(Content content) {
+        return MessageBuilder.getContentText(content);
+    }
+
+    public String getCommandText(Command cmd, ID sender) {
+        return MessageBuilder.getCommandText(cmd, sender);
+    }
+
+    //-------- ConversationDataSource
+
+    @Override
+    public int numberOfConversations() {
+        return conversationTable.numberOfConversations();
+    }
+
+    @Override
+    public ID conversationAtIndex(int index) {
+        return conversationTable.conversationAtIndex(index);
+    }
+
+    @Override
+    public boolean removeConversationAtIndex(int index) {
+        return conversationTable.removeConversationAtIndex(index);
+    }
+
+    @Override
+    public boolean removeConversation(ID identifier) {
+        return conversationTable.removeConversation(identifier);
+    }
+
+    // messages
+
+    public List<InstantMessage> messagesInConversation(Conversation chatBox) {
+        return messageTable.messagesInConversation(chatBox);
+    }
+
+    @Override
+    public int numberOfMessages(Conversation chatBox) {
+        return messageTable.numberOfMessages(chatBox);
+    }
+
+    @Override
+    public InstantMessage messageAtIndex(int index, Conversation chatBox) {
+        return messageTable.messageAtIndex(index, chatBox);
+    }
+
+    private void postMessageUpdatedNotification(InstantMessage iMsg, Conversation chatBox) {
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("ID", chatBox.identifier);
+        userInfo.put("msg", iMsg);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(MessageUpdated, this, userInfo);
+    }
+
+    @Override
+    public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+        boolean OK = messageTable.insertMessage(iMsg, chatBox);
+        if (OK) {
+            postMessageUpdatedNotification(iMsg, chatBox);
+        }
+        return OK;
+    }
+
+    @Override
+    public boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
+        boolean OK = messageTable.removeMessage(iMsg, chatBox);
+        if (OK) {
+            postMessageUpdatedNotification(iMsg, chatBox);
+        }
+        return OK;
+    }
+
+    @Override
+    public boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
+        boolean OK = messageTable.withdrawMessage(iMsg, chatBox);
+        if (OK) {
+            postMessageUpdatedNotification(iMsg, chatBox);
+        }
+        return OK;
+    }
+
+    @Override
+    public boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
+        boolean OK = messageTable.saveReceipt(receipt, chatBox);
+        if (OK) {
+            postMessageUpdatedNotification(receipt, chatBox);
+        }
+        return OK;
+    }
+}
+
+class MessageBuilder {
+
+    private static String getUsername(Object string) {
+        return Facebook.getInstance().getUsername(string);
+    }
+
     //-------- Content
 
-    public String getContentText(Content content) {
+    public static String getContentText(Content content) {
         if (content instanceof TextContent) {
             TextContent text = (TextContent) content;
             return text.getText();
@@ -124,7 +207,7 @@ public class MessageProcessor extends ConversationDatabase {
 
     //-------- Command
 
-    public String getCommandText(Command cmd, ID commander) {
+    public static String getCommandText(Command cmd, ID commander) {
         if (cmd instanceof GroupCommand) {
             return getGroupCommandText((GroupCommand) cmd, commander);
         }
@@ -142,13 +225,13 @@ public class MessageProcessor extends ConversationDatabase {
 
     //-------- System commands
 
-    private String getReceiptCommandText(ReceiptCommand cmd, ID commander) {
+    private static String getReceiptCommandText(ReceiptCommand cmd, ID commander) {
         return String.format(Locale.CHINA, "Receipt from: %s", getUsername(commander));
     }
 
     //-------- Group Commands
 
-    private String getGroupCommandText(GroupCommand cmd, ID commander) {
+    private static String getGroupCommandText(GroupCommand cmd, ID commander) {
         if (cmd instanceof InviteCommand) {
             return getInviteCommandText((InviteCommand) cmd, commander);
         }
@@ -167,7 +250,7 @@ public class MessageProcessor extends ConversationDatabase {
         throw new UnsupportedOperationException("unsupported group command: " + cmd);
     }
 
-    private String getInviteCommandText(InviteCommand cmd, ID commander) {
+    private static String getInviteCommandText(InviteCommand cmd, ID commander) {
         String text = (String) cmd.get("text");
         if (text != null) {
             return text;
@@ -187,7 +270,7 @@ public class MessageProcessor extends ConversationDatabase {
         return text;
     }
 
-    private String getExpelCommandText(ExpelCommand cmd, ID commander) {
+    private static String getExpelCommandText(ExpelCommand cmd, ID commander) {
         String text = (String) cmd.get("text");
         if (text != null) {
             return text;
@@ -207,7 +290,7 @@ public class MessageProcessor extends ConversationDatabase {
         return text;
     }
 
-    private String getQuitCommandText(QuitCommand cmd, ID commander) {
+    private static String getQuitCommandText(QuitCommand cmd, ID commander) {
         String text = (String) cmd.get("text");
         if (text != null) {
             return text;
@@ -218,7 +301,7 @@ public class MessageProcessor extends ConversationDatabase {
         return text;
     }
 
-    private String getResetCommandText(ResetCommand cmd, ID commander) {
+    private static String getResetCommandText(ResetCommand cmd, ID commander) {
         String text = (String) cmd.get("text");
         if (text != null) {
             return text;
@@ -247,7 +330,7 @@ public class MessageProcessor extends ConversationDatabase {
         return text;
     }
 
-    private String getQueryCommandText(QueryCommand cmd, ID commander) {
+    private static String getQueryCommandText(QueryCommand cmd, ID commander) {
         String text = (String) cmd.get("text");
         if (text != null) {
             return text;

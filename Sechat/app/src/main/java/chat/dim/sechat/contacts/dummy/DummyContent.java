@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.common.Facebook;
 import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
+import chat.dim.model.Facebook;
 
 /**
  * Helper class for providing sample content for user interfaces created by

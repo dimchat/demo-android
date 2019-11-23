@@ -3,10 +3,10 @@ package chat.dim.sechat.chatbox;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import chat.dim.common.Amanuensis;
-import chat.dim.common.Conversation;
-import chat.dim.common.Facebook;
 import chat.dim.mkm.ID;
+import chat.dim.model.Amanuensis;
+import chat.dim.model.Conversation;
+import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ui.chatbox.ChatboxFragment;
 

@@ -31,11 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.common.Conversation;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.mkm.ID;
+import chat.dim.model.Conversation;
 
-class MessageTable extends ExternalStorage {
+public class MessageTable extends ExternalStorage {
 
     private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
 
@@ -106,7 +106,7 @@ class MessageTable extends ExternalStorage {
 
     //-------- messages
 
-    List<InstantMessage> messagesInConversation(Conversation chatBox) {
+    public List<InstantMessage> messagesInConversation(Conversation chatBox) {
         List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
         if (msgList == null) {
             msgList = new ArrayList<>();
@@ -126,43 +126,43 @@ class MessageTable extends ExternalStorage {
         return msgList;
     }
 
-    int numberOfMessages(Conversation chatBox) {
+    public int numberOfMessages(Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.size();
     }
 
-    InstantMessage messageAtIndex(int index, Conversation chatBox) {
+    public InstantMessage messageAtIndex(int index, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         return msgList.get(index);
     }
 
-    boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+    public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.add(iMsg);
         return saveMessages(chatBox.identifier);
     }
 
-    boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
+    public boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
         List<InstantMessage> msgList = messagesInConversation(chatBox);
         msgList.remove(iMsg);
         return saveMessages(chatBox.identifier);
     }
 
-    boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
+    public boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
         // TODO: withdraw a message;
         return false;
     }
 
-    boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
+    public boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
         // TODO: save receipt of instant message
         return false;
     }
 
-    boolean removeMessages(Conversation chatBox) {
+    public boolean removeMessages(Conversation chatBox) {
         return removeMessages(chatBox.identifier);
     }
 
-    boolean clearMessages(Conversation chatBox) {
+    public boolean clearMessages(Conversation chatBox) {
         return clearMessages(chatBox.identifier);
     }
 }

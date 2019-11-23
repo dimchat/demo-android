@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.common.Facebook;
 import chat.dim.database.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.mkm.User;
 import chat.dim.mkm.ID;
-import chat.dim.model.NetworkConfig;
+import chat.dim.model.Facebook;
+import chat.dim.model.NetworkDatabase;
 import chat.dim.network.Server;
 import chat.dim.network.ServiceProvider;
 import chat.dim.network.Terminal;
@@ -95,7 +95,7 @@ public class Client extends Terminal {
 
         List<Map<String, Object>> stations = (List) spConfig.get("stations");
         if (stations == null) {
-            stations = NetworkConfig.getInstance().allStations(spID);
+            stations = NetworkDatabase.getInstance().allStations(spID);
             assert stations != null;
         }
 
@@ -115,7 +115,7 @@ public class Client extends Terminal {
         //
         Map<String, Object> spConfig = (Map<String, Object>) options.get("SP");
         if (spConfig == null) {
-            spConfig = NetworkConfig.getInstance().getProviderConfig(ID.ANYONE);
+            spConfig = NetworkDatabase.getInstance().getProviderConfig(ID.ANYONE);
         }
         launchServiceProvider(spConfig);
 
