@@ -5,7 +5,7 @@ dependencies {
 
     implementation project(':StarGate')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.1.7'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.1.8'
 }
 
 sourceCompatibility = "7"

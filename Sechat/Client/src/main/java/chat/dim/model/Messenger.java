@@ -29,9 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.cpu.CommandProcessor;
-import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
-import chat.dim.cpu.TextContentProcessor;
 import chat.dim.dkd.Content;
 import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.ReliableMessage;
@@ -41,10 +39,10 @@ import chat.dim.mkm.Meta;
 import chat.dim.mkm.Profile;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
+import chat.dim.protocol.ReceiptCommand;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();
@@ -92,6 +90,11 @@ public class Messenger extends chat.dim.Messenger {
         }
 
         Amanuensis clerk = Amanuensis.getInstance();
+
+        if (content instanceof ReceiptCommand) {
+            return clerk.saveReceipt(msg);
+        }
+
         return clerk.saveMessage(msg);
     }
 
@@ -212,7 +215,6 @@ public class Messenger extends chat.dim.Messenger {
 
     static {
         // register CPUs
-        ContentProcessor.register(ContentType.TEXT, TextContentProcessor.class);
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
     }
 }

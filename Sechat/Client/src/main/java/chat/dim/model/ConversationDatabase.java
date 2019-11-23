@@ -40,15 +40,12 @@ import chat.dim.dkd.InstantMessage;
 import chat.dim.dkd.Message;
 import chat.dim.mkm.ID;
 import chat.dim.notification.NotificationCenter;
-import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HistoryCommand;
-import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.TextContent;
-import chat.dim.protocol.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
@@ -190,17 +187,8 @@ class MessageBuilder {
         }
         // File: Image, Audio, Video
         if (content instanceof FileContent) {
-            FileContent file = (FileContent) content;
-            if (content instanceof ImageContent) {
-                return String.format(Locale.CHINA, "[Image:%s]", file.getFilename());
-            }
-            if (content instanceof AudioContent) {
-                return String.format(Locale.CHINA, "[Voice:%s]", file.getFilename());
-            }
-            if (content instanceof VideoContent) {
-                return String.format(Locale.CHINA, "[Movie:%s]", file.getFilename());
-            }
-            return String.format(Locale.CHINA, "[File:%s]", file.getFilename());
+            // text should be built by CPUs already
+            return (String) content.get("text");
         }
         return String.format(Locale.CHINA, "Current version doesn't support this message type: %s", content.type);
     }
@@ -217,7 +205,8 @@ class MessageBuilder {
 
         // receipt
         if (cmd instanceof ReceiptCommand) {
-            return getReceiptCommandText((ReceiptCommand) cmd, commander);
+            ReceiptCommand receipt = (ReceiptCommand) cmd;
+            return receipt.getMessage();
         }
 
         return String.format(Locale.CHINA, "Current version doesn't support this command: %s", cmd.command);
@@ -225,9 +214,7 @@ class MessageBuilder {
 
     //-------- System commands
 
-    private static String getReceiptCommandText(ReceiptCommand cmd, ID commander) {
-        return String.format(Locale.CHINA, "Receipt from: %s", getUsername(commander));
-    }
+    //...
 
     //-------- Group Commands
 
