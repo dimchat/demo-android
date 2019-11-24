@@ -34,7 +34,6 @@ import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
 import chat.dim.database.GroupTable;
@@ -43,12 +42,6 @@ import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateTable;
 import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
-import chat.dim.extension.BTCMeta;
-import chat.dim.extension.ECCPrivateKey;
-import chat.dim.extension.ECCPublicKey;
-import chat.dim.extension.ETHMeta;
-import chat.dim.impl.PrivateKeyImpl;
-import chat.dim.impl.PublicKeyImpl;
 
 public class Facebook extends chat.dim.Facebook {
     private static final Facebook ourInstance = new Facebook();
@@ -274,21 +267,5 @@ public class Facebook extends chat.dim.Facebook {
             return owner;
         }
         return super.getOwner(group);
-    }
-
-    static {
-        // register new asymmetric cryptography key classes
-        PrivateKeyImpl.register(PrivateKey.ECC, ECCPrivateKey.class);
-        PublicKeyImpl.register(PublicKey.ECC, ECCPublicKey.class);
-
-        // register new address classes
-//        Address.register(BTCAddress.class);
-//        Address.register(ETHAddress.class);
-
-        // register new meta classes
-        Meta.register(Meta.VersionBTC, BTCMeta.class);
-        Meta.register(Meta.VersionExBTC, BTCMeta.class);
-        Meta.register(Meta.VersionETH, ETHMeta.class);
-        Meta.register(Meta.VersionExETH, ETHMeta.class);
     }
 }
