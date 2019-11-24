@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.model.Facebook;
 
 public class ContactTable extends ExternalStorage {

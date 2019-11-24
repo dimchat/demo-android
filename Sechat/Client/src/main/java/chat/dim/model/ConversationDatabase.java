@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import chat.dim.Content;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.Message;
 import chat.dim.database.ConversationTable;
 import chat.dim.database.MessageTable;
-import chat.dim.dkd.Content;
-import chat.dim.dkd.InstantMessage;
-import chat.dim.dkd.Message;
-import chat.dim.mkm.ID;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;

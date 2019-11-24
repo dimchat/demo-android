@@ -29,10 +29,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import chat.dim.ID;
+import chat.dim.Meta;
+import chat.dim.Profile;
+import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
-import chat.dim.crypto.impl.PublicKeyImpl;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
 import chat.dim.database.GroupTable;
@@ -45,10 +47,8 @@ import chat.dim.extension.BTCMeta;
 import chat.dim.extension.ECCPrivateKey;
 import chat.dim.extension.ECCPublicKey;
 import chat.dim.extension.ETHMeta;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
-import chat.dim.mkm.User;
+import chat.dim.impl.PrivateKeyImpl;
+import chat.dim.impl.PublicKeyImpl;
 
 public class Facebook extends chat.dim.Facebook {
     private static final Facebook ourInstance = new Facebook();

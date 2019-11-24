@@ -25,8 +25,8 @@
  */
 package chat.dim.model;
 
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
 
 public interface ConversationDataSource {
 

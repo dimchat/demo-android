@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.dummy.DummyContent;
 import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;

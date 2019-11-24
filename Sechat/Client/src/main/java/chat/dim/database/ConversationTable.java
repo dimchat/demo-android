@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.utils.Log;
 

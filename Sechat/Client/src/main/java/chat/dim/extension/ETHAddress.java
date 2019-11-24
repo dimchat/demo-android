@@ -25,8 +25,8 @@
  */
 package chat.dim.extension;
 
-import chat.dim.mkm.Address;
-import chat.dim.mkm.NetworkType;
+import chat.dim.Address;
+import chat.dim.NetworkType;
 
 /**
  *  Address like Ethereum

@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.ID;
+import chat.dim.User;
 import chat.dim.database.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
-import chat.dim.mkm.User;
-import chat.dim.mkm.ID;
 import chat.dim.model.Facebook;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.network.Server;

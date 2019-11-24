@@ -3,7 +3,7 @@ package chat.dim.sechat.profile;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ui.profile.ProfileFragment;

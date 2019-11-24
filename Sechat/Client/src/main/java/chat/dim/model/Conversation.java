@@ -28,11 +28,11 @@ package chat.dim.model;
 import java.util.Date;
 import java.util.List;
 
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.Group;
-import chat.dim.mkm.Entity;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.NetworkType;
+import chat.dim.Entity;
+import chat.dim.Group;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.NetworkType;
 import chat.dim.protocol.ContentType;
 
 public class Conversation {

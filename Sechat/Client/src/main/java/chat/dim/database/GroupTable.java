@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 import chat.dim.model.Facebook;
 
 public class GroupTable extends ExternalStorage {

@@ -4,8 +4,8 @@ import android.arch.lifecycle.ViewModel;
 
 import java.util.List;
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.User;
+import chat.dim.ID;
+import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.Client;
 

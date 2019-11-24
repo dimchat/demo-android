@@ -30,10 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.ID;
+import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
 import chat.dim.database.StationTable;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
 
 public class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();

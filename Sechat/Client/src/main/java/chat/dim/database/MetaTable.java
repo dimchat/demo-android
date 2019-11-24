@@ -27,8 +27,8 @@ package chat.dim.database;
 
 import java.io.IOException;
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
+import chat.dim.ID;
+import chat.dim.Meta;
 
 public class MetaTable extends ExternalStorage {
 

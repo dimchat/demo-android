@@ -30,8 +30,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Profile;
+import chat.dim.ID;
+import chat.dim.Profile;
 
 public class ProfileTable extends ExternalStorage {
 

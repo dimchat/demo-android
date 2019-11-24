@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Profile;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.Profile;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;

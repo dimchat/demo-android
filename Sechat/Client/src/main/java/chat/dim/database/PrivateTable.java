@@ -31,11 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Address;
+import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
-import chat.dim.mkm.Address;
-import chat.dim.mkm.ID;
+import chat.dim.impl.PrivateKeyImpl;
 
 public class PrivateTable extends ExternalStorage {
 

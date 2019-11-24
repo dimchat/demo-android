@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.mkm.ID;
+import chat.dim.ID;
 
 public class ProviderTable extends ExternalStorage {
 

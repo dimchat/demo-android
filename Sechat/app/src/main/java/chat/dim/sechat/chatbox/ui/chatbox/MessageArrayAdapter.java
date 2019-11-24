@@ -11,9 +11,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.dkd.Content;
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
+import chat.dim.Content;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;

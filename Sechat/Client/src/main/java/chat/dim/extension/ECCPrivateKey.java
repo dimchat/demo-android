@@ -28,7 +28,7 @@ package chat.dim.extension;
 import java.util.Map;
 
 import chat.dim.crypto.PublicKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
+import chat.dim.impl.PrivateKeyImpl;
 
 public final class ECCPrivateKey extends PrivateKeyImpl {
 

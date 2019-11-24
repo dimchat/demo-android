@@ -32,20 +32,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Address;
+import chat.dim.ID;
+import chat.dim.Meta;
+import chat.dim.Profile;
+import chat.dim.UserDataSource;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.VerifyKey;
-import chat.dim.crypto.impl.PrivateKeyImpl;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.mkm.Address;
-import chat.dim.mkm.UserDataSource;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.Meta;
-import chat.dim.mkm.Profile;
+import chat.dim.impl.PrivateKeyImpl;
 import chat.dim.utils.Log;
 
 public class Immortals implements UserDataSource {

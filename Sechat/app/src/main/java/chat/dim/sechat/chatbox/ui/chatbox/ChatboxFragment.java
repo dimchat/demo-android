@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.dkd.Content;
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
-import chat.dim.mkm.User;
+import chat.dim.Content;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.User;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;

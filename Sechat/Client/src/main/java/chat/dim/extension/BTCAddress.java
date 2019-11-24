@@ -27,10 +27,10 @@ package chat.dim.extension;
 
 import java.util.Arrays;
 
+import chat.dim.Address;
+import chat.dim.NetworkType;
 import chat.dim.crypto.Digest;
 import chat.dim.format.Base58;
-import chat.dim.mkm.Address;
-import chat.dim.mkm.NetworkType;
 
 public final class BTCAddress extends Address {
 

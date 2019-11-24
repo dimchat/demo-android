@@ -31,8 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.dkd.InstantMessage;
-import chat.dim.mkm.ID;
+import chat.dim.ID;
+import chat.dim.InstantMessage;
 import chat.dim.model.Conversation;
 
 public class MessageTable extends ExternalStorage {

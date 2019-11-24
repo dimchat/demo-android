@@ -2,7 +2,7 @@ package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModel;
 
-import chat.dim.mkm.User;
+import chat.dim.User;
 import chat.dim.model.Facebook;
 
 class AccountViewModel extends ViewModel {
