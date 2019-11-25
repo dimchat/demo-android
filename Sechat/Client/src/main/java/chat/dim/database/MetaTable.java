@@ -57,6 +57,9 @@ public class MetaTable extends ExternalStorage {
         // save into JsON file
         String path = getMetaFilePath(entity);
         try {
+            if (exists(path)) {
+                return true;
+            }
             return writeJSON(meta, path);
         } catch (IOException e) {
             e.printStackTrace();
