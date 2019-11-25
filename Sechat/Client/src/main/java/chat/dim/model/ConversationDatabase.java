@@ -26,7 +26,6 @@
 package chat.dim.model;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,21 +36,11 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Message;
+import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.database.ConversationTable;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.FileContent;
-import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.HistoryCommand;
-import chat.dim.protocol.ReceiptCommand;
-import chat.dim.protocol.TextContent;
-import chat.dim.protocol.group.ExpelCommand;
-import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.QueryCommand;
-import chat.dim.protocol.group.QuitCommand;
-import chat.dim.protocol.group.ResetCommand;
-import chat.dim.utils.StringUtils;
 
 public class ConversationDatabase implements ConversationDataSource {
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
@@ -82,11 +71,11 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     public String getContentText(Content content) {
-        return MessageBuilder.getContentText(content);
+        return AnyContentProcessor.getContentText(content);
     }
 
     public String getCommandText(Command cmd, ID sender) {
-        return MessageBuilder.getCommandText(cmd, sender);
+        return AnyContentProcessor.getCommandText(cmd, sender);
     }
 
     //-------- ConversationDataSource
@@ -169,162 +158,5 @@ public class ConversationDatabase implements ConversationDataSource {
             postMessageUpdatedNotification(receipt, chatBox);
         }
         return OK;
-    }
-}
-
-class MessageBuilder {
-
-    private static String getUsername(Object string) {
-        return Facebook.getInstance().getUsername(string);
-    }
-
-    //-------- Content
-
-    public static String getContentText(Content content) {
-        if (content instanceof TextContent) {
-            TextContent text = (TextContent) content;
-            return text.getText();
-        }
-        // File: Image, Audio, Video
-        if (content instanceof FileContent) {
-            // text should be built by CPUs already
-            return (String) content.get("text");
-        }
-        return String.format(Locale.CHINA, "Current version doesn't support this message type: %s", content.type);
-    }
-
-    //-------- Command
-
-    public static String getCommandText(Command cmd, ID commander) {
-        if (cmd instanceof GroupCommand) {
-            return getGroupCommandText((GroupCommand) cmd, commander);
-        }
-        if (cmd instanceof HistoryCommand) {
-            // TODO: process history command
-        }
-
-        // receipt
-        if (cmd instanceof ReceiptCommand) {
-            ReceiptCommand receipt = (ReceiptCommand) cmd;
-            return receipt.getMessage();
-        }
-
-        return String.format(Locale.CHINA, "Current version doesn't support this command: %s", cmd.command);
-    }
-
-    //-------- System commands
-
-    //...
-
-    //-------- Group Commands
-
-    private static String getGroupCommandText(GroupCommand cmd, ID commander) {
-        if (cmd instanceof InviteCommand) {
-            return getInviteCommandText((InviteCommand) cmd, commander);
-        }
-        if (cmd instanceof ExpelCommand) {
-            return getExpelCommandText((ExpelCommand) cmd, commander);
-        }
-        if (cmd instanceof QuitCommand) {
-            return getQuitCommandText((QuitCommand) cmd, commander);
-        }
-        if (cmd instanceof ResetCommand) {
-            return getResetCommandText((ResetCommand) cmd, commander);
-        }
-        if (cmd instanceof QueryCommand) {
-            return getQueryCommandText((QueryCommand) cmd, commander);
-        }
-        throw new UnsupportedOperationException("unsupported group command: " + cmd);
-    }
-
-    private static String getInviteCommandText(InviteCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-        List addedList = (List) cmd.get("added");
-        if (addedList == null || addedList.size() == 0) {
-            return null;
-        }
-        List<String> names = new ArrayList<>();
-        for (Object item : addedList) {
-            names.add(getUsername(item));
-        }
-        String string = StringUtils.join(names, ", ");
-
-        text = String.format(Locale.CHINA, "%s has invited members: %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
-    }
-
-    private static String getExpelCommandText(ExpelCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-        List removedList = (List) cmd.get("removed");
-        if (removedList == null || removedList.size() == 0) {
-            return null;
-        }
-        List<String> names = new ArrayList<>();
-        for (Object item : removedList) {
-            names.add(getUsername(item));
-        }
-        String string = StringUtils.join(names, ", ");
-
-        text = String.format(Locale.CHINA, "%s has removed members: %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
-    }
-
-    private static String getQuitCommandText(QuitCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-
-        text = String.format(Locale.CHINA, "%s has quit group chat.", getUsername(commander));
-        cmd.put("text", text);
-        return text;
-    }
-
-    private static String getResetCommandText(ResetCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-        List addedList = (List) cmd.get("added");
-        List removedList = (List) cmd.get("removed");
-
-        String string = "";
-        if (removedList != null && removedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (Object item : removedList) {
-                names.add(getUsername(item));
-            }
-            string = string + ", removed: " + StringUtils.join(names, ", ");
-        }
-        if (addedList != null && addedList.size() > 0) {
-            List<String> names = new ArrayList<>();
-            for (Object item : addedList) {
-                names.add(getUsername(item));
-            }
-            string = string + ", added: " + StringUtils.join(names, ", ");
-        }
-
-        text = String.format(Locale.CHINA, "%s has updated members %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
-    }
-
-    private static String getQueryCommandText(QueryCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-
-        text = String.format(Locale.CHINA, "%s was querying group info, responding...", getUsername(commander));
-        cmd.put("text", text);
-        return text;
     }
 }

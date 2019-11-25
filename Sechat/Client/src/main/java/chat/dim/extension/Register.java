@@ -31,7 +31,6 @@ import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.Meta;
-import chat.dim.NetworkType;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
@@ -41,6 +40,8 @@ import chat.dim.model.Messenger;
 import chat.dim.plugins.UserProfile;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.MetaType;
+import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.utils.Log;
 
@@ -147,7 +148,7 @@ public class Register {
     public Meta generateMeta(String seed) {
         assert privateKey != null;
         try {
-            meta = Meta.generate(Meta.VersionDefault, privateKey, seed);
+            meta = Meta.generate(MetaType.Default, privateKey, seed);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             meta = null;

@@ -35,18 +35,23 @@ import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
 import chat.dim.User;
+import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
+import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.StorageCommand;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();
@@ -234,5 +239,13 @@ public class Messenger extends chat.dim.Messenger {
 
         CommandProcessor.register(MuteCommand.MUTE, MuteCommandProcessor.class);
         CommandProcessor.register(BlockCommand.BLOCK, BlockCommandProcessor.class);
+
+        // storage (contacts, private_key)
+        CommandProcessor.register(StorageCommand.STORAGE, StorageCommandProcessor.class);
+        CommandProcessor.register(StorageCommand.CONTACTS, StorageCommandProcessor.class);
+        CommandProcessor.register(StorageCommand.PRIVATE_KEY, StorageCommandProcessor.class);
+
+        // default content processor
+        ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);
     }
 }
