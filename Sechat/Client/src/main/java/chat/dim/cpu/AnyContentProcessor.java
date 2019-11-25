@@ -140,12 +140,6 @@ public class AnyContentProcessor extends DefaultContentProcessor {
             // TODO: process history command
         }
 
-        // Receipt
-        if (cmd instanceof ReceiptCommand) {
-            ReceiptCommand receipt = (ReceiptCommand) cmd;
-            return receipt.getMessage();
-        }
-
         return String.format("Current version doesn't support this command: %s", cmd.command);
     }
 }

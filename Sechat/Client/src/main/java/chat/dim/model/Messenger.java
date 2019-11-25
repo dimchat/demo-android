@@ -110,6 +110,11 @@ public class Messenger extends chat.dim.Messenger {
             // no need to save mute & block command here
             return true;
         }
+        if (content instanceof SearchCommand) {
+            // search result will be parsed by CPUs
+            // no need to save search command here
+            return true;
+        }
 
         Amanuensis clerk = Amanuensis.getInstance();
 

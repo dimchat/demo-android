@@ -8,35 +8,37 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.SearchCommand;
-import chat.dim.utils.Log;
 
 public class SearchViewModel extends ViewModel {
 
+    SearchViewModel() {
+        super();
+        ID founder = facebook.getID("founder");
+        assert founder != null;
+        list.add(founder);
+    }
+
+    private final List<ID> list = new ArrayList<>();
+
     private Facebook facebook = Facebook.getInstance();
 
-    private SearchCommand result = null;
-
     public void updateSearchResult(SearchCommand cmd) {
-        result = cmd;
-        Log.info("search result: " + getUsers().size());
+        list.clear();
+        List users = cmd.getUsers();
+        if (users == null) {
+            return;
+        }
+        ID identifier;
+        for (Object item: users) {
+            identifier = facebook.getID(item);
+            if (identifier == null || !identifier.getType().isUser()) {
+                continue;
+            }
+            list.add(identifier);
+        }
     }
 
     public List<ID> getUsers() {
-        List<ID> mArray = new ArrayList<>();
-        if (result != null) {
-            List users = result.getUsers();
-            if (users != null) {
-                ID identifier;
-                for (Object item: users) {
-                    identifier = facebook.getID(item);
-                    assert identifier != null;
-                    mArray.add(identifier);
-                }
-            }
-        }
-        if (mArray.size() == 0) {
-            mArray.add(facebook.getID("founder"));
-        }
-        return mArray;
+        return list;
     }
 }

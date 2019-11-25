@@ -91,6 +91,7 @@ public class SearchFragment extends Fragment implements Observer {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchView.setIconified(true);
                 return search(query);
             }
 
