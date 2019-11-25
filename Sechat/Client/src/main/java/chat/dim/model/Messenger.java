@@ -41,6 +41,7 @@ import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
+import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
@@ -51,6 +52,7 @@ import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 
 public class Messenger extends chat.dim.Messenger {
@@ -244,6 +246,8 @@ public class Messenger extends chat.dim.Messenger {
         CommandProcessor.register(StorageCommand.STORAGE, StorageCommandProcessor.class);
         CommandProcessor.register(StorageCommand.CONTACTS, StorageCommandProcessor.class);
         CommandProcessor.register(StorageCommand.PRIVATE_KEY, StorageCommandProcessor.class);
+
+        CommandProcessor.register(SearchCommand.SEARCH, SearchCommandProcessor.class);
 
         // default content processor
         ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);

@@ -61,23 +61,21 @@ public class AddressNameTable extends ExternalStorage {
             text = readText(path);
         } catch (IOException e) {
             e.printStackTrace();
-            return dictionary;
+            text = null;
         }
-        if (text == null || text.length() == 0) {
-            return dictionary;
-        }
-        Facebook facebook = Facebook.getInstance();
-        ID moky = facebook.getID("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
-        String[] lines = text.split("[\\r\\n]+");
-        String[] pair;
-        for (String record : lines) {
-            pair = record.split("\\t");
-            if (pair.length != 2) {
-                // invalid record
-                continue;
+        if (text != null && text.length() > 0) {
+            String[] lines = text.split("[\\r\\n]+");
+            String[] pair;
+            for (String record : lines) {
+                pair = record.split("\\t");
+                if (pair.length != 2) {
+                    // invalid record
+                    continue;
+                }
+                dictionary.put(pair[0], ID.getInstance(pair[1]));
             }
-            dictionary.put(pair[0], facebook.getID(pair[1]));
         }
+        ID moky = ID.getInstance("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
         // Reserved names
         dictionary.put("all", ID.EVERYONE);
         dictionary.put(ID.EVERYONE.toString(), ID.EVERYONE);

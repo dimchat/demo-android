@@ -200,7 +200,7 @@ public class Register {
         } else {
             profile = new Profile(identifier);
         }
-        for (Map.Entry<String, Object> entry: properties.entrySet()){
+        for (Map.Entry<String, Object> entry : properties.entrySet()){
             profile.setProperty(entry.getKey(), entry.getValue());
         }
         profile.sign(privateKey);

@@ -22,7 +22,7 @@ public class ChatboxActivity extends AppCompatActivity {
         // get extra info
         String string = getIntent().getStringExtra("ID");
         ID identifier = facebook.getID(string);
-        assert identifier.isValid();
+        assert identifier != null;
         Conversation chatBox = clerk.getConversation(identifier);
         setTitle(chatBox.getTitle());
 

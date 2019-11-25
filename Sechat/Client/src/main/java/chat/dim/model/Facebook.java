@@ -27,8 +27,8 @@ package chat.dim.model;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
+import chat.dim.AddressNameService;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -48,8 +48,23 @@ public class Facebook extends chat.dim.Facebook {
     public static Facebook getInstance() { return ourInstance; }
     private Facebook() {
         super();
+
+        // ANS
+        ans = new AddressNameService() {
+            @Override
+            public ID identifier(String name) {
+                return ansTable.record(name);
+            }
+
+            @Override
+            public boolean save(String name, ID identifier) {
+                return ansTable.saveRecord(name, identifier);
+            }
+        };
+        setANS(ans);
     }
 
+    private final AddressNameService ans;
     private Immortals immortals = Immortals.getInstance();
 
     private PrivateTable privateTable = new PrivateTable();
@@ -61,20 +76,6 @@ public class Facebook extends chat.dim.Facebook {
     private UserTable userTable = new UserTable();
     private GroupTable groupTable = new GroupTable();
     private ContactTable contactTable = new ContactTable();
-
-    //-------- Address Name Service
-
-    public boolean saveAnsRecord(String name, ID identifier) {
-        return ansTable.saveRecord(name, identifier);
-    }
-
-    public ID ansRecord(String name) {
-        return ansTable.record(name);
-    }
-
-    public Set<String> ansNames(String identifier) {
-        return ansTable.names(identifier);
-    }
 
     //-------- User
 

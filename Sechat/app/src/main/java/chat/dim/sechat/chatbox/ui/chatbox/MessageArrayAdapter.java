@@ -25,7 +25,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
     private final int resId;
 
-    public Conversation chatBox = null;
+    Conversation chatBox = null;
 
     MessageArrayAdapter(Context context, int resource, List<InstantMessage> objects) {
         super(context, resource, objects);
@@ -41,15 +41,16 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(resId, null);
             viewHolder = new ViewHolder();
-            viewHolder.leftLayout = (LinearLayout) view.findViewById(R.id.recv_msg);
-            viewHolder.centerLayout = (LinearLayout) view.findViewById(R.id.cmd_msg);
-            viewHolder.rightLayout = (LinearLayout) view.findViewById(R.id.sent_msg);
+            viewHolder.leftLayout = view.findViewById(R.id.recv_msg);
+            viewHolder.centerLayout = view.findViewById(R.id.cmd_msg);
+            viewHolder.rightLayout = view.findViewById(R.id.sent_msg);
             view.setTag(viewHolder);
         } else {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
 
+        assert iMsg != null;
         MsgType type = ChatboxViewModel.getType(iMsg, chatBox);
         if (MsgType.SENT == type) {
             viewHolder.leftLayout.setVisibility(View.GONE);

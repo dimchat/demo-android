@@ -110,11 +110,8 @@ public class ChatboxFragment extends Fragment implements Observer {
         }
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
         // prepare to send
-        Callback callback = new Callback() {
-            @Override
-            public void onFinished(Object result, Error error) {
-                // TODO:
-            }
+        Callback callback = (result, error) -> {
+            // TODO:
         };
         Messenger messenger = Messenger.getInstance();
         if (!messenger.sendMessage(iMsg, callback, true)) {
@@ -143,18 +140,15 @@ public class ChatboxFragment extends Fragment implements Observer {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chatbox_fragment, container, false);
 
-        msgListView = (ListView) view.findViewById(R.id.msgListView);
-        inputText = (EditText) view.findViewById(R.id.inputMsg);
-        sendButton = (Button) view.findViewById(R.id.sendMsg);
+        msgListView = view.findViewById(R.id.msgListView);
+        inputText = view.findViewById(R.id.inputMsg);
+        sendButton = view.findViewById(R.id.sendMsg);
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String text = inputText.getText().toString();
-                if (send(text)) {
-                    // sent OK
-                    inputText.setText("");
-                }
+        sendButton.setOnClickListener(v -> {
+            String text = inputText.getText().toString();
+            if (send(text)) {
+                // sent OK
+                inputText.setText("");
             }
         });
 
