@@ -1,1 +1,1 @@
-include ':app', ':Client', ':StarGate'
+include ':app', ':Client'

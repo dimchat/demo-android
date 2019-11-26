@@ -3,9 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':StarGate')
-
-    implementation group: 'chat.dim', name: 'SDK', version: '0.2.1'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.2.2'
 }
 
 sourceCompatibility = "7"
