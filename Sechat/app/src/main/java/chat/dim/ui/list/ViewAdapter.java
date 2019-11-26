@@ -23,61 +23,47 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.ui.list;
 
-import java.util.List;
-import java.util.Map;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 
-public class SearchCommand extends Command {
+public abstract class ViewAdapter<VH extends ViewHolder, L extends DummyList>
+        extends RecyclerView.Adapter<VH> {
 
-    public static final String SEARCH = "search";
+    protected final L dummyList;
+    private final Listener listener;
 
-    // search online users
-    public static final String ONLINE_USERS = "users";
-
-    public SearchCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public ViewAdapter(L list, Listener observer) {
+        super();
+        dummyList = list;
+        listener = observer;
     }
 
-    public SearchCommand(String keywords) {
-        super(ONLINE_USERS.equals(keywords) ? ONLINE_USERS : SEARCH);
+//    @NonNull
+//    @Override
+//    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(parent.getContext()).inflate(resId, parent, false);
+//        return new VH(view);
+//    }
 
-        if (!ONLINE_USERS.equals(keywords)) {
-            dictionary.put("keywords", keywords);
-        }
-    }
-
-    /**
-     *  Get user ID list
-     *
-     * @return ID string list
-     */
     @SuppressWarnings("unchecked")
-    public List<String> getUsers() {
-        Object users = dictionary.get("users");
-        if (users == null) {
-            return null;
-        }
-        return (List<String>) users;
+    @Override
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        holder.item = dummyList.getItem(position);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                listener.onListFragmentInteraction(holder.item);
+            }
+        });
     }
 
-    /**
-     *  Get user metas mapping to ID strings
-     *
-     * @return meta dictionary list
-     */
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getResults() {
-        Object results = dictionary.get("results");
-        if (results == null) {
-            return null;
-        }
-        return (Map<String, Object>) results;
-    }
-
-    static {
-        // register
-        register(SEARCH, SearchCommand.class);
-        register(ONLINE_USERS, SearchCommand.class);
+    @Override
+    public int getItemCount() {
+        return dummyList.getCount();
     }
 }
+

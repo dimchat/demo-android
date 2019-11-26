@@ -1,14 +1,8 @@
 package chat.dim.sechat.conversations;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,40 +10,13 @@ import android.view.ViewGroup;
 
 import chat.dim.ID;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
-import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
-import chat.dim.sechat.conversations.dummy.DummyContent;
-import chat.dim.sechat.conversations.dummy.DummyContent.DummyItem;
+import chat.dim.ui.list.ListFragment;
+import chat.dim.ui.list.Listener;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
-public class ConversationFragment extends Fragment implements Observer {
-
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-
-    private OnListFragmentInteractionListener mListener = new OnListFragmentInteractionListener() {
-        @Override
-        public void onListFragmentInteraction(DummyItem item) {
-            ID identifier = item.getIdentifier();
-            assert getContext() != null;
-            Intent intent = new Intent();
-            intent.setClass(getContext(), ChatboxActivity.class);
-            intent.putExtra("ID", identifier.toString());
-            startActivity(intent);
-        }
-    };
-
-    private RecyclerViewAdapter adapter = null;
+public class ConversationFragment extends ListFragment<RecyclerViewAdapter, DummyContent> {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -57,94 +24,31 @@ public class ConversationFragment extends Fragment implements Observer {
      */
     public ConversationFragment() {
         super();
+
+        dummyList = new DummyContent();
+        Listener listener = (Listener<DummyContent.Item>) item -> {
+            ID identifier = item.getIdentifier();
+            assert getContext() != null;
+            Intent intent = new Intent();
+            intent.setClass(getContext(), ChatboxActivity.class);
+            intent.putExtra("ID", identifier.toString());
+            startActivity(intent);
+        };
+        adapter = new RecyclerViewAdapter(dummyList, listener);
+
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, ConversationDatabase.MessageUpdated);
     }
 
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            DummyContent.reloadData();
-            adapter.notifyDataSetChanged();
-        }
-    };
-
     @Override
-    public void onReceiveNotification(Notification notification) {
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static ConversationFragment newInstance(int columnCount) {
-        ConversationFragment fragment = new ConversationFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_conversation_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            adapter = new RecyclerViewAdapter(DummyContent.ITEMS, mListener);
-            recyclerView.setAdapter(adapter);
-        }
+        assert view instanceof RecyclerView;
+        bindRecyclerView((RecyclerView) view);
+
         return view;
-    }
-
-
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnListFragmentInteractionListener) {
-//            mListener = (OnListFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnListFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
     }
 }

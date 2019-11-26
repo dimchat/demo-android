@@ -1,75 +1,56 @@
 package chat.dim.sechat.contacts;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 import chat.dim.sechat.R;
-import chat.dim.sechat.contacts.ContactFragment.OnListFragmentInteractionListener;
-import chat.dim.sechat.contacts.dummy.DummyContent.DummyItem;
+import chat.dim.ui.list.Listener;
+import chat.dim.ui.list.ViewAdapter;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * {@link RecyclerView.Adapter} that can display a {@link DummyContent.Item} and makes a call to the
+ * specified {@link Listener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, DummyContent> {
 
-    private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
-
-    public RecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
-        mValues = items;
-        mListener = listener;
+    RecyclerViewAdapter(DummyContent list, Listener listener) {
+        super(list, listener);
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_contact, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mTitleView.setText(mValues.get(position).getTitle());
-        holder.mDescView.setText(mValues.get(position).getDesc());
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        DummyContent.Item item = dummyList.getItem(position);
+        holder.mTitleView.setText(item.getTitle());
+        holder.mDescView.setText(item.getDesc());
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
+        super.onBindViewHolder(holder, position);
     }
 
-    @Override
-    public int getItemCount() {
-        return mValues.size();
-    }
+    public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mTitleView;
-        public final TextView mDescView;
-        public DummyItem mItem;
+        final TextView mTitleView;
+        final TextView mDescView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
-            mView = view;
             mTitleView = view.findViewById(R.id.title);
             mDescView = view.findViewById(R.id.desc);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return super.toString() + " '" + mDescView.getText() + "'";

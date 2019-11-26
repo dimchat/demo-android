@@ -23,61 +23,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.ui.list;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class SearchCommand extends Command {
+/**
+ * Providing a list content for user interfaces
+ */
+public abstract class DummyList<E extends DummyItem> {
 
-    public static final String SEARCH = "search";
+    private final List<E> items = new ArrayList<>();
 
-    // search online users
-    public static final String ONLINE_USERS = "users";
-
-    public SearchCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    protected void clearItems() {
+        items.clear();
     }
 
-    public SearchCommand(String keywords) {
-        super(ONLINE_USERS.equals(keywords) ? ONLINE_USERS : SEARCH);
-
-        if (!ONLINE_USERS.equals(keywords)) {
-            dictionary.put("keywords", keywords);
-        }
+    public int getCount() {
+        return items.size();
     }
 
-    /**
-     *  Get user ID list
-     *
-     * @return ID string list
-     */
-    @SuppressWarnings("unchecked")
-    public List<String> getUsers() {
-        Object users = dictionary.get("users");
-        if (users == null) {
-            return null;
-        }
-        return (List<String>) users;
+    public List<E> getItems() {
+        return items;
+    }
+
+    public E getItem(int index) {
+        return items.get(index);
+    }
+
+    protected void addItem(E item) {
+        items.add(item);
     }
 
     /**
-     *  Get user metas mapping to ID strings
-     *
-     * @return meta dictionary list
+     *  Refresh items
      */
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getResults() {
-        Object results = dictionary.get("results");
-        if (results == null) {
-            return null;
-        }
-        return (Map<String, Object>) results;
-    }
-
-    static {
-        // register
-        register(SEARCH, SearchCommand.class);
-        register(ONLINE_USERS, SearchCommand.class);
-    }
+    public abstract void reloadData();
 }
+

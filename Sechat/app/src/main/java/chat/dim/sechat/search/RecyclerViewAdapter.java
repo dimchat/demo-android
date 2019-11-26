@@ -1,4 +1,4 @@
-package chat.dim.sechat.conversations;
+package chat.dim.sechat.search;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -26,7 +26,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_conversation, parent, false);
+                .inflate(R.layout.search_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -39,15 +39,15 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
         final TextView mTitleView;
         final TextView mDescView;
 
         ViewHolder(View view) {
             super(view);
-            mTitleView = view.findViewById(R.id.title);
-            mDescView = view.findViewById(R.id.desc);
+            mTitleView = view.findViewById(R.id.search_title);
+            mDescView = view.findViewById(R.id.search_desc);
         }
 
         @NonNull

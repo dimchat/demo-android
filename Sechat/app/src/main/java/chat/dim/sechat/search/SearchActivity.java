@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import chat.dim.sechat.R;
-import chat.dim.sechat.search.ui.search.SearchFragment;
 
 public class SearchActivity extends AppCompatActivity {
 

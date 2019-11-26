@@ -253,6 +253,7 @@ public class Messenger extends chat.dim.Messenger {
         CommandProcessor.register(StorageCommand.PRIVATE_KEY, StorageCommandProcessor.class);
 
         CommandProcessor.register(SearchCommand.SEARCH, SearchCommandProcessor.class);
+        CommandProcessor.register(SearchCommand.ONLINE_USERS, SearchCommandProcessor.class);
 
         // default content processor
         ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);

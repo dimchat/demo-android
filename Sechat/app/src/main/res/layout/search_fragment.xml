@@ -5,7 +5,7 @@
     android:id="@+id/search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchFragment">
+    tools:context=".SearchFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
 
         </SearchView>
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/search_user_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
