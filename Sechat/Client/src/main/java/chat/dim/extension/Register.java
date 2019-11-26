@@ -170,7 +170,7 @@ public class Register {
     }
 
     //
-    //  Step 4. create profile with ID and private key
+    //  Step 4. create profile with ID and sign with private key
     //
     public Profile createProfile(String name) {
         return createProfile(name, null);

@@ -56,6 +56,7 @@ public class AnyContentProcessor extends DefaultContentProcessor {
         super(messenger);
     }
 
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         String text = null;
 

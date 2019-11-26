@@ -49,8 +49,7 @@ public class BlockCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    //-------- Main --------
-
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof BlockCommand;
         BlockCommand cmd = (BlockCommand) content;

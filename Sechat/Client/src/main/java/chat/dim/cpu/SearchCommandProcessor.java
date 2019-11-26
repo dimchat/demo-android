@@ -77,6 +77,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         }
     }
 
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof SearchCommand;
 

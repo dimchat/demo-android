@@ -49,6 +49,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         return null;
     }
 
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof StorageCommand;
         StorageCommand cmd = (StorageCommand) content;

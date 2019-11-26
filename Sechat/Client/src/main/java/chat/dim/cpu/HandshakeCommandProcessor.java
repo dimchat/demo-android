@@ -53,8 +53,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         return new HandshakeCommand(sessionKey);
     }
 
-    //-------- Main --------
-
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof HandshakeCommand;
         HandshakeCommand cmd = (HandshakeCommand) content;

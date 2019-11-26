@@ -49,8 +49,7 @@ public class MuteCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    //-------- Main --------
-
+    @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
         assert content instanceof MuteCommand;
         MuteCommand cmd = (MuteCommand) content;

@@ -139,7 +139,7 @@ public class Messenger extends chat.dim.Messenger {
      *  Pack and send command to station
      *
      * @param cmd - command should be sent to station
-     * @return InstantMessage been sent
+     * @return true on success
      */
     public boolean sendCommand(Command cmd) {
         assert server != null;
@@ -150,7 +150,7 @@ public class Messenger extends chat.dim.Messenger {
      *  Pack and broadcast content to everyone
      *
      * @param content - message content
-     * @return InstantMessage been sent
+     * @return true on success
      */
     public boolean broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);

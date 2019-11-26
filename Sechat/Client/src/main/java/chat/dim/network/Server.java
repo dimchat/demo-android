@@ -133,8 +133,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             rMsg.setMeta(currentUser.getMeta());
         }
         // send out directly
-        String json = JSON.encode(rMsg);
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
+        byte[] data = messenger.serializeMessage(rMsg);
         star.send(data);
     }
 
