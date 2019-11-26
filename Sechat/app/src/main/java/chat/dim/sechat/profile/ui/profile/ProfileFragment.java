@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.ID;
+import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
@@ -53,18 +54,29 @@ public class ProfileFragment extends Fragment {
         addButton = view.findViewById(R.id.addContact);
         messageButton = view.findViewById(R.id.sendMessage);
 
-        messageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                assert getContext() != null;
-                Intent intent = new Intent();
-                intent.setClass(getContext(), ChatboxActivity.class);
-                intent.putExtra("ID", identifier.toString());
-                startActivity(intent);
-            }
+        addButton.setOnClickListener(v -> {
+            addContact(identifier);
+            startChat(identifier);
         });
+        messageButton.setOnClickListener(v -> startChat(identifier));
 
         return view;
+    }
+
+    private void addContact(ID identifier) {
+        User user = facebook.getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("current user not set");
+        }
+        facebook.addContact(identifier, user.identifier);
+    }
+
+    private void startChat(ID identifier) {
+        assert getContext() != null;
+        Intent intent = new Intent();
+        intent.setClass(getContext(), ChatboxActivity.class);
+        intent.putExtra("ID", identifier.toString());
+        startActivity(intent);
     }
 
     @Override
