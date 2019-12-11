@@ -26,19 +26,22 @@
 package chat.dim.network;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
+import chat.dim.stargate.simplegate.Fence;
 
 public class Terminal implements StationDelegate {
 
-    private Facebook facebook = Facebook.getInstance();
-    private Messenger messenger = Messenger.getInstance();
+    protected Facebook facebook = Facebook.getInstance();
+    protected Messenger messenger = Messenger.getInstance();
 
     private Server currentServer = null;
 
@@ -84,38 +87,113 @@ public class Terminal implements StationDelegate {
         // TODO: update users list
     }
 
-    public List<User> allUsers() {
-        if (users == null) {
-            users = new ArrayList<>();
-            List<ID> list = facebook.allUsers();
-            User user;
-            for (ID item : list) {
-                user = facebook.getUser(item);
-                if (user == null) {
-                    throw new NullPointerException("failed to get local user: " + item);
-                }
-                users.add(user);
-            }
+    //--------
+
+    private void startServer(Map<String, Object> station, ServiceProvider sp) {
+
+        ID identifier = ID.getInstance(station.get("ID"));
+        String host = (String) station.get("host");
+        int port = (int) station.get("port");
+
+        // prepare for launch star
+        if (host != null) {
+            station.put("LongLinkAddress", "dim.chat");
+            List<String> list = new ArrayList<>();
+            list.add(host);
+            Map<String, Object> ipTable = new HashMap<>();
+            ipTable.put("dim.chat", list);
+            station.put("NewDNS", ipTable);
         }
-        return users;
+        if (port != 0) {
+            station.put("LongLinkPort", port);
+        }
+
+        // TODO: config FTP server
+
+        // connect server
+        Server server = new Server(identifier, host, port);
+        server.delegate = this;
+        server.star = new Fence(server);
+        server.start(station);
+        setCurrentServer(server);
+
+        // get user from database and login
+        messenger.login(null);
     }
 
-    //---- Content/processor and deliver
+    @SuppressWarnings("unchecked")
+    private void launchServiceProvider(Map<String, Object> spConfig) {
+        Facebook facebook = Facebook.getInstance();
+        ID spID = facebook.getID(spConfig.get("ID"));
+        ServiceProvider sp = new ServiceProvider(spID);
 
-    private void sendContent(Content content, ID receiver) {
-        messenger.sendContent(content, receiver);
+        List<Map<String, Object>> stations = (List) spConfig.get("stations");
+        if (stations == null) {
+            stations = NetworkDatabase.getInstance().allStations(spID);
+            assert stations != null;
+        }
+
+        // choose the fast station
+        Map<String, Object> neighbor = new HashMap<>(stations.get(0));
+
+        startServer(neighbor, sp);
     }
 
-    protected void sendCommand(Command cmd) {
-        messenger.sendCommand(cmd);
+    //-------- AppDelegate
+
+    @SuppressWarnings("unchecked")
+    public void launch(Map<String, Object> options) {
+
+        //
+        // launch server
+        //
+        Map<String, Object> spConfig = (Map<String, Object>) options.get("SP");
+        if (spConfig == null) {
+            spConfig = NetworkDatabase.getInstance().getProviderConfig(ID.ANYONE);
+        }
+        launchServiceProvider(spConfig);
+
+        // TODO: notice("ProfileUpdated")
+
+        // APNs?
+        // Icon badge?
     }
 
-    public void queryMeta(ID identifier) {
-        messenger.queryMeta(identifier);
+    public void terminate() {
+        Server server = getCurrentServer();
+        if (server != null) {
+            server.end();
+        }
     }
 
-    protected void login(User user) {
-        messenger.login(user);
+
+    public void enterBackground() {
+        Server server = getCurrentServer();
+        if (server != null) {
+            // report client state
+            Command cmd = new Command("broadcast");
+            cmd.put("title", "report");
+            cmd.put("state", "background");
+            messenger.sendCommand(cmd);
+            // pause the server
+            server.pause();
+        }
+    }
+
+    public void enterForeground() {
+        Server server = getCurrentServer();
+        if (server != null) {
+            // resume the server
+            server.resume();
+
+            // clear icon badge
+
+            // report client state
+            Command cmd = new Command("broadcast");
+            cmd.put("title", "report");
+            cmd.put("state", "foreground");
+            messenger.sendCommand(cmd);
+        }
     }
 
     //---- StationDelegate

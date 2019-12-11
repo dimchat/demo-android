@@ -102,9 +102,10 @@ public class ProfileTable extends ExternalStorage {
 
         // 3. load from JsON file
         profile = loadProfile(entity);
-        if (profile != null) {
-            profileTable.put(entity, profile);
+        if (profile == null) {
+            profile = new Profile(entity);
         }
+        profileTable.put(entity, profile);
         return profile;
     }
 }

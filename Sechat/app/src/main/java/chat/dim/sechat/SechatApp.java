@@ -1,9 +1,14 @@
 package chat.dim.sechat;
 
 import android.app.Application;
+import android.os.Environment;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import chat.dim.database.ExternalStorage;
+import chat.dim.format.Base64;
+import chat.dim.format.BaseCoder;
 
 public class SechatApp extends Application {
 
@@ -16,5 +21,23 @@ public class SechatApp extends Application {
 
         Client client = Client.getInstance();
         client.launch(options);
+    }
+
+    static {
+        // android.Base64
+        Base64.coder = new BaseCoder() {
+            @Override
+            public String encode(byte[] data) {
+                return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);
+            }
+
+            @Override
+            public byte[] decode(String string) {
+                return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
+            }
+        };
+
+        String path = Environment.getExternalStorageDirectory().getPath();
+        ExternalStorage.root = path + "/chat.dim.sechat";
     }
 }

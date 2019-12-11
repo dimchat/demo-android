@@ -217,7 +217,7 @@ public class Register {
             assert meta.matches(identifier);
             cmd = new MetaCommand(identifier, meta);
         } else {
-            assert profile.getIdentifier().equals(identifier);
+            assert identifier.equals(profile.getIdentifier());
             assert profile.isValid();
             cmd = new ProfileCommand(identifier, meta, profile);
         }

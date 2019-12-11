@@ -25,7 +25,7 @@
  */
 package chat.dim.model;
 
-import java.util.ArrayList;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import chat.dim.Content;
@@ -43,6 +43,9 @@ import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.format.JSON;
+import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
@@ -61,31 +64,11 @@ public class Messenger extends chat.dim.Messenger {
     private Messenger()  {
         super();
 
-        setSocialNetworkDataSource(Facebook.getInstance());
-        setCipherKeyDataSource(KeyStore.getInstance());
+        setEntityDelegate(Facebook.getInstance());
+        setCipherKeyDelegate(KeyStore.getInstance());
     }
 
     public Server server = null;
-
-    @Override
-    public List<User> getLocalUsers() {
-        List<User> users = super.getLocalUsers();
-        if (users == null) {
-            Facebook facebook = (Facebook) getFacebook();
-            List<ID> allUsers = facebook.allUsers();
-            users = new ArrayList<>();
-            User user;
-            for (ID item : allUsers) {
-                user = facebook.getUser(item);
-                if (user == null) {
-                    throw new NullPointerException("failed to create user: " + item);
-                }
-                users.add(user);
-            }
-            setLocalUsers(users);
-        }
-        return users;
-    }
 
     @Override
     public boolean saveMessage(InstantMessage msg) {
@@ -126,12 +109,20 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public Content broadcastMessage(ReliableMessage msg) {
-        return null;
-    }
-
-    @Override
-    public Content deliverMessage(ReliableMessage msg) {
+    protected Content process(ReliableMessage rMsg) {
+        Content res = super.process(rMsg);
+        if (res == null) {
+            // respond nothing
+            return null;
+        }
+        if (res instanceof HandshakeCommand) {
+            // urgent command
+            return res;
+        }
+        // normal response
+        ID receiver = getFacebook().getID(rMsg.envelope.sender);
+        sendContent(res, receiver);
+        // DON'T respond to station directly
         return null;
     }
 
@@ -183,11 +174,44 @@ public class Messenger extends chat.dim.Messenger {
         return sendCommand(cmd);
     }
 
-    void postContacts(List<ID> contacts) {
-        // TODO: encrypt contacts and send to station
+    private byte[] jsonEncode(Object container) {
+        String json = JSON.encode(container);
+        return json.getBytes(Charset.forName("UTF-8"));
     }
 
-    @Override
+    public boolean postContacts(List<ID> contacts) {
+        User user = getFacebook().getCurrentUser();
+        assert user != null;
+        // 1. generate password
+        SymmetricKey password;
+        try {
+            password = SymmetricKeyImpl.generate(SymmetricKey.AES);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        // 2. encrypt contacts list
+        byte[] data = jsonEncode(contacts);
+        data = password.encrypt(data);
+        // 3. encrypt key
+        byte[] key = jsonEncode(password);
+        key = user.encrypt(key);
+        // 4. pack 'storage' command
+        StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
+        cmd.setIdentifier(user.identifier);
+        cmd.setData(data);
+        cmd.setKey(key);
+        return sendCommand(cmd);
+    }
+
+    public boolean queryContacts() {
+        User user = getFacebook().getCurrentUser();
+        assert user != null;
+        StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
+        cmd.setIdentifier(user.identifier);
+        return sendCommand(cmd);
+    }
+
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
             return false;
@@ -205,20 +229,19 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     public boolean queryOnlineUsers() {
-        Command cmd = new Command("users");
+        Command cmd = new SearchCommand(SearchCommand.ONLINE_USERS);
         return sendCommand(cmd);
     }
 
     public boolean searchUsers(String keywords) {
-        Command cmd = new Command("search");
-        cmd.put("keywords", keywords);
+        Command cmd = new SearchCommand(keywords);
         return sendCommand(cmd);
     }
 
     public boolean login(User user) {
         assert server != null;
         if (user == null) {
-            user = getCurrentUser();
+            user = getFacebook().getCurrentUser();
             if (user == null) {
                 // user not found
                 return false;

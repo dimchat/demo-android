@@ -25,7 +25,6 @@
  */
 package chat.dim.network;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +38,6 @@ import chat.dim.MessengerDelegate;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.User;
-import chat.dim.format.JSON;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
@@ -69,15 +67,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         fsm = new StateMachine();
         fsm.server = this;
         fsm.delegate = this;
-    }
-
-    public Server(Map<String, Object> dictionary) {
-        this(ID.getInstance(dictionary.get("ID")),
-                (String) dictionary.get("host"),
-                (int) dictionary.get("port"));
-
-        // SP
-        // CA
     }
 
     public User getCurrentUser() {
@@ -188,7 +177,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void onReceive(byte[] responseData, Star star) {
         byte[] response;
         try {
-            response = messenger.receivedPackage(responseData);
+            response = messenger.onReceiveDataPackage(responseData);
         } catch (NullPointerException e) {
             e.printStackTrace();
             response = null;

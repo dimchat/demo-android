@@ -51,8 +51,7 @@ class ChatboxViewModel extends ViewModel {
             return MsgType.RECEIVED;
         }
 
-        Client client = Client.getInstance();
-        List<User> users = client.allUsers();
+        List<User> users = facebook.getLocalUsers();
         for (User user : users) {
             if (user.identifier.equals(sender)) {
                 return MsgType.SENT;

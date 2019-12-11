@@ -58,7 +58,7 @@ public class AnyContentProcessor extends DefaultContentProcessor {
 
     @Override
     public Content process(Content content, ID sender, InstantMessage iMsg) {
-        String text = null;
+        String text;
 
         // File: Image, Audio, Video
         if (content instanceof FileContent) {

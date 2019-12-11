@@ -25,10 +25,21 @@
  */
 package chat.dim.cpu;
 
+import java.nio.charset.Charset;
+import java.util.List;
+
 import chat.dim.Content;
+import chat.dim.Facebook;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Messenger;
+import chat.dim.User;
+import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.extension.Password;
+import chat.dim.format.JSON;
+import chat.dim.impl.PrivateKeyImpl;
+import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.protocol.StorageCommand;
 
 public class StorageCommandProcessor extends CommandProcessor {
@@ -37,16 +48,100 @@ public class StorageCommandProcessor extends CommandProcessor {
         super(messenger);
     }
 
+    private Object jsonDecode(byte[] data) {
+        String json = new String(data, Charset.forName("UTF-8"));
+        return JSON.decode(json);
+    }
+
+    private Object decryptData(StorageCommand cmd, SymmetricKey password) {
+        // 1. get encrypted data
+        byte[] data = cmd.getData();
+        if (data == null) {
+            throw new NullPointerException("data not found: " + cmd);
+        }
+        // 2. decrypt data
+        data = password.decrypt(data);
+        if (data == null) {
+            throw new NullPointerException("failed to decrypt data: " + cmd);
+        }
+        // 3. decode data
+        return jsonDecode(data);
+    }
+
+    private Object decryptData(StorageCommand cmd) throws ClassNotFoundException {
+        // 1. get encrypt key
+        byte[] key = cmd.getKey();
+        if (key == null) {
+            throw new NullPointerException("key not found: " + cmd);
+        }
+        // 2. get user ID
+        String identifier = cmd.getIdentifier();
+        if (identifier == null) {
+            throw new NullPointerException("ID not found: " + cmd);
+        }
+        // 3. decrypt key
+        Facebook facebook = getFacebook();
+        User user = facebook.getUser(facebook.getID(identifier));
+        key = user.decrypt(key);
+        if (key == null) {
+            throw new NullPointerException("failed to decrypt key: " + cmd);
+        }
+        // 4. decode key
+        Object dict = jsonDecode(key);
+        SymmetricKey password = SymmetricKeyImpl.getInstance(dict);
+        // 5. decrypt data
+        return decryptData(cmd, password);
+    }
+
+    //---- Contacts
+
+    private Content saveContacts(List<String> contacts, ID user) {
+        // TODO: save contacts when import your account in a new app
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
     private Content processContacts(StorageCommand cmd) {
-        assert cmd.get("ID") != null;
         // decrypt and save contacts for user
+        Object contacts = cmd.getInfo("contacts");
+        if (contacts == null) {
+            try {
+                contacts = decryptData(cmd);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (contacts == null) {
+                throw new NullPointerException("failed to decrypt contacts: " + cmd);
+            }
+        }
+        Facebook facebook = getFacebook();
+        ID identifier = facebook.getID(cmd.getIdentifier());
+        return saveContacts((List<String>) contacts, identifier);
+    }
+
+    //---- Private Key
+
+    private Content savePrivateKey(PrivateKey key, ID user) {
+        // TODO: save private key when import your accounts from network
         return null;
     }
 
     private Content processPrivateKey(StorageCommand cmd) {
-        assert cmd.get("ID") != null;
-        // save private key for user
-        return null;
+        String string = "<TODO: input your password>";
+        SymmetricKey password = Password.generate(string);
+        Object dict = decryptData(cmd, password);
+        PrivateKey key = null;
+        try {
+            key = PrivateKeyImpl.getInstance(dict);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (key == null) {
+            throw new NullPointerException("failed to decrypt private key: " + cmd);
+        }
+        Facebook facebook = getFacebook();
+        ID identifier = facebook.getID(cmd.getIdentifier());
+        return savePrivateKey(key, identifier);
     }
 
     @Override

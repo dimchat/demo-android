@@ -25,11 +25,17 @@
  */
 package chat.dim.model;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import chat.dim.AddressNameService;
 import chat.dim.ID;
+import chat.dim.Immortals;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
@@ -37,7 +43,6 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
 import chat.dim.database.GroupTable;
-import chat.dim.database.Immortals;
 import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateTable;
 import chat.dim.database.ProfileTable;
@@ -65,7 +70,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     private final AddressNameService ans;
-    private Immortals immortals = Immortals.getInstance();
+    private Immortals immortals = new Immortals();
 
     private PrivateTable privateTable = new PrivateTable();
     private MetaTable metaTable = new MetaTable();
@@ -77,27 +82,51 @@ public class Facebook extends chat.dim.Facebook {
     private GroupTable groupTable = new GroupTable();
     private ContactTable contactTable = new ContactTable();
 
-    //-------- User
+    private List<User> users = null;
 
+    private Map<ID, Date> metaQueryTime = new HashMap<>();
+    private Map<ID, Date> profileQueryTime = new HashMap<>();
+
+    //-------- Local Users
+
+    @Override
+    public List<User> getLocalUsers() {
+        if (users == null) {
+            users = new ArrayList<>();
+            List<ID> list = userTable.allUsers();
+            User user;
+            for (ID item : list) {
+                user = getUser(item);
+                if (user == null) {
+                    throw new NullPointerException("failed to get local user: " + item);
+                }
+                users.add(user);
+            }
+        }
+        return users;
+    }
+
+    @Override
     public User getCurrentUser() {
         return getUser(userTable.getCurrentUser());
     }
 
     public void setCurrentUser(User user) {
+        users = null;
         userTable.setCurrentUser(user.identifier);
     }
 
-    public List<ID> allUsers() {
-        return userTable.allUsers();
-    }
-
     public boolean addUser(ID user) {
+        users = null;
         return userTable.addUser(user);
     }
 
     public boolean removeUser(ID user) {
+        users = null;
         return userTable.removeUser(user);
     }
+
+    //-------- Contacts
 
     public boolean addContact(ID contact, ID user) {
         return contactTable.addContact(contact, user);
@@ -107,7 +136,7 @@ public class Facebook extends chat.dim.Facebook {
         return contactTable.removeContact(contact, user);
     }
 
-    //---- Private Key
+    //-------- Private Key
 
     @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
@@ -125,7 +154,7 @@ public class Facebook extends chat.dim.Facebook {
         return key;
     }
 
-    //---- Meta
+    //-------- Meta
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
@@ -142,18 +171,33 @@ public class Facebook extends chat.dim.Facebook {
             // broadcast ID has not meta
             return null;
         }
+        // try from database
         Meta meta = metaTable.getMeta(identifier);
-        if (meta == null) {
-            // try immortals
+        if (meta != null) {
+            return meta;
+        }
+        // try from immortals
+        if (identifier.getType().isPerson()) {
             meta = immortals.getMeta(identifier);
-            if (meta == null) {
-                // TODO: query from DIM network
+            if (meta != null) {
+                return meta;
             }
         }
-        return meta;
+
+        // check for duplicated querying
+        Date now = new Date();
+        Date lastTime = metaQueryTime.get(identifier);
+        if (lastTime == null || (now.getTime() - lastTime.getTime()) > 30000) {
+            metaQueryTime.put(identifier, now);
+            // query from DIM network
+            Messenger messenger = Messenger.getInstance();
+            messenger.queryMeta(identifier);
+        }
+
+        return null;
     }
 
-    //---- Profile
+    //-------- Profile
 
     @Override
     public boolean saveProfile(Profile profile) {
@@ -166,18 +210,37 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     protected Profile loadProfile(ID identifier) {
+        // try from database
         Profile profile = profileTable.getProfile(identifier);
-        if (profile == null) {
-            // try immortals
-            profile = immortals.getProfile(identifier);
-            if (profile == null) {
-                // TODO: query from DIM network
+        if (profile != null) {
+            // is empty?
+            Set<String> names = profile.propertyNames();
+            if (names != null && names.size() > 0) {
+                return profile;
             }
         }
+        // try from immortals
+        if (identifier.getType().isPerson()) {
+            Profile tai = immortals.getProfile(identifier);
+            if (tai != null) {
+                return tai;
+            }
+        }
+
+        // check for duplicated querying
+        Date now = new Date();
+        Date lastTime = profileQueryTime.get(identifier);
+        if (lastTime == null || (now.getTime() - lastTime.getTime()) > 30000) {
+            profileQueryTime.put(identifier, now);
+            // query from DIM network
+            Messenger messenger = Messenger.getInstance();
+            messenger.queryProfile(identifier);
+        }
+
         return profile;
     }
 
-    //---- Relationship
+    //-------- Relationship
 
     @Override
     public boolean saveContacts(List<ID> contacts, ID user) {
