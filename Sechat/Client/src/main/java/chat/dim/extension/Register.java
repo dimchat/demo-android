@@ -27,7 +27,6 @@ package chat.dim.extension;
 
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.Meta;
@@ -47,13 +46,9 @@ import chat.dim.utils.Log;
 
 public class Register {
 
-    private NetworkType network;
+    public NetworkType network; // user type (Main: 0x08)
 
-    public PrivateKey privateKey = null;
-    public Meta meta = null;
-    public ID identifier = null;
-    public Profile profile = null;
-    public Entity account = null;
+    public PrivateKey privateKey = null; // user private key
 
     public Register() {
         this(NetworkType.Main);
@@ -76,22 +71,20 @@ public class Register {
      */
     public User createUser(String name, String avatar) {
         // 1. generate private key
-        generatePrivateKey();
+        PrivateKey key = generatePrivateKey();
         // 2. generate meta
         Meta meta = generateMeta("user");
         // 3. generate ID
-        ID identifier = generateID(NetworkType.Main);
+        ID identifier = generateID(meta, NetworkType.Main);
         // 4. generate profile
-        Profile profile = createProfile(name, avatar);
+        Profile profile = createProfile(identifier, name, avatar);
         // 5. save private key, meta & profile in local storage
         //    don't forget to upload them onto the DIM station
-        facebook.savePrivateKey(privateKey, identifier);
         facebook.saveMeta(meta, identifier);
+        facebook.savePrivateKey(key, identifier);
         facebook.saveProfile(profile);
         // 6. create user
-        User user = facebook.getUser(identifier);
-        account = user;
-        return user;
+        return facebook.getUser(identifier);
     }
 
     /**
@@ -110,17 +103,15 @@ public class Register {
         // 2. generate meta
         Meta meta = generateMeta("group");
         // 3. generate ID
-        ID identifier = generateID(NetworkType.Polylogue);
+        ID identifier = generateID(meta, NetworkType.Polylogue);
         // 4. generate profile
-        Profile profile = createProfile(name);
+        Profile profile = createProfile(identifier, name);
         // 5. save meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
         facebook.saveProfile(profile);
-        // 6. create user
-        Group group = facebook.getGroup(identifier);
-        account = group;
-        return group;
+        // 6. create group
+        return facebook.getGroup(identifier);
     }
 
     //
@@ -130,11 +121,11 @@ public class Register {
         return generatePrivateKey(PrivateKey.RSA);
     }
     public PrivateKey generatePrivateKey(String algorithm) {
+        privateKey = null;
         try {
             privateKey = PrivateKeyImpl.generate(algorithm);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            privateKey = null;
         }
         return privateKey;
     }
@@ -148,34 +139,31 @@ public class Register {
     public Meta generateMeta(String seed) {
         assert privateKey != null;
         try {
-            meta = Meta.generate(MetaType.Default, privateKey, seed);
+            return Meta.generate(MetaType.Default, privateKey, seed);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            meta = null;
+            return null;
         }
-        return meta;
     }
 
     //
     //  Step 3. generate ID with meta (and network type)
     //
-    public ID generateID() {
-        return generateID(network);
+    public ID generateID(Meta meta) {
+        return generateID(meta, network);
     }
-    public ID generateID(NetworkType type) {
+    public ID generateID(Meta meta, NetworkType type) {
         assert meta != null;
-        identifier = meta.generateID(type);
-        network = type;
-        return identifier;
+        return meta.generateID(type);
     }
 
     //
     //  Step 4. create profile with ID and sign with private key
     //
-    public Profile createProfile(String name) {
-        return createProfile(name, null);
+    public Profile createProfile(ID identifier, String name) {
+        return createProfile(identifier, name, null);
     }
-    public Profile createProfile(String name, String avatarUrl) {
+    public Profile createProfile(ID identifier, String name, String avatarUrl) {
         assert identifier != null;
         assert privateKey != null;
         Profile profile;
@@ -186,12 +174,13 @@ public class Register {
         }
         profile.setName(name);
         if (avatarUrl != null) {
-            profile.setProperty("avatar", avatarUrl);
+            assert profile instanceof UserProfile;
+            ((UserProfile) profile).setAvatar(avatarUrl);
         }
         profile.sign(privateKey);
         return profile;
     }
-    public Profile createProfile(Map<String, Object> properties) {
+    public Profile createProfile(ID identifier, Map<String, Object> properties) {
         assert identifier != null;
         assert privateKey != null;
         Profile profile;
@@ -208,9 +197,9 @@ public class Register {
     }
 
     //
-    //  Step 5. upload meta & profile
+    //  Step 5. upload meta & profile for ID
     //
-    public boolean upload() {
+    public boolean upload(ID identifier, Meta meta, Profile profile) {
         assert identifier != null;
         Command cmd;
         if (profile == null) {
@@ -234,12 +223,12 @@ public class Register {
         Register userRegister = new Register();
         User user = userRegister.createUser("moky", null);
         Log.info("user: " + user);
-        //userRegister.upload();
+        //userRegister.upload(user.identifier, user.getMeta(), user.getProfile());
 
         // 2. create group
         Register groupRegister = new Register(NetworkType.Polylogue);
         Group group = groupRegister.createGroup("DIM Group", user);
         Log.info("group: " + group);
-        //groupRegister.upload();
+        //groupRegister.upload(group.identifier, group.getMeta(), group.getProfile());
     }
 }
