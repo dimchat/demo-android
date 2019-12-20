@@ -35,6 +35,7 @@ import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
 import chat.dim.User;
+import chat.dim.core.EntityDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
@@ -47,6 +48,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.network.Server;
+import chat.dim.network.Station;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
@@ -109,6 +111,18 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
+    public boolean suspendMessage(ReliableMessage msg) {
+        // TODO: save this message in a queue waiting sender's meta response
+        return false;
+    }
+
+    @Override
+    public boolean suspendMessage(InstantMessage msg) {
+        // TODO: save this message in a queue waiting receiver's meta response
+        return false;
+    }
+
+    @Override
     protected Content process(ReliableMessage rMsg) {
         Content res = super.process(rMsg);
         if (res == null) {
@@ -119,6 +133,15 @@ public class Messenger extends chat.dim.Messenger {
             // urgent command
             return res;
         }
+        /*
+        if (res instanceof ReceiptCommand) {
+            ID receiver = getFacebook().getID(rMsg.envelope.receiver);
+            if (receiver.getType().isStation()) {
+                // no need to respond receipt to station
+                return null;
+            }
+        }
+        */
         // normal response
         ID receiver = getFacebook().getID(rMsg.envelope.sender);
         sendContent(res, receiver);

@@ -140,6 +140,10 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
+        if (!verify(privateKey, identifier)) {
+            // private key not match meta.key
+            return false;
+        }
         return privateTable.savePrivateKey(privateKey, identifier);
     }
 
