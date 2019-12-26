@@ -12,7 +12,6 @@ import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
-import chat.dim.sechat.Client;
 
 enum MsgType {
 

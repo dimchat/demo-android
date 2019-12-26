@@ -50,7 +50,7 @@ import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.utils.StringUtils;
 
-public class AnyContentProcessor extends DefaultContentProcessor {
+public class AnyContentProcessor extends ContentProcessor {
 
     public AnyContentProcessor(Messenger messenger) {
         super(messenger);
@@ -91,7 +91,7 @@ public class AnyContentProcessor extends DefaultContentProcessor {
         // response
         Object group = content.getGroup();
         if (group == null) {
-            return new ReceiptCommand(text, iMsg.envelope, content.serialNumber);
+            return new ReceiptCommand(text, content.serialNumber, iMsg.envelope);
         } else {
             // DON'T response group message for disturb reason
             return null;

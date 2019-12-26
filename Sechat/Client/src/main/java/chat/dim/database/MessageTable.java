@@ -33,6 +33,7 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Conversation;
 
 public class MessageTable extends ExternalStorage {
@@ -42,7 +43,7 @@ public class MessageTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
 
     private static String getMsgFilePath(ID entity) {
-        return root + "/dkd/" + entity.address + "/messages.js";
+        return getPath() + "/dkd/" + entity.address + "/messages.js";
     }
 
     private List cacheMessages(Object array, ID entity) {
@@ -61,7 +62,7 @@ public class MessageTable extends ExternalStorage {
     private List loadMessages(ID entity) {
         String path = getMsgFilePath(entity);
         try {
-            Object array = readJSON(path);
+            Object array = loadJSON(path);
             return cacheMessages(array, entity);
         } catch (IOException e) {
             //e.printStackTrace();
@@ -76,7 +77,7 @@ public class MessageTable extends ExternalStorage {
         }
         String path = getMsgFilePath(entity);
         try {
-            return writeJSON(messages, path);
+            return saveJSON(messages, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -97,7 +98,7 @@ public class MessageTable extends ExternalStorage {
         List<InstantMessage> messages = new ArrayList<>();
         String path = getMsgFilePath(entity);
         try {
-            return writeJSON(messages, path);
+            return saveJSON(messages, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

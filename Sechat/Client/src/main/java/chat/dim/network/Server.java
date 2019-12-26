@@ -117,7 +117,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }
         // first handshake?
-        if (cmd.state == HandshakeCommand.START) {
+        if (cmd.state == HandshakeCommand.HandshakeState.START) {
             // [Meta protocol]
             rMsg.setMeta(currentUser.getMeta());
         }
@@ -177,7 +177,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void onReceive(byte[] responseData, Star star) {
         byte[] response;
         try {
-            response = messenger.onReceiveDataPackage(responseData);
+            response = messenger.onReceivePackage(responseData);
         } catch (NullPointerException e) {
             e.printStackTrace();
             response = null;
@@ -247,7 +247,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     @Override
-    public String uploadFileData(byte[] data, InstantMessage iMsg) {
+    public String uploadData(byte[] data, InstantMessage iMsg) {
         ID sender = ID.getInstance(iMsg.envelope.sender);
         FileContent content = (FileContent) iMsg.content;
         String filename = content.getFilename();
@@ -257,7 +257,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     @Override
-    public byte[] downloadFileData(String url, InstantMessage iMsg) {
+    public byte[] downloadData(String url, InstantMessage iMsg) {
         // TODO: download from FTP server
 
         return new byte[0];

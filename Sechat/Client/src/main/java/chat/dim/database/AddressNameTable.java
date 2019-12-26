@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 
 public class AddressNameTable extends ExternalStorage {
@@ -41,7 +42,7 @@ public class AddressNameTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/ans.txt"
 
     private static String getAnsFilePath() {
-        return root + "/dim/ans.txt";
+        return getPath() + "/dim/ans.txt";
     }
 
     private boolean cacheRecord(String name, ID identifier) {
@@ -58,7 +59,7 @@ public class AddressNameTable extends ExternalStorage {
         // loading ANS records
         String text;
         try {
-            text = readText(path);
+            text = loadText(path);
         } catch (IOException e) {
             e.printStackTrace();
             text = null;
@@ -100,7 +101,7 @@ public class AddressNameTable extends ExternalStorage {
         // saving ANS records
         String path = getAnsFilePath();
         try {
-            return writeText(text.toString(), path);
+            return saveText(text.toString(), path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

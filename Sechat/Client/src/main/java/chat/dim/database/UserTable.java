@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 
 public class UserTable extends ExternalStorage {
@@ -39,7 +40,7 @@ public class UserTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/users.js"
 
     private static String getUsersFilePath() {
-        return root + "/dim/users.js";
+        return getPath() + "/dim/users.js";
     }
 
     private boolean saveUsers() {
@@ -47,7 +48,7 @@ public class UserTable extends ExternalStorage {
         // save into storage
         String path = getUsersFilePath();
         try {
-            return writeJSON(userList, path);
+            return saveJSON(userList, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -61,7 +62,7 @@ public class UserTable extends ExternalStorage {
         String path = getUsersFilePath();
         List list;
         try {
-            list = (List) readJSON(path);
+            list = (List) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

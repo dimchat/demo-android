@@ -32,6 +32,7 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Profile;
+import chat.dim.filesys.ExternalStorage;
 
 public class ProfileTable extends ExternalStorage {
 
@@ -41,7 +42,7 @@ public class ProfileTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
 
     private static String getProfilePath(ID entity) {
-        return root + "/mkm/" + entity.address + "/profile.js";
+        return getPath() + "/mkm/" + entity.address + "/profile.js";
     }
 
     private boolean cacheProfile(Profile profile) {
@@ -56,7 +57,7 @@ public class ProfileTable extends ExternalStorage {
     private Profile loadProfile(ID entity) {
         String path = getProfilePath(entity);
         try {
-            Object dict = readJSON(path);
+            Object dict = loadJSON(path);
             return Profile.getInstance(dict);
         } catch (IOException e) {
             //e.printStackTrace();
@@ -72,7 +73,7 @@ public class ProfileTable extends ExternalStorage {
         ID identifier = ID.getInstance(profile.getIdentifier());
         String path = getProfilePath(identifier);
         try {
-            return writeJSON(profile, path);
+            return saveJSON(profile, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

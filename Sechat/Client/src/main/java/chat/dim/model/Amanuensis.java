@@ -61,7 +61,7 @@ public class Amanuensis {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
-        ID group = ID.getInstance(iMsg.getGroup());
+        ID group = ID.getInstance(iMsg.content.getGroup());
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);

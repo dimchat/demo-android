@@ -41,6 +41,7 @@ import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
+import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
@@ -287,6 +288,7 @@ public class Messenger extends chat.dim.Messenger {
     static {
         // register CPUs
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
+        CommandProcessor.register(Command.RECEIPT, ReceiptCommandProcessor.class);
 
         CommandProcessor.register(MuteCommand.MUTE, MuteCommandProcessor.class);
         CommandProcessor.register(BlockCommand.BLOCK, BlockCommandProcessor.class);

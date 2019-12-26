@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 
 public class ContactTable extends ExternalStorage {
@@ -40,7 +41,7 @@ public class ContactTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/mkm/{address}/contacts.js"
 
     private static String getContactsFilePath(ID user) {
-        return root + "/mkm/" + user.address + "/contacts.js";
+        return getPath() + "/mkm/" + user.address + "/contacts.js";
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +51,7 @@ public class ContactTable extends ExternalStorage {
         String path = getContactsFilePath(user);
         List<String> array;
         try {
-            array = (List<String>) readJSON(path);
+            array = (List<String>) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -80,7 +81,7 @@ public class ContactTable extends ExternalStorage {
         }
         String path = getContactsFilePath(user);
         try {
-            return writeJSON(contactList, path);
+            return saveJSON(contactList, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

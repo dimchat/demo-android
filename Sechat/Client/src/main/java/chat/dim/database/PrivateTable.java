@@ -35,6 +35,7 @@ import chat.dim.Address;
 import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.impl.PrivateKeyImpl;
 
 public class PrivateTable extends ExternalStorage {
@@ -44,14 +45,14 @@ public class PrivateTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
 
     private String getKeyFilePath(Address address) {
-        return root + "/.private/" + address + "/secret.js";
+        return getPath() + "/.private/" + address + "/secret.js";
     }
 
     private PrivateKey loadKey(Address address) {
         // load from JsON file
         String path = getKeyFilePath(address);
         try {
-            Object dict = readJSON(path);
+            Object dict = loadJSON(path);
             return PrivateKeyImpl.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
             //e.printStackTrace();
@@ -63,7 +64,7 @@ public class PrivateTable extends ExternalStorage {
         keys.put(address, key);
         String path = getKeyFilePath(address);
         try {
-            return writeJSON(key, path);
+            return saveJSON(key, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

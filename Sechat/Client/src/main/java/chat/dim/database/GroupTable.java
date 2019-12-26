@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 
 public class GroupTable extends ExternalStorage {
@@ -41,7 +42,7 @@ public class GroupTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/mkm/{address}/members.js"
 
     private static String getMembersFilePath(ID group) {
-        return root + "/mkm/" + group.address + "/members.js";
+        return getPath() + "/mkm/" + group.address + "/members.js";
     }
 
     @SuppressWarnings("unchecked")
@@ -49,7 +50,7 @@ public class GroupTable extends ExternalStorage {
         String path = getMembersFilePath(group);
         List<String> array;
         try {
-            array = (List<String>) readJSON(path);
+            array = (List<String>) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -79,7 +80,7 @@ public class GroupTable extends ExternalStorage {
         }
         String path = getMembersFilePath(group);
         try {
-            return writeJSON(memberList, path);
+            return saveJSON(memberList, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

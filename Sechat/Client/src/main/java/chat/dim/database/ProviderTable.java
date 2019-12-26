@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 
 public class ProviderTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
-
     private String getConfigFilePath(ID sp) {
-        return root + "/dim/" + sp.address + "/config.js";
+        return getPath() + "/dim/" + sp.address + "/config.js";
     }
 
     @SuppressWarnings("unchecked")
@@ -45,7 +45,7 @@ public class ProviderTable extends ExternalStorage {
         String path = getConfigFilePath(sp);
         Map<String, Object> config = null;
         try {
-            config = (Map<String, Object>) readJSON(path);
+            config = (Map<String, Object>) loadJSON(path);
         } catch (IOException e) {
             //e.printStackTrace();
         }
@@ -59,14 +59,14 @@ public class ProviderTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/service_providers.js"
 
     private static String getProvidersFilePath() {
-        return root + "/dim/service_providers.js";
+        return getPath() + "/dim/service_providers.js";
     }
 
     @SuppressWarnings("unchecked")
     public List<String> allProviders() {
         String path = getProvidersFilePath();
         try {
-            return (List<String>) readJSON(path);
+            return (List<String>) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -76,7 +76,7 @@ public class ProviderTable extends ExternalStorage {
     public boolean saveProviders(List<String> providers) {
         String path = getProvidersFilePath();
         try {
-            return writeJSON(providers, path);
+            return saveJSON(providers, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;

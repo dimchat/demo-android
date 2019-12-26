@@ -30,19 +30,20 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 
 public class StationTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/stations.js"
 
     private static String getStationsFilePath(ID sp) {
-        return root + "/dim/" + sp.address + "/stations.js";
+        return getPath() + "/dim/" + sp.address + "/stations.js";
     }
 
     public boolean saveStations(List<Map<String, Object>> stations, ID sp) {
         String path = getStationsFilePath(sp);
         try {
-            return writeJSON(stations, path);
+            return saveJSON(stations, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -53,7 +54,7 @@ public class StationTable extends ExternalStorage {
     public List<Map<String, Object>> allStations(ID sp) {
         String path = getStationsFilePath(sp);
         try {
-            return (List<Map<String, Object>>) readJSON(path);
+            return (List<Map<String, Object>>) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

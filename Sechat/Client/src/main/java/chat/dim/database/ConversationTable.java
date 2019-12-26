@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 import chat.dim.utils.Log;
 
@@ -38,16 +39,15 @@ public class ConversationTable extends ExternalStorage {
     private List<ID> conversationList = null;
 
     // "/sdcard/chat.dim.sechat/dkd/*"
-
-    private static String getPath() {
-        return root + "/dkd";
+    private static String getMsgPath() {
+        return getPath() + "/dkd";
     }
 
     private boolean scanConversations() {
         assert conversationList == null;
         conversationList = new ArrayList<>();
         // scan 'message.js' in sub dirs of 'dkd'
-        String path = getPath();
+        String path = getMsgPath();
         File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) {
             return false;

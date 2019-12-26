@@ -23,52 +23,24 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.database;
+package chat.dim.cpu;
 
-import java.io.IOException;
-
+import chat.dim.Content;
 import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.filesys.ExternalStorage;
+import chat.dim.InstantMessage;
+import chat.dim.Messenger;
+import chat.dim.protocol.ReceiptCommand;
 
-public class MetaTable extends ExternalStorage {
+public class ReceiptCommandProcessor extends CommandProcessor {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
-
-    private static String getMetaFilePath(ID entity) {
-        return getPath() + "/mkm/" + entity.address + "/meta.js";
+    public ReceiptCommandProcessor(Messenger messenger) {
+        super(messenger);
     }
 
-    private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            Object dict = loadJSON(path);
-            return Meta.getInstance(dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
-    public boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            return false;
-        }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
-        try {
-            if (exists(path)) {
-                return true;
-            }
-            return saveJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public Meta getMeta(ID entity) {
-        return loadMeta(entity);
+    @Override
+    public Content process(Content content, ID sender, InstantMessage iMsg) {
+        assert content instanceof ReceiptCommand : "receipt command error: " + content;
+        // no need to response receipt command
+        return null;
     }
 }

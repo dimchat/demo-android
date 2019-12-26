@@ -103,7 +103,7 @@ public class StorageCommandProcessor extends CommandProcessor {
     @SuppressWarnings("unchecked")
     private Content processContacts(StorageCommand cmd) {
         // decrypt and save contacts for user
-        Object contacts = cmd.getInfo("contacts");
+        Object contacts = cmd.get("contacts");
         if (contacts == null) {
             try {
                 contacts = decryptData(cmd);
