@@ -130,13 +130,15 @@ public class Terminal implements StationDelegate {
         List<Map<String, Object>> stations = (List) spConfig.get("stations");
         if (stations == null) {
             stations = NetworkDatabase.getInstance().allStations(spID);
-            assert stations != null;
         }
-
-        // choose the fast station
-        Map<String, Object> neighbor = new HashMap<>(stations.get(0));
-
-        startServer(neighbor, sp);
+        if (stations == null || stations.size() == 0) {
+            // TODO: waiting for permission.READ_EXTERNAL_STORAGE
+            throw new NullPointerException("failed to get stations");
+        } else {
+            // choose the fast station
+            Map<String, Object> neighbor = new HashMap<>(stations.get(0));
+            startServer(neighbor, sp);
+        }
     }
 
     //-------- AppDelegate
