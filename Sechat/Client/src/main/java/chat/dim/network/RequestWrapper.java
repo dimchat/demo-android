@@ -26,7 +26,7 @@
 package chat.dim.network;
 
 import chat.dim.CompletionHandler;
-import chat.dim.crypto.Digest;
+import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
 
 class RequestWrapper {
@@ -41,7 +41,7 @@ class RequestWrapper {
     }
 
     static String getKey(byte[] payload) {
-        byte[] hash = Digest.sha256(payload);
+        byte[] hash = SHA256.hash(payload);
         return Base64.encode(hash);
     }
 }

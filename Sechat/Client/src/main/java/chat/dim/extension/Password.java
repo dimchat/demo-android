@@ -29,10 +29,9 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.crypto.Digest;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
-import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.utils.Log;
 
 public final class Password {
@@ -42,7 +41,7 @@ public final class Password {
 
     public static SymmetricKey generate(String password) {
         byte[] data = password.getBytes(Charset.forName("UTF-8"));
-        byte[] digest = Digest.sha256(data);
+        byte[] digest = SHA256.hash(data);
         // AES key data
         int len = KEY_SIZE - data.length;
         if (len > 0) {
@@ -64,7 +63,7 @@ public final class Password {
         key.put("data", Base64.encode(data));
         key.put("iv", Base64.encode(iv));
         try {
-            return SymmetricKeyImpl.getInstance(key);
+            return SymmetricKey.getInstance(key);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;

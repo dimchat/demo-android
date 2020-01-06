@@ -38,8 +38,6 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.extension.Password;
 import chat.dim.format.JSON;
-import chat.dim.impl.PrivateKeyImpl;
-import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.protocol.StorageCommand;
 
 public class StorageCommandProcessor extends CommandProcessor {
@@ -88,7 +86,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         }
         // 4. decode key
         Object dict = jsonDecode(key);
-        SymmetricKey password = SymmetricKeyImpl.getInstance(dict);
+        SymmetricKey password = SymmetricKey.getInstance(dict);
         // 5. decrypt data
         return decryptData(cmd, password);
     }
@@ -132,7 +130,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         Object dict = decryptData(cmd, password);
         PrivateKey key = null;
         try {
-            key = PrivateKeyImpl.getInstance(dict);
+            key = PrivateKey.getInstance(dict);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

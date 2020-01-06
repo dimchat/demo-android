@@ -36,7 +36,6 @@ import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.impl.PrivateKeyImpl;
 
 public class PrivateTable extends ExternalStorage {
 
@@ -53,7 +52,7 @@ public class PrivateTable extends ExternalStorage {
         String path = getKeyFilePath(address);
         try {
             Object dict = loadJSON(path);
-            return PrivateKeyImpl.getInstance(dict);
+            return PrivateKey.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
             //e.printStackTrace();
             return null;

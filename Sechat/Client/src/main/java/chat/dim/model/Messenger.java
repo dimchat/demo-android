@@ -46,7 +46,6 @@ import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
-import chat.dim.impl.SymmetricKeyImpl;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
@@ -207,7 +206,7 @@ public class Messenger extends chat.dim.Messenger {
         // 1. generate password
         SymmetricKey password;
         try {
-            password = SymmetricKeyImpl.generate(SymmetricKey.AES);
+            password = SymmetricKey.generate(SymmetricKey.AES);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return false;

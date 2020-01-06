@@ -33,7 +33,6 @@ import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.impl.PrivateKeyImpl;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.plugins.UserProfile;
@@ -123,7 +122,7 @@ public class Register {
     public PrivateKey generatePrivateKey(String algorithm) {
         privateKey = null;
         try {
-            privateKey = PrivateKeyImpl.generate(algorithm);
+            privateKey = PrivateKey.generate(algorithm);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
