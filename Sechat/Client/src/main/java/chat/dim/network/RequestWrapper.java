@@ -41,7 +41,7 @@ class RequestWrapper {
     }
 
     static String getKey(byte[] payload) {
-        byte[] hash = SHA256.hash(payload);
+        byte[] hash = SHA256.digest(payload);
         return Base64.encode(hash);
     }
 }

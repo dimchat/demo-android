@@ -41,7 +41,7 @@ public final class Password {
 
     public static SymmetricKey generate(String password) {
         byte[] data = password.getBytes(Charset.forName("UTF-8"));
-        byte[] digest = SHA256.hash(data);
+        byte[] digest = SHA256.digest(data);
         // AES key data
         int len = KEY_SIZE - data.length;
         if (len > 0) {
