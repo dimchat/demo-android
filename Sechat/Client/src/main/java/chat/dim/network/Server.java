@@ -47,6 +47,7 @@ import chat.dim.protocol.HandshakeCommand;
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
+import chat.dim.stargate.simplegate.Fence;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
@@ -67,6 +68,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         fsm = new StateMachine();
         fsm.server = this;
         fsm.delegate = this;
+        fsm.start();
     }
 
     public User getCurrentUser() {
@@ -104,9 +106,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             // FIXME: sometimes the connection will be lost while handshaking
             return;
         }
-        if (newSession != null) {
-            session = newSession;
-        }
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         InstantMessage iMsg = new InstantMessage(cmd, currentUser.identifier, identifier);
@@ -131,17 +130,34 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         ServerState state = getCurrentState();
         if (!state.name.equals(StateMachine.handshakingState)) {
             // FIXME: sometimes the connection state will be reset
-            return;
         }
         if (success) {
             Log.info("handshake accepted for user: " + currentUser);
             session = newSession;
             // TODO: broadcast profile to DIM network
+            // TODO: post notification "HandshakeAccepted"
         } else {
             // new session key from station
             Log.info("handshake again with session: " + newSession);
         }
     }
+
+//    public void connect(String host, int port) {
+//        // fsm.changeState(fsm.defaultState);
+//
+//        if (getStatus().equals(StarStatus.Connected)
+//                && getHost().equals(host) && getPort() == port) {
+//            Log.info("already connected to " + host + ":" + port);
+//            return;
+//        }
+//
+//        // TODO: post notification "Connecting"
+//
+//        star.connect(host, port);
+//
+//        // setHost(host);
+//        // setPort(port);
+//    }
 
     //--------
 
@@ -150,8 +166,31 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         Messenger messenger = Messenger.getInstance();
         messenger.setDelegate(this);
 
-        fsm.start();
+        // fsm.changeState(fsm.defaultStateName);
+
+        if (options == null) {
+            options = new HashMap<>();
+            options.put("host", getHost());
+            options.put("port", getPort());
+        } else {
+            if (options.get("host") == null) {
+                options.put("host", getHost());
+            }
+            if (options.get("port") == null) {
+                options.put("port", getPort());
+            }
+        }
+
+        if (star == null) {
+            star = new Fence(this);
+        }
+
+        // TODO: post notification "StationConnecting"
+
         star.launch(options);
+
+//        setHost(options.get("host"));
+//        setPort(options.get("port"));
 
         // TODO: let the subclass to create StarGate
     }
@@ -270,7 +309,9 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         ServerState serverState = (ServerState) state;
         if (serverState.name.equals(StateMachine.handshakingState)) {
             // start handshake
-            handshake(null);
+            String session = this.session;
+            this.session = null;
+            handshake(session);
         } else if (serverState.name.equals(StateMachine.runningState)) {
             // TODO: send all packages waiting
         }

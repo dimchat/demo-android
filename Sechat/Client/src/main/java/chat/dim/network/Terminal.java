@@ -36,7 +36,6 @@ import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
-import chat.dim.stargate.simplegate.Fence;
 
 public class Terminal implements StationDelegate {
 
@@ -113,7 +112,6 @@ public class Terminal implements StationDelegate {
         // connect server
         Server server = new Server(identifier, host, port);
         server.delegate = this;
-        server.star = new Fence(server);
         server.start(station);
         setCurrentServer(server);
 
