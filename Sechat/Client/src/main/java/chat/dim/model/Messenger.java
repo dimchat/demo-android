@@ -34,6 +34,7 @@ import chat.dim.InstantMessage;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
+import chat.dim.SecureMessage;
 import chat.dim.User;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
@@ -71,7 +72,7 @@ public class Messenger extends chat.dim.Messenger {
     public Server server = null;
 
     @Override
-    public boolean saveMessage(InstantMessage msg) {
+    protected boolean saveMessage(InstantMessage msg) {
         Content content = msg.content;
         // TODO: check message type
         //       only save normal message and group commands
@@ -109,20 +110,18 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public boolean suspendMessage(ReliableMessage msg) {
+    protected void suspendMessage(ReliableMessage msg) {
         // TODO: save this message in a queue waiting sender's meta response
-        return false;
     }
 
     @Override
-    public boolean suspendMessage(InstantMessage msg) {
+    protected void suspendMessage(InstantMessage msg) {
         // TODO: save this message in a queue waiting receiver's meta response
-        return false;
     }
 
     @Override
-    protected Content process(ReliableMessage rMsg) {
-        Content res = super.process(rMsg);
+    public Content process(InstantMessage iMsg) {
+        Content res = super.process(iMsg);
         if (res == null) {
             // respond nothing
             return null;
@@ -141,7 +140,7 @@ public class Messenger extends chat.dim.Messenger {
         }
         */
         // normal response
-        ID receiver = getFacebook().getID(rMsg.envelope.sender);
+        ID receiver = getFacebook().getID(iMsg.envelope.sender);
         sendContent(res, receiver);
         // DON'T respond to station directly
         return null;
@@ -175,7 +174,7 @@ public class Messenger extends chat.dim.Messenger {
             // TODO: save the message content in waiting queue
             throw new IllegalStateException("login first");
         }
-        ID identifier = ID.getInstance(profile.getIdentifier());
+        ID identifier = getFacebook().getID(profile.getIdentifier());
         assert identifier.equals(user.identifier);
         // pack and send profile to every contact
         Command cmd = new ProfileCommand(identifier, profile);

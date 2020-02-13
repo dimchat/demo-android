@@ -64,7 +64,7 @@ public class SearchCommand extends Command {
     /**
      *  Get user metas mapping to ID strings
      *
-     * @return meta dictionary list
+     * @return meta dictionary
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getResults() {

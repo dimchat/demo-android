@@ -47,7 +47,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    private Content ask(String sessionKey) {
+    private Content restart(String sessionKey) {
         Log.info("handshake again, session key: " + sessionKey);
         setContext("session_key", sessionKey);
         return new HandshakeCommand(sessionKey);
@@ -63,7 +63,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
             return success();
         } else if ("DIM?".equals(message)) {
             // S -> C
-            return ask(cmd.sessionKey);
+            return restart(cmd.sessionKey);
         } else {
             // C -> S: Hello world!
             throw new IllegalStateException("handshake command error: " + content);
