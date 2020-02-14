@@ -45,7 +45,7 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     private Meta getMeta(ID identifier, Object dictionary) {
-        Meta meta = null;
+        Meta meta;
         try {
             meta = Meta.getInstance(dictionary);
         } catch (ClassNotFoundException e) {

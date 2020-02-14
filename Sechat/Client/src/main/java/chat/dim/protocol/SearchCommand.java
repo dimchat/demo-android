@@ -28,6 +28,18 @@ package chat.dim.protocol;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *  Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
+ *
+ *      command  : "search",        // or "users"
+ *
+ *      keywords : "keywords",      // keyword string
+ *      users    : ["ID"],          // user ID list
+ *      results  : {"ID": {meta}, } // user's meta map
+ *  }
+ */
 public class SearchCommand extends Command {
 
     public static final String SEARCH = "search";

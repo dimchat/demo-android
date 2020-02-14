@@ -72,7 +72,7 @@ public class Messenger extends chat.dim.Messenger {
     public Server server = null;
 
     @Override
-    protected boolean saveMessage(InstantMessage msg) {
+    public boolean saveMessage(InstantMessage msg) {
         Content content = msg.content;
         // TODO: check message type
         //       only save normal message and group commands
@@ -110,12 +110,12 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected void suspendMessage(ReliableMessage msg) {
+    public void suspendMessage(ReliableMessage msg) {
         // TODO: save this message in a queue waiting sender's meta response
     }
 
     @Override
-    protected void suspendMessage(InstantMessage msg) {
+    public void suspendMessage(InstantMessage msg) {
         // TODO: save this message in a queue waiting receiver's meta response
     }
 
