@@ -84,9 +84,6 @@ public class Facebook extends chat.dim.Facebook {
 
     private List<User> users = null;
 
-    private Map<ID, Date> metaQueryTime = new HashMap<>();
-    private Map<ID, Date> profileQueryTime = new HashMap<>();
-
     //-------- Local Users
 
     @Override
@@ -187,17 +184,9 @@ public class Facebook extends chat.dim.Facebook {
                 return meta;
             }
         }
-
-        // check for duplicated querying
-        Date now = new Date();
-        Date lastTime = metaQueryTime.get(identifier);
-        if (lastTime == null || (now.getTime() - lastTime.getTime()) > 30000) {
-            metaQueryTime.put(identifier, now);
-            // query from DIM network
-            Messenger messenger = Messenger.getInstance();
-            messenger.queryMeta(identifier);
-        }
-
+        // query from DIM network
+        Messenger messenger = Messenger.getInstance();
+        messenger.queryMeta(identifier);
         return null;
     }
 
@@ -230,17 +219,9 @@ public class Facebook extends chat.dim.Facebook {
                 return tai;
             }
         }
-
-        // check for duplicated querying
-        Date now = new Date();
-        Date lastTime = profileQueryTime.get(identifier);
-        if (lastTime == null || (now.getTime() - lastTime.getTime()) > 30000) {
-            profileQueryTime.put(identifier, now);
-            // query from DIM network
-            Messenger messenger = Messenger.getInstance();
-            messenger.queryProfile(identifier);
-        }
-
+        // query from DIM network
+        Messenger messenger = Messenger.getInstance();
+        messenger.queryProfile(identifier);
         return profile;
     }
 

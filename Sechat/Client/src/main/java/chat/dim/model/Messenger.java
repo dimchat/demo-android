@@ -26,7 +26,11 @@
 package chat.dim.model;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.Content;
 import chat.dim.ID;
@@ -34,7 +38,6 @@ import chat.dim.InstantMessage;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
-import chat.dim.SecureMessage;
 import chat.dim.User;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
@@ -58,6 +61,9 @@ import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.QueryCommand;
+import chat.dim.protocol.group.ResetCommand;
 
 public class Messenger extends chat.dim.Messenger {
     private static final Messenger ourInstance = new Messenger();
@@ -70,6 +76,69 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     public Server server = null;
+
+    // check whether group info empty
+    private boolean isEmpty(ID group) {
+        chat.dim.Facebook facebook = getFacebook();
+        List members = facebook.getMembers(group);
+        if (members == null || members.size() == 0) {
+            return true;
+        }
+        ID owner = facebook.getOwner(group);
+        return owner == null;
+    }
+
+    // check whether need to update group
+    private boolean checkGroup(Content content, ID sender) {
+        // Check if it is a group message, and whether the group members info needs update
+        chat.dim.Facebook facebook = getFacebook();
+        ID group = facebook.getID(content.getGroup());
+        if (group == null || group.isBroadcast()) {
+            // 1. personal message
+            // 2. broadcast message
+            return false;
+        }
+        // check meta for new group ID
+        Meta meta = facebook.getMeta(group);
+        if (meta == null) {
+            // NOTICE: if meta for group not found,
+            //         facebook should query it from DIM network automatically
+            // TODO: insert the message to a temporary queue to wait meta
+            //throw new NullPointerException("group meta not found: " + group);
+            return true;
+        }
+        // query group info
+        if (isEmpty(group)) {
+            // NOTICE: if the group info not found, and this is not an 'invite' command
+            //         query group info from the sender
+            if (content instanceof InviteCommand || content instanceof ResetCommand) {
+                // FIXME: can we trust this stranger?
+                //        may be we should keep this members list temporary,
+                //        and send 'query' to the owner immediately.
+                // TODO: check whether the members list is a full list,
+                //       it should contain the group owner(owner)
+                return false;
+            } else {
+                return queryGroupInfo(group, sender);
+            }
+        } else if (facebook.existsMember(sender, group)
+                || facebook.existsAssistant(sender, group)
+                || facebook.isOwner(sender, group)) {
+            // normal membership
+            return false;
+        } else {
+
+            // if assistants exists, query them
+            List<ID> assistants = facebook.getAssistants(group);
+            List<ID> admins = new ArrayList<>(assistants);
+            // if owner found, query it too
+            ID owner = facebook.getOwner(group);
+            if (owner != null && !admins.contains(owner)) {
+                admins.add(owner);
+            }
+            return queryGroupInfo(group, admins);
+        }
+    }
 
     @Override
     public boolean saveMessage(InstantMessage msg) {
@@ -121,6 +190,15 @@ public class Messenger extends chat.dim.Messenger {
 
     @Override
     public Content process(InstantMessage iMsg) {
+        Content content = iMsg.content;
+        ID sender = getFacebook().getID(iMsg.envelope.sender);
+
+        if (checkGroup(content, sender)) {
+            // save this message in a queue to wait group meta response
+            suspendMessage(iMsg);
+            return null;
+        }
+
         Content res = super.process(iMsg);
         if (res == null) {
             // respond nothing
@@ -232,20 +310,69 @@ public class Messenger extends chat.dim.Messenger {
         return sendCommand(cmd);
     }
 
+    private final Map<ID, Date> metaQueryTime = new HashMap<>();
+    private final Map<ID, Date> profileQueryTime = new HashMap<>();
+    private final Map<ID, Date> groupQueryTime = new HashMap<>();
+
+    private static final int EXPIRES = 30 * 1000;  // 30 seconds
+
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
+            // broadcast ID has not meta
             return false;
         }
+
+        // check for duplicated querying
+        Date now = new Date();
+        Date lastTime = metaQueryTime.get(identifier);
+        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
+            return false;
+        }
+        metaQueryTime.put(identifier, now);
+
+        // query from DIM network
         Command cmd = new MetaCommand(identifier);
         return sendCommand(cmd);
     }
 
     public boolean queryProfile(ID identifier) {
-        if (identifier.isBroadcast()) {
+        // check for duplicated querying
+        Date now = new Date();
+        Date lastTime = profileQueryTime.get(identifier);
+        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
             return false;
         }
+        profileQueryTime.put(identifier, now);
+
+        // query from DIM network
         Command cmd = new ProfileCommand(identifier);
         return sendCommand(cmd);
+    }
+
+    public boolean queryGroupInfo(ID group, List<ID> members) {
+        // check for duplicated querying
+        Date now = new Date();
+        Date lastTime = groupQueryTime.get(group);
+        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
+            return false;
+        }
+        groupQueryTime.put(group, now);
+
+        // query from members
+        Command cmd = new QueryCommand(group);
+        boolean checking = false;
+        for (ID user : members) {
+            if (sendContent(cmd, user)) {
+                checking = true;
+            }
+        }
+        return checking;
+    }
+
+    public boolean queryGroupInfo(ID group, ID member) {
+        List<ID> array = new ArrayList<>();
+        array.add(member);
+        return queryGroupInfo(group, array);
     }
 
     public boolean queryOnlineUsers() {
