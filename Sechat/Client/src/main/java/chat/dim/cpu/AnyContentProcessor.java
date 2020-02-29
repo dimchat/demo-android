@@ -128,7 +128,7 @@ public class AnyContentProcessor extends ContentProcessor {
         // Web page
         if (content instanceof PageContent) {
             PageContent page = (PageContent) content;
-            return String.format("[URL:%s]", page.getUrl());
+            return String.format("[URL:%s]", page.getURL());
         }
         return String.format("Current version doesn't support this message type: %s", content.type);
     }
