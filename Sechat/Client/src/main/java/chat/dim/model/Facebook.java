@@ -47,6 +47,7 @@ import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateTable;
 import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
+import chat.dim.protocol.NetworkType;
 
 public class Facebook extends chat.dim.Facebook {
     private static final Facebook ourInstance = new Facebook();
@@ -178,7 +179,7 @@ public class Facebook extends chat.dim.Facebook {
             return meta;
         }
         // try from immortals
-        if (identifier.getType().isPerson()) {
+        if (identifier.getType() == NetworkType.Main.value) {
             meta = immortals.getMeta(identifier);
             if (meta != null) {
                 return meta;
@@ -213,7 +214,7 @@ public class Facebook extends chat.dim.Facebook {
             }
         }
         // try from immortals
-        if (identifier.getType().isPerson()) {
+        if (identifier.getType() == NetworkType.Main.value) {
             Profile tai = immortals.getProfile(identifier);
             if (tai != null) {
                 return tai;
@@ -270,7 +271,7 @@ public class Facebook extends chat.dim.Facebook {
         String username = identifier.name;
         String nickname = getNickname(identifier);
         if (nickname != null && nickname.length() > 0) {
-            if (identifier.getType().isUser()) {
+            if (identifier.isUser()) {
                 if (username != null && username.length() > 0) {
                     return nickname + " (" + username + ")";
                 }
@@ -284,7 +285,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public String getNickname(ID identifier) {
-        assert identifier.getType().isUser();
+        assert identifier.isUser();
         Profile profile = getProfile(identifier);
         return profile == null ? null : profile.getName();
     }

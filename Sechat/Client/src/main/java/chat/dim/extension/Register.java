@@ -166,7 +166,7 @@ public class Register {
         assert identifier != null;
         assert privateKey != null;
         Profile profile;
-        if (identifier.getType().isUser()) {
+        if (identifier.isUser()) {
             profile = new UserProfile(identifier);
         } else {
             profile = new Profile(identifier);
@@ -183,7 +183,7 @@ public class Register {
         assert identifier != null;
         assert privateKey != null;
         Profile profile;
-        if (identifier.getType().isUser()) {
+        if (identifier.isUser()) {
             profile = new UserProfile(identifier);
         } else {
             profile = new Profile(identifier);

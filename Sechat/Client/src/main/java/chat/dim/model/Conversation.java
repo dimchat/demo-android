@@ -36,12 +36,12 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.NetworkType;
 
 public class Conversation {
-    public static int PersonalChat = NetworkType.Main.value;
-    public static int GroupChat = NetworkType.Group.value;
+    public static byte PersonalChat = NetworkType.Main.value;
+    public static byte GroupChat = NetworkType.Group.value;
 
     private final Entity entity;
     public final ID identifier;
-    public final int type;
+    public final byte type;
 
     public ConversationDataSource dataSource = null;
 
@@ -52,9 +52,9 @@ public class Conversation {
         this.type = getType(entity);
     }
 
-    private int getType(Entity entity) {
-        NetworkType type = entity.getType();
-        if (type.isGroup()) {
+    private byte getType(Entity entity) {
+        ID identifier = entity.identifier;
+        if (identifier.isGroup()) {
             return GroupChat;
         }
         return PersonalChat;
@@ -66,8 +66,8 @@ public class Conversation {
 
     public String getTitle() {
         String name = entity.getName();
-        NetworkType type = entity.getType();
-        if (type.isGroup()) {
+        ID identifier = entity.identifier;
+        if (identifier.isGroup()) {
             Group group = (Group) entity;
             List<ID> members = group.getMembers();
             int count = (members == null) ? 0 : members.size();

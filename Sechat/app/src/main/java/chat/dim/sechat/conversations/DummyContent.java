@@ -86,7 +86,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             String nickname = profile == null ? null : profile.getName();
             String username = identifier.name;
             if (nickname != null) {
-                if (username != null && identifier.getType().isUser()) {
+                if (username != null && identifier.isUser()) {
                     return nickname + " (" + username + ")";
                 }
                 return nickname;

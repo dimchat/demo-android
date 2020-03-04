@@ -105,7 +105,7 @@ public class ChatboxFragment extends Fragment implements Observer {
         ID sender = user.identifier;
         ID receiver = chatBox.identifier;
         Content content = new TextContent(text);
-        if (receiver.getType().isGroup()) {
+        if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
@@ -128,7 +128,7 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (iMsg == null) {
             return false;
         }
-        if (chatBox.identifier.getType().isUser()) {
+        if (chatBox.identifier.isUser()) {
             return mViewModel.insertMessage(iMsg, chatBox);
         }
         return true;
