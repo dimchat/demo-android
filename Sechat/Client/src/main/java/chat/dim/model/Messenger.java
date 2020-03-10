@@ -189,7 +189,7 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public Content process(InstantMessage iMsg) {
+    public InstantMessage process(InstantMessage iMsg) {
         Content content = iMsg.content;
         ID sender = getFacebook().getID(iMsg.envelope.sender);
 
@@ -199,27 +199,26 @@ public class Messenger extends chat.dim.Messenger {
             return null;
         }
 
-        Content res = super.process(iMsg);
-        if (res == null) {
+        iMsg = super.process(iMsg);
+        if (iMsg == null) {
             // respond nothing
             return null;
         }
-        if (res instanceof HandshakeCommand) {
+        if (iMsg.content instanceof HandshakeCommand) {
             // urgent command
-            return res;
+            return iMsg;
         }
         /*
-        if (res instanceof ReceiptCommand) {
-            ID receiver = getFacebook().getID(rMsg.envelope.receiver);
-            if (receiver.getType().isStation()) {
+        if (iMsg.content instanceof ReceiptCommand) {
+            ID receiver = getFacebook().getID(iMsg.envelope.receiver);
+            if (NetworkType.Station.equals(receiver.getType())) {
                 // no need to respond receipt to station
                 return null;
             }
         }
-        */
+         */
         // normal response
-        ID receiver = getFacebook().getID(iMsg.envelope.sender);
-        sendContent(res, receiver);
+        sendMessage(iMsg, null, false);
         // DON'T respond to station directly
         return null;
     }
