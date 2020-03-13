@@ -231,7 +231,7 @@ public class Messenger extends chat.dim.Messenger {
      */
     public boolean sendCommand(Command cmd) {
         assert server != null;
-        return sendContent(cmd, server.identifier);
+        return sendContent(cmd, server.identifier, null, false);
     }
 
     /**
@@ -242,7 +242,7 @@ public class Messenger extends chat.dim.Messenger {
      */
     public boolean broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
-        return sendContent(content, ID.ANYONE);
+        return sendContent(content, ID.ANYONE, null, false);
     }
 
     public void broadcastProfile(Profile profile) {
@@ -257,7 +257,7 @@ public class Messenger extends chat.dim.Messenger {
         Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
         for (ID contact : contacts) {
-            sendContent(cmd, contact);
+            sendContent(cmd, contact, null, false);
         }
     }
 
@@ -361,7 +361,7 @@ public class Messenger extends chat.dim.Messenger {
         Command cmd = new QueryCommand(group);
         boolean checking = false;
         for (ID user : members) {
-            if (sendContent(cmd, user)) {
+            if (sendContent(cmd, user, null, false)) {
                 checking = true;
             }
         }

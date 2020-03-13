@@ -114,7 +114,7 @@ public class ChatboxFragment extends Fragment implements Observer {
             // TODO:
         };
         Messenger messenger = Messenger.getInstance();
-        if (!messenger.sendMessage(iMsg, callback, true)) {
+        if (!messenger.sendMessage(iMsg, callback, false)) {
             throw new RuntimeException("failed to send message: " + iMsg);
         }
         return iMsg;
