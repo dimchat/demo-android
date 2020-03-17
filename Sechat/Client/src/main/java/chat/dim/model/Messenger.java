@@ -33,12 +33,16 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Content;
+import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
+import chat.dim.SecureMessage;
 import chat.dim.User;
+import chat.dim.core.CipherKeyDelegate;
+import chat.dim.core.EntityDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
@@ -54,6 +58,7 @@ import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
@@ -141,8 +146,36 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public boolean saveMessage(InstantMessage msg) {
-        Content content = msg.content;
+    public SecureMessage encryptMessage(InstantMessage iMsg) {
+        SecureMessage sMsg = super.encryptMessage(iMsg);
+
+        EntityDelegate facebook = getEntityDelegate();
+        Envelope env = iMsg.envelope;
+        ID receiver = facebook.getID(env.receiver);
+        if (receiver.isGroup()) {
+            CipherKeyDelegate keyCache = getCipherKeyDelegate();
+            // reuse group message keys
+            ID sender = facebook.getID(env.sender);
+            SymmetricKey key = keyCache.getCipherKey(sender, receiver);
+            key.put("reused", true);
+        }
+        // TODO: reuse personal message key?
+
+        return sMsg;
+    }
+
+    @Override
+    public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
+        if (password.get("reused") != null) {
+            // no need to encrypt reused key again
+            return null;
+        }
+        return super.encryptKey(password, receiver, iMsg);
+    }
+
+    @Override
+    public boolean saveMessage(InstantMessage iMsg) {
+        Content content = iMsg.content;
         // TODO: check message type
         //       only save normal message and group commands
         //       ignore 'Handshake', ...
@@ -168,13 +201,30 @@ public class Messenger extends chat.dim.Messenger {
             // no need to save search command here
             return true;
         }
+        if (content instanceof ForwardContent) {
+            // forward content will be parsed, if secret message decrypted, save it
+            // no need to save forward content itself
+            return true;
+        }
+
+        if (content instanceof InviteCommand) {
+            // send keys again
+            ID me = getFacebook().getID(iMsg.envelope.receiver);
+            ID group = getFacebook().getID(content.getGroup());
+            SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
+            key.put("reused", null);
+        }
+        if (content instanceof QueryCommand) {
+            // FIXME: same query command sent to different members?
+            return true;
+        }
 
         Amanuensis clerk = Amanuensis.getInstance();
 
         if (content instanceof ReceiptCommand) {
-            return clerk.saveReceipt(msg);
+            return clerk.saveReceipt(iMsg);
         } else {
-            return clerk.saveMessage(msg);
+            return clerk.saveMessage(iMsg);
         }
     }
 
