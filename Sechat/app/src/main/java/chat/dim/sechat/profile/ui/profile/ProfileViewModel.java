@@ -9,7 +9,7 @@ import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.Client;
 
-class ProfileViewModel extends ViewModel {
+public class ProfileViewModel extends ViewModel {
 
     boolean existsContact(ID contact) {
         Client client = Client.getInstance();

@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModel;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 
-class AccountViewModel extends ViewModel {
+public class AccountViewModel extends ViewModel {
 
     private Facebook facebook = Facebook.getInstance();
 

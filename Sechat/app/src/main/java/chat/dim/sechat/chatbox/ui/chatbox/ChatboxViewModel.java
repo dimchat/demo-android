@@ -26,7 +26,7 @@ enum MsgType {
     }
 }
 
-class ChatboxViewModel extends ViewModel {
+public class ChatboxViewModel extends ViewModel {
 
     List<InstantMessage> getMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
