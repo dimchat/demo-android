@@ -211,21 +211,6 @@ public class Facebook extends chat.dim.Facebook {
 
     //-------- Relationship
 
-    @Override
-    public boolean saveContacts(List<ID> contacts, ID user) {
-        return contactTable.saveContacts(contacts, user);
-    }
-
-    @Override
-    protected List<ID> loadContacts(ID user) {
-        List<ID> contacts = contactTable.getContacts(user);
-        if (contacts == null || contacts.size() == 0) {
-            // try immortals
-            contacts = immortals.getContacts(user);
-        }
-        return contacts;
-    }
-
     public boolean addMember(ID member, ID group) {
         return groupTable.addMember(member, group);
     }
@@ -276,6 +261,16 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     //-------- UserDataSource
+
+    @Override
+    public List<ID> getContacts(ID user) {
+        List<ID> contacts = contactTable.getContacts(user);
+        if (contacts == null || contacts.size() == 0) {
+            // try immortals
+            contacts = immortals.getContacts(user);
+        }
+        return contacts;
+    }
 
     @Override
     public SignKey getPrivateKeyForSignature(ID user) {
