@@ -239,11 +239,6 @@ public class Facebook extends chat.dim.Facebook {
         return groupTable.saveMembers(members, group);
     }
 
-    @Override
-    protected List<ID> loadMembers(ID group) {
-        return groupTable.getMembers(group);
-    }
-
     //--------
 
     public String getUsername(Object string) {
@@ -334,5 +329,10 @@ public class Facebook extends chat.dim.Facebook {
             return owner;
         }
         return super.getOwner(group);
+    }
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        return groupTable.getMembers(group);
     }
 }
