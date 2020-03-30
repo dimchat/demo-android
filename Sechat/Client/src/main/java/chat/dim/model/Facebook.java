@@ -26,11 +26,8 @@
 package chat.dim.model;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import chat.dim.AddressNameService;
@@ -39,7 +36,9 @@ import chat.dim.Immortals;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
+import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
 import chat.dim.database.GroupTable;
@@ -136,24 +135,8 @@ public class Facebook extends chat.dim.Facebook {
 
     //-------- Private Key
 
-    @Override
     public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        if (!verify(privateKey, identifier)) {
-            // private key not match meta.key
-            return false;
-        }
         return privateTable.savePrivateKey(privateKey, identifier);
-    }
-
-    @Override
-    protected PrivateKey loadPrivateKey(ID user) {
-        // FIXME: which key?
-        PrivateKey key = privateTable.getPrivateKeyForSignature(user);
-        if (key == null) {
-            // try immortals
-            key = (PrivateKey) immortals.getPrivateKeyForSignature(user);
-        }
-        return key;
     }
 
     //-------- Meta
@@ -295,6 +278,40 @@ public class Facebook extends chat.dim.Facebook {
         String string = String.format(Locale.CHINA, "%010d", number);
         string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
         return string;
+    }
+
+    //-------- UserDataSource
+
+    @Override
+    public SignKey getPrivateKeyForSignature(ID user) {
+        assert user.isUser() : "user ID error: " + user;
+        SignKey key = privateTable.getPrivateKeyForSignature(user);
+        if (key == null) {
+            // try immortals
+            key = immortals.getPrivateKeyForSignature(user);
+        }
+        return key;
+    }
+
+    @Override
+    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        assert user.isUser() : "user ID error: " + user;
+        List<DecryptKey> keys = privateTable.getPrivateKeysForDecryption(user);
+        if (keys == null || keys.size() == 0) {
+            // try immortals
+            keys = immortals.getPrivateKeysForDecryption(user);
+            if (keys == null || keys.size() == 0) {
+                // DIMP v1.0:
+                //     decrypt key and the sign key are the same keys
+                SignKey key = getPrivateKeyForSignature(user);
+                if (key instanceof DecryptKey) {
+                    // TODO: support profile.key
+                    keys = new ArrayList<>();
+                    keys.add((DecryptKey) key);
+                }
+            }
+        }
+        return keys;
     }
 
     //-------- GroupDataSource
