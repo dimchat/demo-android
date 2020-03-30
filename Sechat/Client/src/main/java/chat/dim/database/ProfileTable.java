@@ -26,7 +26,6 @@
 package chat.dim.database;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,19 +38,18 @@ public class ProfileTable extends ExternalStorage {
     // profile cache
     private Map<ID, Profile> profileTable = new HashMap<>();
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
-
-    private static String getProfilePath(ID entity) {
-        return getPath() + "/mkm/" + entity.address + "/profile.js";
-    }
-
-    private boolean cacheProfile(Profile profile) {
+    private boolean cache(Profile profile) {
         ID identifier = ID.getInstance(profile.getIdentifier());
         if (profile.isValid()) {
             profileTable.put(identifier, profile);
             return true;
         }
         return false;
+    }
+
+    // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
+    private static String getProfilePath(ID entity) {
+        return getPath() + "/mkm/" + entity.address + "/profile.js";
     }
 
     private Profile loadProfile(ID entity) {
@@ -66,7 +64,7 @@ public class ProfileTable extends ExternalStorage {
     }
 
     public boolean saveProfile(Profile profile) {
-        if (!cacheProfile(profile)) {
+        if (!cache(profile)) {
             return false;
         }
         // write into JsON file
@@ -83,30 +81,16 @@ public class ProfileTable extends ExternalStorage {
     public Profile getProfile(ID entity) {
         // 1. try from profile cache
         Profile profile = profileTable.get(entity);
-        if (profile != null) {
-            // check cache expires
-            Date now = new Date();
-            Object timestamp = profile.get("lastTime");
-            if (timestamp == null) {
-                profile.put("lastTime", now.getTime() / 1000);
-            } else {
-                Date lastTime = new Date(((Number) timestamp).longValue() * 1000);
-                long dt = now.getTime() - lastTime.getTime();
-                if (Math.abs(dt / 1000) > 3600) {
-                    // profile expired
-                    profileTable.remove(entity);
-                }
-            }
-            return profile;
-        }
-        // TODO: 2. send query profile for updating from network
-
-        // 3. load from JsON file
-        profile = loadProfile(entity);
         if (profile == null) {
-            profile = new Profile(entity);
+            // 2. load from JsON file
+            profile = loadProfile(entity);
+            if (profile == null) {
+                // 3. create empty profile to avoid reload nothing
+                profile = new Profile(entity);
+            }
+            // no need to verify profile from local storage
+            profileTable.put(entity, profile);
         }
-        profileTable.put(entity, profile);
         return profile;
     }
 }

@@ -26,6 +26,8 @@
 package chat.dim.database;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Meta;
@@ -33,8 +35,18 @@ import chat.dim.filesys.ExternalStorage;
 
 public class MetaTable extends ExternalStorage {
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    // profile cache
+    private Map<ID, Meta> metaTable = new HashMap<>();
 
+    private boolean cache(Meta meta, ID identifier) {
+        if (meta.matches(identifier)) {
+            metaTable.put(identifier, meta);
+            return true;
+        }
+        return false;
+    }
+
+    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
     private static String getMetaFilePath(ID entity) {
         return getPath() + "/mkm/" + entity.address + "/meta.js";
     }
@@ -52,7 +64,7 @@ public class MetaTable extends ExternalStorage {
     }
 
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
+        if (!cache(meta, entity)) {
             return false;
         }
         // save into JsON file
@@ -69,6 +81,17 @@ public class MetaTable extends ExternalStorage {
     }
 
     public Meta getMeta(ID entity) {
-        return loadMeta(entity);
+        // 1. try from meta cache
+        Meta meta = metaTable.get(entity);
+        if (meta == null) {
+            // 2. load from JsON file
+            meta = loadMeta(entity);
+            if (meta == null) {
+                // TODO: 3. create empty meta to avoid reload nothing
+            }
+            // no need to verify meta from local storage
+            metaTable.put(entity, meta);
+        }
+        return meta;
     }
 }

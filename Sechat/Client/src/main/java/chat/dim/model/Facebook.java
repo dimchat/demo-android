@@ -26,6 +26,7 @@
 package chat.dim.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -38,6 +39,7 @@ import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
@@ -68,6 +70,9 @@ public class Facebook extends chat.dim.Facebook {
         };
         setANS(ans);
     }
+
+    public static long EXPIRES = 3600;  // profile expires (1 hour)
+    private static final String EXPIRES_KEY = "expires";
 
     private final AddressNameService ans;
     private Immortals immortals = new Immortals();
@@ -150,30 +155,6 @@ public class Facebook extends chat.dim.Facebook {
         return metaTable.saveMeta(meta, entity);
     }
 
-    @Override
-    protected Meta loadMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
-            // broadcast ID has not meta
-            return null;
-        }
-        // try from database
-        Meta meta = metaTable.getMeta(identifier);
-        if (meta != null) {
-            return meta;
-        }
-        // try from immortals
-        if (identifier.getType() == NetworkType.Main.value) {
-            meta = immortals.getMeta(identifier);
-            if (meta != null) {
-                return meta;
-            }
-        }
-        // query from DIM network
-        Messenger messenger = Messenger.getInstance();
-        messenger.queryMeta(identifier);
-        return null;
-    }
-
     //-------- Profile
 
     @Override
@@ -183,30 +164,6 @@ public class Facebook extends chat.dim.Facebook {
             return false;
         }
         return profileTable.saveProfile(profile);
-    }
-
-    @Override
-    protected Profile loadProfile(ID identifier) {
-        // try from database
-        Profile profile = profileTable.getProfile(identifier);
-        if (profile != null) {
-            // is empty?
-            Set<String> names = profile.propertyNames();
-            if (names != null && names.size() > 0) {
-                return profile;
-            }
-        }
-        // try from immortals
-        if (identifier.getType() == NetworkType.Main.value) {
-            Profile tai = immortals.getProfile(identifier);
-            if (tai != null) {
-                return tai;
-            }
-        }
-        // query from DIM network
-        Messenger messenger = Messenger.getInstance();
-        messenger.queryProfile(identifier);
-        return profile;
     }
 
     //-------- Relationship
@@ -260,6 +217,71 @@ public class Facebook extends chat.dim.Facebook {
         return string;
     }
 
+    //-------- EntityDataSource
+
+    @Override
+    public Meta getMeta(ID identifier) {
+        if (identifier.isBroadcast()) {
+            // broadcast ID has not meta
+            return null;
+        }
+        // try from database
+        Meta meta = metaTable.getMeta(identifier);
+        if (meta != null) {
+            // is empty?
+            PublicKey key = meta.getKey();
+            if (key != null) {
+                return meta;
+            }
+        }
+        // try from immortals
+        if (identifier.getType() == NetworkType.Main.value) {
+            meta = immortals.getMeta(identifier);
+            if (meta != null) {
+                return meta;
+            }
+        }
+        // query from DIM network
+        Messenger messenger = Messenger.getInstance();
+        messenger.queryMeta(identifier);
+        return null;
+    }
+
+    @Override
+    public Profile getProfile(ID identifier) {
+        // try from database
+        Profile profile = profileTable.getProfile(identifier);
+        if (profile != null) {
+            // is empty?
+            Set<String> names = profile.propertyNames();
+            if (names != null && names.size() > 0) {
+                // check expired time
+                Date now = new Date();
+                long timestamp = now.getTime() / 1000;
+                Number expires = (Number) profile.get(EXPIRES_KEY);
+                if (expires == null) {
+                    // set expired time
+                    profile.put(EXPIRES_KEY, timestamp + EXPIRES);
+                    return profile;
+                } else if (expires.longValue() > timestamp) {
+                    // not expired yet
+                    return profile;
+                }
+            }
+        }
+        // try from immortals
+        if (identifier.getType() == NetworkType.Main.value) {
+            Profile tai = immortals.getProfile(identifier);
+            if (tai != null) {
+                return tai;
+            }
+        }
+        // query from DIM network
+        Messenger messenger = Messenger.getInstance();
+        messenger.queryProfile(identifier);
+        return profile;
+    }
+
     //-------- UserDataSource
 
     @Override
@@ -295,7 +317,6 @@ public class Facebook extends chat.dim.Facebook {
                 //     decrypt key and the sign key are the same keys
                 SignKey key = getPrivateKeyForSignature(user);
                 if (key instanceof DecryptKey) {
-                    // TODO: support profile.key
                     keys = new ArrayList<>();
                     keys.add((DecryptKey) key);
                 }
