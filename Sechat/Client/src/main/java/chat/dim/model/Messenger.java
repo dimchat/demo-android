@@ -53,6 +53,8 @@ import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.digest.SHA256;
+import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
@@ -143,6 +145,55 @@ public class Messenger extends chat.dim.Messenger {
             }
             return queryGroupInfo(group, admins);
         }
+    }
+
+    //-------- Serialization
+
+    @Override
+    public byte[] serializeMessage(ReliableMessage rMsg) {
+        attachKeyDigest(rMsg);
+        return super.serializeMessage(rMsg);
+    }
+
+    private void attachKeyDigest(ReliableMessage rMsg) {
+        if (rMsg.getDelegate() == null) {
+            rMsg.setDelegate(this);
+        }
+        if (rMsg.getKey() != null) {
+            // 'key' exists
+            return;
+        }
+        Map<Object, Object> keys = rMsg.getKeys();
+        if (keys == null) {
+            keys = new HashMap<>();
+        } else if (keys.get("digest") != null) {
+            // key digest already exists
+            return;
+        }
+        // get key with direction
+        SymmetricKey key;
+        EntityDelegate facebook = getEntityDelegate();
+        Object sender = rMsg.envelope.sender;
+        Object group = rMsg.envelope.getGroup();
+        if (group == null) {
+            Object receiver = rMsg.envelope.receiver;
+            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(receiver));
+        } else {
+            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(group));
+        }
+        // get key data
+        byte[] data = key.getData();
+        if (data == null || data.length < 8) {
+            return;
+        }
+        // get digest
+        byte[] part = new byte[4];
+        System.arraycopy(data, data.length-4, part, 0, 4);
+        byte[] digest = SHA256.digest(part);
+        String base64 = Base64.encode(digest);
+        int pos = base64.length() - 8;
+        keys.put("digest", base64.substring(pos));
+        rMsg.put("keys", keys);
     }
 
     @Override
