@@ -165,12 +165,12 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public byte[] encryptKey(Map<String, Object> password, Object receiver, InstantMessage iMsg) {
+    public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
         if (password.get("reused") != null) {
             // no need to encrypt reused key again
             return null;
         }
-        return super.encryptKey(password, receiver, iMsg);
+        return super.serializeKey(password, iMsg);
     }
 
     @Override
