@@ -197,6 +197,15 @@ public class Messenger extends chat.dim.Messenger {
     }
 
     @Override
+    public ReliableMessage deserializeMessage(byte[] data) {
+        if (data == null || data.length == 0) {
+            return null;
+        }
+        // public
+        return super.deserializeMessage(data);
+    }
+
+    @Override
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         SecureMessage sMsg = super.encryptMessage(iMsg);
 
