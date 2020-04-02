@@ -183,12 +183,12 @@ public class Messenger extends chat.dim.Messenger {
         }
         // get key data
         byte[] data = key.getData();
-        if (data == null || data.length < 8) {
+        if (data == null || data.length < 6) {
             return;
         }
         // get digest
-        byte[] part = new byte[4];
-        System.arraycopy(data, data.length-4, part, 0, 4);
+        byte[] part = new byte[6];
+        System.arraycopy(data, data.length-6, part, 0, 6);
         byte[] digest = SHA256.digest(part);
         String base64 = Base64.encode(digest);
         int pos = base64.length() - 8;
