@@ -227,8 +227,11 @@ public class Messenger extends chat.dim.Messenger {
     @Override
     public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
         if (password.get("reused") != null) {
-            // no need to encrypt reused key again
-            return null;
+            ID receiver = getEntityDelegate().getID(iMsg.envelope.receiver);
+            if (receiver.isGroup()) {
+                // reuse key for grouped message
+                return null;
+            }
         }
         return super.serializeKey(password, iMsg);
     }
