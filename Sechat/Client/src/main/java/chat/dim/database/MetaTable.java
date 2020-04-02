@@ -87,7 +87,8 @@ public class MetaTable extends ExternalStorage {
             // 2. load from JsON file
             meta = loadMeta(entity);
             if (meta == null) {
-                // TODO: 3. create empty meta to avoid reload nothing
+                // TODO: 3. place an empty meta for cache
+                return null;
             }
             // no need to verify meta from local storage
             metaTable.put(entity, meta);

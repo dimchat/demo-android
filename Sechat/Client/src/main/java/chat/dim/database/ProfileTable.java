@@ -85,7 +85,7 @@ public class ProfileTable extends ExternalStorage {
             // 2. load from JsON file
             profile = loadProfile(entity);
             if (profile == null) {
-                // 3. create empty profile to avoid reload nothing
+                // 3. place an empty profile for cache
                 profile = new Profile(entity);
             }
             // no need to verify profile from local storage

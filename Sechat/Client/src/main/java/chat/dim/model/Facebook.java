@@ -229,8 +229,7 @@ public class Facebook extends chat.dim.Facebook {
         Meta meta = metaTable.getMeta(identifier);
         if (meta != null) {
             // is empty?
-            PublicKey key = meta.getKey();
-            if (key != null) {
+            if (meta.getKey() != null) {
                 return meta;
             }
         }
@@ -238,6 +237,7 @@ public class Facebook extends chat.dim.Facebook {
         if (identifier.getType() == NetworkType.Main.value) {
             meta = immortals.getMeta(identifier);
             if (meta != null) {
+                metaTable.saveMeta(meta, identifier);
                 return meta;
             }
         }
@@ -252,27 +252,28 @@ public class Facebook extends chat.dim.Facebook {
         // try from database
         Profile profile = profileTable.getProfile(identifier);
         if (profile != null) {
-            // is empty?
-            Set<String> names = profile.propertyNames();
-            if (names != null && names.size() > 0) {
-                // check expired time
-                Date now = new Date();
-                long timestamp = now.getTime() / 1000;
-                Number expires = (Number) profile.get(EXPIRES_KEY);
-                if (expires == null) {
-                    // set expired time
-                    profile.put(EXPIRES_KEY, timestamp + EXPIRES);
-                    return profile;
-                } else if (expires.longValue() > timestamp) {
-                    // not expired yet
+            // check expired time
+            Date now = new Date();
+            long timestamp = now.getTime() / 1000;
+            Number expires = (Number) profile.get(EXPIRES_KEY);
+            if (expires == null) {
+                // set expired time
+                profile.put(EXPIRES_KEY, timestamp + EXPIRES);
+                // is empty?
+                Set<String> names = profile.propertyNames();
+                if (names != null && names.size() > 0) {
                     return profile;
                 }
+            } else if (expires.longValue() > timestamp) {
+                // not expired yet
+                return profile;
             }
         }
         // try from immortals
         if (identifier.getType() == NetworkType.Main.value) {
             Profile tai = immortals.getProfile(identifier);
             if (tai != null) {
+                profileTable.saveProfile(tai);
                 return tai;
             }
         }
