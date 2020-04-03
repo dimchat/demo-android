@@ -63,21 +63,27 @@ public class GroupManager {
         Messenger messenger = Messenger.getInstance();
         Facebook facebook = Facebook.getInstance();
         // check group ID
-        ID gid = facebook.getID(content.getGroup());
+        Object gid = content.getGroup();
         if (gid == null) {
             content.setGroup(group);
         } else {
             assert group.equals(gid) : "group ID not match: " + group + ", " + content;
         }
-        // get group assistant
-        List<ID> assistants = facebook.getAssistants(group);
-        assert assistants != null : "failed to get assistants for group: " + group;
-        if (assistants.size() == 0) {
-            throw new NullPointerException("group assistant not found: " + group);
+        // check members
+        List<ID> members = facebook.getMembers(group);
+        if (members == null || members.size() == 0) {
+            // get group assistant
+            List<ID> assistants = facebook.getAssistants(group);
+            assert assistants != null : "failed to get assistants for group: " + group;
+            if (assistants.size() == 0) {
+                throw new NullPointerException("group assistant not found: " + group);
+            }
+            // querying assistants for group info
+            messenger.queryGroupInfo(group, assistants);
+            return false;
         }
         // let group assistant to split and deliver this message to all members
-        ID receiver = assistants.get(0); // any assistant
-        return messenger.sendContent(content, receiver, null, false);
+        return messenger.sendContent(content, group, null, false);
     }
 
     /**
