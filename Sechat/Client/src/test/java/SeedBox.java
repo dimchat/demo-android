@@ -88,7 +88,7 @@ public class SeedBox {
      *
      * @param args - command arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         final int sp_count = 8;
         SeedBox[] boxes = new SeedBox[sp_count];

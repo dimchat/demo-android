@@ -26,6 +26,7 @@
 package chat.dim.extension;
 
 import java.util.Map;
+import java.util.Random;
 
 import chat.dim.Group;
 import chat.dim.ID;
@@ -43,11 +44,14 @@ import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.utils.Log;
 
+/**
+ *  This is for generating user account, or creating group
+ */
 public class Register {
 
-    public NetworkType network; // user type (Main: 0x08)
+    private final NetworkType network; // user type (Main: 0x08)
 
-    public PrivateKey privateKey = null; // user private key
+    private PrivateKey privateKey = null; // user private key
 
     public Register() {
         this(NetworkType.Main);
@@ -58,9 +62,6 @@ public class Register {
         network = type;
     }
 
-    private Facebook facebook = Facebook.getInstance();
-    private Messenger messenger = Messenger.getInstance();
-
     /**
      *  Generate user account
      *
@@ -69,10 +70,11 @@ public class Register {
      * @return User object
      */
     public User createUser(String name, String avatar) {
+        Facebook facebook = Facebook.getInstance();
         // 1. generate private key
         PrivateKey key = generatePrivateKey();
         // 2. generate meta
-        Meta meta = generateMeta("user");
+        Meta meta = generateMeta("anonymous");
         // 3. generate ID
         ID identifier = generateID(meta, NetworkType.Main);
         // 4. generate profile
@@ -97,10 +99,13 @@ public class Register {
         return createGroup(name, founder.identifier);
     }
     public Group createGroup(String name, ID founder) {
+        Facebook facebook = Facebook.getInstance();
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(founder);
         // 2. generate meta
-        Meta meta = generateMeta("group");
+        Random random = new Random();
+        long r = random.nextInt(999990000) + 10000; // 10,000 ~ 999,999,999
+        Meta meta = generateMeta("group-" + r);
         // 3. generate ID
         ID identifier = generateID(meta, NetworkType.Polylogue);
         // 4. generate profile
@@ -209,6 +214,7 @@ public class Register {
             assert profile.isValid();
             cmd = new ProfileCommand(identifier, meta, profile);
         }
+        Messenger messenger = Messenger.getInstance();
         return messenger.sendCommand(cmd);
     }
 
@@ -217,10 +223,10 @@ public class Register {
      *
      * @param args - command arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         // 1. create user
         Register userRegister = new Register();
-        User user = userRegister.createUser("moky", null);
+        User user = userRegister.createUser("Albert Moky", null);
         Log.info("user: " + user);
         //userRegister.upload(user.identifier, user.getMeta(), user.getProfile());
 

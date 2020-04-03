@@ -34,6 +34,9 @@ import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
 import chat.dim.utils.Log;
 
+/**
+ *  This is for generating symmetric key with a text string
+ */
 public final class Password {
 
     private static final int KEY_SIZE = 32;
@@ -75,7 +78,7 @@ public final class Password {
      *
      * @param args - command arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         String text = "Hello world!";
         String password = "12345";
 
