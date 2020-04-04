@@ -39,7 +39,6 @@ import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;

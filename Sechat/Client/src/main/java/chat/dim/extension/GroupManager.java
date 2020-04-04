@@ -27,6 +27,7 @@ package chat.dim.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import chat.dim.Content;
 import chat.dim.ID;
@@ -86,6 +87,21 @@ public class GroupManager {
         return messenger.sendContent(content, group, null, false);
     }
 
+    private boolean sendGroupCommand(Command cmd, List<ID> members) {
+        Messenger messenger = Messenger.getInstance();
+        boolean ok = true;
+        for (ID receiver : members) {
+            if (!messenger.sendContent(cmd, receiver, null, false)) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    private boolean sendGroupCommand(Command cmd, ID receiver) {
+        Messenger messenger = Messenger.getInstance();
+        return messenger.sendContent(cmd, receiver, null, false);
+    }
+
     /**
      *  Invite new members to this group
      *  (only existed member/assistant can do this)
@@ -94,7 +110,6 @@ public class GroupManager {
      * @return true on success
      */
     public boolean invite(List<ID> newMembers) {
-        Messenger messenger = Messenger.getInstance();
         Facebook facebook = Facebook.getInstance();
 
         Command cmd;
@@ -102,14 +117,19 @@ public class GroupManager {
         Meta meta = facebook.getMeta(group);
         assert meta != null : "failed to get meta for group: " + group;
         Profile profile = facebook.getProfile(group);
+        if (profile != null) {
+            Set<String> names = profile.propertyNames();
+            if (names == null || names.size() == 0) {
+                // empty profile
+                profile = null;
+            }
+        }
         if (profile == null) {
             cmd = new MetaCommand(group, meta);
         } else {
             cmd = new ProfileCommand(group, meta, profile);
         }
-        for (ID member : newMembers) {
-            messenger.sendContent(cmd, member, null, false);
-        }
+        sendGroupCommand(cmd, newMembers);
 
         ID owner = facebook.getOwner(group);
         List<ID> assistants = facebook.getAssistants(group);
@@ -120,16 +140,12 @@ public class GroupManager {
         cmd = new InviteCommand(group, newMembers);
         // 1.1. send to existed members
         members = facebook.getMembers(group);
-        for (ID member : members) {
-            messenger.sendContent(cmd, member, null, false);
-        }
+        sendGroupCommand(cmd, members);
         // 1.2. send to assistants
-        for (ID ass : assistants) {
-            messenger.sendContent(cmd, ass, null, false);
-        }
+        sendGroupCommand(cmd, assistants);
         // 1.3. send to owner
         if (owner != null && !members.contains(owner)) {
-            messenger.sendContent(cmd, owner, null, false);
+            sendGroupCommand(cmd, owner);
         }
 
         // 2. update local storage
@@ -138,9 +154,7 @@ public class GroupManager {
         // 3. send 'invite' with all members command to new members
         members = facebook.getMembers(group);
         cmd = new InviteCommand(group, members);
-        for (ID member : newMembers) {
-            messenger.sendContent(cmd, member, null, false);
-        }
+        sendGroupCommand(cmd, newMembers);
 
         return true;
     }
@@ -154,7 +168,6 @@ public class GroupManager {
      * @throws IllegalAccessException on permission error
      */
     public boolean expel(List<ID> outMembers) throws IllegalAccessException {
-        Messenger messenger = Messenger.getInstance();
         Facebook facebook = Facebook.getInstance();
 
         ID owner = facebook.getOwner(group);
@@ -177,16 +190,12 @@ public class GroupManager {
         // 1. send 'expel' command to all members
         Command cmd = new ExpelCommand(group, outMembers);
         // 1.1. send to existed members
-        for (ID member : members) {
-            messenger.sendContent(cmd, member, null, false);
-        }
+        sendGroupCommand(cmd, members);
         // 1.2. send to assistants
-        for (ID ass : assistants) {
-            messenger.sendContent(cmd, ass, null, false);
-        }
+        sendGroupCommand(cmd, assistants);
         // 1.3. send to owner
         if (!members.contains(owner)) {
-            messenger.sendContent(cmd, owner, null, false);
+            sendGroupCommand(cmd, owner);
         }
 
         // 2. update local storage
