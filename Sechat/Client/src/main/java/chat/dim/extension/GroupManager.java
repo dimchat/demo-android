@@ -41,6 +41,7 @@ import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.QuitCommand;
 
 /**
  *  This is for sending group message, or managing group members
@@ -200,6 +201,48 @@ public class GroupManager {
 
         // 2. update local storage
         return removeMembers(outMembers);
+    }
+
+    /**
+     *  Quit from this group
+     *  (only group member can do this)
+     *
+     * @param me - my ID
+     * @return true on success
+     */
+    public boolean quit(ID me) throws IllegalAccessException {
+        Facebook facebook = Facebook.getInstance();
+
+        ID owner = facebook.getOwner(group);
+        List<ID> assistants = facebook.getAssistants(group);
+        List<ID> members = facebook.getMembers(group);
+        assert owner != null : "failed to get owner of group: " + group;
+        assert assistants != null : "failed to get assistants for group: " + group;
+        assert members != null : "failed to get members of group: " + group;
+
+        // 0. check members list
+        for (ID ass : assistants) {
+            if (me.equals(ass)) {
+                throw new IllegalAccessException("Group assistant cannot quit: " + ass);
+            }
+        }
+        if (me.equals(owner)) {
+            throw new IllegalAccessException("Group owner cannot quit: " + owner);
+        }
+
+        // 1. send 'quit' command to all members
+        Command cmd = new QuitCommand(group);
+        // 1.1. send to existed members
+        sendGroupCommand(cmd, members);
+        // 1.2. send to assistants
+        sendGroupCommand(cmd, assistants);
+        // 1.3. send to owner
+        if (!members.contains(owner)) {
+            sendGroupCommand(cmd, owner);
+        }
+
+        // 2. update local storage
+        return removeMember(me);
     }
 
     //-------- local storage
