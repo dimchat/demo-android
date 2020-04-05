@@ -91,21 +91,21 @@ public class Register {
     /**
      *  Generate group account
      *
-     * @param name - group name
      * @param founder - group founder
+     * @param name - group name
      * @return Group object
      */
-    public Group createGroup(String name, User founder) {
-        return createGroup(name, founder.identifier);
+    public Group createGroup(ID founder, String name) {
+        Random random = new Random();
+        long r = random.nextInt(999990000) + 10000; // 10,000 ~ 999,999,999
+        return createGroup(founder, name, "Group-" + r);
     }
-    public Group createGroup(String name, ID founder) {
+    public Group createGroup(ID founder, String name, String seed) {
         Facebook facebook = Facebook.getInstance();
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(founder);
         // 2. generate meta
-        Random random = new Random();
-        long r = random.nextInt(999990000) + 10000; // 10,000 ~ 999,999,999
-        Meta meta = generateMeta("group-" + r);
+        Meta meta = generateMeta(seed);
         // 3. generate ID
         ID identifier = generateID(meta, NetworkType.Polylogue);
         // 4. generate profile
@@ -114,7 +114,9 @@ public class Register {
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
         facebook.saveProfile(profile);
-        // 6. create group
+        // 6. add founder as first member
+        facebook.addMember(founder, identifier);
+        // 7. create group
         return facebook.getGroup(identifier);
     }
 
@@ -232,7 +234,7 @@ public class Register {
 
         // 2. create group
         Register groupRegister = new Register(NetworkType.Polylogue);
-        Group group = groupRegister.createGroup("DIM Group", user);
+        Group group = groupRegister.createGroup(user.identifier, "DIM Group");
         Log.info("group: " + group);
         //groupRegister.upload(group.identifier, group.getMeta(), group.getProfile());
     }
