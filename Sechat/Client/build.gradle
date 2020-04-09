@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.3.11'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.3.12'
 }
 
 sourceCompatibility = "7"

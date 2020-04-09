@@ -1,4 +1,3 @@
-import java.nio.charset.Charset;
 import java.util.Random;
 
 /*!
@@ -7,6 +6,7 @@ import java.util.Random;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Hex;
 import chat.dim.format.Plugins;
+import chat.dim.format.UTF8;
 
 public class SeedBox {
 
@@ -120,7 +120,7 @@ public class SeedBox {
 
         // SHA256 + HEX test
         String string = "moky";
-        byte[] data = string.getBytes(Charset.forName("UTF-8"));
+        byte[] data = UTF8.encode(string);
         byte[] digest = SHA256.digest(data);
         String hex = Hex.encode(digest);
         if (!hex.equals("cb98b739dd699aa44bb6ebba128d20f2d1e10bb3b4aa5ff4e79295b47e9ed76d")) {

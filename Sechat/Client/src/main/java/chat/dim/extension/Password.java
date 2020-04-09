@@ -25,13 +25,13 @@
  */
 package chat.dim.extension;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
+import chat.dim.format.UTF8;
 import chat.dim.utils.Log;
 
 /**
@@ -43,7 +43,7 @@ public final class Password {
     private static final int BLOCK_SIZE = 16;
 
     public static SymmetricKey generate(String password) {
-        byte[] data = password.getBytes(Charset.forName("UTF-8"));
+        byte[] data = UTF8.encode(password);
         byte[] digest = SHA256.digest(data);
         // AES key data
         int len = KEY_SIZE - data.length;
@@ -93,12 +93,12 @@ public final class Password {
             throw new AssertionError("keys not equals: " + key1 + ", " + key2);
         }
 
-        byte[] data = text.getBytes(Charset.forName("UTF-8"));
+        byte[] data = UTF8.encode(text);
         byte[] ct = key1.encrypt(data);
         byte[] pt = key2.decrypt(ct);
 
         String base64 = Base64.encode(ct);
-        String res = new String(pt, Charset.forName("UTF-8"));
+        String res = UTF8.decode(pt);
         Log.info(text + " -> " + base64 + " -> " + res);
 
         if (!base64.equals("Ty9C/v1XVW8IWbNxgpdg8Q==")) {

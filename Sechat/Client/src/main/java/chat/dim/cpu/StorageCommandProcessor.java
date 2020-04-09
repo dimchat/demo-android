@@ -25,7 +25,6 @@
  */
 package chat.dim.cpu;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import chat.dim.Content;
@@ -46,11 +45,6 @@ public class StorageCommandProcessor extends CommandProcessor {
         super(messenger);
     }
 
-    private Object jsonDecode(byte[] data) {
-        String json = new String(data, Charset.forName("UTF-8"));
-        return JSON.decode(json);
-    }
-
     private Object decryptData(StorageCommand cmd, SymmetricKey password) {
         // 1. get encrypted data
         byte[] data = cmd.getData();
@@ -63,7 +57,7 @@ public class StorageCommandProcessor extends CommandProcessor {
             throw new NullPointerException("failed to decrypt data: " + cmd);
         }
         // 3. decode data
-        return jsonDecode(data);
+        return JSON.decode(data);
     }
 
     private Object decryptData(StorageCommand cmd) throws ClassNotFoundException {
@@ -85,7 +79,7 @@ public class StorageCommandProcessor extends CommandProcessor {
             throw new NullPointerException("failed to decrypt key: " + cmd);
         }
         // 4. decode key
-        Object dict = jsonDecode(key);
+        Object dict = JSON.decode(key);
         SymmetricKey password = SymmetricKey.getInstance(dict);
         // 5. decrypt data
         return decryptData(cmd, password);

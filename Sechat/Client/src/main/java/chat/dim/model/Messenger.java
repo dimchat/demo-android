@@ -25,7 +25,6 @@
  */
 package chat.dim.model;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -384,11 +383,6 @@ public class Messenger extends chat.dim.Messenger {
         return sendCommand(cmd);
     }
 
-    private byte[] jsonEncode(Object container) {
-        String json = JSON.encode(container);
-        return json.getBytes(Charset.forName("UTF-8"));
-    }
-
     public boolean postContacts(List<ID> contacts) {
         User user = getFacebook().getCurrentUser();
         assert user != null;
@@ -401,10 +395,10 @@ public class Messenger extends chat.dim.Messenger {
             return false;
         }
         // 2. encrypt contacts list
-        byte[] data = jsonEncode(contacts);
+        byte[] data = JSON.encode(contacts);
         data = password.encrypt(data);
         // 3. encrypt key
-        byte[] key = jsonEncode(password);
+        byte[] key = JSON.encode(password);
         key = user.encrypt(key);
         // 4. pack 'storage' command
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
