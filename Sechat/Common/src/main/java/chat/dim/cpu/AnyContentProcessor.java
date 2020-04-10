@@ -32,7 +32,7 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Messenger;
-import chat.dim.model.Facebook;
+import chat.dim.common.Facebook;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
@@ -147,8 +147,10 @@ public class AnyContentProcessor extends ContentProcessor {
 
 class MessageBuilder {
 
+    public static Facebook facebook = null;
+
     private static String getUsername(Object string) {
-        return Facebook.getInstance().getUsername(string);
+        return facebook.getUsername(string);
     }
 
     //-------- System commands

@@ -31,7 +31,6 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.model.Facebook;
 
 public class ContactTable extends ExternalStorage {
 
@@ -60,11 +59,11 @@ public class ContactTable extends ExternalStorage {
             return null;
         }
         // add contacts
-        Facebook facebook = Facebook.getInstance();
         List<ID> contacts = new ArrayList<>();
         ID contact;
         for (String item : array) {
-            contact = facebook.getID(item);
+            // FIXME: get ID by facebook
+            contact = ID.getInstance(item);
             assert contact.isValid();
             if (contacts.contains(contact)) {
                 continue;

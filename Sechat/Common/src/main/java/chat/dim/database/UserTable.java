@@ -31,7 +31,6 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.model.Facebook;
 
 public class UserTable extends ExternalStorage {
 
@@ -70,10 +69,10 @@ public class UserTable extends ExternalStorage {
         if (list == null || list.size() == 0) {
             return false;
         }
-        Facebook facebook = Facebook.getInstance();
         ID user;
         for (Object item : list) {
-            user = facebook.getID(item);
+            // FIXME: get ID by facebook
+            user = ID.getInstance(item);
             if (userList.contains(user)) {
                 continue;
             }

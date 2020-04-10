@@ -33,7 +33,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.model.Facebook;
 
 public class GroupTable extends ExternalStorage {
 
@@ -58,11 +57,11 @@ public class GroupTable extends ExternalStorage {
         if (array == null || array.size() == 0) {
             return null;
         }
-        Facebook facebook = Facebook.getInstance();
         List<ID> memberList = new ArrayList<>();
         ID member;
         for (String item : array) {
-            member = facebook.getID(item);
+            // FIXME: get ID by facebook
+            member = ID.getInstance(item);
             assert member.isValid();
             if (memberList.contains(member)) {
                 continue;

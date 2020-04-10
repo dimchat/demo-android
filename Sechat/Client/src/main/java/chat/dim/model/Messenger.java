@@ -25,40 +25,27 @@
  */
 package chat.dim.model;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.Content;
-import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.ReliableMessage;
-import chat.dim.SecureMessage;
 import chat.dim.User;
-import chat.dim.core.CipherKeyDelegate;
-import chat.dim.core.EntityDelegate;
-import chat.dim.cpu.AnyContentProcessor;
-import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
-import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
-import chat.dim.cpu.MuteCommandProcessor;
-import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.digest.SHA256;
-import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MetaCommand;
@@ -69,171 +56,16 @@ import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.protocol.group.ResetCommand;
 
-public class Messenger extends chat.dim.Messenger {
+public class Messenger extends chat.dim.common.Messenger {
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
     private Messenger()  {
         super();
-
         setEntityDelegate(Facebook.getInstance());
-        setCipherKeyDelegate(KeyStore.getInstance());
     }
 
     public Server server = null;
-
-    // check whether group info empty
-    private boolean isEmpty(ID group) {
-        chat.dim.Facebook facebook = getFacebook();
-        List members = facebook.getMembers(group);
-        if (members == null || members.size() == 0) {
-            return true;
-        }
-        ID owner = facebook.getOwner(group);
-        return owner == null;
-    }
-
-    // check whether need to update group
-    private boolean checkGroup(Content content, ID sender) {
-        // Check if it is a group message, and whether the group members info needs update
-        chat.dim.Facebook facebook = getFacebook();
-        ID group = facebook.getID(content.getGroup());
-        if (group == null || group.isBroadcast()) {
-            // 1. personal message
-            // 2. broadcast message
-            return false;
-        }
-        // check meta for new group ID
-        Meta meta = facebook.getMeta(group);
-        if (meta == null) {
-            // NOTICE: if meta for group not found,
-            //         facebook should query it from DIM network automatically
-            // TODO: insert the message to a temporary queue to wait meta
-            //throw new NullPointerException("group meta not found: " + group);
-            return true;
-        }
-        // query group info
-        if (isEmpty(group)) {
-            // NOTICE: if the group info not found, and this is not an 'invite' command
-            //         query group info from the sender
-            if (content instanceof InviteCommand || content instanceof ResetCommand) {
-                // FIXME: can we trust this stranger?
-                //        may be we should keep this members list temporary,
-                //        and send 'query' to the owner immediately.
-                // TODO: check whether the members list is a full list,
-                //       it should contain the group owner(owner)
-                return false;
-            } else {
-                return queryGroupInfo(group, sender);
-            }
-        } else if (facebook.existsMember(sender, group)
-                || facebook.existsAssistant(sender, group)
-                || facebook.isOwner(sender, group)) {
-            // normal membership
-            return false;
-        } else {
-
-            // if assistants exists, query them
-            List<ID> assistants = facebook.getAssistants(group);
-            List<ID> admins = new ArrayList<>(assistants);
-            // if owner found, query it too
-            ID owner = facebook.getOwner(group);
-            if (owner != null && !admins.contains(owner)) {
-                admins.add(owner);
-            }
-            return queryGroupInfo(group, admins);
-        }
-    }
-
-    //-------- Serialization
-
-    @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
-        attachKeyDigest(rMsg);
-        return super.serializeMessage(rMsg);
-    }
-
-    private void attachKeyDigest(ReliableMessage rMsg) {
-        if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(this);
-        }
-        if (rMsg.getKey() != null) {
-            // 'key' exists
-            return;
-        }
-        Map<Object, Object> keys = rMsg.getKeys();
-        if (keys == null) {
-            keys = new HashMap<>();
-        } else if (keys.get("digest") != null) {
-            // key digest already exists
-            return;
-        }
-        // get key with direction
-        SymmetricKey key;
-        EntityDelegate facebook = getEntityDelegate();
-        Object sender = rMsg.envelope.sender;
-        Object group = rMsg.envelope.getGroup();
-        if (group == null) {
-            Object receiver = rMsg.envelope.receiver;
-            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(receiver));
-        } else {
-            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(group));
-        }
-        // get key data
-        byte[] data = key.getData();
-        if (data == null || data.length < 6) {
-            return;
-        }
-        // get digest
-        byte[] part = new byte[6];
-        System.arraycopy(data, data.length-6, part, 0, 6);
-        byte[] digest = SHA256.digest(part);
-        String base64 = Base64.encode(digest);
-        int pos = base64.length() - 8;
-        keys.put("digest", base64.substring(pos));
-        rMsg.put("keys", keys);
-    }
-
-    @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
-        if (data == null || data.length == 0) {
-            return null;
-        }
-        // public
-        return super.deserializeMessage(data);
-    }
-
-    @Override
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
-        SecureMessage sMsg = super.encryptMessage(iMsg);
-
-        EntityDelegate facebook = getEntityDelegate();
-        Envelope env = iMsg.envelope;
-        ID receiver = facebook.getID(env.receiver);
-        if (receiver.isGroup()) {
-            CipherKeyDelegate keyCache = getCipherKeyDelegate();
-            // reuse group message keys
-            ID sender = facebook.getID(env.sender);
-            SymmetricKey key = keyCache.getCipherKey(sender, receiver);
-            key.put("reused", true);
-        }
-        // TODO: reuse personal message key?
-
-        return sMsg;
-    }
-
-    @Override
-    public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
-        if (password.get("reused") != null) {
-            ID receiver = getEntityDelegate().getID(iMsg.envelope.receiver);
-            if (receiver.isGroup()) {
-                // reuse key for grouped message
-                return null;
-            }
-        }
-        return super.serializeKey(password, iMsg);
-    }
 
     @Override
     public boolean saveMessage(InstantMessage iMsg) {
@@ -298,41 +130,6 @@ public class Messenger extends chat.dim.Messenger {
     @Override
     public void suspendMessage(InstantMessage msg) {
         // TODO: save this message in a queue waiting receiver's meta response
-    }
-
-    @Override
-    public InstantMessage process(InstantMessage iMsg) {
-        Content content = iMsg.content;
-        ID sender = getFacebook().getID(iMsg.envelope.sender);
-
-        if (checkGroup(content, sender)) {
-            // save this message in a queue to wait group meta response
-            suspendMessage(iMsg);
-            return null;
-        }
-
-        iMsg = super.process(iMsg);
-        if (iMsg == null) {
-            // respond nothing
-            return null;
-        }
-        if (iMsg.content instanceof HandshakeCommand) {
-            // urgent command
-            return iMsg;
-        }
-        /*
-        if (iMsg.content instanceof ReceiptCommand) {
-            ID receiver = getFacebook().getID(iMsg.envelope.receiver);
-            if (NetworkType.Station.equals(receiver.getType())) {
-                // no need to respond receipt to station
-                return null;
-            }
-        }
-         */
-        // normal response
-        sendMessage(iMsg, null, false);
-        // DON'T respond to station directly
-        return null;
     }
 
     /**
@@ -475,12 +272,6 @@ public class Messenger extends chat.dim.Messenger {
         return checking;
     }
 
-    public boolean queryGroupInfo(ID group, ID member) {
-        List<ID> array = new ArrayList<>();
-        array.add(member);
-        return queryGroupInfo(group, array);
-    }
-
     public boolean queryOnlineUsers() {
         Command cmd = new SearchCommand(SearchCommand.ONLINE_USERS);
         return sendCommand(cmd);
@@ -519,10 +310,6 @@ public class Messenger extends chat.dim.Messenger {
     static {
         // register CPUs
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
-        CommandProcessor.register(Command.RECEIPT, ReceiptCommandProcessor.class);
-
-        CommandProcessor.register(MuteCommand.MUTE, MuteCommandProcessor.class);
-        CommandProcessor.register(BlockCommand.BLOCK, BlockCommandProcessor.class);
 
         // storage (contacts, private_key)
         CommandProcessor.register(StorageCommand.STORAGE, StorageCommandProcessor.class);
@@ -531,8 +318,5 @@ public class Messenger extends chat.dim.Messenger {
 
         CommandProcessor.register(SearchCommand.SEARCH, SearchCommandProcessor.class);
         CommandProcessor.register(SearchCommand.ONLINE_USERS, SearchCommandProcessor.class);
-
-        // default content processor
-        ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);
     }
 }

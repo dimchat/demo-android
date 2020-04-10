@@ -29,6 +29,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':Client')
+    implementation project(':Common')
 
     implementation group: 'chat.dim', name: 'SDK', version: '0.3.12'
 

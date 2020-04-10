@@ -33,7 +33,6 @@ import java.util.Set;
 
 import chat.dim.ID;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.model.Facebook;
 
 public class AddressNameTable extends ExternalStorage {
 
@@ -145,8 +144,8 @@ public class AddressNameTable extends ExternalStorage {
         if (identifier.equals("*")) {
             return allKeys;
         }
-        Facebook facebook = Facebook.getInstance();
-        ID target = facebook.getID(identifier);
+        // FIXME: get ID by facebook
+        ID target = ID.getInstance(identifier);
         // get keys with the same value
         Set<String> keys = new HashSet<>();
         ID value;

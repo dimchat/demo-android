@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.model;
+package chat.dim.common;
 
 import java.util.Map;
 
