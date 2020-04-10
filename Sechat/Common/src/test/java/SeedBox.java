@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Random;
 
 /*!
@@ -17,10 +18,17 @@ public class SeedBox {
 
     public SeedBox() {
         super();
+        seed = new byte[SIZE];
         // init seed
         Random random = new Random();
-        seed = new byte[SIZE];
         random.nextBytes(seed);
+    }
+
+    public SeedBox(byte[] secret) {
+        super();
+        // copy secret seed
+        assert secret.length == SIZE : "secret error: " + Arrays.toString(secret);
+        seed = secret;
     }
 
     /**
@@ -32,14 +40,11 @@ public class SeedBox {
      * @return digest of secret random number
      */
     public byte[] getProof() {
-        byte[] digest = SHA256.digest(seed);
-        digest = SHA256.digest(digest);
-        return digest;
+        return SHA256.digest(SHA256.digest(seed));
     }
 
     public String getProofHex() {
-        byte[] proof = getProof();
-        return Hex.encode(proof);
+        return Hex.encode(getProof());
     }
 
     /**
@@ -51,7 +56,7 @@ public class SeedBox {
      * @param boxes - boxes with secret seeds
      * @return generated random number from secret seeds
      */
-    public static byte[] generate(SeedBox[] boxes) {
+    private static byte[] generate(SeedBox[] boxes) {
         int count = boxes.length;
         int length = SIZE * count;
         byte[] buffer = new byte[length];
@@ -60,10 +65,8 @@ public class SeedBox {
             SeedBox box = boxes[i];
             System.arraycopy(box.seed, 0, buffer, SIZE * i, SIZE);
         }
-        // X = hash(S)
-        byte[] digest = SHA256.digest(buffer);
-        digest = SHA256.digest(digest);
-        return digest;
+        // X = g(S)
+        return SHA256.digest(SHA256.digest(buffer));
     }
 
     /**
@@ -77,10 +80,25 @@ public class SeedBox {
      * @param i - position
      * @return result number
      */
-    public static int getResult(byte[] X, int i) {
+    private static int number(byte[] X, int i) {
         assert i < X.length : "generated random number error";
         int pos = X.length - 1 - i;
-        return X[pos] & 0x1F; // 0001 1111
+        int num = X[pos] & 0x1F; // 0001 1111
+        if (num == 0) {
+            num = 0x20; // 0010 0000
+        }
+        return num;
+    }
+
+    public static int[] getResults(SeedBox[] boxes) {
+        // 1. generate the "random" number with all seeds
+        byte[] X = generate(boxes);
+        // 2. get results
+        int[] res = new int[COUNT];
+        for (int i = 0; i < COUNT; ++i) {
+            res[i] = number(X, i);
+        }
+        return res;
     }
 
     /**
@@ -93,26 +111,24 @@ public class SeedBox {
         final int sp_count = 8;
         SeedBox[] boxes = new SeedBox[sp_count];
 
-        // 1. init
-        System.out.println(String.format(">>>> generate with %d service providers", sp_count));
+        // 1. generate random seed for each boxes
+        String s = String.format("\n==== generate with %d service providers ====", sp_count);
+        System.out.println(s);
         for (int i = 0; i < sp_count; ++i) {
             SeedBox box = new SeedBox();
             boxes[i] = box;
             System.out.println(String.format("box[%d]: %s", i, box.getProofHex()));
         }
 
-        // 2. generate random number
-        byte[] X = generate(boxes);
+        // 2. get random number from this boxes
+        int[] res = getResults(boxes);
 
-        // 3. get result
-        System.out.println(String.format("---- %d result numbers ----", COUNT));
-        for (int i = 0; i < COUNT; ++i) {
-            int res = getResult(X, i);
-            if (res == 0) {
-                res = 32;
-            }
-            System.out.println(String.format("result[%d]: %02d", i, res));
+        // show results
+        System.out.println("\n---- result numbers ----");
+        for (int num : res) {
+            System.out.print(String.format(" %02d ", num));
         }
+        System.out.println("\n---- result numbers ----");
     }
 
     static {
