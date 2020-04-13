@@ -30,7 +30,7 @@ import java.util.List;
 
 import chat.dim.Content;
 import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.common.Facebook;
 import chat.dim.protocol.AudioContent;
@@ -57,7 +57,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, InstantMessage iMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -85,13 +85,13 @@ public class AnyContentProcessor extends ContentProcessor {
             text = "Web page received";
         } else {
             // Other
-            return super.process(content, sender, iMsg);
+            return super.process(content, sender, rMsg);
         }
 
         // response
         Object group = content.getGroup();
         if (group == null) {
-            return new ReceiptCommand(text, content.serialNumber, iMsg.envelope);
+            return new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
         } else {
             // DON'T response group message for disturb reason
             return null;

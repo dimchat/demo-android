@@ -30,7 +30,7 @@ import java.util.Map;
 import chat.dim.Content;
 import chat.dim.Facebook;
 import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.Meta;
 import chat.dim.notification.NotificationCenter;
@@ -78,7 +78,7 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, InstantMessage iMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         assert content instanceof SearchCommand;
 
         parse((SearchCommand) content);

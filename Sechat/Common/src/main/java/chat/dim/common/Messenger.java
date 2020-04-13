@@ -51,7 +51,6 @@ import chat.dim.format.Base64;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
@@ -215,38 +214,13 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public InstantMessage process(InstantMessage iMsg) {
-        Content content = iMsg.content;
-        ID sender = getFacebook().getID(iMsg.envelope.sender);
-
+    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
-            suspendMessage(iMsg);
+            suspendMessage(rMsg);
             return null;
         }
-
-        iMsg = super.process(iMsg);
-        if (iMsg == null) {
-            // respond nothing
-            return null;
-        }
-        if (iMsg.content instanceof HandshakeCommand) {
-            // urgent command
-            return iMsg;
-        }
-        /*
-        if (iMsg.content instanceof ReceiptCommand) {
-            ID receiver = getFacebook().getID(iMsg.envelope.receiver);
-            if (NetworkType.Station.equals(receiver.getType())) {
-                // no need to respond receipt to station
-                return null;
-            }
-        }
-         */
-        // normal response
-        sendMessage(iMsg, null, false);
-        // DON'T respond to station directly
-        return null;
+        return super.process(content, sender, rMsg);
     }
 
     //-------- Send

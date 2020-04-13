@@ -30,7 +30,7 @@ import java.util.List;
 import chat.dim.Content;
 import chat.dim.Facebook;
 import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
@@ -137,7 +137,7 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, InstantMessage iMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         assert content instanceof StorageCommand;
         StorageCommand cmd = (StorageCommand) content;
         String title = cmd.title;

@@ -29,7 +29,7 @@ import java.util.List;
 
 import chat.dim.Content;
 import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
 
@@ -50,7 +50,7 @@ public class BlockCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, InstantMessage iMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         assert content instanceof BlockCommand;
         BlockCommand cmd = (BlockCommand) content;
         List list = cmd.getBlockCList();

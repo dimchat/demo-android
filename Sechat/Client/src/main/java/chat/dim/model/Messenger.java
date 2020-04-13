@@ -132,6 +132,39 @@ public class Messenger extends chat.dim.common.Messenger {
         // TODO: save this message in a queue waiting receiver's meta response
     }
 
+    @Override
+    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
+        Content res = super.process(content, sender, rMsg);
+        if (res == null) {
+            // respond nothing
+            return null;
+        }
+        if (res instanceof HandshakeCommand) {
+            // urgent command
+            return res;
+        }
+        /*
+        if (res instanceof ReceiptCommand) {
+            ID receiver = getFacebook().getID(rMsg.envelope.receiver);
+            if (NetworkType.Station.equals(receiver.getType())) {
+                // no need to respond receipt to station
+                return null;
+            }
+        }
+         */
+
+        // check receiver
+        ID receiver = getEntityDelegate().getID(rMsg.envelope.receiver);
+        User user = select(receiver);
+        assert user != null : "receiver error: " + receiver;
+        // pack message
+        InstantMessage iMsg = new InstantMessage(res, user.identifier, sender);
+        // normal response
+        sendMessage(iMsg, null, false);
+        // DON'T respond to station directly
+        return null;
+    }
+
     /**
      *  Pack and send command to station
      *
