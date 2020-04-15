@@ -40,7 +40,7 @@ public class ConversationTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dkd/*"
     private static String getMsgPath() {
-        return getPath() + "/dkd";
+        return root + separator + "dkd";
     }
 
     private boolean scanConversations() {

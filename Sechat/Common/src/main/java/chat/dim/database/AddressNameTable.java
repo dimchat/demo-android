@@ -41,7 +41,9 @@ public class AddressNameTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/ans.txt"
 
     private static String getAnsFilePath() {
-        return getPath() + "/dim/ans.txt";
+        return root + separator
+                + "dim" + separator
+                + "ans.txt";
     }
 
     private boolean cacheRecord(String name, ID identifier) {

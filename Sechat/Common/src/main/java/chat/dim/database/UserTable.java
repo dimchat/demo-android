@@ -39,7 +39,9 @@ public class UserTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/users.js"
 
     private static String getUsersFilePath() {
-        return getPath() + "/dim/users.js";
+        return root + separator
+                + "dim" + separator
+                + "users.js";
     }
 
     private boolean saveUsers() {

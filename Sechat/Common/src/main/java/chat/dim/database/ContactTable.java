@@ -40,7 +40,10 @@ public class ContactTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/mkm/{address}/contacts.js"
 
     private static String getContactsFilePath(ID user) {
-        return getPath() + "/mkm/" + user.address + "/contacts.js";
+        return root + separator
+                + "mkm" + separator
+                + user.address + separator
+                + "contacts.js";
     }
 
     @SuppressWarnings("unchecked")

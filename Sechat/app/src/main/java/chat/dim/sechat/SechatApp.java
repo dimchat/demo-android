@@ -3,7 +3,6 @@ package chat.dim.sechat;
 import android.app.Application;
 import android.os.Environment;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +38,6 @@ public class SechatApp extends Application {
         };
 
         String path = Environment.getExternalStorageDirectory().getPath();
-        ExternalStorage.setPath(path + File.separatorChar + "chat.dim.sechat");
+        ExternalStorage.root = path + ExternalStorage.separator + "chat.dim.sechat";
     }
 }

@@ -37,7 +37,10 @@ public class StationTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/stations.js"
 
     private static String getStationsFilePath(ID sp) {
-        return getPath() + "/dim/" + sp.address + "/stations.js";
+        return root + separator
+                + "dim" + separator
+                + sp.address + separator
+                + "stations.js";
     }
 
     public boolean saveStations(List<Map<String, Object>> stations, ID sp) {

@@ -44,7 +44,10 @@ public class PrivateTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
 
     private String getKeyFilePath(Address address) {
-        return getPath() + "/.private/" + address + "/secret.js";
+        return root + separator
+                + ".private" + separator
+                + address + separator
+                + "secret.js";
     }
 
     private PrivateKey loadKey(Address address) {

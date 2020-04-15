@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.CompletionHandler;
-import chat.dim.ConnectionDelegate;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.MessengerDelegate;
@@ -60,7 +59,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public Star star = null;
 
     public StationDelegate delegate;
-    public ConnectionDelegate messenger;
 
     public Server(ID identifier, String host, int port) {
         super(identifier, host, port);
@@ -216,7 +214,8 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void onReceive(byte[] responseData, Star star) {
         byte[] response;
         try {
-            response = messenger.onReceivePackage(responseData);
+            Messenger messenger = Messenger.getInstance();
+            response = messenger.processPackage(responseData);
         } catch (NullPointerException e) {
             e.printStackTrace();
             response = null;

@@ -37,7 +37,10 @@ public class ProviderTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
     private String getConfigFilePath(ID sp) {
-        return getPath() + "/dim/" + sp.address + "/config.js";
+        return root + separator
+                + "dim" + separator
+                + sp.address + separator
+                + "config.js";
     }
 
     @SuppressWarnings("unchecked")
@@ -59,7 +62,9 @@ public class ProviderTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dim/service_providers.js"
 
     private static String getProvidersFilePath() {
-        return getPath() + "/dim/service_providers.js";
+        return root + separator
+                + "dim" + separator
+                + "service_providers.js";
     }
 
     @SuppressWarnings("unchecked")

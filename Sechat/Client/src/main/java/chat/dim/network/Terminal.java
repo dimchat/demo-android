@@ -69,7 +69,6 @@ public class Terminal implements StationDelegate {
 
     protected void setCurrentServer(Server server) {
         server.delegate = this;
-        server.messenger = messenger;
         messenger.server = server;
         messenger.setContext("server", server);
         currentServer = server;

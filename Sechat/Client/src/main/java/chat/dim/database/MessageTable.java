@@ -43,7 +43,10 @@ public class MessageTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
 
     private static String getMsgFilePath(ID entity) {
-        return getPath() + "/dkd/" + entity.address + "/messages.js";
+        return root + separator
+                + "dkd" + separator
+                + entity.address + separator
+                + "messages.js";
     }
 
     private List cacheMessages(Object array, ID entity) {
