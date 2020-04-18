@@ -123,7 +123,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         star.send(data);
     }
 
-    public void handshakeAccepted(String newSession, boolean success) {
+    public void handshakeAccepted(String sessionKey, boolean success) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
         if (!state.name.equals(StateMachine.handshakingState)) {
@@ -131,12 +131,14 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
         if (success) {
             Log.info("handshake accepted for user: " + currentUser);
-            session = newSession;
+            session = sessionKey;
+            // call client
+            delegate.onHandshakeAccepted(sessionKey, this);
             // TODO: broadcast profile to DIM network
             // TODO: post notification "HandshakeAccepted"
         } else {
             // new session key from station
-            Log.info("handshake again with session: " + newSession);
+            Log.info("handshake again with session: " + sessionKey);
         }
     }
 
@@ -212,17 +214,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public void onReceive(byte[] responseData, Star star) {
-        byte[] response;
-        try {
-            Messenger messenger = Messenger.getInstance();
-            response = messenger.processPackage(responseData);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            response = null;
-        }
-        if (response != null && response.length > 0) {
-            star.send(response);
-        }
+        delegate.onReceivePackage(responseData, this);
     }
 
     @Override

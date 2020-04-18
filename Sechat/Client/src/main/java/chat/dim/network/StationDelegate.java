@@ -33,6 +33,14 @@ package chat.dim.network;
 public interface StationDelegate {
 
     /**
+     *  Received a new data package from the station
+     *
+     * @param data - data package received
+     * @param server - current station
+     */
+    void onReceivePackage(byte[] data, Station server);
+
+    /**
      *  Send data package to station success
      *
      * @param data - data package sent
@@ -48,4 +56,12 @@ public interface StationDelegate {
      * @param server - current station
      */
     void didFailToSendPackage(Error error, byte[] data, Station server);
+
+    /**
+     *  Callback for handshake accepted
+     *
+     * @param session - new session key
+     * @param server - current station
+     */
+    void onHandshakeAccepted(String session, Station server);
 }

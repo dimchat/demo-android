@@ -25,6 +25,8 @@
  */
 package chat.dim.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,8 @@ import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
 import chat.dim.database.StationTable;
+import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 
 public class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
@@ -105,6 +109,42 @@ public class NetworkDatabase {
         return stationTable.saveStations(stations, sp);
     }
 
+    /**
+     *  Resource Loader for built-in accounts
+     */
+    private static class ResourceLoader {
+
+        static Map loadJSON(String filename) throws IOException {
+            byte[] data = loadData(filename);
+            return (Map) JSON.decode(data);
+        }
+
+        private static String loadText(String filename) throws IOException {
+            byte[] data = loadData(filename);
+            return UTF8.decode(data);
+        }
+
+        private static byte[] loadData(String filename) throws IOException {
+            InputStream is = ResourceLoader.class.getClassLoader().getResourceAsStream(filename);
+            assert is != null : "failed to get resource: " + filename;
+            int size = is.available();
+            byte[] data = new byte[size];
+            int len = is.read(data, 0, size);
+            assert len == size : "reading resource error: " + len + " != " + size;
+            return data;
+        }
+    }
+
+    private static Meta loadMeta(ID identifier) {
+        try {
+            Map meta = ResourceLoader.loadJSON(identifier.address + "/meta.js");
+            return Meta.getInstance(meta);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     static {
 
         NetworkDatabase database = NetworkDatabase.getInstance();
@@ -128,28 +168,12 @@ public class NetworkDatabase {
         int port = 9394;
 
         // station ID
-        ID stationID = ID.getInstance("gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
+//        ID stationID = ID.getInstance("gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
+        ID stationID = ID.getInstance("gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW");
 
-        // station meta
-        Map<String, Object> keyDict = new HashMap<>();
-        keyDict.put("algorithm", "RSA");
-        keyDict.put("data", "-----BEGIN PUBLIC KEY-----\n" +
-                "MIGJAoGBAMRPt+8u6lQFRzoibAl6MKiXJuqtT5jo/CIIqFuUZvBWpu9qkPYDWGMS7gS0vqabe/uF\n" +
-                "yCw7cN/ff9KFG5roZb38lBUMt93Oct+5ODzDlSD53Kwl9uuYHUbuduoNgTJdBc1FalCwsdhIP+KF\n" +
-                "pIpY2c65XRzuJ4kTNACn74753dZRAgMBAAE\n" +
-                "-----END PUBLIC KEY-----\n");
-        Map<String, Object> metaDict = new HashMap<>();
-        metaDict.put("version", 1);
-        metaDict.put("seed", "gsp-s001");
-        metaDict.put("key", keyDict);
-        metaDict.put("fingerprint", "R+Bv3RlVi8pNuVWDJ8uEp+N3l+B04ftlaNFxo7u8+V6eSQsQJNv7tfQNFdC633UpXDw3zZHvQNnkUBwthaCJTbEmy2CYqMSx/BLuaS7spkSZJJAT7++xqif+pRjdw9yM/aPufKHS4PAvGec21PsUpQzOV5TQFyF5CDEDVLC8HVY=");
-        try {
-            Meta meta = Meta.getInstance(metaDict);
-            Facebook facebook = Facebook.getInstance();
-            facebook.saveMeta(meta, stationID);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Meta meta = loadMeta(stationID);
+        Facebook facebook = Facebook.getInstance();
+        facebook.saveMeta(meta, stationID);
 
         // station config
         Map<String, Object> srvConfig = new HashMap<>();

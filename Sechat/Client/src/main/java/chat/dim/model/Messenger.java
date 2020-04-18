@@ -184,7 +184,7 @@ public class Messenger extends chat.dim.common.Messenger {
      */
     public boolean broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
-        return sendContent(content, ID.ANYONE, null, false);
+        return sendContent(content, ID.EVERYONE, null, false);
     }
 
     public void broadcastProfile(Profile profile) {

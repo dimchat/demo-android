@@ -161,6 +161,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         // get key data
         byte[] data = key.getData();
         if (data == null || data.length < 6) {
+            // broadcast message has no key
             return;
         }
         // get digest

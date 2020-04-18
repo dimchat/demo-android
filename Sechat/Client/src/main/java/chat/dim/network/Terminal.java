@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.LoginCommand;
 
 public class Terminal implements StationDelegate {
 
@@ -198,6 +200,20 @@ public class Terminal implements StationDelegate {
     //---- StationDelegate
 
     @Override
+    public void onReceivePackage(byte[] data, Station server) {
+        byte[] response;
+        try {
+            response = messenger.processPackage(data);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            response = null;
+        }
+        if (response != null && response.length > 0) {
+            currentServer.star.send(response);
+        }
+    }
+
+    @Override
     public void didSendPackage(byte[] data, Station server) {
         // TODO: mark it sent
     }
@@ -205,5 +221,27 @@ public class Terminal implements StationDelegate {
     @Override
     public void didFailToSendPackage(Error error, byte[] data, Station server) {
         // TODO: resend it
+    }
+
+    @Override
+    public void onHandshakeAccepted(String session, Station server) {
+        User user = getCurrentUser();
+        assert user != null : "current user not found";
+        // post current profile to station
+        Profile profile = user.getProfile();
+        if (profile != null) {
+            messenger.postProfile(profile);
+        }
+        // post contacts(encrypted) to station
+        List<ID> contacts = user.getContacts();
+        if (contacts != null && contacts.size() > 0) {
+            messenger.postContacts(contacts);
+        }
+        // broadcast login command
+        LoginCommand login = new LoginCommand(user.identifier);
+        login.setAgent(getUserAgent());
+        login.setStation(server);
+        // TODO: set provider
+        messenger.broadcastContent(login);
     }
 }
