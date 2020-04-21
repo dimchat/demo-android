@@ -19,7 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
         // get extra info
         String string = getIntent().getStringExtra("ID");
         ID identifier = facebook.getID(string);
-        assert identifier.isValid();
+        assert identifier.isValid() : "ID error: " + identifier;
         setTitle(facebook.getNickname(identifier));
 
         if (savedInstanceState == null) {

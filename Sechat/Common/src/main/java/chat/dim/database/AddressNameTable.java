@@ -93,7 +93,7 @@ public class AddressNameTable extends ExternalStorage {
         ID identifier;
         for (String name : allKeys) {
             identifier = caches.get(name);
-            assert identifier != null;
+            assert identifier != null : "ID not found for name: " + name;
             text.append(name);
             text.append("\t");
             text.append(identifier.toString());

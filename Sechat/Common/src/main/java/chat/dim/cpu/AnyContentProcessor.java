@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.Content;
 import chat.dim.ID;
@@ -37,8 +38,8 @@ import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
-import chat.dim.protocol.HistoryCommand;
 import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.PageContent;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.TextContent;
@@ -77,25 +78,30 @@ public class AnyContentProcessor extends ContentProcessor {
             }
         } else if (content instanceof TextContent) {
             // Text
-            assert content.get("text") != null;
+            assert content.get("text") != null : "text content error: " + content;
             text = "Text message received";
         } else if (content instanceof PageContent) {
             // Web page
-            assert content.get("URL") != null;
+            assert content.get("URL") != null : "page content error: " + content;
             text = "Web page received";
         } else {
-            // Other
-            return super.process(content, sender, rMsg);
+            text = "Content (type: " + content.type + ") not support yet!";
+            TextContent res = new TextContent(text);
+            Object group = content.getGroup();
+            if (group != null) {
+                res.setGroup(group);
+            }
+            return res;
         }
 
-        // response
         Object group = content.getGroup();
-        if (group == null) {
-            return new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
-        } else {
+        if (group != null) {
             // DON'T response group message for disturb reason
             return null;
         }
+
+        // response
+        return new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
     }
 
     //
@@ -103,57 +109,76 @@ public class AnyContentProcessor extends ContentProcessor {
     //
 
     public static String getContentText(Content content) {
-        // File: Image, Audio, Video
-        if (content instanceof FileContent) {
+        String text = (String) content.get("text");
+        if (text != null) {
+            return text;
+        }
+        if (content instanceof TextContent) {
+            // Text
+            return ((TextContent) content).getText();
+        } else if (content instanceof FileContent) {
+            // File: Image, Audio, Video
             if (content instanceof ImageContent) {
                 ImageContent image = (ImageContent) content;
-                return String.format("[Image:%s]", image.getFilename());
-            }
-            if (content instanceof AudioContent) {
+                text = String.format("[Image:%s]", image.getFilename());
+            } else if (content instanceof AudioContent) {
                 AudioContent audio = (AudioContent) content;
-                return String.format("[Voice:%s]", audio.getFilename());
-            }
-            if (content instanceof VideoContent) {
+                text = String.format("[Voice:%s]", audio.getFilename());
+            } else if (content instanceof VideoContent) {
                 VideoContent video = (VideoContent) content;
-                return String.format("[Movie:%s]", video.getFilename());
+                text = String.format("[Movie:%s]", video.getFilename());
+            } else {
+                FileContent file = (FileContent) content;
+                text = String.format("[File:%s]", file.getFilename());
             }
-            FileContent file = (FileContent) content;
-            return String.format("[File:%s]", file.getFilename());
-        }
-        // Text
-        if (content instanceof TextContent) {
-            TextContent text = (TextContent) content;
-            return text.getText();
-        }
-        // Web page
-        if (content instanceof PageContent) {
+        } else if (content instanceof PageContent) {
+            // Web page
             PageContent page = (PageContent) content;
-            return String.format("[URL:%s]", page.getURL());
+            text = String.format("[URL:%s]", page.getURL());
+        } else {
+            text = String.format("Current version doesn't support this message type: %s", content.type);
         }
-        return String.format("Current version doesn't support this message type: %s", content.type);
+        // store message text
+        content.put("text", text);
+        return text;
     }
 
     public static String getCommandText(Command cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
         if (cmd instanceof GroupCommand) {
-            return MessageBuilder.getGroupCommandText((GroupCommand) cmd, commander);
-        }
-        if (cmd instanceof HistoryCommand) {
+            text = MessageBuilder.getGroupCommandText((GroupCommand) cmd, commander);
+        //} else if (cmd instanceof HistoryCommand) {
             // TODO: process history command
+        } else if (cmd instanceof LoginCommand) {
+            text = MessageBuilder.getLoginCommandText((LoginCommand) cmd, commander);
+        } else {
+            text = String.format("Current version doesn't support this command: %s", cmd.command);
         }
-
-        return String.format("Current version doesn't support this command: %s", cmd.command);
+        // store message text
+        cmd.put("text", text);
+        return text;
     }
+
+    public static Facebook facebook = null;
 }
 
 class MessageBuilder {
 
-    public static Facebook facebook = null;
-
     private static String getUsername(Object string) {
-        return facebook.getUsername(string);
+        return AnyContentProcessor.facebook.getUsername(string);
     }
 
     //-------- System commands
+
+    static String getLoginCommandText(LoginCommand cmd, ID commander) {
+        assert commander != null : "commander error";
+        Object identifier = cmd.getIdentifier();
+        Map<String, Object> station = cmd.getStation();
+        return String.format("%s login: %s", getUsername(identifier), station);
+    }
 
     //...
 
@@ -179,10 +204,6 @@ class MessageBuilder {
     }
 
     private static String getInviteCommandText(InviteCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
         List addedList = (List) cmd.get("added");
         if (addedList == null || addedList.size() == 0) {
             return null;
@@ -192,17 +213,10 @@ class MessageBuilder {
             names.add(getUsername(item));
         }
         String string = StringUtils.join(names, ", ");
-
-        text = String.format("%s has invited members: %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
+        return String.format("%s has invited members: %s", getUsername(commander), string);
     }
 
     private static String getExpelCommandText(ExpelCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
         List removedList = (List) cmd.get("removed");
         if (removedList == null || removedList.size() == 0) {
             return null;
@@ -212,28 +226,15 @@ class MessageBuilder {
             names.add(getUsername(item));
         }
         String string = StringUtils.join(names, ", ");
-
-        text = String.format("%s has removed members: %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
+        return String.format("%s has removed members: %s", getUsername(commander), string);
     }
 
     private static String getQuitCommandText(QuitCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-
-        text = String.format("%s has quit group chat.", getUsername(commander));
-        cmd.put("text", text);
-        return text;
+        assert cmd.getGroup() != null : "quit command error: " + cmd;
+        return String.format("%s has quit group chat.", getUsername(commander));
     }
 
     private static String getResetCommandText(ResetCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
         List addedList = (List) cmd.get("added");
         List removedList = (List) cmd.get("removed");
 
@@ -252,20 +253,11 @@ class MessageBuilder {
             }
             string = string + ", added: " + StringUtils.join(names, ", ");
         }
-
-        text = String.format("%s has updated members %s", getUsername(commander), string);
-        cmd.put("text", text);
-        return text;
+        return String.format("%s has updated members %s", getUsername(commander), string);
     }
 
     private static String getQueryCommandText(QueryCommand cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-
-        text = String.format("%s was querying group info, responding...", getUsername(commander));
-        cmd.put("text", text);
-        return text;
+        assert cmd.getGroup() != null : "quit command error: " + cmd;
+        return String.format("%s was querying group info, responding...", getUsername(commander));
     }
 }

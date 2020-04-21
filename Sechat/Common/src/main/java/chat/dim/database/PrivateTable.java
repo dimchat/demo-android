@@ -94,7 +94,7 @@ public class PrivateTable extends ExternalStorage {
         PrivateKey key = getPrivateKeyForSignature(user);
         if (key != null) {
             // TODO: support profile.key
-            assert key instanceof DecryptKey;
+            assert key instanceof DecryptKey : "private key error: " + key;
             keys.add((DecryptKey) key);
         }
         return keys;

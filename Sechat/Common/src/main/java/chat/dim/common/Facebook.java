@@ -202,7 +202,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public String getNickname(ID identifier) {
-        assert identifier.isUser();
+        assert identifier.isUser() : "ID error: " + identifier;
         Profile profile = getProfile(identifier);
         return profile == null ? null : profile.getName();
     }

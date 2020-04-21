@@ -48,7 +48,7 @@ public class ContactTable extends ExternalStorage {
 
     @SuppressWarnings("unchecked")
     private List<ID> loadContacts(ID user) {
-        assert user != current;
+        assert user != current : "user error: " + user;
         // reading contacts file in the user's directory
         String path = getContactsFilePath(user);
         List<String> array;
@@ -67,7 +67,7 @@ public class ContactTable extends ExternalStorage {
         for (String item : array) {
             // FIXME: get ID by facebook
             contact = ID.getInstance(item);
-            assert contact.isValid();
+            assert contact.isValid() : "contact error: " + item;
             if (contacts.contains(contact)) {
                 continue;
             }
@@ -91,7 +91,7 @@ public class ContactTable extends ExternalStorage {
     }
 
     public List<ID> getContacts(ID user) {
-        assert user != null;
+        assert user != null : "user ID empty";
         if (user != current) {
             // user switched, clear contacts
             contactList = null;

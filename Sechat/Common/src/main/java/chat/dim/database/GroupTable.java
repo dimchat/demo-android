@@ -65,7 +65,7 @@ public class GroupTable extends ExternalStorage {
         for (String item : array) {
             // FIXME: get ID by facebook
             member = ID.getInstance(item);
-            assert member.isValid();
+            assert member.isValid() : "member error: " + item;
             if (memberList.contains(member)) {
                 continue;
             }
@@ -131,7 +131,7 @@ public class GroupTable extends ExternalStorage {
     }
 
     public boolean saveMembers(List<ID> members, ID group) {
-        assert members.size() > 0;
+        assert members.size() > 0 : "group members list empty";
         membersMap.put(group, members);
         return saveMembers(group);
     }

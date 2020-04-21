@@ -143,7 +143,7 @@ public class Register {
         return generateMeta("anonymous");
     }
     public Meta generateMeta(String seed) {
-        assert privateKey != null;
+        assert privateKey != null : "private key not found";
         try {
             return Meta.generate(MetaType.Default, privateKey, seed);
         } catch (ClassNotFoundException e) {
@@ -159,7 +159,7 @@ public class Register {
         return generateID(meta, network);
     }
     public ID generateID(Meta meta, NetworkType type) {
-        assert meta != null;
+        assert meta != null : "meta not found";
         return meta.generateID(type);
     }
 
@@ -170,8 +170,8 @@ public class Register {
         return createProfile(identifier, name, null);
     }
     public Profile createProfile(ID identifier, String name, String avatarUrl) {
-        assert identifier != null;
-        assert privateKey != null;
+        assert identifier != null : "ID error";
+        assert privateKey != null : "profile not found";
         Profile profile;
         if (identifier.isUser()) {
             profile = new UserProfile(identifier);
@@ -180,15 +180,15 @@ public class Register {
         }
         profile.setName(name);
         if (avatarUrl != null) {
-            assert profile instanceof UserProfile;
+            assert profile instanceof UserProfile : "profile error: " + profile;
             ((UserProfile) profile).setAvatar(avatarUrl);
         }
         profile.sign(privateKey);
         return profile;
     }
     public Profile createProfile(ID identifier, Map<String, Object> properties) {
-        assert identifier != null;
-        assert privateKey != null;
+        assert identifier != null : "ID error";
+        assert privateKey != null : "private key not found";
         Profile profile;
         if (identifier.isUser()) {
             profile = new UserProfile(identifier);
@@ -206,14 +206,14 @@ public class Register {
     //  Step 5. upload meta & profile for ID
     //
     public boolean upload(ID identifier, Meta meta, Profile profile) {
-        assert identifier != null;
+        assert identifier != null : "ID error";
         Command cmd;
         if (profile == null) {
-            assert meta.matches(identifier);
+            assert meta.matches(identifier) : "meta not match ID: " + identifier + ", " + meta;
             cmd = new MetaCommand(identifier, meta);
         } else {
-            assert identifier.equals(profile.getIdentifier());
-            assert profile.isValid();
+            assert identifier.equals(profile.getIdentifier()) : "profile ID error: " + profile;
+            assert profile.isValid() : "profile error: " + profile;
             cmd = new ProfileCommand(identifier, meta, profile);
         }
         Messenger messenger = Messenger.getInstance();

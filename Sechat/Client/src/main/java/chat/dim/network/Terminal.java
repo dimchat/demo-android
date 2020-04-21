@@ -46,8 +46,6 @@ public class Terminal implements StationDelegate {
 
     private Server currentServer = null;
 
-    private List<User> users = null;
-
     public Terminal() {
         super();
     }
@@ -84,7 +82,6 @@ public class Terminal implements StationDelegate {
         if (currentServer != null) {
             currentServer.setCurrentUser(user);
         }
-        // TODO: update users list
     }
 
     //--------

@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void startChat(ID identifier) {
-        assert getContext() != null;
+        assert getContext() != null : "fragment context error";
         Intent intent = new Intent();
         intent.setClass(getContext(), ChatboxActivity.class);
         intent.putExtra("ID", identifier.toString());

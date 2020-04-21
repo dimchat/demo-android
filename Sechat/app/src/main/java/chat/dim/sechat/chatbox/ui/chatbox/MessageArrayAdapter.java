@@ -34,9 +34,10 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        InstantMessage iMsg = getItem(position);
         View view;
         ViewHolder viewHolder;
+        InstantMessage iMsg = getItem(position);
+        assert iMsg != null : "failed to get message with position: " + position;
 
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(resId, null);
@@ -50,7 +51,6 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        assert iMsg != null;
         MsgType type = ChatboxViewModel.getType(iMsg, chatBox);
         if (MsgType.SENT == type) {
             viewHolder.leftLayout.setVisibility(View.GONE);

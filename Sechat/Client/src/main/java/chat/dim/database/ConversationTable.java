@@ -44,7 +44,7 @@ public class ConversationTable extends ExternalStorage {
     }
 
     private boolean scanConversations() {
-        assert conversationList == null;
+        assert conversationList == null : "conversations not found";
         conversationList = new ArrayList<>();
         // scan 'message.js' in sub dirs of 'dkd'
         String path = getMsgPath();

@@ -134,8 +134,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             session = sessionKey;
             // call client
             delegate.onHandshakeAccepted(sessionKey, this);
-            // TODO: broadcast profile to DIM network
-            // TODO: post notification "HandshakeAccepted"
         } else {
             // new session key from station
             Log.info("handshake again with session: " + sessionKey);

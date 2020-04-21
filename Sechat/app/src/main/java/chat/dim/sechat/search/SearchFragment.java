@@ -40,7 +40,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
         dummyList = new DummyContent();
         Listener listener = (Listener<DummyContent.Item>) item -> {
             ID identifier = item.getIdentifier();
-            assert getContext() != null;
+            assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
             intent.setClass(getContext(), ProfileActivity.class);
             intent.putExtra("ID", identifier.toString());
@@ -77,7 +77,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
 
         View usersView = view.findViewById(R.id.search_user_list);
         // Set the adapter
-        assert usersView instanceof RecyclerView;
+        assert usersView instanceof RecyclerView : "recycler view error: " + usersView;
         bindRecyclerView((RecyclerView) usersView);
 
         searchView = view.findViewById(R.id.search_box);

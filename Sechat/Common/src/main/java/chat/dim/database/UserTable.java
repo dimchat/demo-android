@@ -45,7 +45,7 @@ public class UserTable extends ExternalStorage {
     }
 
     private boolean saveUsers() {
-        assert userList != null;
+        assert userList != null : "users list empty";
         // save into storage
         String path = getUsersFilePath();
         try {
@@ -57,7 +57,7 @@ public class UserTable extends ExternalStorage {
     }
 
     private boolean loadUsers() {
-        assert userList == null;
+        assert userList == null : "users list already loaded";
         userList = new ArrayList<>();
         // loading from storage
         String path = getUsersFilePath();

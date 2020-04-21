@@ -51,7 +51,7 @@ public class BlockCommandProcessor extends CommandProcessor {
 
     @Override
     public Content process(Content content, ID sender, ReliableMessage rMsg) {
-        assert content instanceof BlockCommand;
+        assert content instanceof BlockCommand : "block command error: " + content;
         BlockCommand cmd = (BlockCommand) content;
         List list = cmd.getBlockCList();
         if (list == null) {

@@ -28,7 +28,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         dummyList = new DummyContent();
         Listener listener = (Listener<DummyContent.Item>) item -> {
             ID identifier = item.getIdentifier();
-            assert getContext() != null;
+            assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
             intent.setClass(getContext(), ChatboxActivity.class);
             intent.putExtra("ID", identifier.toString());
@@ -46,7 +46,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         View view = inflater.inflate(R.layout.fragment_conversation_list, container, false);
 
         // Set the adapter
-        assert view instanceof RecyclerView;
+        assert view instanceof RecyclerView : "recycler view error: " + view;
         bindRecyclerView((RecyclerView) view);
 
         return view;

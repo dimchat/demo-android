@@ -26,7 +26,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
         dummyList = new DummyContent();
         Listener listener = (Listener<DummyContent.Item>) item -> {
             ID identifier = item.getIdentifier();
-            assert getContext() != null;
+            assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
             intent.setClass(getContext(), ProfileActivity.class);
             intent.putExtra("ID", identifier.toString());
@@ -44,7 +44,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
 
         // Set the adapter
-        assert view instanceof RecyclerView;
+        assert view instanceof RecyclerView : "recycler view error: " + view;
         bindRecyclerView((RecyclerView) view);
 
         return view;

@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2020 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,48 +25,30 @@
  */
 package chat.dim.cpu;
 
+import java.util.Map;
+
 import chat.dim.Content;
 import chat.dim.ID;
-import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
-import chat.dim.network.Server;
-import chat.dim.protocol.HandshakeCommand;
-import chat.dim.utils.Log;
+import chat.dim.ReliableMessage;
+import chat.dim.protocol.LoginCommand;
 
-public class HandshakeCommandProcessor extends CommandProcessor {
+public class LoginCommandProcessor extends CommandProcessor {
 
-    public HandshakeCommandProcessor(Messenger messenger) {
+    public LoginCommandProcessor(Messenger messenger) {
         super(messenger);
-    }
-
-    private Content success() {
-        Log.info("handshake success!");
-        String sessionKey = (String) getContext("session_key");
-        Server server = (Server) getContext("server");
-        server.handshakeAccepted(sessionKey, true);
-        return null;
-    }
-
-    private Content restart(String sessionKey) {
-        Log.info("handshake again, session key: " + sessionKey);
-        setContext("session_key", sessionKey);
-        return new HandshakeCommand(sessionKey);
     }
 
     @Override
     public Content process(Content content, ID sender, ReliableMessage rMsg) {
-        assert content instanceof HandshakeCommand : "handshake command error: " + content;
-        HandshakeCommand cmd = (HandshakeCommand) content;
-        String message = cmd.message;
-        if ("DIM!".equals(message)) {
-            // S -> C
-            return success();
-        } else if ("DIM?".equals(message)) {
-            // S -> C
-            return restart(cmd.sessionKey);
-        } else {
-            // C -> S: Hello world!
-            throw new IllegalStateException("handshake command error: " + content);
-        }
+        assert content instanceof LoginCommand : "login command error: " + content;
+        LoginCommand cmd = (LoginCommand) content;
+
+        Object identifier = cmd.getIdentifier();
+        Map<String, Object> station = cmd.getStation();
+        // TODO: update contact's login status
+
+        // no need to response login command
+        return null;
     }
 }

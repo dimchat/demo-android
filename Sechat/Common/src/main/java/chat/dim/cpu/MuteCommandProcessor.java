@@ -51,7 +51,7 @@ public class MuteCommandProcessor extends CommandProcessor {
 
     @Override
     public Content process(Content content, ID sender, ReliableMessage rMsg) {
-        assert content instanceof MuteCommand;
+        assert content instanceof MuteCommand : "mute command error: " + content;
         MuteCommand cmd = (MuteCommand) content;
         List list = cmd.getMuteList();
         if (list == null) {

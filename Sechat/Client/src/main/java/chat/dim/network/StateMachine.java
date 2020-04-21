@@ -161,7 +161,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(connectedState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null && server.getCurrentUser() != null;
+                assert server != null && server.getCurrentUser() != null : "server/user error";
                 StarStatus status = server.getStatus();
                 return status == StarStatus.Connected;
             }
@@ -171,7 +171,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 StarStatus status = server.getStatus();
                 return status == StarStatus.Error;
             }
@@ -187,7 +187,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(handshakingState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 return server.getCurrentUser() != null;
             }
         });
@@ -202,7 +202,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(runningState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 // when current user changed, the server will clear this session, so
                 // if it's set again, it means handshake accepted
                 return server.session != null;
@@ -213,7 +213,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Connected;
             }
@@ -229,7 +229,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(errorState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Connected;
             }
@@ -239,7 +239,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(defaultState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 // user switched?
                 return server.session == null;
             }
@@ -255,7 +255,7 @@ class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(defaultState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null;
+                assert server != null : "server error";
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Error;
             }

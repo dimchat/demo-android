@@ -48,6 +48,8 @@ public class ConversationDatabase implements ConversationDataSource {
     private ConversationDatabase() {
         super();
         Amanuensis.getInstance().database = this;
+
+        AnyContentProcessor.facebook = Facebook.getInstance();
     }
 
     // constants

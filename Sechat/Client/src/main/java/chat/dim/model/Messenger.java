@@ -172,7 +172,7 @@ public class Messenger extends chat.dim.common.Messenger {
      * @return true on success
      */
     public boolean sendCommand(Command cmd) {
-        assert server != null;
+        assert server != null : "server not connect yet";
         return sendContent(cmd, server.identifier, null, false);
     }
 
@@ -194,7 +194,7 @@ public class Messenger extends chat.dim.common.Messenger {
             throw new IllegalStateException("login first");
         }
         ID identifier = getFacebook().getID(profile.getIdentifier());
-        assert identifier.equals(user.identifier);
+        assert identifier.equals(user.identifier) : "profile error: " + profile;
         // pack and send profile to every contact
         Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
@@ -215,7 +215,7 @@ public class Messenger extends chat.dim.common.Messenger {
 
     public boolean postContacts(List<ID> contacts) {
         User user = getFacebook().getCurrentUser();
-        assert user != null;
+        assert user != null : "current user empty";
         // 1. generate password
         SymmetricKey password;
         try {
@@ -240,7 +240,7 @@ public class Messenger extends chat.dim.common.Messenger {
 
     public boolean queryContacts() {
         User user = getFacebook().getCurrentUser();
-        assert user != null;
+        assert user != null : "current user empty";
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
         cmd.setIdentifier(user.identifier);
         return sendCommand(cmd);
@@ -316,7 +316,7 @@ public class Messenger extends chat.dim.common.Messenger {
     }
 
     public boolean login(User user) {
-        assert server != null;
+        assert server != null : "server not connect yet";
         if (user == null) {
             user = getFacebook().getCurrentUser();
             if (user == null) {

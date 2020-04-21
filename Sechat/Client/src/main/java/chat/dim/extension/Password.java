@@ -88,8 +88,7 @@ public final class Password {
         Log.info("key1: " + key1);
         Log.info("key2: " + key2);
 
-        assert key1 != null;
-        if (!key1.equals(key2)) {
+        if (key1 == null || !key1.equals(key2)) {
             throw new AssertionError("keys not equals: " + key1 + ", " + key2);
         }
 
