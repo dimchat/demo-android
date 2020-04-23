@@ -25,6 +25,9 @@
  */
 package chat.dim.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -66,5 +69,16 @@ public class Facebook extends chat.dim.common.Facebook {
         Messenger messenger = Messenger.getInstance();
         messenger.queryProfile(identifier);
         return null;
+    }
+
+    @Override
+    public List<ID> getAssistants(ID group) {
+        List<ID> assistants = new ArrayList<>();
+        // dev
+        assistants.add(getID("assistant@2PpB6iscuBjA15oTjAsiswoX9qis5V3c1Dq"));
+        // desktop.dim.chat
+        assistants.add(getID("assistant@4WBSiDzg9cpZGPqFrQ4bHcq4U5z9QAQLHS"));
+        return assistants;
+        //return super.getAssistants(group);
     }
 }

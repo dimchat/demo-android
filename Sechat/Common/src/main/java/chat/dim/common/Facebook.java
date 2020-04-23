@@ -65,7 +65,6 @@ public class Facebook extends chat.dim.Facebook {
                 return ansTable.saveRecord(name, identifier);
             }
         };
-        setANS(ans);
     }
 
     public static long EXPIRES = 3600;  // profile expires (1 hour)
@@ -123,6 +122,16 @@ public class Facebook extends chat.dim.Facebook {
     public boolean removeUser(ID user) {
         users = null;
         return userTable.removeUser(user);
+    }
+
+    @Override
+    protected ID createID(String string) {
+        // try ANS record
+        ID identifier = ans.identifier(string);
+        if (identifier != null) {
+            return identifier;
+        }
+        return super.createID(string);
     }
 
     //-------- Contacts
@@ -342,5 +351,18 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public List<ID> getMembers(ID group) {
         return groupTable.getMembers(group);
+    }
+
+    @Override
+    public List<ID> getAssistants(ID group) {
+        assert group.isGroup() : "group ID error: " + group;
+        // try ANS record
+        ID identifier = ans.identifier("assistant");
+        if (identifier == null) {
+            return null;
+        }
+        List<ID> assistants = new ArrayList<>();
+        assistants.add(identifier);
+        return assistants;
     }
 }
