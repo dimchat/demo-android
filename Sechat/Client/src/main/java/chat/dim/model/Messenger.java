@@ -160,7 +160,7 @@ public class Messenger extends chat.dim.common.Messenger {
         // pack message
         InstantMessage iMsg = new InstantMessage(res, user.identifier, sender);
         // normal response
-        sendMessage(iMsg, null, false);
+        sendMessage(iMsg, null);
         // DON'T respond to station directly
         return null;
     }
@@ -173,7 +173,7 @@ public class Messenger extends chat.dim.common.Messenger {
      */
     public boolean sendCommand(Command cmd) {
         assert server != null : "server not connect yet";
-        return sendContent(cmd, server.identifier, null, false);
+        return sendContent(cmd, server.identifier, null);
     }
 
     /**
@@ -184,7 +184,7 @@ public class Messenger extends chat.dim.common.Messenger {
      */
     public boolean broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
-        return sendContent(content, ID.EVERYONE, null, false);
+        return sendContent(content, ID.EVERYONE, null);
     }
 
     public void broadcastProfile(Profile profile) {
@@ -199,7 +199,7 @@ public class Messenger extends chat.dim.common.Messenger {
         Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
         for (ID contact : contacts) {
-            sendContent(cmd, contact, null, false);
+            sendContent(cmd, contact, null);
         }
     }
 
@@ -298,7 +298,7 @@ public class Messenger extends chat.dim.common.Messenger {
         Command cmd = new QueryCommand(group);
         boolean checking = false;
         for (ID user : members) {
-            if (sendContent(cmd, user, null, false)) {
+            if (sendContent(cmd, user, null)) {
                 checking = true;
             }
         }

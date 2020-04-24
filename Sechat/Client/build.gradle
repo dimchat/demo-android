@@ -5,7 +5,7 @@ dependencies {
 
     implementation project(':Common')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.4.1'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.4.2'
 }
 
 sourceCompatibility = "7"

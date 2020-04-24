@@ -85,14 +85,14 @@ public class GroupManager {
             return false;
         }
         // let group assistant to split and deliver this message to all members
-        return messenger.sendContent(content, group, null, false);
+        return messenger.sendContent(content, group, null);
     }
 
     private boolean sendGroupCommand(Command cmd, List<ID> members) {
         Messenger messenger = Messenger.getInstance();
         boolean ok = true;
         for (ID receiver : members) {
-            if (!messenger.sendContent(cmd, receiver, null, false)) {
+            if (!messenger.sendContent(cmd, receiver, null)) {
                 ok = false;
             }
         }
@@ -100,7 +100,7 @@ public class GroupManager {
     }
     private boolean sendGroupCommand(Command cmd, ID receiver) {
         Messenger messenger = Messenger.getInstance();
-        return messenger.sendContent(cmd, receiver, null, false);
+        return messenger.sendContent(cmd, receiver, null);
     }
 
     /**
