@@ -1,5 +1,6 @@
 package chat.dim.mtp;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +47,12 @@ public class Utils {
         //
         String content = (String) info.get("data");
         if (content != null) {
-            info.put("data", Base64.decode(content));
+            if (content.startsWith("{\"") && content.endsWith("\"}")) {
+                //noinspection CharsetObjectCanBeUsed
+                info.put("data", content.getBytes(Charset.forName("UTF-8")));
+            } else {
+                info.put("data", Base64.decode(content));
+            }
         }
         String signature = (String) info.get("signature");
         if (signature != null) {
@@ -55,7 +61,7 @@ public class Utils {
         // symmetric key, keys
         String key = (String) info.get("key");
         if (key == null) {
-            Map<String, String> keys = (Map<String, String>) info.get("keys");
+            Map<Object, String> keys = (Map<Object, String>) info.get("keys");
             if (keys != null) {
                 Data data = buildKeys(keys);
                 data = KEYS_PREFIX.concat(data);
@@ -170,11 +176,20 @@ public class Utils {
         return keys;
     }
 
-    private static Data buildKeys(Map<String, String> keys) {
+    private static Data buildKeys(Map<Object, String> keys) {
         MutableData data = new MutableData(512);
+        Object key;
         String id, base64;
-        for (Map.Entry<String, String> entry : keys.entrySet()) {
-            id = entry.getKey();
+        for (Map.Entry<Object, String> entry : keys.entrySet()) {
+            key = entry.getKey();
+            if (key instanceof ID) {
+                id = key.toString();
+            } else if (key instanceof String) {
+                id = (String) key;
+            } else {
+                assert key == null : "error key: " + key;
+                continue;
+            }
             base64 = entry.getValue();
             if (id.length() > 0 && base64 != null && base64.length() > 0) {
                 data.append(new VarIntData(id.length()));
