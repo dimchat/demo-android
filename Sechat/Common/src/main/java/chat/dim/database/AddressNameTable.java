@@ -62,7 +62,7 @@ public class AddressNameTable extends ExternalStorage {
         try {
             text = loadText(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             text = null;
         }
         if (text != null && text.length() > 0) {

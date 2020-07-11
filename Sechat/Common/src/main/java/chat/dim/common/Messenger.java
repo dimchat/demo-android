@@ -48,6 +48,7 @@ import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
+import chat.dim.mtp.Utils;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
@@ -56,6 +57,13 @@ import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
 
 public abstract class Messenger extends chat.dim.Messenger {
+
+    public static final int MTP_JSON = 0x01;
+    public static final int MTP_DMTP = 0x02;
+
+    // Message Transfer Protocol
+    public int mtpFormat = MTP_DMTP;
+
     public Messenger()  {
         super();
         setCipherKeyDelegate(KeyStore.getInstance());
@@ -129,7 +137,27 @@ public abstract class Messenger extends chat.dim.Messenger {
     @Override
     public byte[] serializeMessage(ReliableMessage rMsg) {
         attachKeyDigest(rMsg);
-        return super.serializeMessage(rMsg);
+        if (mtpFormat == MTP_JSON) {
+            // JsON
+            return super.serializeMessage(rMsg);
+        } else {
+            // D-MTP
+            return Utils.serializeMessage(rMsg);
+        }
+    }
+
+    @Override
+    public ReliableMessage deserializeMessage(byte[] data) {
+        if (data == null || data.length < 2) {
+            return null;
+        }
+        if (data[0] == '{' && data[data.length-1] == '}') {
+            // JsON
+            return super.deserializeMessage(data);
+        } else {
+            // D-MTP
+            return Utils.deserializeMessage(data);
+        }
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
@@ -173,15 +201,6 @@ public abstract class Messenger extends chat.dim.Messenger {
         int pos = base64.length() - 8;
         keys.put("digest", base64.substring(pos));
         rMsg.put("keys", keys);
-    }
-
-    @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
-        if (data == null || data.length == 0) {
-            return null;
-        }
-        // public
-        return super.deserializeMessage(data);
     }
 
     @Override

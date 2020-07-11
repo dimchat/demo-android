@@ -46,7 +46,7 @@ import chat.dim.protocol.HandshakeCommand;
 import chat.dim.stargate.Star;
 import chat.dim.stargate.StarDelegate;
 import chat.dim.stargate.StarStatus;
-import chat.dim.stargate.simplegate.Fence;
+import chat.dim.stargate.wormhole.Hole;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
@@ -56,7 +56,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     final StateMachine fsm;
 
-    public Star star = null;
+    private Star star = null;
 
     public StationDelegate delegate;
 
@@ -120,7 +120,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
         // send out directly
         byte[] data = messenger.serializeMessage(rMsg);
-        star.send(data);
+        send(data);
     }
 
     public void handshakeAccepted(String sessionKey, boolean success) {
@@ -180,7 +180,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
 
         if (star == null) {
-            star = new Fence(this);
+            star = new Hole(this);
         }
 
         // TODO: post notification "StationConnecting"
@@ -206,6 +206,10 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void resume() {
         star.enterForeground();
         fsm.resume();
+    }
+
+    public void send(byte[] payload) {
+        star.send(payload);
     }
 
     //-------- StarDelegate
@@ -264,7 +268,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             return true;
         }
 
-        star.send(data);
+        send(data);
 
         if (handler != null) {
             String key = RequestWrapper.getKey(data);

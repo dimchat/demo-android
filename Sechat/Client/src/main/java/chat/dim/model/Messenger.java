@@ -106,7 +106,8 @@ public class Messenger extends chat.dim.common.Messenger {
             ID me = getFacebook().getID(iMsg.envelope.receiver);
             ID group = getFacebook().getID(content.getGroup());
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
-            key.put("reused", null);
+            //key.put("reused", null);
+            key.remove("reused");
         }
         if (content instanceof QueryCommand) {
             // FIXME: same query command sent to different members?

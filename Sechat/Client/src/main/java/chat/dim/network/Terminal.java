@@ -206,7 +206,7 @@ public class Terminal implements StationDelegate {
             response = null;
         }
         if (response != null && response.length > 0) {
-            currentServer.star.send(response);
+            currentServer.send(response);
         }
     }
 
