@@ -47,7 +47,7 @@ public class Utils {
         //
         String content = (String) info.get("data");
         if (content != null) {
-            if (content.startsWith("{\"") && content.endsWith("\"}")) {
+            if (content.startsWith("{")) {
                 //noinspection CharsetObjectCanBeUsed
                 info.put("data", content.getBytes(Charset.forName("UTF-8")));
             } else {
@@ -115,7 +115,11 @@ public class Utils {
         //
         Data content = msg.getContent();
         if (content != null) {
-            info.put("data", Base64.encode(content.getBytes()));
+            if (content.getByte(0) == '{') {
+                info.put("data", content.toString());
+            } else {
+                info.put("data", Base64.encode(content.getBytes()));
+            }
         }
         Data signature = msg.getSignature();
         if (signature != null) {
@@ -179,23 +183,26 @@ public class Utils {
     private static Data buildKeys(Map<Object, String> keys) {
         MutableData data = new MutableData(512);
         Object key;
-        String id, base64;
+        String base64;
+        StringValue idValue;
+        BinaryValue keyValue;
         for (Map.Entry<Object, String> entry : keys.entrySet()) {
             key = entry.getKey();
             if (key instanceof ID) {
-                id = key.toString();
+                idValue = new StringValue(key.toString());
             } else if (key instanceof String) {
-                id = (String) key;
+                idValue = new StringValue((String) key);
             } else {
                 assert key == null : "error key: " + key;
                 continue;
             }
             base64 = entry.getValue();
-            if (id.length() > 0 && base64 != null && base64.length() > 0) {
-                data.append(new VarIntData(id.length()));
-                data.append(new StringValue(id));
-                data.append(new VarIntData(base64.length()));
-                data.append(new BinaryValue(Base64.decode(base64)));
+            if (idValue.getLength() > 0 && base64 != null && base64.length() > 0) {
+                keyValue = new BinaryValue(Base64.decode(base64));
+                data.append(new VarIntData(idValue.getLength()));
+                data.append(idValue);
+                data.append(new VarIntData(keyValue.getLength()));
+                data.append(keyValue);
             }
         }
         return data;
