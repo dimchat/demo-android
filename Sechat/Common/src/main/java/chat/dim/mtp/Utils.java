@@ -48,9 +48,11 @@ public class Utils {
         String content = (String) info.get("data");
         if (content != null) {
             if (content.startsWith("{")) {
+                // JsON
                 //noinspection CharsetObjectCanBeUsed
                 info.put("data", content.getBytes(Charset.forName("UTF-8")));
             } else {
+                // Base64
                 info.put("data", Base64.decode(content));
             }
         }
@@ -92,7 +94,7 @@ public class Utils {
 
     public static ReliableMessage deserializeMessage(byte[] data) {
         Message msg = Message.parse(new Data(data));
-        if (msg == null) {
+        if (msg == null || msg.getSender() == null || msg.getReceiver() == null) {
             throw new NullPointerException("failed to deserialize data: " + Arrays.toString(data));
         }
         Map<String, Object> info = new HashMap<>();
@@ -116,8 +118,10 @@ public class Utils {
         Data content = msg.getContent();
         if (content != null) {
             if (content.getByte(0) == '{') {
+                // JsON
                 info.put("data", content.toString());
             } else {
+                // Base64
                 info.put("data", Base64.encode(content.getBytes()));
             }
         }

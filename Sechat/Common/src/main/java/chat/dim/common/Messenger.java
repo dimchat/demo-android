@@ -151,7 +151,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         if (data == null || data.length < 2) {
             return null;
         }
-        if (data[0] == '{' && data[data.length-1] == '}') {
+        if (data[0] == '{') {
             // JsON
             return super.deserializeMessage(data);
         } else {
