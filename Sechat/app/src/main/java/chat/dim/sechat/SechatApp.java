@@ -1,7 +1,10 @@
 package chat.dim.sechat;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,15 +15,34 @@ import chat.dim.format.BaseCoder;
 
 public class SechatApp extends Application {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
+    private static String WRITE_EXTERNAL_STORAGE = "android.permission.WRITE_EXTERNAL_STORAGE";
+    private static String[] PERMISSIONS_STORAGE = {
+            READ_EXTERNAL_STORAGE,
+            WRITE_EXTERNAL_STORAGE
+    };
+
+    private static boolean verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, WRITE_EXTERNAL_STORAGE);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+        return false;
+    }
+
+    public static boolean launch(Application app, Activity activity) {
+        if (!verifyStoragePermissions(activity)) {
+            return false;
+        }
 
         Map<String, Object> options = new HashMap<>();
-        options.put("Application", this);
+        options.put("Application", app);
 
         Client client = Client.getInstance();
         client.launch(options);
+        return true;
     }
 
     static {

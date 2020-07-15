@@ -106,4 +106,8 @@ public class ConversationTable extends ExternalStorage {
         // TODO: remove '{address}/messages.js'
         return conversationList.remove(identifier);
     }
+
+    public void reloadConversations() {
+        conversationList = null;
+    }
 }

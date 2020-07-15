@@ -49,6 +49,8 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         assert view instanceof RecyclerView : "recycler view error: " + view;
         bindRecyclerView((RecyclerView) view);
 
+        getActivity().setTitle(R.string.app_name);
+
         return view;
     }
 }

@@ -102,6 +102,10 @@ public class ConversationDatabase implements ConversationDataSource {
         return conversationTable.removeConversation(identifier);
     }
 
+    public void reloadConversations() {
+        conversationTable.reloadConversations();
+    }
+
     // messages
 
     public List<InstantMessage> messagesInConversation(Conversation chatBox) {

@@ -29,8 +29,10 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         User user = facebook.getCurrentUser();
         if (user != null) {
             List<ID> contacts = facebook.getContacts(user.identifier);
-            for (ID identifier : contacts) {
-                addItem(new Item(identifier));
+            if (contacts != null) {
+                for (ID identifier : contacts) {
+                    addItem(new Item(identifier));
+                }
             }
         }
     }

@@ -8,11 +8,6 @@
     android:orientation="vertical"
     tools:context=".account.AccountFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current account" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -55,14 +50,10 @@
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
             android:layout_margin="4dp"
+            android:background="@android:color/transparent"
             android:src="@android:drawable/ic_menu_info_details" />
 
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="All account(s)" />
 
     <TableLayout
         android:layout_width="match_parent"
@@ -84,13 +75,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </TableLayout>
-
-    <Button
-        android:id="@+id/createBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
-        android:text="Create account" />
 
     <Button
         android:id="@+id/termBtn"

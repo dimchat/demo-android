@@ -1,12 +1,9 @@
 package chat.dim.sechat;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,9 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import chat.dim.User;
+import chat.dim.model.Messenger;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.conversations.ConversationFragment;
+import chat.dim.sechat.register.RegisterActivity;
 import chat.dim.sechat.search.SearchActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -63,7 +63,18 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         setDefaultFragment();
 
-        verifyStoragePermissions(this);
+        SechatApp.launch(getApplication(), this);
+
+        Client client = Client.getInstance();
+        User user = client.getCurrentUser();
+        if (user == null) {
+            Intent intent = new Intent();
+            intent.setClass(getApplicationContext(), RegisterActivity.class);
+            startActivity(intent);
+        } else {
+            Messenger messenger = Messenger.getInstance();
+            messenger.postProfile(user.getProfile(), user.getMeta());
+        }
     }
 
     @Override
@@ -80,19 +91,5 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return true;
-    }
-
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.WRITE_EXTERNAL_STORAGE"
-    };
-    public static void verifyStoragePermissions(Activity activity) {
-        int permission = ActivityCompat.checkSelfPermission(activity,
-                "android.permission.WRITE_EXTERNAL_STORAGE");
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-        }
     }
 }

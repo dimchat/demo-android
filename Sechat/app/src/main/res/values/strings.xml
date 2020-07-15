@@ -1,6 +1,16 @@
 <resources>
-    <string name="app_name">Sechat</string>
+    <string name="app_name">Secret Chat</string>
+
+    <string name="error_permission">Permission error</string>
+
     <string name="title_history">History</string>
     <string name="title_contacts">Contacts</string>
     <string name="title_more">More</string>
+
+    <string name="register_title">Register</string>
+    <string name="register_nickname_hint">Please input your nickname</string>
+    <string name="register_terms_confirm">I have read and agree to the \"DIM Clauses\".</string>
+    <string name="register_agree">You must agree the clauses.</string>
+    <string name="register_ok">Let\'s rock!</string>
+    <string name="register_failed">Failed to create account!</string>
 </resources>

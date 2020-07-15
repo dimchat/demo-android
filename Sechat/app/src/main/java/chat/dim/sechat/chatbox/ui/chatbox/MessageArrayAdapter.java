@@ -1,6 +1,7 @@
 package chat.dim.sechat.chatbox.ui.chatbox;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
+import chat.dim.sechat.profile.ProfileActivity;
 
 public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
@@ -79,7 +81,21 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         }
         showMessage(iMsg, viewHolder);
 
+        if (MsgType.RECEIVED == type) {
+            viewHolder.avatarView.setOnClickListener(v -> {
+                showContact(iMsg);
+            });
+        }
+
         return view;
+    }
+
+    private void showContact(InstantMessage iMsg) {
+        Object sender = iMsg.envelope.sender;
+        Intent intent = new Intent();
+        intent.setClass(getContext(), ProfileActivity.class);
+        intent.putExtra("ID", sender.toString());
+        getContext().startActivity(intent);
     }
 
     private Facebook facebook = Facebook.getInstance();

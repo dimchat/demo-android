@@ -25,7 +25,6 @@ public class AccountFragment extends Fragment {
 
     private ImageButton detailButton;
 
-    private Button createButton;
     private Button termsButton;
     private Button aboutButton;
 
@@ -44,9 +43,10 @@ public class AccountFragment extends Fragment {
 
         detailButton = view.findViewById(R.id.detailBtn);
 
-        createButton = view.findViewById(R.id.createBtn);
         termsButton = view.findViewById(R.id.termBtn);
         aboutButton = view.findViewById(R.id.aboutBtn);
+
+        getActivity().setTitle(R.string.title_more);
 
         return view;
     }

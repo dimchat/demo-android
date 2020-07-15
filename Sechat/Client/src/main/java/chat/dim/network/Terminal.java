@@ -78,7 +78,7 @@ public class Terminal implements StationDelegate {
         return currentServer == null ? null : currentServer.getCurrentUser();
     }
 
-    private void setCurrentUser(User user) {
+    public void setCurrentUser(User user) {
         if (currentServer != null) {
             currentServer.setCurrentUser(user);
         }

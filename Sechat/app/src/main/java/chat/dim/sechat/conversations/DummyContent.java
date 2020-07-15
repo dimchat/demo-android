@@ -35,6 +35,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
     public void reloadData() {
         clearItems();
+        msgDB.reloadConversations();
 
         List<Conversation> conversationList = new ArrayList<>();
         Conversation chatBox;

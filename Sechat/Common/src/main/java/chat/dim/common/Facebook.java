@@ -106,7 +106,11 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public User getCurrentUser() {
-        return getUser(userTable.getCurrentUser());
+        ID uid = userTable.getCurrentUser();
+        if (uid == null) {
+            return null;
+        }
+        return getUser(uid);
     }
 
     public void setCurrentUser(User user) {

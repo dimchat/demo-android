@@ -74,7 +74,7 @@ public class Register {
         // 1. generate private key
         PrivateKey key = generatePrivateKey();
         // 2. generate meta
-        Meta meta = generateMeta("anonymous");
+        Meta meta = generateMeta("sechat");
         // 3. generate ID
         ID identifier = generateID(meta, NetworkType.Main);
         // 4. generate profile
@@ -207,17 +207,9 @@ public class Register {
     //
     public boolean upload(ID identifier, Meta meta, Profile profile) {
         assert identifier != null : "ID error";
-        Command cmd;
-        if (profile == null) {
-            assert meta.matches(identifier) : "meta not match ID: " + identifier + ", " + meta;
-            cmd = new MetaCommand(identifier, meta);
-        } else {
-            assert identifier.equals(profile.getIdentifier()) : "profile ID error: " + profile;
-            assert profile.isValid() : "profile error: " + profile;
-            cmd = new ProfileCommand(identifier, meta, profile);
-        }
+        assert identifier.equals(profile.getIdentifier()) : "profile ID not match";
         Messenger messenger = Messenger.getInstance();
-        return messenger.sendCommand(cmd);
+        return messenger.postProfile(profile, meta);
     }
 
     /**

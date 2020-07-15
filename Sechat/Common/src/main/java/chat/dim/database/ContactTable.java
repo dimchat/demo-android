@@ -55,7 +55,7 @@ public class ContactTable extends ExternalStorage {
         try {
             array = (List<String>) loadJSON(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return null;
         }
         if (array == null || array.size() == 0) {

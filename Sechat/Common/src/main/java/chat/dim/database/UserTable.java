@@ -65,7 +65,7 @@ public class UserTable extends ExternalStorage {
         try {
             list = (List) loadJSON(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
         if (list == null || list.size() == 0) {
