@@ -1,10 +1,12 @@
 package chat.dim.sechat.conversations;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.sechat.R;
@@ -36,16 +38,23 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
+        Uri avatar = item.getAvatarUrl();
+        if (avatar != null) {
+            holder.mAvatarView.setImageURI(avatar);
+        }
+
         super.onBindViewHolder(holder, position);
     }
 
     class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
+        final ImageView mAvatarView;
         final TextView mTitleView;
         final TextView mDescView;
 
         ViewHolder(View view) {
             super(view);
+            mAvatarView = view.findViewById(R.id.imageView);
             mTitleView = view.findViewById(R.id.title);
             mDescView = view.findViewById(R.id.desc);
         }

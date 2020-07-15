@@ -31,12 +31,32 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
+import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.network.Downloader;
 
 public class Facebook extends chat.dim.common.Facebook {
     private static final Facebook ourInstance = new Facebook();
     public static Facebook getInstance() { return ourInstance; }
     private Facebook() {
         super();
+    }
+
+    public String getAvatar(ID identifier) {
+        Profile profile = getProfile(identifier);
+        if (profile == null) {
+            return null;
+        }
+        String url;
+        if (profile instanceof UserProfile) {
+            url = ((UserProfile) profile).getAvatar();
+        } else {
+            url = (String) profile.getProperty("avatar");
+        }
+        if (url == null) {
+            return null;
+        }
+        Downloader downloader = Downloader.getInstance();
+        return downloader.download(url);
     }
 
     //-------- EntityDataSource

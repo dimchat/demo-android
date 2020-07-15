@@ -1,5 +1,7 @@
 package chat.dim.sechat.conversations;
 
+import android.net.Uri;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -78,6 +80,18 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         ID getIdentifier() {
             return chatBox.identifier;
+        }
+
+        Uri getAvatarUrl() {
+            ID identifier = getIdentifier();
+            if (identifier == null) {
+                return null;
+            }
+            String avatar = facebook.getAvatar(identifier);
+            if (avatar == null) {
+                return null;
+            }
+            return Uri.parse(avatar);
         }
 
         String getTitle() {

@@ -1,5 +1,7 @@
 package chat.dim.sechat.contacts;
 
+import android.net.Uri;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -17,6 +19,8 @@ import chat.dim.ui.list.DummyList;
  */
 public class DummyContent extends DummyList<DummyContent.Item> {
 
+    private static Facebook facebook = Facebook.getInstance();
+
     DummyContent() {
         super();
         reloadData();
@@ -25,7 +29,6 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     public void reloadData() {
         clearItems();
 
-        Facebook facebook = Facebook.getInstance();
         User user = facebook.getCurrentUser();
         if (user != null) {
             List<ID> contacts = facebook.getContacts(user.identifier);
@@ -46,16 +49,28 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         Item(Object id) {
             super();
-            account = Facebook.getInstance().getUser(ID.getInstance(id));
+            account = facebook.getUser(ID.getInstance(id));
         }
 
         ID getIdentifier() {
             return account.identifier;
         }
 
+        Uri getAvatarUrl() {
+            ID identifier = getIdentifier();
+            if (identifier == null) {
+                return null;
+            }
+            String avatar = facebook.getAvatar(identifier);
+            if (avatar == null) {
+                return null;
+            }
+            return Uri.parse(avatar);
+        }
+
         String getTitle() {
             String nickname = account.getName();
-            String number = Facebook.getInstance().getNumberString(account.identifier);
+            String number = facebook.getNumberString(account.identifier);
             return String.format(Locale.CHINA, "%s (%s)", nickname, number);
         }
 
