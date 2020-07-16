@@ -24,4 +24,7 @@
     <string name="history">History</string>
     <string name="more">More</string>
     <string name="me">Me</string>
+    <string name="name">Name</string>
+    <string name="report">Report</string>
+    <string name="clear_history">Clear chat history</string>
 </resources>

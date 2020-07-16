@@ -2,6 +2,7 @@ package chat.dim.sechat.profile.ui.profile;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 
 public class ProfileFragment extends Fragment {
@@ -47,9 +49,9 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.profile_fragment, container, false);
 
         imageView = view.findViewById(R.id.imageView);
-        seedView = view.findViewById(R.id.seed);
-        addressView = view.findViewById(R.id.address);
-        numberView = view.findViewById(R.id.number);
+        seedView = view.findViewById(R.id.seedView);
+        addressView = view.findViewById(R.id.addressView);
+        numberView = view.findViewById(R.id.numberView);
 
         addButton = view.findViewById(R.id.addContact);
         messageButton = view.findViewById(R.id.sendMessage);
@@ -84,6 +86,12 @@ public class ProfileFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // TODO: Use the ViewModel
+
+        Uri avatar = mViewModel.getAvatarUrl(identifier);
+        if (avatar == null) {
+            avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+        }
+        imageView.setImageURI(avatar);
 
         seedView.setText(identifier.name);
         addressView.setText(identifier.address.toString());
