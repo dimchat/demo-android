@@ -48,7 +48,7 @@ public class AccountFragment extends Fragment {
         termsButton = view.findViewById(R.id.termBtn);
         aboutButton = view.findViewById(R.id.aboutBtn);
 
-        getActivity().setTitle(R.string.title_more);
+        getActivity().setTitle(R.string.me);
 
         return view;
     }

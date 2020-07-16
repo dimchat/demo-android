@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">密聊</string>
+    <string name="error_permission">没有访问权限</string>
+    <string name="register_agree">您必须先点击同意条款</string>
+    <string name="register_failed">创建账号失败</string>
+    <string name="register_nickname_hint">请输入您的名字</string>
+    <string name="register_ok">开始</string>
+    <string name="register_terms_confirm">我已阅读并同意《DIM用户条款》</string>
+    <string name="search">搜索</string>
+    <string name="terms">用户条款</string>
+    <string name="about">关于</string>
+    <string name="welcome">欢迎来到 DIM 的世界！</string>
+    <string name="chat_input">输入信息</string>
+    <string name="chat_send">发送</string>
+    <string name="add_contact">添加好友</string>
+    <string name="id_address">地址</string>
+    <string name="id_number">搜索号</string>
+    <string name="id_seed">Seed</string>
+    <string name="send_message">发送信息</string>
+    <string name="contacts">联系人</string>
+    <string name="history">聊天记录</string>
+    <string name="more">更多</string>
+    <string name="register">注册</string>
+    <string name="me">我</string>
+</resources>

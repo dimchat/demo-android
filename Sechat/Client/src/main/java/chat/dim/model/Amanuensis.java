@@ -33,6 +33,8 @@ public class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
     public static Amanuensis getInstance() { return ourInstance; }
     private Amanuensis() {
+        super();
+        database = ConversationDatabase.getInstance();
     }
 
     public ConversationDataSource database = null;

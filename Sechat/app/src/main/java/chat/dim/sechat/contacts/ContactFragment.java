@@ -47,7 +47,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
         assert view instanceof RecyclerView : "recycler view error: " + view;
         bindRecyclerView((RecyclerView) view);
 
-        getActivity().setTitle(R.string.title_contacts);
+        getActivity().setTitle(R.string.contacts);
 
         return view;
     }

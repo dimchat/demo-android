@@ -81,13 +81,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left|center_vertical"
-        android:text="Terms" />
+        android:text="@string/terms" />
 
     <Button
         android:id="@+id/aboutBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left|center_vertical"
-        android:text="About" />
+        android:text="@string/about" />
 
 </LinearLayout>

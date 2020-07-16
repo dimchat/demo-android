@@ -3,14 +3,25 @@
 
     <string name="error_permission">Permission error</string>
 
-    <string name="title_history">History</string>
-    <string name="title_contacts">Contacts</string>
-    <string name="title_more">More</string>
-
-    <string name="register_title">Register</string>
     <string name="register_nickname_hint">Please input your nickname</string>
     <string name="register_terms_confirm">I have read and agree to the \"DIM Clauses\".</string>
     <string name="register_agree">You must agree the clauses.</string>
     <string name="register_ok">Let\'s rock!</string>
     <string name="register_failed">Failed to create account!</string>
+    <string name="search">Search</string>
+    <string name="terms">Terms</string>
+    <string name="about">About</string>
+    <string name="welcome">Welcome to DIM network!</string>
+    <string name="chat_input">Input message</string>
+    <string name="chat_send">Send</string>
+    <string name="id_seed">Seed</string>
+    <string name="id_address">Address</string>
+    <string name="id_number">Number</string>
+    <string name="add_contact">Add contact</string>
+    <string name="send_message">Send message</string>
+    <string name="register">Register</string>
+    <string name="contacts">Contacts</string>
+    <string name="history">History</string>
+    <string name="more">More</string>
+    <string name="me">Me</string>
 </resources>

@@ -47,8 +47,6 @@ public class ConversationDatabase implements ConversationDataSource {
     public static ConversationDatabase getInstance() { return ourInstance; }
     private ConversationDatabase() {
         super();
-        Amanuensis.getInstance().database = this;
-
         AnyContentProcessor.facebook = Facebook.getInstance();
     }
 

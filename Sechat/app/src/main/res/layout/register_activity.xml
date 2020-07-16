@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:text="Welcome to DIM network!" />
+            android:text="@string/welcome" />
 
         <ImageButton
             android:id="@+id/imageButton"

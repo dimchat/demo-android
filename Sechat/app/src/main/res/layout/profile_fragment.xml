@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:padding="8dp"
-                android:text="Name:" />
+                android:text="@string/id_seed" />
 
             <TextView
                 android:id="@+id/seed"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:padding="8dp"
-                android:text="Address:" />
+                android:text="@string/id_address" />
 
             <TextView
                 android:id="@+id/address"
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:padding="8dp"
-                android:text="Number:" />
+                android:text="@string/id_number" />
 
             <TextView
                 android:id="@+id/number"
@@ -116,12 +116,12 @@
         android:id="@+id/addContact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Contact" />
+        android:text="@string/add_contact" />
 
     <Button
         android:id="@+id/sendMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send Message" />
+        android:text="@string/send_message" />
 
 </LinearLayout>

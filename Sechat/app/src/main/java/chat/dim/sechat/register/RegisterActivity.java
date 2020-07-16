@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         SechatApp.launch(getApplication(), this);
 
-        setTitle(R.string.register_title);
+        setTitle(R.string.register);
 
         nicknameEditText = findViewById(R.id.nickname);
         checkBox = findViewById(R.id.checkBox);
@@ -48,6 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void close() {
         Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setClass(getApplicationContext(), MainActivity.class);
         startActivity(intent);
     }

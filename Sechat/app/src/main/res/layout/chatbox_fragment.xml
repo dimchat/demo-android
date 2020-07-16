@@ -32,14 +32,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:hint="Input message" />
+                android:hint="@string/chat_input"
+                android:lines="1" />
 
             <Button
                 android:id="@+id/sendMsg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Send" />
+                android:text="@string/chat_send" />
         </LinearLayout>
     </LinearLayout>
 
