@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.ViewAdapter;
 
@@ -39,9 +41,15 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         holder.mDescView.setText(item.getDesc());
 
         Uri avatar = item.getAvatarUrl();
-        if (avatar != null) {
-            holder.mAvatarView.setImageURI(avatar);
+        if (avatar == null) {
+            ID identifier = item.getIdentifier();
+            if (identifier == null || identifier.isGroup()) {
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+            } else {
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+            }
         }
+        holder.mAvatarView.setImageURI(avatar);
 
         super.onBindViewHolder(holder, position);
     }

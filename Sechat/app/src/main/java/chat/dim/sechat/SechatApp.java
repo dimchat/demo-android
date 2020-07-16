@@ -2,7 +2,10 @@ package chat.dim.sechat;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 
@@ -14,6 +17,13 @@ import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 
 public class SechatApp extends Application {
+
+    private static SechatApp ourInstance = null;
+    public static SechatApp getInstance() { return ourInstance; }
+    public SechatApp() {
+        super();
+        ourInstance = this;
+    }
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
@@ -43,6 +53,14 @@ public class SechatApp extends Application {
         Client client = Client.getInstance();
         client.launch(options);
         return true;
+    }
+
+    public Uri getUriFromMipmap(int resId) {
+        Resources resources = getResources();
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                + resources.getResourcePackageName(resId) + "/"
+                + resources.getResourceTypeName(resId) + "/"
+                + resources.getResourceEntryName(resId));
     }
 
     static {

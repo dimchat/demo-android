@@ -1,6 +1,7 @@
 package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 
 public class AccountFragment extends Fragment {
 
@@ -59,6 +61,12 @@ public class AccountFragment extends Fragment {
 
         nameView.setText(mViewModel.getAccountTitle());
         descView.setText(mViewModel.getAccountDesc());
+
+        Uri avatar = mViewModel.getAvatarUrl();
+        if (avatar == null) {
+            avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+        }
+        avatarView.setImageURI(avatar);
     }
 
 }

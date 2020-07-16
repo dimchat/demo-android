@@ -1,13 +1,17 @@
 package chat.dim.sechat.search;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.ViewAdapter;
 
@@ -36,16 +40,29 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
+        Uri avatar = item.getAvatarUrl();
+        if (avatar == null) {
+            ID identifier = item.getIdentifier();
+            if (identifier == null || identifier.isGroup()) {
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+            } else {
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+            }
+        }
+        holder.mAvatarView.setImageURI(avatar);
+
         super.onBindViewHolder(holder, position);
     }
 
     public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
+        final ImageView mAvatarView;
         final TextView mTitleView;
         final TextView mDescView;
 
         ViewHolder(View view) {
             super(view);
+            mAvatarView = view.findViewById(R.id.search_avatar);
             mTitleView = view.findViewById(R.id.search_title);
             mDescView = view.findViewById(R.id.search_desc);
         }

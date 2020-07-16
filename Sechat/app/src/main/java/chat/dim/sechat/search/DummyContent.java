@@ -1,5 +1,7 @@
 package chat.dim.sechat.search;
 
+import android.net.Uri;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +20,8 @@ import chat.dim.ui.list.DummyList;
  */
 public class DummyContent extends DummyList<DummyContent.Item> {
 
+    private static Facebook facebook = Facebook.getInstance();
+
     public SearchCommand response = null;
 
     DummyContent() {
@@ -35,7 +39,6 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         if (users == null || users.size() == 0) {
             return;
         }
-        Facebook facebook = Facebook.getInstance();
 
         ID identifier;
         for (String item : users) {
@@ -56,16 +59,29 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         Item(Object id) {
             super();
-            account = Facebook.getInstance().getUser(ID.getInstance(id));
+            account = facebook.getUser(ID.getInstance(id));
         }
 
         ID getIdentifier() {
             return account.identifier;
         }
 
+        Uri getAvatarUrl() {
+            ID identifier = getIdentifier();
+            if (identifier == null) {
+                return null;
+            }
+            String avatar = facebook.getAvatar(identifier);
+            if (avatar == null) {
+                return null;
+            }
+            return Uri.parse(avatar);
+        }
+
+
         String getTitle() {
             String nickname = account.getName();
-            String number = Facebook.getInstance().getNumberString(account.identifier);
+            String number = facebook.getNumberString(account.identifier);
             return String.format(Locale.CHINA, "%s (%s)", nickname, number);
         }
 

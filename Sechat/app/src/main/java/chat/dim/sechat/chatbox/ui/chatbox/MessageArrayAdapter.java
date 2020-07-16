@@ -2,6 +2,7 @@ package chat.dim.sechat.chatbox.ui.chatbox;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.profile.ProfileActivity;
 
 public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
@@ -115,6 +117,16 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         }
 
         // avatar
+        if (viewHolder.avatarView != null) {
+            Uri avatar;
+            String url = facebook.getAvatar(sender);
+            if (url == null) {
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+            } else {
+                avatar = Uri.parse(url);
+            }
+            viewHolder.avatarView.setImageURI(avatar);
+        }
 
         // name
         if (viewHolder.nameView != null) {
