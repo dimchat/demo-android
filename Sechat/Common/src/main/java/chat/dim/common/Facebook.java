@@ -68,7 +68,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public static long EXPIRES = 3600;  // profile expires (1 hour)
-    private static final String EXPIRES_KEY = "expires";
+    public static final String EXPIRES_KEY = "expires";
 
     private final AddressNameService ans;
     private Immortals immortals = new Immortals();

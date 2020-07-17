@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -37,6 +39,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             viewHolder = new ViewHolder();
             viewHolder.avatarView = view.findViewById(R.id.avatarView);
             viewHolder.nameView = view.findViewById(R.id.nameView);
+            viewHolder.button = view.findViewById(R.id.button);
             view.setTag(viewHolder);
         } else {
             view = convertView;
@@ -50,8 +53,24 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     private Facebook facebook = Facebook.getInstance();
 
     private void showParticipant(ID identifier, ViewHolder viewHolder) {
+        if (identifier.isBroadcast()) {
+            // more
+            if (viewHolder.avatarView != null) {
+                viewHolder.avatarView.setVisibility(View.GONE);
+            }
+            if (viewHolder.nameView != null) {
+                viewHolder.nameView.setVisibility(View.GONE);
+            }
+            if (viewHolder.button != null) {
+                viewHolder.button.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+
         // avatar
         if (viewHolder.avatarView != null) {
+            viewHolder.avatarView.setVisibility(View.VISIBLE);
+
             Uri avatar;
             String url = facebook.getAvatar(identifier);
             if (url == null) {
@@ -64,13 +83,20 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         // name
         if (viewHolder.nameView != null) {
+            viewHolder.nameView.setVisibility(View.VISIBLE);
+
             String name = facebook.getNickname(identifier);
             viewHolder.nameView.setText(name);
+        }
+
+        if (viewHolder.button != null) {
+            viewHolder.button.setVisibility(View.GONE);
         }
     }
 
     class ViewHolder {
         ImageView avatarView = null;
         TextView nameView = null;
+        ImageButton button = null;
     }
 }

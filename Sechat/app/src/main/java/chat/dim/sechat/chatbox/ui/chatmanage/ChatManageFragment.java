@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -18,10 +19,13 @@ import chat.dim.sechat.R;
 
 public class ChatManageFragment extends Fragment {
 
+    public static int MAX_PARTICIPANTS_SHOWN = 2 * 3 * 5 - 1;
+
     private ChatManageViewModel mViewModel;
     private ParticipantsAdapter adapter;
 
     private GridView participantsView;
+    private Button showMembersButton;
 
     private TextView nameTextView;
     private TextView seedTextView;
@@ -47,6 +51,7 @@ public class ChatManageFragment extends Fragment {
         View view = inflater.inflate(R.layout.chat_manage_fragment, container, false);
 
         participantsView = view.findViewById(R.id.participants);
+        showMembersButton = view.findViewById(R.id.showMembers);
 
         nameTextView = view.findViewById(R.id.nameView);
         seedTextView = view.findViewById(R.id.seedView);
@@ -63,6 +68,14 @@ public class ChatManageFragment extends Fragment {
 
         // participants
         List<ID> participants = mViewModel.getParticipants(identifier);
+        if (participants.size() > MAX_PARTICIPANTS_SHOWN) {
+            participants = participants.subList(0, MAX_PARTICIPANTS_SHOWN);
+            showMembersButton.setVisibility(View.VISIBLE);
+        } else {
+            showMembersButton.setVisibility(View.GONE);
+        }
+        participants.add(ID.ANYONE);
+
         adapter = new ParticipantsAdapter(getContext(), R.layout.chat_manage_participant, participants);
         participantsView.setAdapter(adapter);
 

@@ -106,10 +106,10 @@ public class Messenger extends chat.dim.common.Messenger {
             ID me = getFacebook().getID(iMsg.envelope.receiver);
             ID group = getFacebook().getID(content.getGroup());
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
-            // FIXME: key may be null
-
-            //key.put("reused", null);
-            key.remove("reused");
+            if (key != null) {
+                //key.put("reused", null);
+                key.remove("reused");
+            }
         }
         if (content instanceof QueryCommand) {
             // FIXME: same query command sent to different members?
@@ -212,6 +212,14 @@ public class Messenger extends chat.dim.common.Messenger {
 
     public boolean postProfile(Profile profile, Meta meta) {
         ID identifier = ID.getInstance(profile.getIdentifier());
+        if (profile != null) {
+            // check profile
+            if (profile.get("data") == null || profile.get("signature") == null) {
+                profile = null;
+            } else {
+                profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+            }
+        }
         Command cmd = new ProfileCommand(identifier, meta, profile);
         return sendCommand(cmd);
     }
