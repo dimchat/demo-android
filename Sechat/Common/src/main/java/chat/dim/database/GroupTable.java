@@ -41,9 +41,11 @@ public class GroupTable extends ExternalStorage {
     // "/sdcard/chat.dim.sechat/mkm/{address}/members.js"
 
     private static String getMembersFilePath(ID group) {
+        String address = group.address.toString();
         return root + separator
                 + "mkm" + separator
-                + group.address + separator
+                + address.substring(0, 2) + separator
+                + address + separator
                 + "members.js";
     }
 

@@ -198,7 +198,9 @@ public class Downloader extends Thread {
         data = MD5.digest(data);
         String filename = Hex.encode(data);
         String ext = getFileExt(url);
-        String dir = ExternalStorage.root + ExternalStorage.separator + "caches";
+        String dir = ExternalStorage.root + ExternalStorage.separator
+                + "caches" + ExternalStorage.separator
+                + filename.substring(0, 2);
         File file = new File(dir);
         if (!file.exists() && !file.mkdirs()) {
             throw new IOException("failed to create directory: " + file);

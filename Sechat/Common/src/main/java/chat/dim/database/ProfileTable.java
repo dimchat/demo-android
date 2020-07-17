@@ -49,9 +49,11 @@ public class ProfileTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
     private static String getProfilePath(ID entity) {
+        String address = entity.address.toString();
         return root + separator
                 + "mkm" + separator
-                + entity.address + separator
+                + address.substring(0, 2) + separator
+                + address + separator
                 + "profile.js";
     }
 

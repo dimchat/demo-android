@@ -48,9 +48,11 @@ public class MetaTable extends ExternalStorage {
 
     // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
     private static String getMetaFilePath(ID entity) {
+        String address = entity.address.toString();
         return root + separator
                 + "mkm" + separator
-                + entity.address + separator
+                + address.substring(0, 2) + separator
+                + address + separator
                 + "meta.js";
     }
 
