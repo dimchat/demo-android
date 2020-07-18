@@ -27,4 +27,6 @@
     <string name="report">举报</string>
     <string name="clear_history">清除聊天记录</string>
     <string name="chatman_show_members">显示所有成员</string>
+    <string name="export">导出</string>
+    <string name="save">保存</string>
 </resources>

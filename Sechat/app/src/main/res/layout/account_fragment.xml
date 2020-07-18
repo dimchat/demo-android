@@ -33,15 +33,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:gravity="center_vertical"
-                android:text="name" />
+                android:text="@string/name"
+                android:textSize="18sp"
+                app:autoSizeMaxTextSize="18sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeTextType="uniform" />
 
             <TextView
                 android:id="@+id/descView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="desc"
-                android:textIsSelectable="false"
-                android:textSize="10sp" />
+                android:selectAllOnFocus="true"
+                android:text="@string/id_number"
+                android:textIsSelectable="true"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeTextType="uniform" />
         </LinearLayout>
 
         <ImageButton

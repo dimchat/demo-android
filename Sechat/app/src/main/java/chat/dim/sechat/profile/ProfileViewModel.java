@@ -9,6 +9,8 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.Client;
+import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 
 public class ProfileViewModel extends ViewModel {
 
@@ -30,7 +32,7 @@ public class ProfileViewModel extends ViewModel {
     Uri getAvatarUrl(ID contact) {
         String avatar = facebook.getAvatar(contact);
         if (avatar == null) {
-            return null;
+            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
         }
         return Uri.parse(avatar);
     }

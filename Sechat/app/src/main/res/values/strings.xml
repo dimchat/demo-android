@@ -28,4 +28,6 @@
     <string name="report">Report</string>
     <string name="clear_history">Clear chat history</string>
     <string name="chatman_show_members">Show all members</string>
+    <string name="save">Save</string>
+    <string name="export">Export</string>
 </resources>

@@ -60,7 +60,9 @@ public class ProfileFragment extends Fragment {
             addContact(identifier);
             startChat(identifier);
         });
-        messageButton.setOnClickListener(v -> startChat(identifier));
+        messageButton.setOnClickListener(v -> {
+            startChat(identifier);
+        });
 
         return view;
     }
@@ -88,9 +90,6 @@ public class ProfileFragment extends Fragment {
         // TODO: Use the ViewModel
 
         Uri avatar = mViewModel.getAvatarUrl(identifier);
-        if (avatar == null) {
-            avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
-        }
         imageView.setImageURI(avatar);
 
         seedView.setText(identifier.name);

@@ -9,6 +9,8 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.SearchCommand;
+import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 
@@ -73,7 +75,11 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             }
             String avatar = facebook.getAvatar(identifier);
             if (avatar == null) {
-                return null;
+                if (identifier.isGroup()) {
+                    return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+                } else {
+                    return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+                }
             }
             return Uri.parse(avatar);
         }

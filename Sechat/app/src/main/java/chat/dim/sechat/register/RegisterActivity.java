@@ -35,9 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         checkBox = findViewById(R.id.checkBox);
         okBtn = findViewById(R.id.okBtn);
 
-        okBtn.setOnClickListener(v -> {
-            register();
-        });
+        okBtn.setOnClickListener(v -> register());
 
         Client client = Client.getInstance();
         User user = client.getCurrentUser();

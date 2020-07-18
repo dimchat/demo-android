@@ -85,19 +85,15 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
         if (MsgType.RECEIVED == type) {
             viewHolder.avatarView.setOnClickListener(v -> {
-                showContact(iMsg);
+                Object sender = iMsg.envelope.sender;
+                Intent intent = new Intent();
+                intent.setClass(getContext(), ProfileActivity.class);
+                intent.putExtra("ID", sender.toString());
+                getContext().startActivity(intent);
             });
         }
 
         return view;
-    }
-
-    private void showContact(InstantMessage iMsg) {
-        Object sender = iMsg.envelope.sender;
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ProfileActivity.class);
-        intent.putExtra("ID", sender.toString());
-        getContext().startActivity(intent);
     }
 
     private Facebook facebook = Facebook.getInstance();

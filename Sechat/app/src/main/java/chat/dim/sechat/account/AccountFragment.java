@@ -1,6 +1,7 @@
 package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,6 +45,11 @@ public class AccountFragment extends Fragment {
         descView = view.findViewById(R.id.descView);
 
         detailButton = view.findViewById(R.id.detailBtn);
+        detailButton.setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setClass(getContext(), UpdateAccountActivity.class);
+            getContext().startActivity(intent);
+        });
 
         termsButton = view.findViewById(R.id.termBtn);
         aboutButton = view.findViewById(R.id.aboutBtn);
@@ -63,9 +69,6 @@ public class AccountFragment extends Fragment {
         descView.setText(mViewModel.getAccountDesc());
 
         Uri avatar = mViewModel.getAvatarUrl();
-        if (avatar == null) {
-            avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
-        }
         avatarView.setImageURI(avatar);
     }
 

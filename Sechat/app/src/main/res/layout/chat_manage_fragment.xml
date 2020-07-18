@@ -5,7 +5,7 @@
     android:id="@+id/chatmanage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.chatmanage.ChatManageFragment">
+    tools:context=".chatbox.ChatManageFragment">
 
     <ScrollView
         android:layout_width="match_parent"
