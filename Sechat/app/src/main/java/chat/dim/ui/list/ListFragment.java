@@ -37,7 +37,7 @@ import android.support.v7.widget.RecyclerView;
 
 import chat.dim.notification.Notification;
 import chat.dim.notification.Observer;
-import chat.dim.sechat.conversations.ConversationFragment;
+import chat.dim.sechat.history.ConversationFragment;
 
 /**
  * A fragment representing a list of Items.

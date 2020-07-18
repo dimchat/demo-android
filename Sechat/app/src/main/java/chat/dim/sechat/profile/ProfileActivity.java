@@ -6,7 +6,6 @@ import android.os.Bundle;
 import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
-import chat.dim.sechat.profile.ui.profile.ProfileFragment;
 
 public class ProfileActivity extends AppCompatActivity {
 

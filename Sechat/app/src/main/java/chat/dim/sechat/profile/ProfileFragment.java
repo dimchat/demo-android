@@ -1,4 +1,4 @@
-package chat.dim.sechat.profile.ui.profile;
+package chat.dim.sechat.profile;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;

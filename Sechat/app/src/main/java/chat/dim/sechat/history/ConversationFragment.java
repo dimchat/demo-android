@@ -1,4 +1,4 @@
-package chat.dim.sechat.conversations;
+package chat.dim.sechat.history;
 
 import android.content.Intent;
 import android.os.Bundle;

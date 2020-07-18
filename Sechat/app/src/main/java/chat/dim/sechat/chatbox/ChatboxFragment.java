@@ -1,4 +1,4 @@
-package chat.dim.sechat.chatbox.ui.chatbox;
+package chat.dim.sechat.chatbox;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;

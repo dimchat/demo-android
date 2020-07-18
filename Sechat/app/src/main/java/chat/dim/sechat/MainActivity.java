@@ -15,7 +15,7 @@ import chat.dim.User;
 import chat.dim.model.Messenger;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
-import chat.dim.sechat.conversations.ConversationFragment;
+import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.register.RegisterActivity;
 import chat.dim.sechat.search.SearchActivity;
 

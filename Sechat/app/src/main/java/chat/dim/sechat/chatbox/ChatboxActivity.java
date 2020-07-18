@@ -11,7 +11,6 @@ import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
-import chat.dim.sechat.chatbox.ui.chatbox.ChatboxFragment;
 
 public class ChatboxActivity extends AppCompatActivity {
 

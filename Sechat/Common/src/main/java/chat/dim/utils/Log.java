@@ -28,10 +28,16 @@ package chat.dim.utils;
 public class Log {
 
     public static void info(String msg) {
-        System.out.println(msg);
+        StackTraceElement[] traces = Thread.currentThread().getStackTrace();
+        String method = traces[3].getMethodName();
+        int line = traces[3].getLineNumber();
+        System.out.println("[" + method + ":" + line + "] " + msg);
     }
 
     public static void error(String msg) {
-        System.out.println("ERROR: " + msg);
+        StackTraceElement[] traces = Thread.currentThread().getStackTrace();
+        String method = traces[3].getMethodName();
+        int line = traces[3].getLineNumber();
+        System.out.println("[ERROR][" + method + ":" + line + "] " + msg);
     }
 }
