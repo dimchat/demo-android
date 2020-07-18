@@ -10,13 +10,15 @@ import android.view.ViewGroup;
 
 import chat.dim.ID;
 import chat.dim.model.ConversationDatabase;
+import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ConversationFragment extends ListFragment<RecyclerViewAdapter, DummyContent> {
+public class ConversationFragment extends ListFragment<RecyclerViewAdapter, DummyContent> implements Observer {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -52,5 +54,10 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         getActivity().setTitle(R.string.app_name);
 
         return view;
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        reloadData();
     }
 }

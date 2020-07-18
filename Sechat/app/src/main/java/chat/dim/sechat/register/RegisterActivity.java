@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import chat.dim.User;
@@ -18,6 +19,7 @@ import chat.dim.sechat.SechatApp;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private ImageButton imageButton;
     private EditText nicknameEditText;
     private CheckBox checkBox;
     private Button okBtn;
@@ -31,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         setTitle(R.string.register);
 
+        imageButton = findViewById(R.id.imageButton);
         nicknameEditText = findViewById(R.id.nickname);
         checkBox = findViewById(R.id.checkBox);
         okBtn = findViewById(R.id.okBtn);

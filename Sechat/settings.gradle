@@ -1,2 +1,4 @@
-include ':app', ':Client'
+include ':app'
+include ':Client'
 include ':Common'
+include ':UIKit'

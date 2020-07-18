@@ -35,15 +35,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import chat.dim.notification.Notification;
-import chat.dim.notification.Observer;
-import chat.dim.sechat.history.ConversationFragment;
-
 /**
  * A fragment representing a list of Items.
  */
-public class ListFragment<VA extends ViewAdapter, L extends DummyList>
-        extends Fragment implements Observer {
+public class ListFragment<VA extends ViewAdapter, L extends DummyList> extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -59,31 +54,6 @@ public class ListFragment<VA extends ViewAdapter, L extends DummyList>
      */
     public ListFragment() {
         super();
-    }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            dummyList.reloadData();
-            adapter.notifyDataSetChanged();
-        }
-    };
-
-    @Override
-    public void onReceiveNotification(Notification notification) {
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static ConversationFragment newInstance(int columnCount) {
-        ConversationFragment fragment = new ConversationFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -104,4 +74,18 @@ public class ListFragment<VA extends ViewAdapter, L extends DummyList>
         }
         view.setAdapter(adapter);
     }
+
+    public void reloadData() {
+        Message msg = new Message();
+        msgHandler.sendMessage(msg);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            dummyList.reloadData();
+            adapter.notifyDataSetChanged();
+        }
+    };
 }

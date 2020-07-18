@@ -16,13 +16,14 @@ import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.model.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.Observer;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyContent> {
+public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyContent> implements Observer {
 
     private SearchView searchView;
 
@@ -61,7 +62,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
         if (userInfo instanceof SearchCommand) {
             dummyList.response = (SearchCommand) userInfo;
         }
-        super.onReceiveNotification(notification);
+        reloadData();
     }
 
     private boolean search(String keywords) {
