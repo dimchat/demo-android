@@ -108,10 +108,13 @@ public class Terminal implements StationDelegate {
         // TODO: config FTP server
 
         // connect server
-        Server server = new Server(identifier, host, port);
-        server.delegate = this;
-        server.start(station);
-        setCurrentServer(server);
+        Server server = getCurrentServer();
+        if (server == null || (server.getPort() != port && !server.getHost().equals(host))) {
+            server = new Server(identifier, host, port);
+            server.delegate = this;
+            server.start(station);
+            setCurrentServer(server);
+        }
 
         // get user from database and login
         messenger.login(null);

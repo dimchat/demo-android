@@ -216,6 +216,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public void onReceive(byte[] responseData, Star star) {
+        Log.info("received " + responseData.length + " bytes");
         delegate.onReceivePackage(responseData, this);
     }
 
@@ -227,6 +228,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public void onFinishSend(byte[] requestData, Error error, Star star) {
+        Log.info("sent " + requestData.length + " bytes");
         CompletionHandler handler = null;
 
         String key = RequestWrapper.getKey(requestData);
