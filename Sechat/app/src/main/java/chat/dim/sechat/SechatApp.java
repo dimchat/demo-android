@@ -3,11 +3,9 @@ package chat.dim.sechat;
 import android.app.Activity;
 import android.app.Application;
 import android.content.ContentResolver;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +13,7 @@ import java.util.Map;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
+import chat.dim.ui.Permissions;
 
 public class SechatApp extends Application {
 
@@ -25,25 +24,9 @@ public class SechatApp extends Application {
         ourInstance = this;
     }
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
-    private static String WRITE_EXTERNAL_STORAGE = "android.permission.WRITE_EXTERNAL_STORAGE";
-    private static String[] PERMISSIONS_STORAGE = {
-            READ_EXTERNAL_STORAGE,
-            WRITE_EXTERNAL_STORAGE
-    };
-
-    private static boolean verifyStoragePermissions(Activity activity) {
-        int permission = ActivityCompat.checkSelfPermission(activity, WRITE_EXTERNAL_STORAGE);
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-        return false;
-    }
-
     public static boolean launch(Application app, Activity activity) {
-        if (!verifyStoragePermissions(activity)) {
+        if (!Permissions.canWriteExternalStorage(activity)) {
+            Permissions.requestExternalStoragePermissions(activity);
             return false;
         }
 
