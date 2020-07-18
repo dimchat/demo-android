@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">UIKit</string>
+    <string name="album">相册</string>
+    <string name="camera">相机</string>
 </resources>

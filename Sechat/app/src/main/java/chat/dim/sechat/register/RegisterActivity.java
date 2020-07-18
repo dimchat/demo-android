@@ -1,13 +1,13 @@
 package chat.dim.sechat.register;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import chat.dim.User;
 import chat.dim.extension.Register;
@@ -16,6 +16,8 @@ import chat.dim.sechat.Client;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.ui.Alert;
+import chat.dim.ui.ImagePicker;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -23,6 +25,13 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText nicknameEditText;
     private CheckBox checkBox;
     private Button okBtn;
+
+    private final ImagePicker imagePicker;
+
+    public RegisterActivity() {
+        super();
+        imagePicker = new ImagePicker(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +42,19 @@ public class RegisterActivity extends AppCompatActivity {
 
         setTitle(R.string.register);
 
-        imageButton = findViewById(R.id.imageButton);
-        nicknameEditText = findViewById(R.id.nickname);
-        checkBox = findViewById(R.id.checkBox);
-        okBtn = findViewById(R.id.okBtn);
-
-        okBtn.setOnClickListener(v -> register());
-
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
-        if (user != null) {
+        if (user == null) {
+            // register new account
+            imageButton = findViewById(R.id.imageButton);
+            nicknameEditText = findViewById(R.id.nickname);
+            checkBox = findViewById(R.id.checkBox);
+            okBtn = findViewById(R.id.okBtn);
+
+            imageButton.setOnClickListener(v -> imagePicker.start());
+            okBtn.setOnClickListener(v -> register());
+        } else {
+            // OK
             close();
         }
     }
@@ -54,24 +66,31 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void alert(int resId) {
-        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == ImagePicker.RequestCode.Album.value) {
+            imagePicker.cropPicture(data);
+            return;
+        } else if (requestCode == ImagePicker.RequestCode.Crop.value) {
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void register() {
         if (!SechatApp.launch(getApplication(), this)) {
-            alert(R.string.error_permission);
+            Alert.tips(this, R.string.error_permission);
             return;
         }
 
         String nickname = nicknameEditText.getText().toString();
         if (nickname.length() == 0) {
-            alert(R.string.register_nickname_hint);
+            Alert.tips(this, R.string.register_nickname_hint);
             return;
         }
 
         if (!checkBox.isChecked()) {
-            alert(R.string.register_agree);
+            Alert.tips(this, R.string.register_agree);
             return;
         }
 
@@ -79,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
         Register userRegister = new Register();
         User user = userRegister.createUser(nickname, null);
         if (user == null) {
-            alert(R.string.register_failed);
+            Alert.tips(this, R.string.register_failed);
             return;
         }
 
