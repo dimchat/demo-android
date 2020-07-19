@@ -29,4 +29,5 @@
     <string name="chatman_show_members">显示所有成员</string>
     <string name="export">导出</string>
     <string name="save">保存</string>
+    <string name="register_avatar">请选择一个头像照片</string>
 </resources>

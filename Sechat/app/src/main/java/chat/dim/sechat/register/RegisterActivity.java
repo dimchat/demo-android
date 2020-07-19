@@ -11,12 +11,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import chat.dim.User;
 import chat.dim.extension.Register;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
+import chat.dim.network.FtpServer;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
@@ -27,6 +29,7 @@ import chat.dim.ui.Resources;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private Bitmap avatarImage = null;
     private ImageButton imageButton;
     private EditText nicknameEditText;
     private CheckBox checkBox;
@@ -73,9 +76,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void fetchAvatar(Intent data) {
-        Bitmap bitmap = imagePicker.getBitmap(data);
-        if (bitmap != null) {
-            imageButton.setImageBitmap(bitmap);
+        avatarImage = imagePicker.getBitmap(data);
+        if (avatarImage != null) {
+            imageButton.setImageBitmap(avatarImage);
         }
     }
 
@@ -115,6 +118,11 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        if (avatarImage == null) {
+            Alert.tips(this, R.string.register_avatar);
+            return;
+        }
+
         String nickname = nicknameEditText.getText().toString();
         if (nickname.length() == 0) {
             Alert.tips(this, R.string.register_nickname_hint);
@@ -134,14 +142,21 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // 2. set current user
+        // 2. upload avatar
+        FtpServer ftp = FtpServer.getInstance();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        avatarImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        byte[] imageData = outputStream.toByteArray();
+        ftp.uploadAvatar(imageData, user.identifier);
+
+        // 3. set current user
         Facebook facebook = Facebook.getInstance();
         facebook.setCurrentUser(user);
 
-        // 3. upload meta & profile to DIM station
+        // 4. upload meta & profile to DIM station
         userRegister.upload(user.identifier, user.getMeta(), user.getProfile());
 
-        // 4. show main activity
+        // 5. show main activity
         close();
     }
 }
