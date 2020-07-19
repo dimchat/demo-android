@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
 
 public class AccountFragment extends Fragment {
 

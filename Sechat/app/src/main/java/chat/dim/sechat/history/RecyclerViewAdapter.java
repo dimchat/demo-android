@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import chat.dim.ID;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.ViewAdapter;
 

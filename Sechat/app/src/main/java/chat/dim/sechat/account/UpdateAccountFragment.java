@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import chat.dim.ID;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
 
 public class UpdateAccountFragment extends Fragment {
 

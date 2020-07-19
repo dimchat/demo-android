@@ -1,6 +1,8 @@
 package chat.dim.sechat.register;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,8 +11,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import java.io.IOException;
+
 import chat.dim.User;
 import chat.dim.extension.Register;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.MainActivity;
@@ -18,6 +23,7 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.ImagePicker;
+import chat.dim.ui.Resources;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -66,12 +72,38 @@ public class RegisterActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void fetchAvatar(Intent data) {
+        Bitmap bitmap = imagePicker.getBitmap(data);
+        if (bitmap != null) {
+            imageButton.setImageBitmap(bitmap);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == ImagePicker.RequestCode.Album.value) {
-            imagePicker.cropPicture(data);
+            assert data != null : "Intent data should not be empty";
+            Uri source = data.getData();
+            if (source == null) {
+                // no data
+                return;
+            }
+            String dir = Resources.appendPathComponent(ExternalStorage.root, "tmp");
+            try {
+                if (imagePicker.cropPicture(source, dir)) {
+                    // waiting for crop
+                    return;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            // CROP not support
+            fetchAvatar(data);
             return;
         } else if (requestCode == ImagePicker.RequestCode.Crop.value) {
+            assert data != null : "Intent data should not be empty";
+            fetchAvatar(data);
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);

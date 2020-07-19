@@ -34,8 +34,8 @@ public class Permissions extends ActivityCompat {
 
     public enum RequestCode {
 
-        ExternalStorage (1),
-        Camera          (2);
+        ExternalStorage (0x0101),
+        Camera          (0x0102);
 
         public final int value;
 

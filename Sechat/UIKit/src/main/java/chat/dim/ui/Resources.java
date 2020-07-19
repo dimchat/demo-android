@@ -27,7 +27,20 @@ package chat.dim.ui;
 
 import android.content.Context;
 
+import java.io.File;
+
 public class Resources {
+
+    public static String appendPathComponent(String path, String... components) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(path);
+        String separator = File.separator;
+        for (String item: components) {
+            sb.append(separator);
+            sb.append(item);
+        }
+        return sb.toString();
+    }
 
     public static CharSequence getText(Context context, int resId) {
         return context.getResources().getText(resId);

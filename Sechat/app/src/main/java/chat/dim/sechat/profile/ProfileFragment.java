@@ -18,7 +18,6 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 
 public class ProfileFragment extends Fragment {

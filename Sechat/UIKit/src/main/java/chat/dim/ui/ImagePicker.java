@@ -26,14 +26,31 @@
 package chat.dim.ui;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ImagePicker implements DialogInterface.OnClickListener {
 
     private final Activity activity;
+
+    public float cropAspectX = 1;
+    public float cropAspectY = 1;
+    public float cropOutputX = 256;
+    public float cropOutputY = 256;
+    public boolean cropScale = true;
+    public boolean cropScaleUpIfNeeded = true;
+    public boolean cropNoFaceDetection = true;
 
     public ImagePicker(Activity activity) {
         super();
@@ -74,42 +91,91 @@ public class ImagePicker implements DialogInterface.OnClickListener {
     private void openAlbum() {
         System.out.println("open album");
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, DATA_TYPE);
         activity.startActivityForResult(intent, RequestCode.Album.value);
     }
 
-    public void cropPicture(Intent data) {
-        if (data == null) {
-            return;
+    public Bitmap getBitmap(Intent data) {
+        Bitmap bitmap;
+        Bundle bundle = data.getExtras();
+        if (bundle != null) {
+            bitmap = bundle.getParcelable("data");
+            if (bitmap != null) {
+                return bitmap;
+            }
         }
-        cropPicture(data.getData());
+        Uri source = data.getData();
+        if (source == null) {
+            String action = data.getAction();
+            if (action != null) {
+                source = Uri.parse(action);
+            }
+        }
+        if (source != null) {
+            try {
+                ContentResolver resolver = activity.getContentResolver();
+                InputStream is = resolver.openInputStream(source);
+                bitmap = BitmapFactory.decodeStream(is);
+                if (bitmap != null) {
+                    return bitmap;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
-    public void cropPicture(Uri data) {
-        if (data == null) {
-            return;
+
+    private static Uri createTempFile(String tempDir) throws IOException {
+        String filename = "crop-" + System.currentTimeMillis();
+        File dir = new File(tempDir);
+        if (!dir.exists() && !dir.mkdirs()) {
+            return null;
         }
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        intent.setDataAndType(data, "image/*");
+        File file = File.createTempFile(filename, ".jpg", dir);
+        return Uri.fromFile(file);
+    }
+
+    public boolean cropPicture(Uri data, String tempDir) throws IOException {
+        Uri output = createTempFile(tempDir);
+        if (output == null) {
+            return false;
+        }
+
+        Intent intent = new Intent(ACTION_CROP);
+        intent.setDataAndType(data, DATA_TYPE);
 
         intent.putExtra("crop", true);
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        intent.putExtra("outputX", 512);
-        intent.putExtra("outputY", 512);
-        intent.putExtra("scale", true);
+        intent.putExtra("aspectX", cropAspectX);
+        intent.putExtra("aspectY", cropAspectY);
+        intent.putExtra("outputX", cropOutputX);
+        intent.putExtra("outputY", cropOutputY);
+        intent.putExtra("scale", cropScale);
+        intent.putExtra("scaleUpIfNeeded", cropScaleUpIfNeeded);
+        intent.putExtra("noFaceDetection", cropNoFaceDetection);
 
-        intent.putExtra("return-data", true);
-        //intent.putExtra(MediaStore.EXTRA_OUTPUT, "");
-        //intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, output);
+        intent.putExtra("outputFormat", OUTPUT_FORMAT);
+
+        if (intent.resolveActivity(activity.getPackageManager()) == null) {
+            // CROP not support
+            return false;
+        }
 
         activity.startActivityForResult(intent, RequestCode.Crop.value);
+        return true;
     }
+
+    private static final String ACTION_CROP = "com.android.camera.action.CROP";
+    private static final String DATA_TYPE = "image/*";
+    private static final String OUTPUT_FORMAT = Bitmap.CompressFormat.JPEG.toString();
 
     public enum RequestCode {
 
-        Album  (0x95270001),
-        Camera (0x95270002),
-        Crop   (0x95270004);
+        Album  (0x0201),
+        Camera (0x0202),
+        Crop   (0x0204);
 
         public final int value;
 
