@@ -26,15 +26,43 @@
 package chat.dim.network;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Resource;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
+
+class Resource extends chat.dim.filesys.Resource {
+
+    private byte[] fileContent = null;
+
+    @Override
+    public boolean exists(String filename) throws IOException {
+        InputStream is = Resource.class.getResourceAsStream(filename);
+        return is.available() > 0;
+    }
+
+    @Override
+    public int load(String filename) throws IOException {
+        InputStream is = Resource.class.getClassLoader().getResourceAsStream(filename);
+        int size = is.available();
+        fileContent = new byte[size];
+        int len = is.read(fileContent, 0, size);
+        if (len != size) {
+            throw new IOException("reading error(" + len + " != " + size + "): " + filename);
+        }
+        return len;
+    }
+
+    @Override
+    public byte[] getData() {
+        return fileContent;
+    }
+}
 
 public class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -51,7 +79,7 @@ public class FtpServer {
     private void loadConfig() {
         Resource res = new Resource();
         try {
-            res.load("fsp.js");
+            res.load("ftp.js");
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -117,7 +145,7 @@ public class FtpServer {
         // upload to CDN
         String upload = getUploadAPI();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID}", identifier.toString());
+        upload = upload.replaceAll("\\{ID\\}", identifier.toString());
 
         Downloader downloader = Downloader.getInstance();
         downloader.upload(data, upload, filename, "avatar");
@@ -125,7 +153,7 @@ public class FtpServer {
         // build download URL
         String download = getAvatarAPI();
         assert download != null : "download API error";
-        download = download.replaceAll("\\{ID}", identifier.toString()).replaceAll("\\{filename}", filename);
+        download = download.replaceAll("\\{ID\\}", identifier.toString()).replaceAll("\\{filename\\}", filename);
 
         // store in user's directory
         String path = Database.getEntityFilePath(identifier, "avatar.jpg");

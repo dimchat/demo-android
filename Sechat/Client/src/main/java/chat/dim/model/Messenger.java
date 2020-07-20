@@ -198,6 +198,12 @@ public class Messenger extends chat.dim.common.Messenger {
         }
         ID identifier = getFacebook().getID(profile.getIdentifier());
         assert identifier.equals(user.identifier) : "profile error: " + profile;
+        // check profile
+        if (profile.get("data") == null || profile.get("signature") == null) {
+            profile = null;
+        } else {
+            profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        }
         // pack and send profile to every contact
         Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
@@ -212,13 +218,11 @@ public class Messenger extends chat.dim.common.Messenger {
 
     public boolean postProfile(Profile profile, Meta meta) {
         ID identifier = ID.getInstance(profile.getIdentifier());
-        if (profile != null) {
-            // check profile
-            if (profile.get("data") == null || profile.get("signature") == null) {
-                profile = null;
-            } else {
-                profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
-            }
+        // check profile
+        if (profile.get("data") == null || profile.get("signature") == null) {
+            profile = null;
+        } else {
+            profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         }
         Command cmd = new ProfileCommand(identifier, meta, profile);
         return sendCommand(cmd);
