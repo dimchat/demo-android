@@ -11,12 +11,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import chat.dim.Meta;
+import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.extension.Register;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.Client;
@@ -141,20 +143,27 @@ public class RegisterActivity extends AppCompatActivity {
             Alert.tips(this, R.string.register_failed);
             return;
         }
+        Meta meta = user.getMeta();
+        Profile profile = user.getProfile();
 
         // 2. upload avatar
         FtpServer ftp = FtpServer.getInstance();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        avatarImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        byte[] imageData = outputStream.toByteArray();
-        ftp.uploadAvatar(imageData, user.identifier);
+        byte[] imageData = ImagePicker.compressJPEG(avatarImage);
+        if (imageData != null) {
+            String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
+            if (profile instanceof UserProfile) {
+                ((UserProfile) profile).setAvatar(avatarURL);
+            } else {
+                profile.setProperty("avatar", avatarURL);
+            }
+        }
 
         // 3. set current user
         Facebook facebook = Facebook.getInstance();
         facebook.setCurrentUser(user);
 
         // 4. upload meta & profile to DIM station
-        userRegister.upload(user.identifier, user.getMeta(), user.getProfile());
+        userRegister.upload(user.identifier, meta, profile);
 
         // 5. show main activity
         close();

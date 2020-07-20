@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -124,6 +125,18 @@ public class ImagePicker implements DialogInterface.OnClickListener {
             }
         }
         return null;
+    }
+
+    public static byte[] compressJPEG(Bitmap bitmap) {
+        return compress(bitmap, Bitmap.CompressFormat.JPEG, 50);
+    }
+    public static byte[] compressPNG(Bitmap bitmap) {
+        return compress(bitmap, Bitmap.CompressFormat.PNG, 100);
+    }
+    private static byte[] compress(Bitmap bitmap, Bitmap.CompressFormat format, int quality) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(format, quality, outputStream);
+        return outputStream.toByteArray();
     }
 
     private static Uri createTempFile(String tempDir) throws IOException {
