@@ -43,7 +43,7 @@ public class Resources {
     }
 
     public static CharSequence getText(Context context, int resId) {
-        return context.getResources().getText(resId);
+        return getText(context.getResources(), resId);
     }
 
     public static CharSequence getText(android.content.res.Resources resources, int resId) {

@@ -33,21 +33,11 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Conversation;
 
-public class MessageTable extends ExternalStorage {
+public class MessageTable extends Database {
 
     private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
-
-    // "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
-
-    private static String getMsgFilePath(ID entity) {
-        return root + separator
-                + "dkd" + separator
-                + entity.address + separator
-                + "messages.js";
-    }
 
     private List cacheMessages(Object array, ID entity) {
         if (!(array instanceof List)) {
@@ -63,7 +53,7 @@ public class MessageTable extends ExternalStorage {
     }
 
     private List loadMessages(ID entity) {
-        String path = getMsgFilePath(entity);
+        String path = getMessageFilePath(entity);
         try {
             Object array = loadJSON(path);
             return cacheMessages(array, entity);
@@ -78,7 +68,7 @@ public class MessageTable extends ExternalStorage {
         if (messages == null) {
             return false;
         }
-        String path = getMsgFilePath(entity);
+        String path = getMessageFilePath(entity);
         try {
             return saveJSON(messages, path);
         } catch (IOException e) {
@@ -88,7 +78,7 @@ public class MessageTable extends ExternalStorage {
     }
 
     private boolean removeMessages(ID entity) {
-        String path = getMsgFilePath(entity);
+        String path = getMessageFilePath(entity);
         try {
             return delete(path);
         } catch (IOException e) {
@@ -99,7 +89,7 @@ public class MessageTable extends ExternalStorage {
 
     private boolean clearMessages(ID entity) {
         List<InstantMessage> messages = new ArrayList<>();
-        String path = getMsgFilePath(entity);
+        String path = getMessageFilePath(entity);
         try {
             return saveJSON(messages, path);
         } catch (IOException e) {

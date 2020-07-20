@@ -32,18 +32,14 @@ import java.util.Map;
 import java.util.Set;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class AddressNameTable extends ExternalStorage {
+public class AddressNameTable extends Database {
 
     private Map<String, ID> ansTable = loadRecords();
 
     // "/sdcard/chat.dim.sechat/dim/ans.txt"
-
     private static String getAnsFilePath() {
-        return root + separator
-                + "dim" + separator
-                + "ans.txt";
+        return getCommonFilePath("ans.txt");
     }
 
     private boolean cacheRecord(String name, ID identifier) {

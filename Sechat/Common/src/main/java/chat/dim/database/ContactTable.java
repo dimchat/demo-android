@@ -30,22 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class ContactTable extends ExternalStorage {
+public class ContactTable extends Database {
 
     private List<ID> contactList = null;
     private ID current = null;
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/contacts.js"
-
+    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/contacts.js"
     private static String getContactsFilePath(ID user) {
-        String address = user.address.toString();
-        return root + separator
-                + "mkm" + separator
-                + address.substring(0, 2) + separator
-                + address + separator
-                + "contacts.js";
+        return getEntityFilePath(user, "contacts.js");
     }
 
     @SuppressWarnings("unchecked")

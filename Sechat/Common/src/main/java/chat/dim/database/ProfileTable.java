@@ -31,9 +31,8 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Profile;
-import chat.dim.filesys.ExternalStorage;
 
-public class ProfileTable extends ExternalStorage {
+public class ProfileTable extends Database {
 
     // profile cache
     private Map<ID, Profile> profileTable = new HashMap<>();
@@ -47,14 +46,9 @@ public class ProfileTable extends ExternalStorage {
         return false;
     }
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/profile.js"
+    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/profile.js"
     private static String getProfilePath(ID entity) {
-        String address = entity.address.toString();
-        return root + separator
-                + "mkm" + separator
-                + address.substring(0, 2) + separator
-                + address + separator
-                + "profile.js";
+        return getEntityFilePath(entity, "profile.js");
     }
 
     private Profile loadProfile(ID entity) {

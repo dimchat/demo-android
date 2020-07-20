@@ -35,19 +35,14 @@ import chat.dim.Address;
 import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
-import chat.dim.filesys.ExternalStorage;
 
-public class PrivateTable extends ExternalStorage {
+public class PrivateTable extends Database {
 
     private Map<Address, PrivateKey> keys = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
-
     private String getKeyFilePath(Address address) {
-        return root + separator
-                + ".private" + separator
-                + address + separator
-                + "secret.js";
+        return getUserPrivateFilePath(address, "secret.js");
     }
 
     private PrivateKey loadKey(Address address) {

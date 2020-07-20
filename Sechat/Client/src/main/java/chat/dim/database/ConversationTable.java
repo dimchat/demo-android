@@ -30,24 +30,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Facebook;
 import chat.dim.utils.Log;
 
-public class ConversationTable extends ExternalStorage {
+public class ConversationTable extends Database {
 
     private List<ID> conversationList = null;
-
-    // "/sdcard/chat.dim.sechat/dkd/*"
-    private static String getMsgPath() {
-        return root + separator + "dkd";
-    }
 
     private boolean scanConversations() {
         assert conversationList == null : "conversations not found";
         conversationList = new ArrayList<>();
         // scan 'message.js' in sub dirs of 'dkd'
-        String path = getMsgPath();
+        String path = getMessageDirectory();
         File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) {
             return false;

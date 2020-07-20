@@ -29,6 +29,13 @@ import java.util.List;
 
 public class StringUtils {
 
+    /**
+     *  Join all string items to a string with separator
+     *
+     * @param array     - string items
+     * @param separator - separate char
+     * @return string
+     */
     public static String join(List<String> array, String separator) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
@@ -41,5 +48,43 @@ public class StringUtils {
             sb.append(item);
         }
         return sb.toString();
+    }
+
+    /**
+     *  Get filename from a URL
+     *
+     * @param url - url string
+     * @return filename
+     */
+    public static String filename(String url) {
+        int pos;
+        pos = url.indexOf("?");
+        if (pos > 0) {
+            url = url.substring(0, pos);
+        }
+        pos = url.indexOf("#");
+        if (pos > 0) {
+            url = url.substring(0, pos);
+        }
+        pos = url.lastIndexOf("/");
+        if (pos < 0) {
+            return url;
+        }
+        return url.substring(pos + 1);
+    }
+
+    /**
+     *  Get extension from a filename
+     *
+     * @param filename - file name
+     * @return file extension
+     */
+    public static String extension(String filename) {
+        int pos = filename.lastIndexOf(".");
+        if (pos > 0) {
+            return filename.substring(pos + 1);
+        } else {
+            return null;
+        }
     }
 }

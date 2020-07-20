@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.database.Database;
 import chat.dim.digest.MD5;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Resource;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
@@ -108,14 +110,14 @@ public class FtpServer {
         return apiAvatar;
     }
 
-    public String uploadAvatar(byte[] data, ID sender) {
+    public String uploadAvatar(byte[] data, ID identifier) {
 
         String filename = Hex.encode(MD5.digest(data)) + ".jpg";
 
         // upload to CDN
         String upload = getUploadAPI();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID}", sender.toString());
+        upload = upload.replaceAll("\\{ID}", identifier.toString());
 
         Downloader downloader = Downloader.getInstance();
         downloader.upload(data, upload, filename, "avatar");
@@ -123,7 +125,23 @@ public class FtpServer {
         // build download URL
         String download = getAvatarAPI();
         assert download != null : "download API error";
+        download = download.replaceAll("\\{ID}", identifier.toString()).replaceAll("\\{filename}", filename);
 
-        return download.replaceAll("\\{ID}", sender.toString()).replaceAll("\\{filename}", filename);
+        // store in user's directory
+        String path = Database.getEntityFilePath(identifier, "avatar.jpg");
+        try {
+            ExternalStorage.saveData(data, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // save a copy to cache directory
+        path = Downloader.getCachePath(download);
+        try {
+            ExternalStorage.saveData(data, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return download;
     }
 }

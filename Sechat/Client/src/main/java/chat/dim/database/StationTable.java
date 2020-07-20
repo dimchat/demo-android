@@ -30,17 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class StationTable extends ExternalStorage {
+public class StationTable extends Database {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/stations.js"
 
     private static String getStationsFilePath(ID sp) {
-        return root + separator
-                + "dim" + separator
-                + sp.address + separator
-                + "stations.js";
+        return getProviderFilePath(sp, "stations.js");
     }
 
     public boolean saveStations(List<Map<String, Object>> stations, ID sp) {

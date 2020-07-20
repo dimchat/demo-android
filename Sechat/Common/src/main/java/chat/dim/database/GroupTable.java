@@ -32,21 +32,14 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class GroupTable extends ExternalStorage {
+public class GroupTable extends Database {
 
     private Map<ID, List<ID>> membersMap = new HashMap<>();
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/members.js"
-
+    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/members.js"
     private static String getMembersFilePath(ID group) {
-        String address = group.address.toString();
-        return root + separator
-                + "mkm" + separator
-                + address.substring(0, 2) + separator
-                + address + separator
-                + "members.js";
+        return getEntityFilePath(group, "members.js");
     }
 
     @SuppressWarnings("unchecked")

@@ -31,9 +31,8 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Meta;
-import chat.dim.filesys.ExternalStorage;
 
-public class MetaTable extends ExternalStorage {
+public class MetaTable extends Database {
 
     // profile cache
     private Map<ID, Meta> metaTable = new HashMap<>();
@@ -46,14 +45,9 @@ public class MetaTable extends ExternalStorage {
         return false;
     }
 
-    // "/sdcard/chat.dim.sechat/mkm/{address}/meta.js"
+    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/meta.js"
     private static String getMetaFilePath(ID entity) {
-        String address = entity.address.toString();
-        return root + separator
-                + "mkm" + separator
-                + address.substring(0, 2) + separator
-                + address + separator
-                + "meta.js";
+        return getEntityFilePath(entity, "meta.js");
     }
 
     private Meta loadMeta(ID entity) {

@@ -31,16 +31,17 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class ProviderTable extends ExternalStorage {
+public class ProviderTable extends Database {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
     private String getConfigFilePath(ID sp) {
-        return root + separator
-                + "dim" + separator
-                + sp.address + separator
-                + "config.js";
+        return getProviderFilePath(sp, "config.js");
+    }
+
+    // "/sdcard/chat.dim.sechat/dim/service_providers.js"
+    private String getListFilePath() {
+        return getCommonFilePath("service_providers.js");
     }
 
     @SuppressWarnings("unchecked")
@@ -59,17 +60,9 @@ public class ProviderTable extends ExternalStorage {
         return config;
     }
 
-    // "/sdcard/chat.dim.sechat/dim/service_providers.js"
-
-    private static String getProvidersFilePath() {
-        return root + separator
-                + "dim" + separator
-                + "service_providers.js";
-    }
-
     @SuppressWarnings("unchecked")
     public List<String> allProviders() {
-        String path = getProvidersFilePath();
+        String path = getListFilePath();
         try {
             return (List<String>) loadJSON(path);
         } catch (IOException e) {
@@ -79,7 +72,7 @@ public class ProviderTable extends ExternalStorage {
     }
 
     public boolean saveProviders(List<String> providers) {
-        String path = getProvidersFilePath();
+        String path = getListFilePath();
         try {
             return saveJSON(providers, path);
         } catch (IOException e) {

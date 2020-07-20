@@ -41,10 +41,11 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.database.Database;
 import chat.dim.digest.MD5;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.utils.StringUtils;
 
 public class Downloader extends Thread {
     private static final Downloader ourInstance = new Downloader();
@@ -338,7 +339,7 @@ public class Downloader extends Thread {
         if (code == 200) {
             InputStream inputStream = connection.getInputStream();
 
-            filepath = getFilepath(urlString);
+            filepath = prepareFilePath(urlString);
             File file = new File(filepath);
             FileOutputStream outputStream = new FileOutputStream(file);
 
@@ -357,48 +358,36 @@ public class Downloader extends Thread {
         return filepath;
     }
 
-    private static String getFilepath(String url) throws IOException {
-        byte[] data = url.getBytes(Charset.forName("UTF-8"));
-        data = MD5.digest(data);
-        String filename = Hex.encode(data);
-        String ext = getFileExt(url);
-        String dir = ExternalStorage.root + ExternalStorage.separator
-                + "caches" + ExternalStorage.separator
-                + filename.substring(0, 2);
+    private static String prepareFilePath(String url) throws IOException {
+        String path = getCachePath(url);
+        String dir = Database.getParentDirectory(path);
+        assert dir != null : "should not happen";
         File file = new File(dir);
         if (!file.exists() && !file.mkdirs()) {
             throw new IOException("failed to create directory: " + file);
         }
-        return dir + ExternalStorage.separator + filename + "." + ext;
+        return path;
     }
 
-    private static String getFileExt(String url) {
-        int pos;
-        pos = url.indexOf("?");
-        if (pos > 0) {
-            url = url.substring(0, pos);
+    // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
+    public static String getCachePath(String url) {
+        String filename = StringUtils.filename(url);
+        String ext = StringUtils.extension(filename);
+        byte[] data = url.getBytes(Charset.forName("UTF-8"));
+        if (ext == null || ext.length() == 0) {
+            filename = Hex.encode(MD5.digest(data));
+        } else {
+            filename = Hex.encode(MD5.digest(data)) + "." + ext;
         }
-        pos = url.indexOf("#");
-        if (pos > 0) {
-            url = url.substring(0, pos);
-        }
-        pos = url.lastIndexOf(".");
-        if (pos > 0) {
-            return url.substring(pos + 1);
-        }
-        return "tmp";
+        return Database.getCacheFilePath(filename);
     }
 
     private static String check(String url) {
-        try {
-            String filepath = getFilepath(url);
-            File file = new File(filepath);
-            if (file.exists()) {
-                // already downloaded
-                return filepath;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        String filepath = getCachePath(url);
+        File file = new File(filepath);
+        if (file.exists()) {
+            // already downloaded
+            return filepath;
         }
         return null;
     }

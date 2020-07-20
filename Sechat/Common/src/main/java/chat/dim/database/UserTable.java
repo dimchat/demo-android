@@ -30,18 +30,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
 
-public class UserTable extends ExternalStorage {
+public class UserTable extends Database {
 
     private List<ID> userList = null;
 
     // "/sdcard/chat.dim.sechat/dim/users.js"
-
     private static String getUsersFilePath() {
-        return root + separator
-                + "dim" + separator
-                + "users.js";
+        return getCommonFilePath("users.js");
     }
 
     private boolean saveUsers() {
