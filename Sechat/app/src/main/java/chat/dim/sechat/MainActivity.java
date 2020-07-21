@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import chat.dim.Meta;
+import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Messenger;
 import chat.dim.sechat.account.AccountFragment;
@@ -72,8 +74,17 @@ public class MainActivity extends AppCompatActivity {
             intent.setClass(getApplicationContext(), RegisterActivity.class);
             startActivity(intent);
         } else {
-            Messenger messenger = Messenger.getInstance();
-            messenger.postProfile(user.getProfile(), user.getMeta());
+            Meta meta = user.getMeta();
+            if (meta == null) {
+                throw new NullPointerException("failed to get user meta: " + user);
+            }
+            Profile profile = user.getProfile();
+            // check profile
+            if (profile != null && profile.get("data") != null && profile.get("signature") != null) {
+                profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+                Messenger messenger = Messenger.getInstance();
+                messenger.postProfile(profile, meta);
+            }
         }
     }
 

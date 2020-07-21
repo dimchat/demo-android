@@ -25,8 +25,8 @@
  */
 package chat.dim.model;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,9 @@ import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
 import chat.dim.database.StationTable;
+import chat.dim.filesys.Paths;
+import chat.dim.filesys.Resource;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 
 public class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
@@ -112,32 +113,17 @@ public class NetworkDatabase {
     /**
      *  Resource Loader for built-in accounts
      */
-    private static class ResourceLoader {
-
-        static Map loadJSON(String filename) throws IOException {
-            byte[] data = loadData(filename);
-            return (Map) JSON.decode(data);
-        }
-
-        private static String loadText(String filename) throws IOException {
-            byte[] data = loadData(filename);
-            return UTF8.decode(data);
-        }
-
-        private static byte[] loadData(String filename) throws IOException {
-            InputStream is = ResourceLoader.class.getClassLoader().getResourceAsStream(filename);
-            assert is != null : "failed to get resource: " + filename;
-            int size = is.available();
-            byte[] data = new byte[size];
-            int len = is.read(data, 0, size);
-            assert len == size : "reading resource error: " + len + " != " + size;
-            return data;
-        }
+    private static Map loadJSON(String path) throws IOException {
+        Resource resource = new Resource();
+        resource.load(path);
+        byte[] data = resource.getData();
+        return (Map) JSON.decode(data);
     }
 
     private static Meta loadMeta(ID identifier) {
         try {
-            Map meta = ResourceLoader.loadJSON(identifier.address + "/meta.js");
+            String path = Paths.appendPathComponent(File.separator + identifier.address.toString(), "meta.js");
+            Map meta = loadJSON(path);
             return Meta.getInstance(meta);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -162,6 +148,7 @@ public class NetworkDatabase {
 
         // station IP
 //        String host = "127.0.0.1";
+//        String host = "192.168.3.121";
         String host = "134.175.87.98";
 
         // station Port

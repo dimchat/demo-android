@@ -18,9 +18,9 @@ import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.extension.Register;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
-import chat.dim.network.Downloader;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.MainActivity;
@@ -28,7 +28,6 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.ImagePicker;
-import chat.dim.ui.Resources;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -94,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
                 // no data
                 return;
             }
-            String dir = Resources.appendPathComponent(ExternalStorage.root, "tmp");
+            String dir = Paths.appendPathComponent(ExternalStorage.root, "tmp");
             try {
                 if (imagePicker.cropPicture(source, dir)) {
                     // waiting for crop

@@ -25,44 +25,17 @@
  */
 package chat.dim.network;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Resource;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
-
-class Resource extends chat.dim.filesys.Resource {
-
-    private byte[] fileContent = null;
-
-    @Override
-    public boolean exists(String filename) throws IOException {
-        InputStream is = Resource.class.getResourceAsStream(filename);
-        return is.available() > 0;
-    }
-
-    @Override
-    public int load(String filename) throws IOException {
-        InputStream is = Resource.class.getClassLoader().getResourceAsStream(filename);
-        int size = is.available();
-        fileContent = new byte[size];
-        int len = is.read(fileContent, 0, size);
-        if (len != size) {
-            throw new IOException("reading error(" + len + " != " + size + "): " + filename);
-        }
-        return len;
-    }
-
-    @Override
-    public byte[] getData() {
-        return fileContent;
-    }
-}
 
 public class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -75,20 +48,27 @@ public class FtpServer {
     private String apiDownload = null;
     private String apiAvatar = null;
 
+    /**
+     *  Resource Loader for configuration
+     */
     @SuppressWarnings("unchecked")
+    private static Map<String, String> loadJSON(String path) throws IOException {
+        Resource resource = new Resource();
+        resource.load(path);
+        byte[] data = resource.getData();
+        return (Map<String, String>) JSON.decode(data);
+    }
+
     private void loadConfig() {
-        Resource res = new Resource();
+        Map<String, String> info = null;
         try {
-            res.load("ftp.js");
+            info = loadJSON(File.separator + "ftp.js");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (info == null) {
             return;
         }
-        byte[] data = res.getData();
-        if (data == null) {
-            return;
-        }
-        Map<String, String> info = (Map<String, String>) JSON.decode(data);
         String upload = info.get("upload");
         if (upload != null) {
             apiUpload = upload;

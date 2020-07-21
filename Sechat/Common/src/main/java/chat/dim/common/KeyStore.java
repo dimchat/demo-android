@@ -1,4 +1,9 @@
 /* license: https://mit-license.org
+ *
+ *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
+ *
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -25,22 +30,46 @@
  */
 package chat.dim.common;
 
-public class KeyStore extends chat.dim.KeyStore {
+import java.io.IOException;
+import java.util.Map;
+
+import chat.dim.core.KeyCache;
+import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
+
+public class KeyStore extends KeyCache {
+
     private static final KeyStore ourInstance = new KeyStore();
     public static KeyStore getInstance() { return ourInstance; }
     private KeyStore() {
         super();
     }
 
-//    @Override
-//    public boolean saveKeys(Map keyMap) {
-//        // TODO: save key map into local cache
-//        return super.saveKeys(keyMap);
-//    }
-//
-//    @Override
-//    public Map loadKeys() {
-//        // TODO: load key map from local cache
-//        return super.loadKeys();
-//    }
+    // '/tmp/.dim/protected/keystore.js'
+    private String getPath() {
+        String root = ExternalStorage.root;
+        return Paths.appendPathComponent(root, "protected", "keystore.js");
+    }
+
+    @Override
+    public boolean saveKeys(Map keyMap) {
+        try {
+            String path = getPath();
+            return ExternalStorage.saveJSON(keyMap, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public Map loadKeys() {
+        try {
+            String path = getPath();
+            return (Map) ExternalStorage.loadJSON(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -10,9 +10,9 @@ import android.os.Bundle;
 import java.io.IOException;
 
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.sechat.R;
 import chat.dim.ui.ImagePicker;
-import chat.dim.ui.Resources;
 
 public class UpdateAccountActivity extends AppCompatActivity {
 
@@ -53,7 +53,7 @@ public class UpdateAccountActivity extends AppCompatActivity {
                 // no data
                 return;
             }
-            String dir = Resources.appendPathComponent(ExternalStorage.root, "tmp");
+            String dir = Paths.appendPathComponent(ExternalStorage.root, "tmp");
             try {
                 if (imagePicker.cropPicture(source, dir)) {
                     // waiting for crop
