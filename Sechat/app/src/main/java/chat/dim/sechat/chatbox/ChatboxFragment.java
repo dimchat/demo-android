@@ -2,6 +2,7 @@ package chat.dim.sechat.chatbox;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,8 +12,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.util.List;
@@ -29,9 +31,11 @@ import chat.dim.model.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
+import chat.dim.ui.ImagePicker;
 
 public class ChatboxFragment extends Fragment implements Observer {
 
@@ -40,7 +44,7 @@ public class ChatboxFragment extends Fragment implements Observer {
 
     private ListView msgListView;
     private EditText inputText;
-    private Button sendButton;
+    private ImageButton photoButton;
 
     private Conversation chatBox = null;
 
@@ -92,7 +96,29 @@ public class ChatboxFragment extends Fragment implements Observer {
         return mViewModel.getMessages(chatBox);
     }
 
-    private InstantMessage sendText(String text) {
+    //
+    //  Send Message
+    //
+
+    private InstantMessage sendMessage(InstantMessage iMsg) {
+        // prepare to send
+        Callback callback = (result, error) -> {
+            // TODO: check sending status
+        };
+        Messenger messenger = Messenger.getInstance();
+        if (!messenger.sendMessage(iMsg, callback)) {
+            throw new RuntimeException("failed to send message: " + iMsg);
+        }
+
+        if (chatBox.identifier.isUser()) {
+            mViewModel.insertMessage(iMsg, chatBox);
+        }
+        // TODO: what about group message?
+
+        return iMsg;
+    }
+
+    private InstantMessage sendContent(Content content) {
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
         if (user == null) {
@@ -104,34 +130,30 @@ public class ChatboxFragment extends Fragment implements Observer {
         // pack message content
         ID sender = user.identifier;
         ID receiver = chatBox.identifier;
-        Content content = new TextContent(text);
         if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
         InstantMessage iMsg = new InstantMessage(content, sender, receiver);
-        // prepare to send
-        Callback callback = (result, error) -> {
-            // TODO:
-        };
-        Messenger messenger = Messenger.getInstance();
-        if (!messenger.sendMessage(iMsg, callback)) {
-            throw new RuntimeException("failed to send message: " + iMsg);
-        }
-        return iMsg;
+        return sendMessage(iMsg);
     }
 
-    private boolean send(String text) {
+    private void send() {
+        String text = inputText.getText().toString();
         if (text.length() == 0) {
-            return false;
+            return;
         }
-        InstantMessage iMsg = sendText(text);
-        if (iMsg == null) {
-            return false;
+        Content content = new TextContent(text);
+        InstantMessage iMsg = sendContent(content);
+        if (iMsg != null) {
+            // sent OK
+            inputText.setText("");
         }
-        if (chatBox.identifier.isUser()) {
-            return mViewModel.insertMessage(iMsg, chatBox);
-        }
-        return true;
+    }
+
+    void sendImage(Bitmap bitmap) {
+        byte[] jpeg = ImagePicker.compressJPEG(bitmap);
+        Content content = new ImageContent(jpeg, "photo.jpeg");
+        sendContent(content);
     }
 
     @Nullable
@@ -142,14 +164,20 @@ public class ChatboxFragment extends Fragment implements Observer {
 
         msgListView = view.findViewById(R.id.msgListView);
         inputText = view.findViewById(R.id.inputMsg);
-        sendButton = view.findViewById(R.id.sendMsg);
+        photoButton = view.findViewById(R.id.photoButton);
 
-        sendButton.setOnClickListener(v -> {
-            String text = inputText.getText().toString();
-            if (send(text)) {
-                // sent OK
-                inputText.setText("");
+        inputText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                send();
+                return true;
             }
+            return false;
+        });
+
+        photoButton.setOnClickListener(v -> {
+            ChatboxActivity activity = (ChatboxActivity) getActivity();
+            assert activity != null : "chatbox activity error";
+            activity.startImagePicker();
         });
 
         return view;

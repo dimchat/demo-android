@@ -33,14 +33,16 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="@string/chat_input"
-                android:lines="1" />
+                android:imeOptions="actionSend"
+                android:lines="1"
+                android:singleLine="true" />
 
-            <Button
-                android:id="@+id/sendMsg"
+            <ImageButton
+                android:id="@+id/photoButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/chat_send" />
+                android:src="@android:drawable/ic_menu_add" />
+
         </LinearLayout>
     </LinearLayout>
 

@@ -2,16 +2,11 @@ package chat.dim.sechat.register;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
-import java.io.IOException;
 
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -28,21 +23,15 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.ImagePicker;
+import chat.dim.ui.ImagePickerActivity;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends ImagePickerActivity {
 
     private Bitmap avatarImage = null;
     private ImageButton imageButton;
     private EditText nicknameEditText;
     private CheckBox checkBox;
     private Button okBtn;
-
-    private final ImagePicker imagePicker;
-
-    public RegisterActivity() {
-        super();
-        imagePicker = new ImagePicker(this);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
             checkBox = findViewById(R.id.checkBox);
             okBtn = findViewById(R.id.okBtn);
 
-            imageButton.setOnClickListener(v -> imagePicker.start());
+            imageButton.setOnClickListener(v -> startImagePicker());
             okBtn.setOnClickListener(v -> register());
         } else {
             // OK
@@ -75,43 +64,6 @@ public class RegisterActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setClass(getApplicationContext(), MainActivity.class);
         startActivity(intent);
-    }
-
-    private void fetchAvatar(Intent data) {
-        avatarImage = imagePicker.getBitmap(data);
-        if (avatarImage != null) {
-            imageButton.setImageBitmap(avatarImage);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == ImagePicker.RequestCode.Album.value) {
-            assert data != null : "Intent data should not be empty";
-            Uri source = data.getData();
-            if (source == null) {
-                // no data
-                return;
-            }
-            String dir = Paths.appendPathComponent(ExternalStorage.root, "tmp");
-            try {
-                if (imagePicker.cropPicture(source, dir)) {
-                    // waiting for crop
-                    return;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-            // CROP not support
-            fetchAvatar(data);
-            return;
-        } else if (requestCode == ImagePicker.RequestCode.Crop.value) {
-            assert data != null : "Intent data should not be empty";
-            fetchAvatar(data);
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void register() {
@@ -167,5 +119,22 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 5. show main activity
         close();
+    }
+
+    //
+    //  ImagePickerActivity
+    //
+
+    @Override
+    protected String getTemporaryDirectory() {
+        return Paths.appendPathComponent(ExternalStorage.root, "tmp");
+    }
+
+    @Override
+    protected void fetchImage(Bitmap bitmap) {
+        if (bitmap != null) {
+            avatarImage = bitmap;
+            imageButton.setImageBitmap(avatarImage);
+        }
     }
 }

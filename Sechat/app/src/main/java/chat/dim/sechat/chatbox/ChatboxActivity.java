@@ -1,20 +1,25 @@
 package chat.dim.sechat.chatbox;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import chat.dim.ID;
+import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
+import chat.dim.ui.ImagePickerActivity;
 
-public class ChatboxActivity extends AppCompatActivity {
+public class ChatboxActivity extends ImagePickerActivity {
 
     private ID identifier = null;
+
+    ChatboxFragment chatboxFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +36,9 @@ public class ChatboxActivity extends AppCompatActivity {
         setTitle(chatBox.getTitle());
 
         if (savedInstanceState == null) {
+            chatboxFragment = ChatboxFragment.newInstance(chatBox);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, ChatboxFragment.newInstance(chatBox))
+                    .replace(R.id.container, chatboxFragment)
                     .commitNow();
         }
     }
@@ -52,5 +58,21 @@ public class ChatboxActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return true;
+    }
+
+    //
+    //  ImagePickerActivity
+    //
+
+    @Override
+    protected String getTemporaryDirectory() {
+        return Paths.appendPathComponent(ExternalStorage.root, "tmp");
+    }
+
+    @Override
+    protected void fetchImage(Bitmap bitmap) {
+        if (bitmap != null) {
+            chatboxFragment.sendImage(bitmap);
+        }
     }
 }

@@ -67,7 +67,7 @@ public class UpdateAccountFragment extends Fragment {
 
         UpdateAccountActivity activity = (UpdateAccountActivity) getActivity();
         assert activity != null : "should not happen";
-        avatarButton.setOnClickListener(v -> activity.imagePicker.start());
+        avatarButton.setOnClickListener(v -> activity.startImagePicker());
 
         // nickname
         String nickname = mViewModel.getNickname();
