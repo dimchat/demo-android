@@ -22,8 +22,8 @@ import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
-import chat.dim.ui.ImagePicker;
 import chat.dim.ui.ImagePickerActivity;
+import chat.dim.ui.Images;
 
 public class RegisterActivity extends ImagePickerActivity {
 
@@ -100,7 +100,7 @@ public class RegisterActivity extends ImagePickerActivity {
 
         // 2. upload avatar
         FtpServer ftp = FtpServer.getInstance();
-        byte[] imageData = ImagePicker.compressJPEG(avatarImage);
+        byte[] imageData = Images.jpeg(avatarImage);
         if (imageData != null) {
             String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
             if (profile instanceof UserProfile) {

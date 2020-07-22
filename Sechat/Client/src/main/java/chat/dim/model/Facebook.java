@@ -32,7 +32,7 @@ import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
-import chat.dim.http.HTTPClient;
+import chat.dim.network.FtpServer;
 
 public class Facebook extends chat.dim.common.Facebook {
     private static final Facebook ourInstance = new Facebook();
@@ -42,21 +42,17 @@ public class Facebook extends chat.dim.common.Facebook {
     }
 
     public String getAvatar(ID identifier) {
+        String url = null;
         Profile profile = getProfile(identifier);
-        if (profile == null) {
-            return null;
+        if (profile != null) {
+            if (profile instanceof UserProfile) {
+                url = ((UserProfile) profile).getAvatar();
+            } else {
+                url = (String) profile.getProperty("avatar");
+            }
         }
-        String url;
-        if (profile instanceof UserProfile) {
-            url = ((UserProfile) profile).getAvatar();
-        } else {
-            url = (String) profile.getProperty("avatar");
-        }
-        if (url == null) {
-            return null;
-        }
-        HTTPClient httpClient = HTTPClient.getInstance();
-        return httpClient.download(url);
+        FtpServer ftp = FtpServer.getInstance();
+        return ftp.downloadAvatar(url, identifier);
     }
 
     //-------- EntityDataSource

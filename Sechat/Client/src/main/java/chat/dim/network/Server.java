@@ -25,6 +25,7 @@
  */
 package chat.dim.network;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ import chat.dim.MessengerDelegate;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.User;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
@@ -286,15 +288,24 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         FileContent content = (FileContent) iMsg.content;
         String filename = content.getFilename();
 
-        // TODO: upload onto FTP server
-        return null;
+        FtpServer ftp = FtpServer.getInstance();
+        return ftp.uploadEncryptedData(data, filename, sender);
     }
 
     @Override
     public byte[] downloadData(String url, InstantMessage iMsg) {
-        // TODO: download from FTP server
 
-        return new byte[0];
+        FtpServer ftp = FtpServer.getInstance();
+        String path = ftp.downloadEncryptedData(url);
+        if (path == null) {
+            return null;
+        }
+        try {
+            return ExternalStorage.loadData(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     //-------- StateDelegate

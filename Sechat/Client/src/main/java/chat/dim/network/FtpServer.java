@@ -25,7 +25,6 @@
  */
 package chat.dim.network;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Resources;
 import chat.dim.format.Hex;
 import chat.dim.http.HTTPClient;
+import chat.dim.utils.StringUtils;
 
 public class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -108,9 +108,13 @@ public class FtpServer {
         return apiAvatar;
     }
 
-    public String uploadAvatar(byte[] data, ID identifier) {
+    //
+    //  Avatar
+    //
 
-        String filename = Hex.encode(MD5.digest(data)) + ".jpeg";
+    public String uploadAvatar(byte[] imageData, ID identifier) {
+
+        String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
 
         // upload to CDN
         String upload = getUploadAPI();
@@ -118,7 +122,7 @@ public class FtpServer {
         upload = upload.replaceAll("\\{ID\\}", identifier.toString());
 
         HTTPClient httpClient = HTTPClient.getInstance();
-        httpClient.upload(data, upload, filename, "avatar");
+        httpClient.upload(imageData, upload, filename, "avatar");
 
         // build download URL
         String download = getAvatarAPI();
@@ -128,18 +132,76 @@ public class FtpServer {
         // store in user's directory
         String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
         try {
-            ExternalStorage.saveData(data, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // save a copy to cache directory
-        path = HTTPClient.getCachePath(download);
-        try {
-            ExternalStorage.saveData(data, path);
+            ExternalStorage.saveData(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // save a copy to cache directory
+        saveImage(imageData, filename);
+
         return download;
+    }
+
+    public String downloadAvatar(String url, ID identifier) {
+        String path;
+
+        if (url != null) {
+            HTTPClient httpClient = HTTPClient.getInstance();
+            path = httpClient.download(url);
+            if (path != null) {
+                return path;
+            }
+        }
+
+        path = Database.getEntityFilePath(identifier, "avatar.jpeg");
+        if (ExternalStorage.exists(path)) {
+            return path;
+        }
+        return null;
+    }
+
+    //
+    //  File data: Image, Audio, Video, ...
+    //
+
+    public boolean saveImage(byte[] imageData, String filename) {
+        // save a copy to cache directory
+        String path = Database.getCacheFilePath(filename);
+        try {
+            return ExternalStorage.saveData(imageData, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public String uploadEncryptedData(byte[] data, String filename, ID sender) {
+
+        // prepare filename (make sure that filenames won't conflict)
+        filename = Hex.encode(MD5.digest(data));
+        String ext = StringUtils.extension(filename);
+        if (ext != null && ext.length() > 0) {
+            filename = filename + "." + ext;
+        }
+
+        // upload to CDN
+        String upload = getUploadAPI();
+        assert upload != null : "upload API error";
+        upload = upload.replaceAll("\\{ID\\}", sender.toString());
+
+        HTTPClient httpClient = HTTPClient.getInstance();
+        httpClient.upload(data, upload, filename, "file");
+
+        // build download URL
+        String download = getAvatarAPI();
+        assert download != null : "download API error";
+        return download.replaceAll("\\{ID\\}", sender.toString()).replaceAll("\\{filename\\}", filename);
+    }
+
+    public String downloadEncryptedData(String url) {
+
+        HTTPClient httpClient = HTTPClient.getInstance();
+        return httpClient.download(url);
     }
 }

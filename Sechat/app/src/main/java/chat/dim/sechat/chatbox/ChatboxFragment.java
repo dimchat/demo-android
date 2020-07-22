@@ -9,6 +9,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +26,12 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
+import chat.dim.digest.MD5;
+import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
+import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
@@ -35,7 +39,7 @@ import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.ui.ImagePicker;
+import chat.dim.ui.Images;
 
 public class ChatboxFragment extends Fragment implements Observer {
 
@@ -150,9 +154,34 @@ public class ChatboxFragment extends Fragment implements Observer {
         }
     }
 
+    private static final Images.Size MAX_SIZE = new Images.Size(1024, 1024);
+
     void sendImage(Bitmap bitmap) {
-        byte[] jpeg = ImagePicker.compressJPEG(bitmap);
-        Content content = new ImageContent(jpeg, "photo.jpeg");
+
+        // check image size
+        Images.Size size = Images.getSize(bitmap);
+        if (size.width > MAX_SIZE.width || size.height > MAX_SIZE.height) {
+            size = Images.aspectFit(size, MAX_SIZE);
+            bitmap = Images.scale(bitmap, size);
+        }
+
+        // image file
+        byte[] imageData = Images.jpeg(bitmap);
+        String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
+        FtpServer ftp = FtpServer.getInstance();
+        ftp.saveImage(imageData, filename);
+
+        // thumbnail
+        byte[] thumbnail = Images.thumbnail(bitmap);
+        //ftp.saveThumbnail(thumbnail, filename);
+
+        // add image data length & thumbnail into message content
+        byte[] jpeg = Images.jpeg(bitmap);
+        ImageContent content = new ImageContent(jpeg, "photo.jpeg");
+        content.setFilename(filename);
+        content.put("length", imageData.length);
+        content.setThumbnail(thumbnail);
+
         sendContent(content);
     }
 
@@ -168,6 +197,13 @@ public class ChatboxFragment extends Fragment implements Observer {
 
         inputText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
+                send();
+                return true;
+            }
+            return false;
+        });
+        inputText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 send();
                 return true;
             }

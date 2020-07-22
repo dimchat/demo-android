@@ -95,30 +95,30 @@ class Request {
         connection.setInstanceFollowRedirects(true);
         connection.setConnectTimeout(5000);
         connection.connect();
+
         int code = connection.getResponseCode();
         if (code == 200) {
-            InputStream inputStream = connection.getInputStream();
-
-            filepath = prepareFilePath(urlString);
-            File file = new File(filepath);
-            FileOutputStream outputStream = new FileOutputStream(file);
-
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, len);
+            try (InputStream inputStream = connection.getInputStream()) {
+                filepath = prepareFilePath(urlString);
+                File file = new File(filepath);
+                try (FileOutputStream outputStream = new FileOutputStream(file)) {
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, len);
+                    }
+                    outputStream.flush();
+                }
             }
-
-            outputStream.flush();
-            outputStream.close();
-
-            inputStream.close();
         }
+        connection.disconnect();
 
         return filepath;
     }
 
     static String post(UploadTask task) throws IOException {
+        String response = null;
+
         byte[] data = buildHTTPBody(task.data, task.filename, task.name);
 
         URL url = new URL(task.url);
@@ -132,25 +132,28 @@ class Request {
 
         connection.setRequestProperty("Content-Type", CONTENT_TYPE);
         connection.setRequestProperty("Content-Length", String.valueOf(data.length));
-        //connection.connect();
+        connection.connect();
 
-        OutputStream outputStream = connection.getOutputStream();
-        outputStream.write(data);
-        outputStream.flush();
-        outputStream.close();
+        try (OutputStream outputStream = connection.getOutputStream()) {
+            outputStream.write(data);
+            outputStream.flush();
+        }
 
         int code = connection.getResponseCode();
         if (code == 200) {
-            InputStream inputStream = connection.getInputStream();
-            StringBuilder sb = new StringBuilder();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                sb.append(new String(buffer, 0, len));
+            try (InputStream inputStream = connection.getInputStream()) {
+                StringBuilder sb = new StringBuilder();
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    sb.append(new String(buffer, 0, len));
+                }
+                response = sb.toString();
             }
-            return sb.toString();
         }
-        return null;
+        connection.disconnect();
+
+        return response;
     }
 
     private static byte[] buildHTTPBody(byte[] data, String filename, String name) {

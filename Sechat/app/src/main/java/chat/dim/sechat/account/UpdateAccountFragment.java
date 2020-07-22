@@ -20,7 +20,7 @@ import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.R;
-import chat.dim.ui.ImagePicker;
+import chat.dim.ui.Images;
 
 public class UpdateAccountFragment extends Fragment {
 
@@ -108,7 +108,7 @@ public class UpdateAccountFragment extends Fragment {
         // upload avatar
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
-            byte[] imageData = ImagePicker.compressJPEG(avatarImage);
+            byte[] imageData = Images.jpeg(avatarImage);
             if (imageData != null) {
                 String avatarURL = ftp.uploadAvatar(imageData, identifier);
                 if (profile instanceof UserProfile) {
