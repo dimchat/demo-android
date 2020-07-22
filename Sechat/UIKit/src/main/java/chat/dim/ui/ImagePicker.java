@@ -145,7 +145,7 @@ public class ImagePicker implements DialogInterface.OnClickListener {
         if (!dir.exists() && !dir.mkdirs()) {
             return null;
         }
-        File file = File.createTempFile(filename, ".jpg", dir);
+        File file = File.createTempFile(filename, ".jpeg", dir);
         return Uri.fromFile(file);
     }
 

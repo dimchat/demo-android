@@ -37,11 +37,8 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
-import chat.dim.protocol.Command;
-import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.ProfileCommand;
 import chat.dim.utils.Log;
 
 /**

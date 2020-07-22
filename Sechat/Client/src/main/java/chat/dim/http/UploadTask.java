@@ -23,29 +23,44 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.http;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
+import java.util.Arrays;
 
-public class Resources {
+class UploadTask {
+    final byte[] data;
+    final String url;
+    final String filename;
+    final String name;
 
-    public static CharSequence getText(Context context, int resId) {
-        return getText(context.getResources(), resId);
+    /**
+     *  Upload data to URL with filename and variable name in form
+     *
+     * @param data     - file data
+     * @param url      - API
+     * @param filename - file name
+     * @param name     - variable name in form
+     */
+    UploadTask(byte[] data, String url, String filename, String name) {
+        this.url = url;
+        this.name = name;
+        this.filename = filename;
+        this.data = data;
     }
 
-    public static CharSequence getText(android.content.res.Resources resources, int resId) {
-        return resources.getText(resId);
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        } else if (other instanceof UploadTask) {
+            UploadTask task = (UploadTask) other;
+            return url.equals(task.url) && Arrays.equals(data, task.data);
+        }
+        return false;
     }
 
-    public static Uri getUriFromMipmap(Context context, int resId) {
-        return getUriFromMipmap(context.getResources(), resId);
-    }
-    public static Uri getUriFromMipmap(android.content.res.Resources resources, int resId) {
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(resId) + "/"
-                + resources.getResourceTypeName(resId) + "/"
-                + resources.getResourceEntryName(resId));
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(data);
     }
 }

@@ -1,4 +1,9 @@
 /* license: https://mit-license.org
+ *
+ *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
+ *
+ *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -23,29 +28,33 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.filesys;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
+import java.io.File;
+import java.io.IOException;
+
+import chat.dim.format.JSON;
 
 public class Resources {
 
-    public static CharSequence getText(Context context, int resId) {
-        return getText(context.getResources(), resId);
+    public static String root = "/";
+
+    public static byte[] loadData(String path) throws IOException {
+        if (!path.startsWith(root)) {
+            // convert relative path to absolute path
+            if (root.endsWith(File.separator)) {
+                path = root + path;
+            } else {
+                path = root + File.separator + path;
+            }
+        }
+        Resource resource = new Resource();
+        resource.load(path);
+        return resource.getData();
     }
 
-    public static CharSequence getText(android.content.res.Resources resources, int resId) {
-        return resources.getText(resId);
-    }
-
-    public static Uri getUriFromMipmap(Context context, int resId) {
-        return getUriFromMipmap(context.getResources(), resId);
-    }
-    public static Uri getUriFromMipmap(android.content.res.Resources resources, int resId) {
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(resId) + "/"
-                + resources.getResourceTypeName(resId) + "/"
-                + resources.getResourceEntryName(resId));
+    public static Object loadJSON(String path) throws IOException {
+        byte[] data = loadData(path);
+        return JSON.decode(data);
     }
 }

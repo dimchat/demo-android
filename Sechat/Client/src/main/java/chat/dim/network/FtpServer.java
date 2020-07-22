@@ -33,9 +33,9 @@ import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Resource;
+import chat.dim.filesys.Resources;
 import chat.dim.format.Hex;
-import chat.dim.format.JSON;
+import chat.dim.http.HTTPClient;
 
 public class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -48,21 +48,11 @@ public class FtpServer {
     private String apiDownload = null;
     private String apiAvatar = null;
 
-    /**
-     *  Resource Loader for configuration
-     */
     @SuppressWarnings("unchecked")
-    private static Map<String, String> loadJSON(String path) throws IOException {
-        Resource resource = new Resource();
-        resource.load(path);
-        byte[] data = resource.getData();
-        return (Map<String, String>) JSON.decode(data);
-    }
-
     private void loadConfig() {
         Map<String, String> info = null;
         try {
-            info = loadJSON(File.separator + "ftp.js");
+            info = (Map<String, String>) Resources.loadJSON("ftp.js");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,15 +110,15 @@ public class FtpServer {
 
     public String uploadAvatar(byte[] data, ID identifier) {
 
-        String filename = Hex.encode(MD5.digest(data)) + ".jpg";
+        String filename = Hex.encode(MD5.digest(data)) + ".jpeg";
 
         // upload to CDN
         String upload = getUploadAPI();
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", identifier.toString());
 
-        Downloader downloader = Downloader.getInstance();
-        downloader.upload(data, upload, filename, "avatar");
+        HTTPClient httpClient = HTTPClient.getInstance();
+        httpClient.upload(data, upload, filename, "avatar");
 
         // build download URL
         String download = getAvatarAPI();
@@ -136,14 +126,14 @@ public class FtpServer {
         download = download.replaceAll("\\{ID\\}", identifier.toString()).replaceAll("\\{filename\\}", filename);
 
         // store in user's directory
-        String path = Database.getEntityFilePath(identifier, "avatar.jpg");
+        String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
         try {
             ExternalStorage.saveData(data, path);
         } catch (IOException e) {
             e.printStackTrace();
         }
         // save a copy to cache directory
-        path = Downloader.getCachePath(download);
+        path = HTTPClient.getCachePath(download);
         try {
             ExternalStorage.saveData(data, path);
         } catch (IOException e) {

@@ -23,34 +23,23 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.network;
+package chat.dim.http;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.database.Database;
-import chat.dim.digest.MD5;
-import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
-import chat.dim.utils.StringUtils;
 
-public class Downloader extends Thread {
-    private static final Downloader ourInstance = new Downloader();
-    public static Downloader getInstance() { return ourInstance; }
-    private Downloader() {
+public class HTTPClient extends Thread {
+
+    private static final HTTPClient ourInstance = new HTTPClient();
+    public static HTTPClient getInstance() { return ourInstance; }
+    private HTTPClient() {
         super();
         start();
     }
@@ -63,6 +52,10 @@ public class Downloader extends Thread {
 
     private boolean running = false;
 
+    public static String getCachePath(String url) {
+        return Request.getCachePath(url);
+    }
+
     //
     //  download tasks
     //
@@ -70,7 +63,7 @@ public class Downloader extends Thread {
     private final ReentrantReadWriteLock downloadingLock = new ReentrantReadWriteLock();
 
     public String download(String url) {
-        String filepath = check(url);
+        String filepath = Request.check(url);
         if (filepath != null) {
             // already exists
             return filepath;
@@ -108,44 +101,6 @@ public class Downloader extends Thread {
     //
     private final List<UploadTask> uploadingList = new ArrayList<>();
     private final ReentrantReadWriteLock uploadingLock = new ReentrantReadWriteLock();
-
-    private class UploadTask {
-        final byte[] data;
-        final String url;
-        final String filename;
-        final String name;
-
-        /**
-         *  Upload data to URL with filename and variable name in form
-         *
-         * @param data     - file data
-         * @param url      - API
-         * @param filename - file name
-         * @param name     - variable name in form
-         */
-        UploadTask(byte[] data, String url, String filename, String name) {
-            this.url = url;
-            this.name = name;
-            this.filename = filename;
-            this.data = data;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            } else if (other instanceof UploadTask) {
-                UploadTask task = (UploadTask) other;
-                return url.equals(task.url) && Arrays.equals(data, task.data);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(data);
-        }
-    }
 
     public void upload(byte[] data, String url, String filename, String name) {
         UploadTask task = new UploadTask(data, url, filename, name);
@@ -215,7 +170,7 @@ public class Downloader extends Thread {
             if (task != null) {
                 // 1.1. try to upload
                 try {
-                    response = httpPost(task);
+                    response = Request.post(task);
                 } catch (IOException e) {
                     e.printStackTrace();
                     response = null;
@@ -245,7 +200,7 @@ public class Downloader extends Thread {
             if (url != null) {
                 // 2.1. try to download
                 try {
-                    filepath = httpGet(url);
+                    filepath = Request.get(url);
                 } catch (IOException e) {
                     e.printStackTrace();
                     filepath = null;
@@ -270,125 +225,5 @@ public class Downloader extends Thread {
             // no job to do now, have a rest. ^_^
             _sleep(500);
         }
-    }
-
-    private static byte[] buildHTTPBody(byte[] data, String filename, String name) {
-        String begin = "--4Tcjm5mp8BNiQN5YnxAAAnexqnbb3MrWjK\r\n"
-                + "Content-Disposition: form-data; name=" + name + "; filename=" + filename + "\r\n"
-                + "Content-Type: application/octet-stream\r\n\r\n";
-        String end = "\r\n--4Tcjm5mp8BNiQN5YnxAAAnexqnbb3MrWjK--";
-        byte[] head = begin.getBytes(Charset.forName("UTF-8"));
-        byte[] tail = end.getBytes(Charset.forName("UTF-8"));
-
-        byte[] buffer = new byte[head.length + data.length + tail.length];
-
-        System.arraycopy(head, 0, buffer, 0, head.length);
-        System.arraycopy(data, 0, buffer, head.length, data.length);
-        System.arraycopy(tail, 0, buffer, head.length + data.length, tail.length);
-        return buffer;
-    }
-
-    private static String httpPost(UploadTask task) throws IOException {
-        byte[] data = buildHTTPBody(task.data, task.filename, task.name);
-
-        URL url = new URL(task.url);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setRequestMethod("POST");
-        connection.setUseCaches(false);
-        connection.setInstanceFollowRedirects(true);
-        connection.setConnectTimeout(5000);
-
-        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=4Tcjm5mp8BNiQN5YnxAAAnexqnbb3MrWjK");
-        connection.setRequestProperty("Content-Length", String.valueOf(data.length));
-        //connection.connect();
-
-        OutputStream outputStream = connection.getOutputStream();
-        outputStream.write(data);
-        outputStream.flush();
-        outputStream.close();
-
-        int code = connection.getResponseCode();
-        if (code == 200) {
-            InputStream inputStream = connection.getInputStream();
-            StringBuilder sb = new StringBuilder();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                sb.append(new String(buffer, 0, len));
-            }
-            return sb.toString();
-        }
-        return null;
-    }
-
-    private static String httpGet(String urlString) throws IOException {
-        String filepath = null;
-
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(false);
-        connection.setDoInput(true);
-        connection.setRequestMethod("GET");
-        connection.setUseCaches(true);
-        connection.setInstanceFollowRedirects(true);
-        connection.setConnectTimeout(5000);
-        connection.connect();
-        int code = connection.getResponseCode();
-        if (code == 200) {
-            InputStream inputStream = connection.getInputStream();
-
-            filepath = prepareFilePath(urlString);
-            File file = new File(filepath);
-            FileOutputStream outputStream = new FileOutputStream(file);
-
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, len);
-            }
-
-            outputStream.flush();
-            outputStream.close();
-
-            inputStream.close();
-        }
-
-        return filepath;
-    }
-
-    private static String prepareFilePath(String url) throws IOException {
-        String path = getCachePath(url);
-        String dir = Database.getParentDirectory(path);
-        assert dir != null : "should not happen";
-        File file = new File(dir);
-        if (!file.exists() && !file.mkdirs()) {
-            throw new IOException("failed to create directory: " + file);
-        }
-        return path;
-    }
-
-    // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
-    public static String getCachePath(String url) {
-        String filename = StringUtils.filename(url);
-        String ext = StringUtils.extension(filename);
-        byte[] data = url.getBytes(Charset.forName("UTF-8"));
-        if (ext == null || ext.length() == 0) {
-            filename = Hex.encode(MD5.digest(data));
-        } else {
-            filename = Hex.encode(MD5.digest(data)) + "." + ext;
-        }
-        return Database.getCacheFilePath(filename);
-    }
-
-    private static String check(String url) {
-        String filepath = getCachePath(url);
-        File file = new File(filepath);
-        if (file.exists()) {
-            // already downloaded
-            return filepath;
-        }
-        return null;
     }
 }

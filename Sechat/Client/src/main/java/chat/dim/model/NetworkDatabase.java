@@ -37,8 +37,7 @@ import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
 import chat.dim.database.StationTable;
 import chat.dim.filesys.Paths;
-import chat.dim.filesys.Resource;
-import chat.dim.format.JSON;
+import chat.dim.filesys.Resources;
 
 public class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
@@ -110,20 +109,10 @@ public class NetworkDatabase {
         return stationTable.saveStations(stations, sp);
     }
 
-    /**
-     *  Resource Loader for built-in accounts
-     */
-    private static Map loadJSON(String path) throws IOException {
-        Resource resource = new Resource();
-        resource.load(path);
-        byte[] data = resource.getData();
-        return (Map) JSON.decode(data);
-    }
-
     private static Meta loadMeta(ID identifier) {
         try {
-            String path = Paths.appendPathComponent(File.separator + identifier.address.toString(), "meta.js");
-            Map meta = loadJSON(path);
+            String path = Paths.appendPathComponent(identifier.address.toString(), "meta.js");
+            Object meta = Resources.loadJSON(path);
             return Meta.getInstance(meta);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

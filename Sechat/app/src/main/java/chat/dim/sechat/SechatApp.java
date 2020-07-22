@@ -2,8 +2,6 @@ package chat.dim.sechat;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.ContentResolver;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Environment;
 
@@ -14,6 +12,7 @@ import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.ui.Permissions;
+import chat.dim.ui.Resources;
 
 public class SechatApp extends Application {
 
@@ -39,11 +38,7 @@ public class SechatApp extends Application {
     }
 
     public Uri getUriFromMipmap(int resId) {
-        Resources resources = getResources();
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(resId) + "/"
-                + resources.getResourceTypeName(resId) + "/"
-                + resources.getResourceEntryName(resId));
+        return Resources.getUriFromMipmap(this, resId);
     }
 
     static {

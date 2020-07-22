@@ -32,7 +32,7 @@ import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
-import chat.dim.network.Downloader;
+import chat.dim.http.HTTPClient;
 
 public class Facebook extends chat.dim.common.Facebook {
     private static final Facebook ourInstance = new Facebook();
@@ -55,8 +55,8 @@ public class Facebook extends chat.dim.common.Facebook {
         if (url == null) {
             return null;
         }
-        Downloader downloader = Downloader.getInstance();
-        return downloader.download(url);
+        HTTPClient httpClient = HTTPClient.getInstance();
+        return httpClient.download(url);
     }
 
     //-------- EntityDataSource
