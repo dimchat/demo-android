@@ -1,7 +1,10 @@
 package chat.dim.sechat;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -11,28 +14,94 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.Map;
+
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Messenger;
+import chat.dim.network.Server;
+import chat.dim.network.StateMachine;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.register.RegisterActivity;
 import chat.dim.sechat.search.SearchActivity;
+import chat.dim.ui.Resources;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer {
 
-    private FragmentTransaction transaction;
-    private FragmentManager fragmentManager;
+    private String originTitle = null;
+
+    public MainActivity() {
+        super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, Server.ServerStateChanged);
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        Map info = notification.userInfo;
+        if (Server.ServerStateChanged.equals(notification.name)) {
+            String name = (String) info.get("state");
+            Message msg = new Message();
+            if (name == null) {
+                return;
+            } else if (name.equals(StateMachine.defaultState)) {
+                msg.what = 0;
+            } else if (name.equals(StateMachine.connectingState)) {
+                msg.what = R.string.server_connecting;
+            } else if (name.equals(StateMachine.connectedState)) {
+                msg.what = R.string.server_connected;
+            } else if (name.equals(StateMachine.handshakingState)) {
+                msg.what = R.string.server_handshaking;
+            } else if (name.equals(StateMachine.errorState)) {
+                msg.what = R.string.server_error;
+            } else if (name.equals(StateMachine.stoppedState)) {
+                msg.what = R.string.server_stopped;
+            } else if (name.equals(StateMachine.runningState)) {
+                msg.what = 0;
+            }
+            msgHandler.sendMessage(msg);
+        }
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            showStatus(msg.what);
+        }
+    };
+
+    private void showStatus(int sid) {
+        if (sid == 0) {
+            setTitle(originTitle);
+        } else {
+            CharSequence status = Resources.getText(this, sid);
+            setTitle(originTitle + " (" + status + ")");
+        }
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        CharSequence title = Resources.getText(this, titleId);
+        if (title instanceof String) {
+            originTitle = (String) title;
+        }
+        super.setTitle(titleId);
+    }
 
     private void setDefaultFragment() {
         setFragment(new ConversationFragment());
     }
 
     private void setFragment(Fragment fragment) {
-        fragmentManager = getSupportFragmentManager();
-        transaction = fragmentManager.beginTransaction();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content, fragment);
         transaction.commit();
     }

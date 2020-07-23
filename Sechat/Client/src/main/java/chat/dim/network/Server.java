@@ -43,6 +43,7 @@ import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.model.Messenger;
+import chat.dim.notification.NotificationCenter;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.stargate.Star;
@@ -52,6 +53,8 @@ import chat.dim.stargate.wormhole.Hole;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
+
+    public static final String ServerStateChanged = "ServerStateChanged";
 
     private User currentUser = null;
     public String session = null;
@@ -313,6 +316,12 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     @Override
     public void enterState(State state, Machine machine) {
         ServerState serverState = (ServerState) state;
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("state", serverState.name);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(ServerStateChanged, this, info);
+
         if (serverState.name.equals(StateMachine.handshakingState)) {
             // start handshake
             String session = this.session;

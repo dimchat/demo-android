@@ -31,4 +31,9 @@
     <string name="save">Save</string>
     <string name="export">Export</string>
     <string name="register_avatar">Please choose an avatar</string>
+    <string name="server_connecting">Connecting</string>
+    <string name="server_connected">Connected</string>
+    <string name="server_handshaking">Handshaking</string>
+    <string name="server_error">Error</string>
+    <string name="server_stopped">Stopped</string>
 </resources>

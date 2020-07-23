@@ -64,15 +64,15 @@ class ServerState extends State {
 /**
  *  Server state machine
  */
-class StateMachine extends Machine implements Runnable {
+public class StateMachine extends Machine implements Runnable {
 
-    static final String defaultState     = "default";
-    static final String connectingState  = "connecting";
-    static final String connectedState   = "connected";
-    static final String handshakingState = "handshaking";
-    static final String runningState     = "running";
-    static final String errorState       = "error";
-    static final String stoppedState     = "stopped";
+    public static final String defaultState     = "default";
+    public static final String connectingState  = "connecting";
+    public static final String connectedState   = "connected";
+    public static final String handshakingState = "handshaking";
+    public static final String runningState     = "running";
+    public static final String errorState       = "error";
+    public static final String stoppedState     = "stopped";
 
     StateMachine() {
         this(defaultState);
