@@ -1,6 +1,7 @@
 package chat.dim.sechat.chatbox;
 
 import android.arch.lifecycle.ViewModel;
+import android.net.Uri;
 
 import java.util.List;
 
@@ -11,7 +12,10 @@ import chat.dim.User;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
+import chat.dim.network.FtpServer;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ImageContent;
+import chat.dim.sechat.SechatApp;
 
 enum MsgType {
 
@@ -57,5 +61,14 @@ public class ChatboxViewModel extends ViewModel {
             }
         }
         return MsgType.RECEIVED;
+    }
+
+    static Uri getImageUri(ImageContent content, InstantMessage iMsg) {
+        FtpServer ftp = FtpServer.getInstance();
+        String path = ftp.getFilePath(content);
+        if (path != null) {
+            return Uri.parse(path);
+        }
+        return SechatApp.getInstance().getUriFromMipmap(android.R.drawable.ic_menu_gallery);
     }
 }

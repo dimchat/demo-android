@@ -108,13 +108,13 @@ public class Database extends ExternalStorage {
     }
 
     /**
-     *  Get message file path: "/sdcard/chat.dim.sechat/dkd/{address}/message.js"
+     *  Get message file path: "/sdcard/chat.dim.sechat/dkd/{address}/messages.js"
      *
      * @param conversation - conversation ID
      * @return message file path
      */
     public static String getMessageFilePath(ID conversation) {
-        return getMessageDirectory(conversation.address) + separator + "message.js";
+        return getMessageDirectory(conversation.address) + separator + "messages.js";
     }
 
     public static String getMessageDirectory(ID conversation) {

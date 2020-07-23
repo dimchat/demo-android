@@ -29,12 +29,14 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Resources;
 import chat.dim.format.Hex;
 import chat.dim.http.HTTPClient;
+import chat.dim.protocol.FileContent;
 import chat.dim.utils.StringUtils;
 
 public class FtpServer {
@@ -203,5 +205,49 @@ public class FtpServer {
 
         HTTPClient httpClient = HTTPClient.getInstance();
         return httpClient.download(url);
+    }
+
+    public String getFilePath(FileContent content) {
+        // check decrypted file
+        String filename = content.getFilename();
+        String path1 = Database.getCacheFilePath(filename);
+        if (ExternalStorage.exists(path1)) {
+            return path1;
+        }
+        // get encrypted data
+        String url = content.getURL();
+        String path2 = HTTPClient.getCachePath(url);
+        byte[] data = null;
+        try {
+            data = decryptFile(path2, content.getPassword());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (data != null) {
+            try {
+                if (ExternalStorage.saveData(data, path1)) {
+                    return path1;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // download again
+        downloadEncryptedData(url);
+        return null;
+    }
+
+    private byte[] decryptFile(String path, Map<String, Object> password) throws IOException, ClassNotFoundException {
+        byte[] data = ExternalStorage.loadData(path);
+        if (data == null) {
+            // file not found
+            return null;
+        }
+        SymmetricKey key = SymmetricKey.getInstance(password);
+        if (key == null) {
+            // key error
+            return null;
+        }
+        return key.decrypt(data);
     }
 }

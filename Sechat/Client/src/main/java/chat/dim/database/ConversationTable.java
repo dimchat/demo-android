@@ -40,7 +40,7 @@ public class ConversationTable extends Database {
     private boolean scanConversations() {
         assert conversationList == null : "conversations not found";
         conversationList = new ArrayList<>();
-        // scan 'message.js' in sub dirs of 'dkd'
+        // scan 'messages.js' in sub dirs of 'dkd'
         String path = getMessageDirectory();
         File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) {

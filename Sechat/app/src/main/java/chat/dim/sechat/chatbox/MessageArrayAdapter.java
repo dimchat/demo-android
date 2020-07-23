@@ -20,6 +20,7 @@ import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
@@ -64,6 +65,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.avatarView = view.findViewById(R.id.sent_avatar);
             viewHolder.nameView = view.findViewById(R.id.sent_name);
             viewHolder.msgView = view.findViewById(R.id.sent_text);
+            viewHolder.imgView = view.findViewById(R.id.sent_image);
         } else if (MsgType.RECEIVED == type) {
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.centerLayout.setVisibility(View.GONE);
@@ -72,6 +74,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.avatarView = view.findViewById(R.id.recv_avatar);
             viewHolder.nameView = view.findViewById(R.id.recv_name);
             viewHolder.msgView = view.findViewById(R.id.recv_text);
+            viewHolder.imgView = view.findViewById(R.id.recv_image);
         } else if (MsgType.COMMAND == type) {
             viewHolder.leftLayout.setVisibility(View.GONE);
             viewHolder.centerLayout.setVisibility(View.VISIBLE);
@@ -80,6 +83,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.avatarView = null;
             viewHolder.nameView = null;
             viewHolder.msgView = view.findViewById(R.id.cmd_text);
+            viewHolder.imgView = null;
         }
         showMessage(iMsg, viewHolder);
 
@@ -133,11 +137,20 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         // message
         if (content instanceof TextContent) {
             TextContent textContent = (TextContent) content;
+            viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(textContent.getText());
+            viewHolder.imgView.setVisibility(View.GONE);
+        } else if (content instanceof ImageContent) {
+            ImageContent imageContent = (ImageContent) content;
+            viewHolder.msgView.setVisibility(View.GONE);
+            viewHolder.imgView.setVisibility(View.VISIBLE);
+            viewHolder.imgView.setImageURI(ChatboxViewModel.getImageUri(imageContent, iMsg));
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);
+            viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(text);
+            viewHolder.imgView.setVisibility(View.GONE);
         }
     }
 
@@ -150,5 +163,6 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         ImageView avatarView = null;
         TextView nameView = null;
         TextView msgView = null;
+        ImageView imgView = null;
     }
 }

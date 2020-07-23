@@ -53,6 +53,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="received message" />
+
+                <ImageView
+                    android:id="@+id/recv_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@android:drawable/ic_menu_gallery" />
             </FrameLayout>
 
         </LinearLayout>
@@ -94,6 +100,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="sent message" />
+
+                <ImageView
+                    android:id="@+id/sent_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@android:drawable/ic_menu_gallery" />
             </FrameLayout>
 
         </LinearLayout>

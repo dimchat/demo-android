@@ -35,9 +35,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import chat.dim.database.Database;
-import chat.dim.digest.MD5;
-import chat.dim.format.Hex;
-import chat.dim.utils.StringUtils;
 
 class Request {
 
@@ -46,7 +43,7 @@ class Request {
     //
 
     private static String prepareFilePath(String url) throws IOException {
-        String path = getCachePath(url);
+        String path = HTTPClient.getCachePath(url);
         String dir = Database.getParentDirectory(path);
         assert dir != null : "should not happen";
         File file = new File(dir);
@@ -54,29 +51,6 @@ class Request {
             throw new IOException("failed to create directory: " + file);
         }
         return path;
-    }
-
-    // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
-    static String getCachePath(String url) {
-        String filename = StringUtils.filename(url);
-        String ext = StringUtils.extension(filename);
-        byte[] data = url.getBytes(Charset.forName("UTF-8"));
-        if (ext == null || ext.length() == 0) {
-            filename = Hex.encode(MD5.digest(data));
-        } else {
-            filename = Hex.encode(MD5.digest(data)) + "." + ext;
-        }
-        return Database.getCacheFilePath(filename);
-    }
-
-    static String check(String url) {
-        String filepath = getCachePath(url);
-        File file = new File(filepath);
-        if (file.exists()) {
-            // already downloaded
-            return filepath;
-        }
-        return null;
     }
 
     //

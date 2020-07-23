@@ -33,7 +33,10 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.database.Database;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.utils.StringUtils;
 
 public class HTTPClient extends Thread {
 
@@ -52,8 +55,14 @@ public class HTTPClient extends Thread {
 
     private boolean running = false;
 
+    // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
     public static String getCachePath(String url) {
-        return Request.getCachePath(url);
+        String filename = StringUtils.filename(url);
+        if (filename.length() > 0) {
+            return Database.getCacheFilePath(filename);
+        }
+        // TODO: get filename from query string?
+        throw new NullPointerException("URL error: " + url);
     }
 
     //
@@ -63,11 +72,12 @@ public class HTTPClient extends Thread {
     private final ReentrantReadWriteLock downloadingLock = new ReentrantReadWriteLock();
 
     public String download(String url) {
-        String filepath = Request.check(url);
-        if (filepath != null) {
-            // already exists
-            return filepath;
+        String path = getCachePath(url);
+        if (ExternalStorage.exists(path)) {
+            // already downloaded
+            return path;
         }
+
         // add task to download
         Lock writeLock = downloadingLock.writeLock();
         writeLock.lock();
