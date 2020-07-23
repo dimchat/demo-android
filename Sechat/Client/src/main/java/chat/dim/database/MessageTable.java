@@ -27,6 +27,7 @@ package chat.dim.database;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,25 @@ public class MessageTable extends Database {
         }
     }
 
+    private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
+        // 1. check sn
+        if (msg1.content.serialNumber != msg2.content.serialNumber) {
+            return false;
+        }
+        // 2. check time
+        Date time1 = msg1.envelope.time;
+        Date time2 = msg2.envelope.time;
+        if (time1 == null) {
+            return time2 == null;
+        } else if (time2 == null) {
+            return false;
+        }
+        long t1 = time1.getTime();
+        long t2 = time2.getTime();
+        // NOTICE: timestamp in seconds
+        return t1 / 1000 == t2 / 1000;
+    }
+
     //-------- messages
 
     public List<InstantMessage> messagesInConversation(Conversation chatBox) {
@@ -131,8 +151,27 @@ public class MessageTable extends Database {
     }
 
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+        long timestamp;
+        if (iMsg.envelope.time == null) {
+            timestamp = 0;
+        } else {
+            timestamp = iMsg.envelope.time.getTime();
+        }
+
         List<InstantMessage> msgList = messagesInConversation(chatBox);
-        msgList.add(iMsg);
+        InstantMessage item;
+        int index = msgList.size() - 1;
+        for (; index >= 0; --index) {
+            item = msgList.get(index);
+            if (isEqual(item, iMsg)) {
+                // duplicated message
+                return false;
+            }
+            if (item.envelope.time == null || item.envelope.time.getTime() <= timestamp) {
+                break;
+            }
+        }
+        msgList.add(index + 1, iMsg);
         return saveMessages(chatBox.identifier);
     }
 
