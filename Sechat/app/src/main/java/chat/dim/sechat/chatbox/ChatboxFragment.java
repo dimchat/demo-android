@@ -114,11 +114,6 @@ public class ChatboxFragment extends Fragment implements Observer {
             throw new RuntimeException("failed to send message: " + iMsg);
         }
 
-        if (chatBox.identifier.isUser()) {
-            mViewModel.insertMessage(iMsg, chatBox);
-        }
-        // TODO: what about group message?
-
         return iMsg;
     }
 

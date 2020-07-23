@@ -28,6 +28,7 @@ package chat.dim.model;
 import chat.dim.Entity;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.User;
 
 public class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
@@ -37,12 +38,13 @@ public class Amanuensis {
         database = ConversationDatabase.getInstance();
     }
 
-    public ConversationDataSource database = null;
+    public final ConversationDataSource database;
+
+    private final Facebook facebook = Facebook.getInstance();
 
     // conversation factory
     public Conversation getConversation(ID identifier) {
         // create directly if we can find the entity
-        Facebook facebook = Facebook.getInstance();
         Entity entity = null;
         if (identifier.isUser()) {
             entity = facebook.getUser(identifier);
@@ -58,19 +60,26 @@ public class Amanuensis {
     }
 
     private Conversation getConversation(InstantMessage iMsg) {
-        ID receiver = ID.getInstance(iMsg.envelope.receiver);
+        // check receiver
+        ID receiver = facebook.getID(iMsg.envelope.receiver);
         if (receiver.isGroup()) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
-        ID group = ID.getInstance(iMsg.content.getGroup());
+        // check group
+        ID group = facebook.getID(iMsg.content.getGroup());
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        ID sender = ID.getInstance(iMsg.envelope.sender);
-        return getConversation(sender);
+        ID sender = facebook.getID(iMsg.envelope.sender);
+        User user = facebook.getCurrentUser();
+        if (sender.equals(user.identifier)) {
+            return getConversation(receiver);
+        } else {
+            return getConversation(sender);
+        }
     }
 
     public boolean saveMessage(InstantMessage iMsg) {
