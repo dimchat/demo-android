@@ -15,7 +15,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.model.Configuration;
 import chat.dim.sechat.R;
+import chat.dim.ui.Resources;
+import chat.dim.ui.WebViewActivity;
 
 public class AccountFragment extends Fragment {
 
@@ -34,6 +37,8 @@ public class AccountFragment extends Fragment {
         return new AccountFragment();
     }
 
+    private Configuration config = Configuration.getInstance();
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -44,18 +49,36 @@ public class AccountFragment extends Fragment {
         descView = view.findViewById(R.id.descView);
 
         detailButton = view.findViewById(R.id.detailBtn);
-        detailButton.setOnClickListener(v -> {
-            Intent intent = new Intent();
-            intent.setClass(getContext(), UpdateAccountActivity.class);
-            getContext().startActivity(intent);
-        });
+        detailButton.setOnClickListener(v -> detail());
 
         termsButton = view.findViewById(R.id.termBtn);
+        termsButton.setOnClickListener(v -> open(R.string.terms, config.getTermsURL()));
+
         aboutButton = view.findViewById(R.id.aboutBtn);
+        aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
 
         getActivity().setTitle(R.string.me);
 
         return view;
+    }
+
+    private void detail() {
+        Intent intent = new Intent();
+        intent.setClass(getContext(), UpdateAccountActivity.class);
+        startActivity(intent);
+    }
+
+    private void open(int resId, String url) {
+        String title = (String) Resources.getText(getContext(), resId);
+        open(title, url);
+    }
+
+    private void open(String title, String url) {
+        Intent intent = new Intent();
+        intent.setClass(getContext(), WebViewActivity.class);
+        intent.putExtra("title", title);
+        intent.putExtra("URL", url);
+        startActivity(intent);
     }
 
     @Override

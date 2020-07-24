@@ -54,9 +54,14 @@ public class Terminal implements StationDelegate {
      *  format: "DIMP/1.0 (Linux; U; Android 4.1; zh-CN) DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1"
      */
     public String getUserAgent() {
-        return "DIMP/1.0 (Linux; U; Android 4.1; zh-CN) " +
-                "DIMCoreKit/1.0 (Terminal, like WeChat) " +
-                "DIM-by-GSP/1.0.1";
+        String model = "Android";
+        String sysName = "HMS";
+        String sysVersion = "4.0";
+        String lang = "zh-CN";
+
+        return String.format("DIMP/1.0 (%s; U; %s %s; %s)" +
+                        " DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1",
+                model, sysName, sysVersion, lang);
     }
 
     public String getLanguage() {

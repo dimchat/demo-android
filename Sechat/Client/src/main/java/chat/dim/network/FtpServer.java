@@ -33,9 +33,9 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Resources;
 import chat.dim.format.Hex;
 import chat.dim.http.HTTPClient;
+import chat.dim.model.Configuration;
 import chat.dim.protocol.FileContent;
 import chat.dim.utils.StringUtils;
 
@@ -46,69 +46,7 @@ public class FtpServer {
         super();
     }
 
-    private String apiUpload = null;
-    private String apiDownload = null;
-    private String apiAvatar = null;
-
-    @SuppressWarnings("unchecked")
-    private void loadConfig() {
-        Map<String, String> info = null;
-        try {
-            info = (Map<String, String>) Resources.loadJSON("ftp.js");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (info == null) {
-            return;
-        }
-        String upload = info.get("upload");
-        if (upload != null) {
-            apiUpload = upload;
-        }
-        String download = info.get("download");
-        if (download != null) {
-            apiDownload = download;
-        }
-        String avatar = info.get("avatar");
-        if (avatar != null) {
-            apiAvatar = avatar;
-        }
-    }
-
-    public String getUserAgent() {
-        String model = "Android";
-        String sysName = "HMS";
-        String sysVersion = "4.0";
-        String lang = "zh-CN";
-
-        return String.format("DIMP/1.0 (%s; U; %s %s; %s)" +
-                        " DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1",
-                model, sysName, sysVersion, lang);
-    }
-
-    // "https://sechat.dim.chat/{ID}}/upload"
-    public String getUploadAPI() {
-        if (apiUpload == null) {
-            loadConfig();
-        }
-        return apiUpload;
-    }
-
-    // "https://sechat.dim.chat/download/{ID}/{filename}"
-    public String getDownloadAPI() {
-        if (apiDownload == null) {
-            loadConfig();
-        }
-        return apiDownload;
-    }
-
-    // "https://sechat.dim.chat/avatar/{ID}/{filename}"
-    public String getAvatarAPI() {
-        if (apiAvatar == null) {
-            loadConfig();
-        }
-        return apiAvatar;
-    }
+    private Configuration config = Configuration.getInstance();
 
     //
     //  Avatar
@@ -119,7 +57,7 @@ public class FtpServer {
         String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
 
         // upload to CDN
-        String upload = getUploadAPI();
+        String upload = config.getUploadURL();
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", identifier.address.toString());
 
@@ -127,7 +65,7 @@ public class FtpServer {
         httpClient.upload(imageData, upload, filename, "avatar");
 
         // build download URL
-        String download = getAvatarAPI();
+        String download = config.getAvatarURL();
         assert download != null : "download API error";
         download = download.replaceAll("\\{ID\\}", identifier.address.toString()).replaceAll("\\{filename\\}", filename);
 
@@ -188,7 +126,7 @@ public class FtpServer {
         }
 
         // upload to CDN
-        String upload = getUploadAPI();
+        String upload = config.getUploadURL();
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", sender.address.toString());
 
@@ -196,7 +134,7 @@ public class FtpServer {
         httpClient.upload(data, upload, filename, "file");
 
         // build download URL
-        String download = getDownloadAPI();
+        String download = config.getDownloadURL();
         assert download != null : "download API error";
         return download.replaceAll("\\{ID\\}", sender.address.toString()).replaceAll("\\{filename\\}", filename);
     }

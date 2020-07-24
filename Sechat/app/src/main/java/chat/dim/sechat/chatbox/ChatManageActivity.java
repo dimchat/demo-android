@@ -27,12 +27,6 @@ public class ChatManageActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, ChatboxFragment.newInstance(chatBox))
-                    .commitNow();
-        }
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, ChatManageFragment.newInstance(identifier))
                     .commitNow();
         }

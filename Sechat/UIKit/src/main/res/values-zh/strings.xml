@@ -3,4 +3,5 @@
     <string name="app_name">UIKit</string>
     <string name="album">相册</string>
     <string name="camera">相机</string>
+    <string name="title_activity_webview">网页</string>
 </resources>
