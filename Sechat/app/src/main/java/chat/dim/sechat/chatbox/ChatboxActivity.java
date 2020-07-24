@@ -1,8 +1,11 @@
 package chat.dim.sechat.chatbox;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -33,7 +36,6 @@ public class ChatboxActivity extends ImagePickerActivity {
         identifier = facebook.getID(string);
         assert identifier != null : "ID error: " + string;
         Conversation chatBox = clerk.getConversation(identifier);
-        setTitle(chatBox.getTitle());
 
         if (savedInstanceState == null) {
             chatboxFragment = ChatboxFragment.newInstance(chatBox);
@@ -41,7 +43,32 @@ public class ChatboxActivity extends ImagePickerActivity {
                     .replace(R.id.container, chatboxFragment)
                     .commitNow();
         }
+
+        if (identifier.isGroup()) {
+            setTitle(chatBox.getName() + " (...)");
+            Thread bg = new Thread() {
+                @Override
+                public void run() {
+                    Message msg = new Message();
+                    msg.obj = chatBox.getTitle();
+                    msgHandler.sendMessage(msg);
+                }
+            };
+            bg.start();
+        } else {
+            setTitle(chatBox.getName());
+        }
     }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.obj instanceof CharSequence) {
+                setTitle((CharSequence) msg.obj);
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

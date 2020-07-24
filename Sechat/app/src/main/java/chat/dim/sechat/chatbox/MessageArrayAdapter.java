@@ -150,7 +150,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             String text = msgDB.getCommandText(cmd, sender);
             viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(text);
-            viewHolder.imgView.setVisibility(View.GONE);
+            //viewHolder.imgView.setVisibility(View.GONE);
         }
     }
 
