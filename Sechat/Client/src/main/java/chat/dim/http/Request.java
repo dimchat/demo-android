@@ -68,7 +68,7 @@ class Request {
         connection.setUseCaches(true);
         connection.setInstanceFollowRedirects(true);
         connection.setConnectTimeout(5000);
-        connection.connect();
+        //connection.connect();
 
         int code = connection.getResponseCode();
         if (code == 200) {
@@ -85,7 +85,7 @@ class Request {
                 }
             }
         }
-        connection.disconnect();
+        //connection.disconnect();
 
         return filepath;
     }
@@ -106,7 +106,7 @@ class Request {
 
         connection.setRequestProperty("Content-Type", CONTENT_TYPE);
         connection.setRequestProperty("Content-Length", String.valueOf(data.length));
-        connection.connect();
+        //connection.connect();
 
         try (OutputStream outputStream = connection.getOutputStream()) {
             outputStream.write(data);
@@ -125,7 +125,7 @@ class Request {
                 response = sb.toString();
             }
         }
-        connection.disconnect();
+        //connection.disconnect();
 
         return response;
     }

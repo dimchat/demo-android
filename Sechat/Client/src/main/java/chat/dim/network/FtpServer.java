@@ -121,7 +121,7 @@ public class FtpServer {
         // upload to CDN
         String upload = getUploadAPI();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", identifier.toString());
+        upload = upload.replaceAll("\\{ID\\}", identifier.address.toString());
 
         HTTPClient httpClient = HTTPClient.getInstance();
         httpClient.upload(imageData, upload, filename, "avatar");
@@ -129,7 +129,7 @@ public class FtpServer {
         // build download URL
         String download = getAvatarAPI();
         assert download != null : "download API error";
-        download = download.replaceAll("\\{ID\\}", identifier.toString()).replaceAll("\\{filename\\}", filename);
+        download = download.replaceAll("\\{ID\\}", identifier.address.toString()).replaceAll("\\{filename\\}", filename);
 
         // store in user's directory
         String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
@@ -181,8 +181,8 @@ public class FtpServer {
     public String uploadEncryptedData(byte[] data, String filename, ID sender) {
 
         // prepare filename (make sure that filenames won't conflict)
-        filename = Hex.encode(MD5.digest(data));
         String ext = StringUtils.extension(filename);
+        filename = Hex.encode(MD5.digest(data));
         if (ext != null && ext.length() > 0) {
             filename = filename + "." + ext;
         }
@@ -190,15 +190,15 @@ public class FtpServer {
         // upload to CDN
         String upload = getUploadAPI();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", sender.toString());
+        upload = upload.replaceAll("\\{ID\\}", sender.address.toString());
 
         HTTPClient httpClient = HTTPClient.getInstance();
         httpClient.upload(data, upload, filename, "file");
 
         // build download URL
-        String download = getAvatarAPI();
+        String download = getDownloadAPI();
         assert download != null : "download API error";
-        return download.replaceAll("\\{ID\\}", sender.toString()).replaceAll("\\{filename\\}", filename);
+        return download.replaceAll("\\{ID\\}", sender.address.toString()).replaceAll("\\{filename\\}", filename);
     }
 
     public String downloadEncryptedData(String url) {

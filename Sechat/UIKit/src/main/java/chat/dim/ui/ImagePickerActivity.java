@@ -53,7 +53,10 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == ImagePicker.RequestCode.Album.value) {
-            assert data != null : "Intent data should not be empty";
+            if (data == null) {
+                // cancelled
+                return;
+            }
             Uri source = data.getData();
             if (source == null) {
                 // no data
@@ -72,7 +75,10 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
             fetchImage(imagePicker.getBitmap(data));
             return;
         } else if (requestCode == ImagePicker.RequestCode.Crop.value) {
-            assert data != null : "Intent data should not be empty";
+            if (data == null) {
+                // cancelled
+                return;
+            }
             fetchImage(imagePicker.getBitmap(data));
             return;
         }

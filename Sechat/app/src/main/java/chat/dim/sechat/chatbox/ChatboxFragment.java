@@ -161,20 +161,19 @@ public class ChatboxFragment extends Fragment implements Observer {
         }
 
         // image file
-        byte[] imageData = Images.jpeg(bitmap);
-        String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
+        byte[] jpeg = Images.jpeg(bitmap);
+        String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
         FtpServer ftp = FtpServer.getInstance();
-        ftp.saveImage(imageData, filename);
+        ftp.saveImage(jpeg, filename);
 
         // thumbnail
         byte[] thumbnail = Images.thumbnail(bitmap);
         //ftp.saveThumbnail(thumbnail, filename);
 
         // add image data length & thumbnail into message content
-        byte[] jpeg = Images.jpeg(bitmap);
         ImageContent content = new ImageContent(jpeg, "photo.jpeg");
         content.setFilename(filename);
-        content.put("length", imageData.length);
+        content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
 
         sendContent(content);
