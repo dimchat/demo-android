@@ -30,15 +30,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class WebViewFragment extends Fragment {
 
-    private WebView webView = null;
     private String currentURL = null;
+    private WebView webView = null;
+    private ProgressBar progressBar = null;
 
     public WebViewFragment() {
         super();
@@ -48,14 +53,19 @@ public class WebViewFragment extends Fragment {
         return new WebViewFragment();
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.webview_fragment, container, false);
 
+        progressBar = view.findViewById(R.id.progressBar);
+
         webView = view.findViewById(R.id.web);
+        initWebView(webView);
+
         if (currentURL != null) {
-            webView.loadUrl(currentURL);
+            refresh();
         }
 
         return view;
@@ -63,8 +73,52 @@ public class WebViewFragment extends Fragment {
 
     public void open(String url) {
         currentURL = url;
-        if (webView != null) {
-            webView.loadUrl(url);
+        refresh();
+    }
+
+    private void refresh() {
+        if (webView == null || currentURL == null) {
+            return;
+        }
+        webView.loadUrl(currentURL);
+    }
+
+    private void initWebView(WebView webView) {
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                if (newProgress >= 100) {
+                    progressBar.setVisibility(View.GONE);
+                } else {
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setProgress(newProgress);
+                }
+            }
+        });
+
+        WebSettings settings = webView.getSettings();
+        if (settings != null) {
+            settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+            //settings.setJavaScriptEnabled(true);
+
+            settings.setUseWideViewPort(true);
+            settings.setLoadWithOverviewMode(true);
+
+            settings.setSupportZoom(true);
+            settings.setBuiltInZoomControls(true);
+            settings.setDisplayZoomControls(true);
+
+            settings.setLoadsImagesAutomatically(true);
+            settings.setDefaultTextEncodingName("UTF-8");
         }
     }
 }

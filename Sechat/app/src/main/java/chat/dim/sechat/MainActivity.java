@@ -35,6 +35,7 @@ import chat.dim.ui.Resources;
 public class MainActivity extends AppCompatActivity implements Observer {
 
     private String originTitle = null;
+    private String serverState = null;
 
     public MainActivity() {
         super();
@@ -46,25 +47,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
     public void onReceiveNotification(Notification notification) {
         Map info = notification.userInfo;
         if (Server.ServerStateChanged.equals(notification.name)) {
-            String name = (String) info.get("state");
+            serverState = (String) info.get("state");
             Message msg = new Message();
-            if (name == null) {
-                return;
-            } else if (name.equals(StateMachine.defaultState)) {
-                msg.what = 0;
-            } else if (name.equals(StateMachine.connectingState)) {
-                msg.what = R.string.server_connecting;
-            } else if (name.equals(StateMachine.connectedState)) {
-                msg.what = R.string.server_connected;
-            } else if (name.equals(StateMachine.handshakingState)) {
-                msg.what = R.string.server_handshaking;
-            } else if (name.equals(StateMachine.errorState)) {
-                msg.what = R.string.server_error;
-            } else if (name.equals(StateMachine.stoppedState)) {
-                msg.what = R.string.server_stopped;
-            } else if (name.equals(StateMachine.runningState)) {
-                msg.what = 0;
-            }
             msgHandler.sendMessage(msg);
         }
     }
@@ -73,15 +57,34 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            showStatus(msg.what);
+            refreshTitle();
         }
     };
 
-    private void showStatus(int sid) {
-        if (sid == 0) {
+    private void refreshTitle() {
+        CharSequence status;
+        if (serverState == null) {
+            status = null;
+        } else if (serverState.equals(StateMachine.defaultState)) {
+            status = Resources.getText(this, R.string.server_default);;
+        } else if (serverState.equals(StateMachine.connectingState)) {
+            status = Resources.getText(this, R.string.server_connecting);
+        } else if (serverState.equals(StateMachine.connectedState)) {
+            status = Resources.getText(this, R.string.server_connected);
+        } else if (serverState.equals(StateMachine.handshakingState)) {
+            status = Resources.getText(this, R.string.server_handshaking);
+        } else if (serverState.equals(StateMachine.errorState)) {
+            status = Resources.getText(this, R.string.server_error);
+        } else if (serverState.equals(StateMachine.stoppedState)) {
+            status = Resources.getText(this, R.string.server_stopped);
+        } else if (serverState.equals(StateMachine.runningState)) {
+            status = null;
+        } else {
+            status = null;
+        }
+        if (status == null) {
             setTitle(originTitle);
         } else {
-            CharSequence status = Resources.getText(this, sid);
             setTitle(originTitle + " (" + status + ")");
         }
     }
@@ -92,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
         if (title instanceof String) {
             originTitle = (String) title;
         }
-        super.setTitle(titleId);
+        //super.setTitle(titleId);
+        refreshTitle();
     }
 
     private void setDefaultFragment() {
@@ -106,25 +110,20 @@ public class MainActivity extends AppCompatActivity implements Observer {
         transaction.commit();
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_history:
-                    setFragment(new ConversationFragment());
-                    return true;
-                case R.id.navigation_contacts:
-                    setFragment(new ContactFragment());
-                    return true;
-                case R.id.navigation_more:
-                    setFragment(new AccountFragment());
-                    return true;
-            }
-            return false;
-        }
-    };
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+                switch (item.getItemId()) {
+                    case R.id.navigation_history:
+                        setFragment(new ConversationFragment());
+                        return true;
+                    case R.id.navigation_contacts:
+                        setFragment(new ContactFragment());
+                        return true;
+                    case R.id.navigation_more:
+                        setFragment(new AccountFragment());
+                        return true;
+                }
+                return false;
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
