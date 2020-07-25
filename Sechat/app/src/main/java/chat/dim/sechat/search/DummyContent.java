@@ -53,7 +53,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     /**
      * A dummy item representing a piece of content.
      */
-    class Item extends DummyItem {
+    static class Item extends DummyItem {
 
         private final User account;
 

@@ -65,7 +65,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    static class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
         final CardView groupCard;
         final ImageView logoView;

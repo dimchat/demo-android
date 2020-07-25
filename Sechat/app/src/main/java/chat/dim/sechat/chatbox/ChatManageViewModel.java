@@ -11,7 +11,7 @@ public class ChatManageViewModel extends EntityViewModel {
 
     private static Facebook facebook = Facebook.getInstance();
 
-    public List<ID> getParticipants(ID identifier) {
+    List<ID> getParticipants(ID identifier) {
         List<ID> participants = new ArrayList<>();
         if (identifier.isUser()) {
             participants.add(identifier);

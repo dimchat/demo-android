@@ -60,9 +60,7 @@ public class ProfileFragment extends Fragment {
             addContact(identifier);
             startChat(identifier);
         });
-        messageButton.setOnClickListener(v -> {
-            startChat(identifier);
-        });
+        messageButton.setOnClickListener(v -> startChat(identifier));
 
         return view;
     }

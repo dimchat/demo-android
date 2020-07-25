@@ -44,7 +44,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    static public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
         final ImageView mAvatarView;
         final TextView mTitleView;

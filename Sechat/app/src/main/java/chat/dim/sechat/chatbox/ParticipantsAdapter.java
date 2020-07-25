@@ -14,19 +14,19 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.UserViewModel;
 
-public class ParticipantsAdapter extends ArrayAdapter<ID> {
+class ParticipantsAdapter extends ArrayAdapter<ID> {
 
     private final int resId;
 
-    public ParticipantsAdapter(Context context, int resource, List<ID> objects) {
+    ParticipantsAdapter(Context context, int resource, List<ID> objects) {
         super(context, resource, objects);
         resId = resource;
     }
 
+    @SuppressWarnings("NullableProblems")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
@@ -50,8 +50,6 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         return view;
     }
-
-    private Facebook facebook = Facebook.getInstance();
 
     private void showParticipant(ID identifier, ViewHolder viewHolder) {
         if (identifier.isBroadcast()) {
@@ -86,7 +84,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         }
     }
 
-    class ViewHolder {
+    static class ViewHolder {
 
         CardView cardView = null;
 

@@ -3,6 +3,7 @@ package chat.dim.sechat.history;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,9 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         assert view instanceof RecyclerView : "recycler view error: " + view;
         bindRecyclerView((RecyclerView) view);
 
-        getActivity().setTitle(R.string.app_name);
+        FragmentActivity activity = getActivity();
+        assert activity != null : "should not happen";
+        activity.setTitle(R.string.app_name);
 
         return view;
     }

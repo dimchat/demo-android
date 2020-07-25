@@ -30,6 +30,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.CompletionHandler;
 import chat.dim.ID;
@@ -62,6 +65,9 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     final StateMachine fsm;
 
     private Star star = null;
+    final private ReadWriteLock starLock = new ReentrantReadWriteLock();
+
+    private Map<String, Object> startOptions = null;
 
     public StationDelegate delegate;
 
@@ -92,7 +98,19 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     StarStatus getStatus() {
-        return star.getStatus();
+        StarStatus status;
+        Lock readLock = starLock.readLock();
+        readLock.lock();
+        try {
+            if (star == null) {
+                status = StarStatus.Error;
+            } else {
+                status = star.getStatus();
+            }
+        } finally {
+            readLock.unlock();;
+        }
+        return status;
     }
 
     //---- urgent command for connection
@@ -145,23 +163,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
     }
 
-//    public void connect(String host, int port) {
-//        // fsm.changeState(fsm.defaultState);
-//
-//        if (getStatus().equals(StarStatus.Connected)
-//                && getHost().equals(host) && getPort() == port) {
-//            Log.info("already connected to " + host + ":" + port);
-//            return;
-//        }
-//
-//        // TODO: post notification "Connecting"
-//
-//        star.connect(host, port);
-//
-//        // setHost(host);
-//        // setPort(port);
-//    }
-
     //--------
 
     public void start(Map<String, Object> options) {
@@ -183,38 +184,96 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
                 options.put("port", getPort());
             }
         }
+        startOptions = options;
 
-        if (star == null) {
-            star = new Hole(this);
+        Lock writeLock = starLock.writeLock();
+        writeLock.lock();
+        try {
+            if (star == null) {
+                star = new Hole(this);
+            }
+
+            // TODO: post notification "StationConnecting"
+
+            star.launch(options);
+        } finally {
+            writeLock.unlock();
         }
-
-        // TODO: post notification "StationConnecting"
-
-        star.launch(options);
-
-//        setHost(options.get("host"));
-//        setPort(options.get("port"));
 
         // TODO: let the subclass to create StarGate
     }
 
     public void end() {
-        star.terminate();
+        Lock readLock = starLock.readLock();
+        readLock.lock();
+        try {
+            if (star != null) {
+                star.terminate();
+            }
+        } finally {
+            readLock.unlock();
+        }
+
         fsm.stop();
     }
 
     public void pause() {
-        star.enterBackground();
+        Lock readLock = starLock.readLock();
+        readLock.lock();
+        try {
+            if (star != null) {
+                star.enterBackground();
+            }
+        } finally {
+            readLock.unlock();
+        }
+
         fsm.pause();
     }
 
     public void resume() {
-        star.enterForeground();
+        Lock readLock = starLock.readLock();
+        readLock.lock();
+        try {
+            if (star != null) {
+                star.enterForeground();
+            }
+        } finally {
+            readLock.unlock();
+        }
+
         fsm.resume();
     }
 
     public void send(byte[] payload) {
-        star.send(payload);
+        Lock readLock = starLock.readLock();
+        readLock.lock();
+        try {
+            if (star != null) {
+                star.send(payload);
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    private void restart() {
+        if (startOptions == null) {
+            return;
+        }
+
+        Lock writeLock = starLock.writeLock();
+        writeLock.lock();
+        try {
+            if (star instanceof Hole) {
+                ((Hole) star).disconnect();
+                ((Hole) star).close();
+            }
+            star = new Hole(this);
+            star.launch(startOptions);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     //-------- StarDelegate
@@ -329,6 +388,9 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             handshake(session);
         } else if (serverState.name.equals(StateMachine.runningState)) {
             // TODO: send all packages waiting
+        } else if (serverState.name.equals(StateMachine.errorState)) {
+            // reconnect
+            restart();
         }
     }
 

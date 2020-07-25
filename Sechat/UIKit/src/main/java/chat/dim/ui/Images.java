@@ -134,6 +134,9 @@ public class Images {
                 break;
             }
         }
+        if (count == 0) {
+            return null;
+        }
         return merge(bitmaps);
     }
 

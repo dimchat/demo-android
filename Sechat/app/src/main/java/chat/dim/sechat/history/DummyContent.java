@@ -14,7 +14,6 @@ import chat.dim.InstantMessage;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -29,7 +28,6 @@ import chat.dim.ui.list.DummyList;
  */
 public class DummyContent extends DummyList<DummyContent.Item> {
 
-    private static Facebook facebook = Facebook.getInstance();
     private static Amanuensis clerk = Amanuensis.getInstance();
     private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
@@ -72,7 +70,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     /**
      * A dummy item representing a piece of content.
      */
-    class Item extends DummyItem {
+    static class Item extends DummyItem {
 
         private final Conversation chatBox;
 
@@ -101,13 +99,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             if (chatBox.identifier.isGroup()) {
                 return EntityViewModel.getName(chatBox.identifier);
             } else {
-                String nickname = UserViewModel.getNickname(chatBox.identifier);
-                String username = EntityViewModel.getName(chatBox.identifier);
-                if (nickname != null && nickname.length() > 0) {
-                    return nickname + " (" + username + ")";
-                } else {
-                    return username;
-                }
+                return UserViewModel.getUserTitle(chatBox.identifier);
             }
         }
 

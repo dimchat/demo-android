@@ -155,7 +155,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         }
     }
 
-    class ViewHolder {
+    static class ViewHolder {
         LinearLayout leftLayout = null;
         LinearLayout rightLayout = null;
         LinearLayout centerLayout = null;

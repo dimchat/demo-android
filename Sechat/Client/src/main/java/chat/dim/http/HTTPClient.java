@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.database.Database;
@@ -76,7 +77,7 @@ public class HTTPClient extends Thread {
     //  download tasks
     //
     private final List<String> downloadingList = new ArrayList<>();
-    private final ReentrantReadWriteLock downloadingLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock downloadingLock = new ReentrantReadWriteLock();
 
     public String download(String url) {
         String path = getCachePath(url);
@@ -117,7 +118,7 @@ public class HTTPClient extends Thread {
     //  upload tasks
     //
     private final List<UploadTask> uploadingList = new ArrayList<>();
-    private final ReentrantReadWriteLock uploadingLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock uploadingLock = new ReentrantReadWriteLock();
 
     public void upload(byte[] data, String url, String filename, String name) {
         UploadTask task = new UploadTask(data, url, filename, name);
