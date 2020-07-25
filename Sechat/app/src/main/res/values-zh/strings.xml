@@ -32,7 +32,7 @@
     <string name="register_avatar">请选择一个头像照片</string>
     <string name="server_connected">已连接</string>
     <string name="server_connecting">连接中</string>
-    <string name="server_error">错误</string>
+    <string name="server_error">网络错误</string>
     <string name="server_handshaking">登录中</string>
     <string name="server_stopped">终止</string>
     <string name="server_default">等待中</string>

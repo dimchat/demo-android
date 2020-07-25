@@ -51,6 +51,9 @@ public class Facebook extends chat.dim.common.Facebook {
                 url = (String) profile.getProperty("avatar");
             }
         }
+        if (url == null || url.length() == 0) {
+            return null;
+        }
         FtpServer ftp = FtpServer.getInstance();
         return ftp.downloadAvatar(url, identifier);
     }

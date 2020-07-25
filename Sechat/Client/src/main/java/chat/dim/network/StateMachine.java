@@ -255,12 +255,9 @@ public class StateMachine extends Machine implements Runnable {
         state.addTransition(new Transition(defaultState) {
             @Override
             protected boolean evaluate(Machine machine) {
-                /*
                 assert server != null : "server error";
                 StarStatus status = server.getStatus();
                 return status != StarStatus.Error;
-                 */
-                return true;
             }
         });
 
