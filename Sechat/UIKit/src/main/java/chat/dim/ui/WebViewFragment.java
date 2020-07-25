@@ -92,7 +92,7 @@ public class WebViewFragment extends Fragment {
                 return true;
             }
         });
-        
+
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {

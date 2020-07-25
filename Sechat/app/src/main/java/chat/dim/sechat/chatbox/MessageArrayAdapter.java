@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,6 +65,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.timeView = view.findViewById(R.id.time_text);
             viewHolder.avatarView = view.findViewById(R.id.sent_avatar);
             viewHolder.nameView = view.findViewById(R.id.sent_name);
+            viewHolder.frameLayout = view.findViewById(R.id.sent_frame);
             viewHolder.msgView = view.findViewById(R.id.sent_text);
             viewHolder.imgView = view.findViewById(R.id.sent_image);
         } else if (MsgType.RECEIVED == type) {
@@ -73,6 +75,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.timeView = view.findViewById(R.id.time_text);
             viewHolder.avatarView = view.findViewById(R.id.recv_avatar);
             viewHolder.nameView = view.findViewById(R.id.recv_name);
+            viewHolder.frameLayout = view.findViewById(R.id.recv_frame);
             viewHolder.msgView = view.findViewById(R.id.recv_text);
             viewHolder.imgView = view.findViewById(R.id.recv_image);
         } else if (MsgType.COMMAND == type) {
@@ -82,6 +85,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.timeView = view.findViewById(R.id.time_text);
             viewHolder.avatarView = null;
             viewHolder.nameView = null;
+            viewHolder.frameLayout = null;
             viewHolder.msgView = view.findViewById(R.id.cmd_text);
             viewHolder.imgView = null;
         }
@@ -137,17 +141,20 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         // message
         if (content instanceof TextContent) {
             TextContent textContent = (TextContent) content;
+            viewHolder.frameLayout.setVisibility(View.VISIBLE);
             viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(textContent.getText());
             viewHolder.imgView.setVisibility(View.GONE);
         } else if (content instanceof ImageContent) {
             ImageContent imageContent = (ImageContent) content;
+            viewHolder.frameLayout.setVisibility(View.GONE);
             viewHolder.msgView.setVisibility(View.GONE);
             viewHolder.imgView.setVisibility(View.VISIBLE);
             viewHolder.imgView.setImageURI(ChatboxViewModel.getImageUri(imageContent, iMsg));
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);
+            //viewHolder.frameLayout.setVisibility(View.VISIBLE);
             viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(text);
             //viewHolder.imgView.setVisibility(View.GONE);
@@ -162,6 +169,7 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
         TextView timeView = null;
         ImageView avatarView = null;
         TextView nameView = null;
+        FrameLayout frameLayout = null;
         TextView msgView = null;
         ImageView imgView = null;
     }
