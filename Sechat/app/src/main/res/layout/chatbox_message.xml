@@ -59,7 +59,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="received message"
-                    android:textColor="@android:color/background_dark" />
+                    android:textColor="@android:color/background_dark"
+                    android:textIsSelectable="true" />
 
             </FrameLayout>
 
@@ -117,7 +118,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="sent message"
-                    android:textColor="@android:color/background_light" />
+                    android:textColor="@android:color/background_light"
+                    android:textIsSelectable="true" />
 
             </FrameLayout>
 

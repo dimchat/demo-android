@@ -65,9 +65,9 @@ public class UserViewModel extends EntityViewModel {
         if (identifier == null) {
             throw new NullPointerException("current user not set");
         }
-        String nickname = facebook.getNickname(identifier);
+        String name = EntityViewModel.getName(identifier);
         String number = facebook.getNumberString(identifier);
-        return nickname + " (" + number + ")";
+        return name + " (" + number + ")";
     }
     public String getUserTitle() {
         return getUserTitle(getIdentifier());

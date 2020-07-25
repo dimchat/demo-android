@@ -48,11 +48,10 @@
                 android:id="@+id/descView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:selectAllOnFocus="true"
-                android:text="@string/id_number"
                 android:textIsSelectable="true"
                 app:autoSizeMinTextSize="8sp"
-                app:autoSizeTextType="uniform" />
+                app:autoSizeTextType="uniform"
+                tools:text="@string/id_address" />
         </LinearLayout>
 
         <ImageButton

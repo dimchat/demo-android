@@ -111,7 +111,9 @@
                         android:layout_weight="1"
                         android:gravity="right"
                         android:text="Address"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@android:color/black"
+                        android:textIsSelectable="true"
+                        android:textSize="12sp" />
                 </TableRow>
 
                 <TableRow
@@ -132,7 +134,8 @@
                         android:layout_weight="1"
                         android:gravity="right"
                         android:text="Search Number"
-                        android:textColor="@android:color/black" />
+                        android:textColor="@android:color/black"
+                        android:textIsSelectable="true" />
                 </TableRow>
             </TableLayout>
 

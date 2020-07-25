@@ -93,7 +93,8 @@
                         android:layout_weight="1"
                         android:text="@string/id_address"
                         android:textColor="@android:color/black"
-                        android:textIsSelectable="true" />
+                        android:textIsSelectable="true"
+                        android:textSize="12sp" />
                 </TableRow>
 
             </TableLayout>

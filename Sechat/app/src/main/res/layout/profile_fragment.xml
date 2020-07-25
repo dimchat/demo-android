@@ -78,7 +78,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="address" />
+                android:text="address"
+                android:textIsSelectable="true"
+                android:textSize="12sp" />
         </TableRow>
 
         <TableRow
@@ -97,7 +99,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="search number" />
+                android:text="search number"
+                android:textIsSelectable="true" />
         </TableRow>
 
     </TableLayout>

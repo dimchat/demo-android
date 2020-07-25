@@ -10,7 +10,7 @@
     <android.support.v7.widget.CardView
         android:layout_width="48dp"
         android:layout_height="48dp"
-        app:cardCornerRadius="24dp" >
+        app:cardCornerRadius="24dp">
 
         <ImageView
             android:id="@+id/search_avatar"
