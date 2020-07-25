@@ -14,12 +14,17 @@
         android:orientation="horizontal"
         android:padding="10dp">
 
-        <ImageView
-            android:id="@+id/avatarView"
+        <android.support.v7.widget.CardView
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:layout_gravity="center_vertical"
-            android:src="@mipmap/ic_launcher_round" />
+            app:cardCornerRadius="8dp" >
+
+            <ImageView
+                android:id="@+id/avatarView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@mipmap/ic_launcher_round" />
+        </android.support.v7.widget.CardView>
 
         <LinearLayout
             android:layout_width="match_parent"

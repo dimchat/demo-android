@@ -2,6 +2,7 @@ package chat.dim.sechat.history;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.ViewAdapter;
@@ -35,32 +37,54 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DummyContent.Item item = dummyList.getItem(position);
-        holder.mTitleView.setText(item.getTitle());
-        holder.mDescView.setText(item.getDesc());
 
-        Uri avatar = item.getAvatarUrl();
-        holder.mAvatarView.setImageURI(avatar);
+        ID identifier = item.getIdentifier();
+        if (identifier.isGroup()) {
+            holder.userCard.setVisibility(View.GONE);
+            holder.groupCard.setVisibility(View.VISIBLE);
+            Uri logo = item.getLogoUrl();
+            holder.logoView.setImageURI(logo);
+        } else {
+            holder.userCard.setVisibility(View.VISIBLE);
+            holder.groupCard.setVisibility(View.GONE);
+            Uri avatar = item.getAvatarUrl();
+            holder.avatarView.setImageURI(avatar);
+        }
+
+        holder.titleView.setText(item.getTitle());
+        holder.descView.setText(item.getDesc());
 
         super.onBindViewHolder(holder, position);
     }
 
     class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
 
-        final ImageView mAvatarView;
-        final TextView mTitleView;
-        final TextView mDescView;
+        final CardView groupCard;
+        final ImageView logoView;
+
+        final CardView userCard;
+        final ImageView avatarView;
+
+        final TextView titleView;
+        final TextView descView;
 
         ViewHolder(View view) {
             super(view);
-            mAvatarView = view.findViewById(R.id.imageView);
-            mTitleView = view.findViewById(R.id.title);
-            mDescView = view.findViewById(R.id.desc);
+
+            groupCard = view.findViewById(R.id.groupCard);
+            logoView = view.findViewById(R.id.logoView);
+
+            userCard = view.findViewById(R.id.userCard);
+            avatarView = view.findViewById(R.id.avatarView);
+
+            titleView = view.findViewById(R.id.title);
+            descView = view.findViewById(R.id.desc);
         }
 
         @NonNull
         @Override
         public String toString() {
-            return super.toString() + " '" + mDescView.getText() + "'";
+            return super.toString() + " '" + descView.getText() + "'";
         }
     }
 }

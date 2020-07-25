@@ -52,7 +52,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
 
         ViewHolder(View view) {
             super(view);
-            mAvatarView = view.findViewById(R.id.imageView);
+            mAvatarView = view.findViewById(R.id.avatarView);
             mTitleView = view.findViewById(R.id.title);
             mDescView = view.findViewById(R.id.desc);
         }

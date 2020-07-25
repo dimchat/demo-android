@@ -7,12 +7,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.ID;
@@ -26,7 +27,9 @@ public class UpdateAccountFragment extends Fragment {
 
     private AccountViewModel mViewModel;
 
-    private ImageButton avatarButton;
+    private CardView cardView;
+
+    private ImageView avatarView;
     private EditText nicknameText;
     private TextView numberView;
     private TextView addressView;
@@ -45,7 +48,9 @@ public class UpdateAccountFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.update_account_fragment, container, false);
 
-        avatarButton = view.findViewById(R.id.avatar);
+        cardView = view.findViewById(R.id.cardView);
+
+        avatarView = view.findViewById(R.id.avatarView);
         nicknameText = view.findViewById(R.id.nickname);
         numberView = view.findViewById(R.id.number);
         addressView = view.findViewById(R.id.address);
@@ -63,11 +68,11 @@ public class UpdateAccountFragment extends Fragment {
 
         // avatar
         Uri avatar = mViewModel.getAvatarUrl();
-        avatarButton.setImageURI(avatar);
+        avatarView.setImageURI(avatar);
 
         UpdateAccountActivity activity = (UpdateAccountActivity) getActivity();
         assert activity != null : "should not happen";
-        avatarButton.setOnClickListener(v -> activity.startImagePicker());
+        cardView.setOnClickListener(v -> activity.startImagePicker());
 
         // nickname
         String nickname = mViewModel.getNickname();
@@ -91,7 +96,7 @@ public class UpdateAccountFragment extends Fragment {
     public void setAvatarImage(Bitmap bitmap) {
         avatarImage = bitmap;
         if (bitmap != null) {
-            avatarButton.setImageBitmap(avatarImage);
+            avatarView.setImageBitmap(avatarImage);
         }
     }
 

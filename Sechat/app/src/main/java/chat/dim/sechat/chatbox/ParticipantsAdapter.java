@@ -2,6 +2,7 @@ package chat.dim.sechat.chatbox;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         if (convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(resId, null);
             viewHolder = new ViewHolder();
+            viewHolder.cardView = view.findViewById(R.id.cardView);
             viewHolder.avatarView = view.findViewById(R.id.avatarView);
             viewHolder.nameView = view.findViewById(R.id.nameView);
             viewHolder.button = view.findViewById(R.id.button);
@@ -54,17 +56,14 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     private void showParticipant(ID identifier, ViewHolder viewHolder) {
         if (identifier.isBroadcast()) {
             // more
-            if (viewHolder.avatarView != null) {
-                viewHolder.avatarView.setVisibility(View.GONE);
-            }
-            if (viewHolder.nameView != null) {
-                viewHolder.nameView.setVisibility(View.GONE);
-            }
-            if (viewHolder.button != null) {
-                viewHolder.button.setVisibility(View.VISIBLE);
-            }
+            viewHolder.cardView.setVisibility(View.GONE);
+            viewHolder.avatarView.setVisibility(View.GONE);
+            viewHolder.nameView.setVisibility(View.GONE);
+            viewHolder.button.setVisibility(View.VISIBLE);
             return;
         }
+
+        viewHolder.cardView.setVisibility(View.VISIBLE);
 
         // avatar
         if (viewHolder.avatarView != null) {
@@ -73,7 +72,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             Uri avatar;
             String url = facebook.getAvatar(identifier);
             if (url == null) {
-                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
             } else {
                 avatar = Uri.parse(url);
             }
@@ -94,6 +93,9 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     class ViewHolder {
+
+        CardView cardView = null;
+
         ImageView avatarView = null;
         TextView nameView = null;
         ImageButton button = null;

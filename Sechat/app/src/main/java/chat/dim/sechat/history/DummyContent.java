@@ -84,20 +84,19 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             return chatBox.identifier;
         }
 
+        Uri getLogoUrl() {
+            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
+        }
+
         Uri getAvatarUrl() {
             ID identifier = getIdentifier();
-            if (identifier == null) {
-                return null;
-            }
-            String avatar = facebook.getAvatar(identifier);
-            if (avatar == null) {
-                if (identifier.isGroup()) {
-                    return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
-                } else {
-                    return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
+            if (identifier != null) {
+                String avatar = facebook.getAvatar(identifier);
+                if (avatar != null) {
+                    return Uri.parse(avatar);
                 }
             }
-            return Uri.parse(avatar);
+            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
         }
 
         String getTitle() {

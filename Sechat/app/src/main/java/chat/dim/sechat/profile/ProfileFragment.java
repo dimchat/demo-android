@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.profile_fragment, container, false);
 
-        imageView = view.findViewById(R.id.imageView);
+        imageView = view.findViewById(R.id.avatarView);
         seedView = view.findViewById(R.id.seedView);
         addressView = view.findViewById(R.id.addressView);
         numberView = view.findViewById(R.id.numberView);
