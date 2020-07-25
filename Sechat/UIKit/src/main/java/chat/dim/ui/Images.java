@@ -26,9 +26,14 @@
 package chat.dim.ui;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Images {
 
@@ -109,4 +114,155 @@ public class Images {
         bitmap.compress(format, quality, outputStream);
         return outputStream.toByteArray();
     }
+
+    //
+    //  Merge
+    //
+
+    public static Bitmap tiles(List<String> paths) {
+        List<Bitmap> bitmaps = new ArrayList<>();
+        int count = 0;
+        Bitmap img;
+        for (int index = 0; index < paths.size(); ++index) {
+            img = BitmapFactory.decodeFile(paths.get(index));
+            if (img == null) {
+                continue;
+            }
+            bitmaps.add(img);
+            count += 1;
+            if (count >= 9) {
+                break;
+            }
+        }
+        return merge(bitmaps);
+    }
+
+    private static Bitmap merge(List<Bitmap> bitmaps) {
+        Bitmap first = bitmaps.get(0);
+        Size size = getSize(first);
+        // TODO: other size?
+        return merge(bitmaps, 128, 128, first.getConfig());
+    }
+
+    private static Bitmap merge(List<Bitmap> tiles, int width, int height, Bitmap.Config config) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, config);
+        Canvas canvas = new Canvas(bitmap);
+
+        int count = tiles.size();
+        assert count > 0 : "tiles should not be empty";
+
+        // calculate size of small image
+        int w, h;
+        if (count == 1) {
+            w = width / 2;
+            h = height / 2;
+        } else if (count <= 4) {
+            w = (width - GAPS * 4) / 2;
+            h = (height - GAPS * 4) / 2;
+        } else {
+            w = (width - GAPS * 6) / 3;
+            h = (height - GAPS * 6) / 3;
+        }
+
+        // calculate origin point of small image
+        switch (count) {
+            case 1: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -1, -1, 0, 0);   // center
+            }
+            case 2: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -2, -1, -1, 0);  // left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, 0, -1, +1, 0);   // right
+                break;
+            }
+            case 3: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -1, -2, 0, -1);  // top
+
+                drawBitmap(canvas, tiles, 1, width, height, w, h, -2, 0, -1, +1);  // bottom left
+                drawBitmap(canvas, tiles, 2, width, height, w, h, 0, 0, +1, +1);   // bottom right
+                break;
+            }
+            case 4: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -2, -2, -1, -1); // top left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, 0, -2, +1, -1);  // top right
+
+                drawBitmap(canvas, tiles, 2, width, height, w, h, -2, 0, -1, +1);  // bottom left
+                drawBitmap(canvas, tiles, 3, width, height, w, h, 0, 0, +1, +1);   // bottom right
+                break;
+            }
+            case 5: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -2, -2, -1, -1); // top left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, 0, -2, +1, -1);  // top right
+
+                drawBitmap(canvas, tiles, 2, width, height, w, h, -3, 0, -2, +1);  // bottom left
+                drawBitmap(canvas, tiles, 3, width, height, w, h, -1, 0, 0, +1);   // bottom center
+                drawBitmap(canvas, tiles, 4, width, height, w, h, +1, 0, +2, +1);  // bottom right
+                break;
+            }
+            case 6: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -3, -2, -2, -1); // top left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, -1, -2, 0, -1);  // top center
+                drawBitmap(canvas, tiles, 2, width, height, w, h, +1, -2, +2, -1); // top right
+
+                drawBitmap(canvas, tiles, 3, width, height, w, h, -3, 0, -2, +1);  // bottom left
+                drawBitmap(canvas, tiles, 4, width, height, w, h, -1, 0, 0, +1);   // bottom center
+                drawBitmap(canvas, tiles, 5, width, height, w, h, +1, 0, +2, +1);  // bottom right
+                break;
+            }
+            case 7: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -1, -3, 0, -2);  // top
+
+                drawBitmap(canvas, tiles, 1, width, height, w, h, -3, -1, -2, 0);  // middle left
+                drawBitmap(canvas, tiles, 2, width, height, w, h, -1, -1, 0, 0);   // middle center
+                drawBitmap(canvas, tiles, 3, width, height, w, h, +1, -1, +2, 0);  // middle right
+
+                drawBitmap(canvas, tiles, 4, width, height, w, h, -3, +1, -2, +2); // bottom left
+                drawBitmap(canvas, tiles, 5, width, height, w, h, -1, +1, 0, +2);  // bottom center
+                drawBitmap(canvas, tiles, 6, width, height, w, h, +1, +1, +2, +2); // bottom right
+                break;
+            }
+            case 8: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -2, -3, -1, -2); // top left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, 0, -3, +1, -2);  // top right
+
+                drawBitmap(canvas, tiles, 2, width, height, w, h, -3, -1, -2, 0);  // middle left
+                drawBitmap(canvas, tiles, 3, width, height, w, h, -1, -1, 0, 0);   // middle center
+                drawBitmap(canvas, tiles, 4, width, height, w, h, +1, -1, +2, 0);  // middle right
+
+                drawBitmap(canvas, tiles, 5, width, height, w, h, -3, +1, -2, +2); // bottom left
+                drawBitmap(canvas, tiles, 6, width, height, w, h, -1, +1, 0, +2);  // bottom center
+                drawBitmap(canvas, tiles, 7, width, height, w, h, +1, +1, +2, +2); // bottom right
+                break;
+            }
+            default: {
+                drawBitmap(canvas, tiles, 0, width, height, w, h, -3, -3, -2, -2); // top left
+                drawBitmap(canvas, tiles, 1, width, height, w, h, -1, -3, 0, -2);  // top center
+                drawBitmap(canvas, tiles, 2, width, height, w, h, +1, -3, +2, -2); // top right
+
+                drawBitmap(canvas, tiles, 3, width, height, w, h, -3, -1, -2, 0);  // middle left
+                drawBitmap(canvas, tiles, 4, width, height, w, h, -1, -1, 0, 0);   // middle center
+                drawBitmap(canvas, tiles, 5, width, height, w, h, +1, -1, +2, 0);  // middle right
+
+                drawBitmap(canvas, tiles, 6, width, height, w, h, -3, +1, -2, +2); // bottom left
+                drawBitmap(canvas, tiles, 7, width, height, w, h, -1, +1, 0, +2);  // bottom center
+                drawBitmap(canvas, tiles, 8, width, height, w, h, +1, +1, +2, +2); // bottom right
+                break;
+            }
+        }
+
+        return bitmap;
+    }
+
+    private static void drawBitmap(Canvas canvas, List<Bitmap> tiles, int index, int width, int height,
+                                   int w, int h,
+                                   int dx, int dy,
+                                   int gx, int gy) {
+
+        int x = width / 2 + w * dx / 2 + GAPS * gx;
+        int y = height / 2 + h * dy / 2 + GAPS * gy;
+
+        Rect rect = new Rect(x, y, x + w, y + h);
+        canvas.drawBitmap(tiles.get(index), null, rect, null);
+    }
+
+    private static final int GAPS = 1;
 }

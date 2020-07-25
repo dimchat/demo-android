@@ -25,13 +25,34 @@
  */
 package chat.dim.sechat.model;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.ui.Images;
 
 public class GroupViewModel extends EntityViewModel {
+
+    public static Bitmap getLogo(ID identifier) {
+        List<ID> members = facebook.getCacheMembers(identifier);
+        if (members != null && members.size() > 0) {
+            List<String> avatars = new ArrayList<>();
+            String url;
+            for (ID item : members) {
+                url = facebook.getAvatar(item);
+                if (url != null && url.length() > 0) {
+                    avatars.add(url);
+                }
+            }
+            return Images.tiles(avatars);
+        }
+        return null;
+    }
 
     public static Uri getLogoUri(ID identifier) {
         return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);

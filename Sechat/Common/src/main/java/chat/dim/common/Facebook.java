@@ -357,6 +357,10 @@ public class Facebook extends chat.dim.Facebook {
         return groupTable.getMembers(group);
     }
 
+    public List<ID> getCacheMembers(ID group) {
+        return groupTable.getCacheMembers(group);
+    }
+
     @Override
     public List<ID> getAssistants(ID group) {
         assert group.isGroup() : "group ID error: " + group;

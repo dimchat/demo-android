@@ -38,7 +38,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
-        Uri avatar = item.getAvatarUrl();
+        Uri avatar = item.getAvatarUri();
         holder.mAvatarView.setImageURI(avatar);
 
         super.onBindViewHolder(holder, position);

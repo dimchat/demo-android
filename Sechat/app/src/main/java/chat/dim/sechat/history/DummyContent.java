@@ -1,5 +1,6 @@
 package chat.dim.sechat.history;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -84,11 +85,15 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             return chatBox.identifier;
         }
 
-        Uri getLogoUrl() {
+        Bitmap getLogo() {
+            return GroupViewModel.getLogo(chatBox.identifier);
+        }
+
+        Uri getLogoUri() {
             return GroupViewModel.getLogoUri(chatBox.identifier);
         }
 
-        Uri getAvatarUrl() {
+        Uri getAvatarUri() {
             return UserViewModel.getAvatarUri(chatBox.identifier);
         }
 

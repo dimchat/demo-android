@@ -90,7 +90,7 @@ public class AccountFragment extends Fragment {
         nameView.setText(mViewModel.getUserTitle());
         descView.setText(mViewModel.getAddressString());
 
-        Uri avatar = mViewModel.getAvatarUrl();
+        Uri avatar = mViewModel.getAvatarUri();
         avatarView.setImageURI(avatar);
     }
 

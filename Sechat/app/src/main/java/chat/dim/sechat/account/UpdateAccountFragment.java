@@ -67,7 +67,7 @@ public class UpdateAccountFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
 
         // avatar
-        Uri avatar = mViewModel.getAvatarUrl();
+        Uri avatar = mViewModel.getAvatarUri();
         avatarView.setImageURI(avatar);
 
         UpdateAccountActivity activity = (UpdateAccountActivity) getActivity();

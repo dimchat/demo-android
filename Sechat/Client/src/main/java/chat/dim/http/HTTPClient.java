@@ -62,16 +62,9 @@ public class HTTPClient extends Thread {
     public static String getCachePath(String url) {
         String filename = StringUtils.filename(url);
         int pos = filename.indexOf(".");
-        if (pos <= 0) {
-            // TODO: get filename from query string?
-            throw new NullPointerException("URL error: " + url);
-        }
         if (pos != 32) {
             // filename not hashed by MD5, hash the whole URL instead
             String ext = StringUtils.extension(filename);
-            if (ext == null || ext.length() == 0) {
-                throw new NullPointerException("filename error: " + url);
-            }
             byte[] data = url.getBytes(Charset.forName("UTF-8"));
             filename = Hex.encode(MD5.digest(data)) + "." + ext;
 

@@ -66,7 +66,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             return account.identifier;
         }
 
-        Uri getAvatarUrl() {
+        Uri getAvatarUri() {
             return UserViewModel.getAvatarUri(account.identifier);
         }
 
