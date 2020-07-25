@@ -3,13 +3,11 @@ package chat.dim.sechat.contacts;
 import android.net.Uri;
 
 import java.util.List;
-import java.util.Locale;
 
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
-import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 
@@ -51,7 +49,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         Item(Object id) {
             super();
-            account = facebook.getUser(ID.getInstance(id));
+            account = UserViewModel.getUser(id);
         }
 
         ID getIdentifier() {
@@ -59,20 +57,11 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         }
 
         Uri getAvatarUrl() {
-            ID identifier = getIdentifier();
-            if (identifier != null) {
-                String avatar = facebook.getAvatar(identifier);
-                if (avatar != null) {
-                    return Uri.parse(avatar);
-                }
-            }
-            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+            return UserViewModel.getAvatarUri(account.identifier);
         }
 
         String getTitle() {
-            String nickname = account.getName();
-            String number = facebook.getNumberString(account.identifier);
-            return String.format(Locale.CHINA, "%s (%s)", nickname, number);
+            return UserViewModel.getUserTitle(account.identifier);
         }
 
         String getDesc() {

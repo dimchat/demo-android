@@ -19,6 +19,7 @@ import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
+import chat.dim.sechat.model.UserViewModel;
 
 public class ProfileFragment extends Fragment {
 
@@ -88,7 +89,7 @@ public class ProfileFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // TODO: Use the ViewModel
 
-        Uri avatar = mViewModel.getAvatarUrl(identifier);
+        Uri avatar = UserViewModel.getAvatarUri(identifier);
         imageView.setImageURI(avatar);
 
         seedView.setText(identifier.name);

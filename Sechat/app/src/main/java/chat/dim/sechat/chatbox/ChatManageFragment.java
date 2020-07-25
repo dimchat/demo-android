@@ -16,6 +16,7 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.model.EntityViewModel;
 
 public class ChatManageFragment extends Fragment {
 
@@ -79,10 +80,10 @@ public class ChatManageFragment extends Fragment {
         adapter = new ParticipantsAdapter(getContext(), R.layout.chat_manage_participant, participants);
         participantsView.setAdapter(adapter);
 
-        nameTextView.setText(mViewModel.getName(identifier));
+        nameTextView.setText(EntityViewModel.getName(identifier));
         seedTextView.setText(identifier.name);
         addressTextView.setText(identifier.address.toString());
-        numberTextView.setText(mViewModel.getNumberString(identifier));
+        numberTextView.setText(EntityViewModel.getNumberString(identifier));
     }
 
 }

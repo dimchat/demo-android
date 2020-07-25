@@ -1,37 +1,15 @@
 package chat.dim.sechat.chatbox;
 
-import android.arch.lifecycle.ViewModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.Profile;
 import chat.dim.model.Facebook;
+import chat.dim.sechat.model.EntityViewModel;
 
-public class ChatManageViewModel extends ViewModel {
+public class ChatManageViewModel extends EntityViewModel {
 
     private static Facebook facebook = Facebook.getInstance();
-
-    public String getName(ID identifier) {
-        String name;
-        Profile profile = facebook.getProfile(identifier);
-        if (profile != null) {
-            name = profile.getName();
-            if (name != null) {
-                return name;
-            }
-        }
-        name = identifier.name;
-        if (name != null) {
-            return name;
-        }
-        return identifier.toString();
-    }
-
-    public String getNumberString(ID identifier) {
-        return facebook.getNumberString(identifier);
-    }
 
     public List<ID> getParticipants(ID identifier) {
         List<ID> participants = new ArrayList<>();

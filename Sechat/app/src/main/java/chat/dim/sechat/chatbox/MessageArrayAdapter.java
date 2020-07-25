@@ -24,7 +24,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 
 public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
@@ -122,19 +122,13 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
         // avatar
         if (viewHolder.avatarView != null) {
-            Uri avatar;
-            String url = facebook.getAvatar(sender);
-            if (url == null) {
-                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher);
-            } else {
-                avatar = Uri.parse(url);
-            }
+            Uri avatar = UserViewModel.getAvatarUri(sender);
             viewHolder.avatarView.setImageURI(avatar);
         }
 
         // name
         if (viewHolder.nameView != null) {
-            String name = facebook.getNickname(sender);
+            String name = UserViewModel.getNickname(sender);
             viewHolder.nameView.setText(name);
         }
 

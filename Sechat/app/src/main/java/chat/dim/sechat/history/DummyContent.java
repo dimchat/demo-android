@@ -10,13 +10,13 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.Profile;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
-import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.model.GroupViewModel;
+import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 
@@ -85,36 +85,24 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         }
 
         Uri getLogoUrl() {
-            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
+            return GroupViewModel.getLogoUri(chatBox.identifier);
         }
 
         Uri getAvatarUrl() {
-            ID identifier = getIdentifier();
-            if (identifier != null) {
-                String avatar = facebook.getAvatar(identifier);
-                if (avatar != null) {
-                    return Uri.parse(avatar);
-                }
-            }
-            return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+            return UserViewModel.getAvatarUri(chatBox.identifier);
         }
 
         String getTitle() {
-            ID identifier = chatBox.identifier;
-
-            Profile profile = facebook.getProfile(identifier);
-            String nickname = profile == null ? null : profile.getName();
-            String username = identifier.name;
-            if (nickname != null) {
-                if (username != null && identifier.isUser()) {
-                    return nickname + " (" + username + ")";
-                }
-                return nickname;
-            } else if (username != null) {
-                return username;
+            if (chatBox.identifier.isGroup()) {
+                return EntityViewModel.getName(chatBox.identifier);
             } else {
-                // BTC address
-                return identifier.address.toString();
+                String nickname = UserViewModel.getNickname(chatBox.identifier);
+                String username = EntityViewModel.getName(chatBox.identifier);
+                if (nickname != null && nickname.length() > 0) {
+                    return nickname + " (" + username + ")";
+                } else {
+                    return username;
+                }
             }
         }
 

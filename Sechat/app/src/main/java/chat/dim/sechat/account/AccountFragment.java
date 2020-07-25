@@ -87,8 +87,8 @@ public class AccountFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
         // TODO: Use the ViewModel
 
-        nameView.setText(mViewModel.getAccountTitle());
-        descView.setText(mViewModel.getAccountDesc());
+        nameView.setText(mViewModel.getUserTitle());
+        descView.setText(mViewModel.getAddressString());
 
         Uri avatar = mViewModel.getAvatarUrl();
         avatarView.setImageURI(avatar);

@@ -16,7 +16,7 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.UserViewModel;
 
 public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
@@ -69,13 +69,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         if (viewHolder.avatarView != null) {
             viewHolder.avatarView.setVisibility(View.VISIBLE);
 
-            Uri avatar;
-            String url = facebook.getAvatar(identifier);
-            if (url == null) {
-                avatar = SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
-            } else {
-                avatar = Uri.parse(url);
-            }
+            Uri avatar = UserViewModel.getAvatarUri(identifier);
             viewHolder.avatarView.setImageURI(avatar);
         }
 
@@ -83,7 +77,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         if (viewHolder.nameView != null) {
             viewHolder.nameView.setVisibility(View.VISIBLE);
 
-            String name = facebook.getNickname(identifier);
+            String name = UserViewModel.getNickname(identifier);
             viewHolder.nameView.setText(name);
         }
 
