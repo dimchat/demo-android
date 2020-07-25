@@ -26,6 +26,7 @@
 package chat.dim.http;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.database.Database;
+import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.utils.StringUtils;
 
@@ -58,11 +61,22 @@ public class HTTPClient extends Thread {
     // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
     public static String getCachePath(String url) {
         String filename = StringUtils.filename(url);
-        if (filename.length() > 0) {
-            return Database.getCacheFilePath(filename);
+        int pos = filename.indexOf(".");
+        if (pos <= 0) {
+            // TODO: get filename from query string?
+            throw new NullPointerException("URL error: " + url);
         }
-        // TODO: get filename from query string?
-        throw new NullPointerException("URL error: " + url);
+        if (pos != 32) {
+            // filename not hashed by MD5, hash the whole URL instead
+            String ext = StringUtils.extension(filename);
+            if (ext == null || ext.length() == 0) {
+                throw new NullPointerException("filename error: " + url);
+            }
+            byte[] data = url.getBytes(Charset.forName("UTF-8"));
+            filename = Hex.encode(MD5.digest(data)) + "." + ext;
+
+        }
+        return Database.getCacheFilePath(filename);
     }
 
     //
