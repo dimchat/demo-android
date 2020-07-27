@@ -171,8 +171,7 @@ public class ChatboxFragment extends Fragment implements Observer {
         //ftp.saveThumbnail(thumbnail, filename);
 
         // add image data length & thumbnail into message content
-        ImageContent content = new ImageContent(jpeg, "photo.jpeg");
-        content.setFilename(filename);
+        ImageContent content = new ImageContent(jpeg, filename);
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
 

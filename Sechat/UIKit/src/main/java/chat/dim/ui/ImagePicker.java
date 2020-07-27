@@ -27,6 +27,7 @@ package chat.dim.ui;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -42,15 +43,39 @@ import java.io.InputStream;
 
 public class ImagePicker implements DialogInterface.OnClickListener {
 
+    private static final String ACTION_IMAGE_CAPTURE = MediaStore.ACTION_IMAGE_CAPTURE; // "android.media.action.IMAGE_CAPTURE"
+    private static final String EXTRA_OUTPUT = MediaStore.EXTRA_OUTPUT;
+
+    private static final String ACTION_PICK = Intent.ACTION_PICK;                       // "android.intent.action.PICK"
+    private static final String ACTION_CROP = "com.android.camera.action.CROP";
+
+    private static final Uri EXTERNAL_CONTENT_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final String DATA_TYPE = "image/*";
+    private static final String OUTPUT_FORMAT = Bitmap.CompressFormat.JPEG.toString();
+
+    public enum RequestCode {
+
+        Album  (0x0201),
+        Camera (0x0202),
+        Crop   (0x0204);
+
+        public final int value;
+
+        RequestCode(int value) {
+            this.value = value;
+        }
+    }
+
     private final Activity activity;
 
-    public float cropAspectX = 1;
-    public float cropAspectY = 1;
-    public float cropOutputX = 256;
-    public float cropOutputY = 256;
-    public boolean cropScale = true;
-    public boolean cropScaleUpIfNeeded = true;
-    public boolean cropNoFaceDetection = true;
+    public String crop = "true";
+    public float aspectX = 1;
+    public float aspectY = 1;
+    public float outputX = 256;
+    public float outputY = 256;
+    public boolean scale = true;
+    public boolean scaleUpIfNeeded = true;
+    public boolean noFaceDetection = true;
 
     public ImagePicker(Activity activity) {
         super();
@@ -86,12 +111,16 @@ public class ImagePicker implements DialogInterface.OnClickListener {
 
     private void openCamera() {
         System.out.println("open camera");
+        Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
+        Uri uri = activity.getContentResolver().insert(EXTERNAL_CONTENT_URI, new ContentValues());
+        intent.putExtra(EXTRA_OUTPUT, uri);
+        activity.startActivityForResult(intent, RequestCode.Camera.value);
     }
 
-    private void openAlbum() {
+    void openAlbum() {
         System.out.println("open album");
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, DATA_TYPE);
+        Intent intent = new Intent(ACTION_PICK);
+        intent.setDataAndType(EXTERNAL_CONTENT_URI, DATA_TYPE);
         activity.startActivityForResult(intent, RequestCode.Album.value);
     }
 
@@ -145,17 +174,17 @@ public class ImagePicker implements DialogInterface.OnClickListener {
         Intent intent = new Intent(ACTION_CROP);
         intent.setDataAndType(data, DATA_TYPE);
 
-        intent.putExtra("crop", true);
-        intent.putExtra("aspectX", cropAspectX);
-        intent.putExtra("aspectY", cropAspectY);
-        intent.putExtra("outputX", cropOutputX);
-        intent.putExtra("outputY", cropOutputY);
-        intent.putExtra("scale", cropScale);
-        intent.putExtra("scaleUpIfNeeded", cropScaleUpIfNeeded);
-        intent.putExtra("noFaceDetection", cropNoFaceDetection);
+        intent.putExtra("crop", crop);
+        intent.putExtra("aspectX", aspectX);
+        intent.putExtra("aspectY", aspectY);
+        intent.putExtra("outputX", outputX);
+        intent.putExtra("outputY", outputY);
+        intent.putExtra("scale", scale);
+        intent.putExtra("scaleUpIfNeeded", scaleUpIfNeeded);
+        intent.putExtra("noFaceDetection", noFaceDetection);
 
         intent.putExtra("return-data", false);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, output);
+        intent.putExtra(EXTRA_OUTPUT, output);
         intent.putExtra("outputFormat", OUTPUT_FORMAT);
 
         if (intent.resolveActivity(activity.getPackageManager()) == null) {
@@ -165,22 +194,5 @@ public class ImagePicker implements DialogInterface.OnClickListener {
 
         activity.startActivityForResult(intent, RequestCode.Crop.value);
         return true;
-    }
-
-    private static final String ACTION_CROP = "com.android.camera.action.CROP";
-    private static final String DATA_TYPE = "image/*";
-    private static final String OUTPUT_FORMAT = Bitmap.CompressFormat.JPEG.toString();
-
-    public enum RequestCode {
-
-        Album  (0x0201),
-        Camera (0x0202),
-        Crop   (0x0204);
-
-        public final int value;
-
-        RequestCode(int value) {
-            this.value = value;
-        }
     }
 }

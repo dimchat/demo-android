@@ -33,6 +33,11 @@ public class RegisterActivity extends ImagePickerActivity {
     private CheckBox checkBox;
     private Button okBtn;
 
+    public RegisterActivity() {
+        super();
+        setCrop(true);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

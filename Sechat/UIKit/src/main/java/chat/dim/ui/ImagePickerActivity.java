@@ -46,32 +46,46 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
         imagePicker.start();
     }
 
+    protected void setCrop(boolean needsCrop) {
+        if (needsCrop) {
+            imagePicker.crop = "true";
+        } else {
+            imagePicker.crop = "false";
+        }
+    }
+
     protected abstract String getTemporaryDirectory();
 
     protected abstract void fetchImage(Bitmap bitmap);
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == ImagePicker.RequestCode.Album.value) {
+        if (requestCode == ImagePicker.RequestCode.Camera.value) {
+            // capture OK, open album to pick the photo
+            imagePicker.openAlbum();
+        } else if (requestCode == ImagePicker.RequestCode.Album.value) {
             if (data == null) {
                 // cancelled
                 return;
             }
-            Uri source = data.getData();
-            if (source == null) {
-                // no data
-                return;
-            }
-            try {
-                if (imagePicker.cropPicture(source, getTemporaryDirectory())) {
-                    // waiting for crop
+            if (imagePicker.crop != null && imagePicker.crop.equals("true")) {
+                // crop selected picture
+                Uri source = data.getData();
+                if (source == null) {
+                    // no data
                     return;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
+                try {
+                    if (imagePicker.cropPicture(source, getTemporaryDirectory())) {
+                        // waiting for crop
+                        return;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
-            // CROP not support
+            // fetch image without crop
             fetchImage(imagePicker.getBitmap(data));
             return;
         } else if (requestCode == ImagePicker.RequestCode.Crop.value) {
@@ -79,6 +93,7 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
                 // cancelled
                 return;
             }
+            // fetch image after cropped
             fetchImage(imagePicker.getBitmap(data));
             return;
         }

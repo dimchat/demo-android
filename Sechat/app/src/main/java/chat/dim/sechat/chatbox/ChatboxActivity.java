@@ -24,6 +24,11 @@ public class ChatboxActivity extends ImagePickerActivity {
 
     ChatboxFragment chatboxFragment = null;
 
+    public ChatboxActivity() {
+        super();
+        setCrop(false);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

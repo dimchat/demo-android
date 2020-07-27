@@ -12,6 +12,11 @@ public class UpdateAccountActivity extends ImagePickerActivity {
 
     private UpdateAccountFragment fragment;
 
+    public UpdateAccountActivity() {
+        super();
+        setCrop(true);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
