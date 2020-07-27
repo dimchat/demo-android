@@ -17,6 +17,7 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.ui.Alert;
 
 public class ChatManageFragment extends Fragment {
 
@@ -26,7 +27,9 @@ public class ChatManageFragment extends Fragment {
     private ParticipantsAdapter adapter;
 
     private GridView participantsView;
+
     private Button showMembersButton;
+    private Button clearHistoryButton;
 
     private TextView nameTextView;
     private TextView seedTextView;
@@ -52,7 +55,12 @@ public class ChatManageFragment extends Fragment {
         View view = inflater.inflate(R.layout.chat_manage_fragment, container, false);
 
         participantsView = view.findViewById(R.id.participants);
+
         showMembersButton = view.findViewById(R.id.showMembers);
+        showMembersButton.setOnClickListener(v -> showMembers());
+
+        clearHistoryButton = view.findViewById(R.id.clearHistory);
+        clearHistoryButton.setOnClickListener(v -> clearHistory());
 
         nameTextView = view.findViewById(R.id.nameView);
         seedTextView = view.findViewById(R.id.seedView);
@@ -86,4 +94,11 @@ public class ChatManageFragment extends Fragment {
         numberTextView.setText(EntityViewModel.getNumberString(identifier));
     }
 
+    private void showMembers() {
+        Alert.tips(getActivity(), "not implemented yet");
+    }
+
+    private void clearHistory() {
+        Alert.tips(getActivity(), "not implemented yet");
+    }
 }

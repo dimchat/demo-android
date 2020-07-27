@@ -12,7 +12,7 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_activity);
 
-        setTitle("Search");
+        setTitle(R.string.search);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

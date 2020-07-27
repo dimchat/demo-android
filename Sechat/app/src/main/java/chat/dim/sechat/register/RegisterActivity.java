@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -28,7 +28,7 @@ import chat.dim.ui.Images;
 public class RegisterActivity extends ImagePickerActivity {
 
     private Bitmap avatarImage = null;
-    private ImageButton imageButton;
+    private ImageView imageView;
     private EditText nicknameEditText;
     private CheckBox checkBox;
     private Button okBtn;
@@ -51,12 +51,12 @@ public class RegisterActivity extends ImagePickerActivity {
         User user = client.getCurrentUser();
         if (user == null) {
             // register new account
-            imageButton = findViewById(R.id.imageButton);
+            imageView = findViewById(R.id.imageView);
             nicknameEditText = findViewById(R.id.nickname);
             checkBox = findViewById(R.id.checkBox);
             okBtn = findViewById(R.id.okBtn);
 
-            imageButton.setOnClickListener(v -> startImagePicker());
+            imageView.setOnClickListener(v -> startImagePicker());
             okBtn.setOnClickListener(v -> register());
         } else {
             // OK
@@ -79,7 +79,7 @@ public class RegisterActivity extends ImagePickerActivity {
 
         if (avatarImage == null) {
             Alert.tips(this, R.string.register_avatar);
-            return;
+            //return;
         }
 
         String nickname = nicknameEditText.getText().toString();
@@ -104,14 +104,16 @@ public class RegisterActivity extends ImagePickerActivity {
         Profile profile = user.getProfile();
 
         // 2. upload avatar
-        FtpServer ftp = FtpServer.getInstance();
-        byte[] imageData = Images.jpeg(avatarImage);
-        if (imageData != null) {
-            String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
-            if (profile instanceof UserProfile) {
-                ((UserProfile) profile).setAvatar(avatarURL);
-            } else {
-                profile.setProperty("avatar", avatarURL);
+        if (avatarImage != null) {
+            FtpServer ftp = FtpServer.getInstance();
+            byte[] imageData = Images.jpeg(avatarImage);
+            if (imageData != null) {
+                String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
+                if (profile instanceof UserProfile) {
+                    ((UserProfile) profile).setAvatar(avatarURL);
+                } else {
+                    profile.setProperty("avatar", avatarURL);
+                }
             }
         }
 
@@ -139,7 +141,7 @@ public class RegisterActivity extends ImagePickerActivity {
     protected void fetchImage(Bitmap bitmap) {
         if (bitmap != null) {
             avatarImage = bitmap;
-            imageButton.setImageBitmap(avatarImage);
+            imageView.setImageBitmap(avatarImage);
         }
     }
 }

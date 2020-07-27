@@ -66,6 +66,9 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
     }
 
     private boolean search(String keywords) {
+        dummyList.response = null;
+        dummyList.reloadData();
+
         SearchCommand cmd = new SearchCommand(keywords);
         Messenger messenger = Messenger.getInstance();
         return messenger.sendCommand(cmd);

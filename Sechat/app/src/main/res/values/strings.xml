@@ -37,4 +37,5 @@
     <string name="server_error">Network Error</string>
     <string name="server_stopped">Stopped</string>
     <string name="server_default">Waiting</string>
+    <string name="account_saved">Account saved</string>
 </resources>

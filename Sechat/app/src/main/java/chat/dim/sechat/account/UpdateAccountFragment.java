@@ -21,6 +21,7 @@ import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.R;
+import chat.dim.ui.Alert;
 import chat.dim.ui.Images;
 
 public class UpdateAccountFragment extends Fragment {
@@ -131,9 +132,12 @@ public class UpdateAccountFragment extends Fragment {
         }
 
         mViewModel.updateProfile(profile);
+
+        Alert.tips(getActivity(), R.string.account_saved);
     }
 
     private void export() {
         // TODO: export user info with private key
+        Alert.tips(getActivity(), "not implemented yet");
     }
 }
