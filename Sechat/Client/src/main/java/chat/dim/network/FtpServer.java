@@ -176,6 +176,9 @@ public class FtpServer {
     }
 
     private byte[] decryptFile(String path, Map<String, Object> password) throws IOException, ClassNotFoundException {
+        if (!ExternalStorage.exists(path)) {
+            return null;
+        }
         byte[] data = ExternalStorage.loadData(path);
         if (data == null) {
             // file not found

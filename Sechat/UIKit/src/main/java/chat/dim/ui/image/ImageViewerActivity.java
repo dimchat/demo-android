@@ -27,6 +27,8 @@ package chat.dim.ui.image;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
@@ -49,7 +51,7 @@ public class ImageViewerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.imageviewer_activity);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         scrollView = findViewById(R.id.scrollView);
@@ -65,7 +67,12 @@ public class ImageViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             Uri imageUri = intent.getParcelableExtra("URI");
-            imageView.setImageURI(imageUri);
+            Bitmap bitmap = BitmapFactory.decodeFile(imageUri.getPath());
+            if (bitmap != null) {
+                originSize = new Images.Size(bitmap.getWidth(), bitmap.getHeight());
+                imageView.setImageBitmap(bitmap);
+                resizeImage();
+            }
 
             String title = intent.getStringExtra("title");
             if (title != null) {

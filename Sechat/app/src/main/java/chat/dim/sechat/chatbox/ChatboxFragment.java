@@ -37,6 +37,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
+import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.Images;
@@ -104,7 +105,7 @@ public class ChatboxFragment extends Fragment implements Observer {
     //  Send Message
     //
 
-    private InstantMessage sendMessage(InstantMessage iMsg) {
+    private void sendMessage(InstantMessage iMsg) {
         // prepare to send
         Callback callback = (result, error) -> {
             // TODO: check sending status
@@ -113,11 +114,9 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (!messenger.sendMessage(iMsg, callback)) {
             throw new RuntimeException("failed to send message: " + iMsg);
         }
-
-        return iMsg;
     }
 
-    private InstantMessage sendContent(Content content) {
+    private void sendContent(Content content) {
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
         if (user == null) {
@@ -132,8 +131,11 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
-        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
-        return sendMessage(iMsg);
+        BackgroundThread bg = BackgroundThread.getInstance();
+        bg.addTask(() -> {
+            InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+            sendMessage(iMsg);
+        });
     }
 
     private void send() {
@@ -142,11 +144,9 @@ public class ChatboxFragment extends Fragment implements Observer {
             return;
         }
         Content content = new TextContent(text);
-        InstantMessage iMsg = sendContent(content);
-        if (iMsg != null) {
-            // sent OK
-            inputText.setText("");
-        }
+        sendContent(content);
+        // sent OK
+        inputText.setText("");
     }
 
     private static final Images.Size MAX_SIZE = new Images.Size(1024, 1024);
