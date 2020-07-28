@@ -83,10 +83,6 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             return chatBox.identifier;
         }
 
-        Bitmap getLogo() {
-            return GroupViewModel.getLogo(chatBox.identifier);
-        }
-
         Uri getLogoUri() {
             return GroupViewModel.getLogoUri(chatBox.identifier);
         }

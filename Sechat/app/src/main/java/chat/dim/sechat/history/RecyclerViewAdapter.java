@@ -43,15 +43,8 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         if (identifier.isGroup()) {
             holder.userCard.setVisibility(View.GONE);
             holder.groupCard.setVisibility(View.VISIBLE);
-            Bitmap logo = item.getLogo();
-            if (logo == null) {
-                Uri uri = item.getLogoUri();
-                if (uri != null) {
-                    holder.logoView.setImageURI(uri);
-                }
-            } else {
-                holder.logoView.setImageBitmap(logo);
-            }
+            Uri logo = item.getLogoUri();
+            holder.logoView.setImageURI(logo);
         } else {
             holder.userCard.setVisibility(View.VISIBLE);
             holder.groupCard.setVisibility(View.GONE);

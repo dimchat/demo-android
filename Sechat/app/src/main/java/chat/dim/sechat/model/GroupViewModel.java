@@ -28,17 +28,22 @@ package chat.dim.sechat.model;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.database.Database;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Images;
 
 public class GroupViewModel extends EntityViewModel {
 
-    public static Bitmap getLogo(ID identifier) {
+    private static Bitmap drawLogo(ID identifier) {
         List<ID> members = facebook.getCacheMembers(identifier);
         if (members != null && members.size() > 0) {
             List<String> avatars = new ArrayList<>();
@@ -55,6 +60,27 @@ public class GroupViewModel extends EntityViewModel {
     }
 
     public static Uri getLogoUri(ID identifier) {
+        Uri uri = logos.get(identifier);
+        if (uri != null) {
+            return uri;
+        }
+        String path = Database.getEntityFilePath(identifier, "avatar.png");
+        Bitmap bitmap = drawLogo(identifier);
+        if (bitmap != null) {
+            byte[] png = Images.png(bitmap);
+            try {
+                ExternalStorage.saveData(png, path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (ExternalStorage.exists(path)) {
+            uri = Uri.parse(path);
+            logos.put(identifier, uri);
+            return uri;
+        }
         return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
     }
+
+    private static final Map<ID, Uri> logos = new HashMap<>();
 }
