@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -15,6 +16,7 @@ import chat.dim.extension.Register;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.Client;
@@ -24,6 +26,8 @@ import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.ImagePickerActivity;
 import chat.dim.ui.Images;
+import chat.dim.ui.Resources;
+import chat.dim.ui.WebViewActivity;
 
 public class RegisterActivity extends ImagePickerActivity {
 
@@ -31,6 +35,7 @@ public class RegisterActivity extends ImagePickerActivity {
     private ImageView imageView;
     private EditText nicknameEditText;
     private CheckBox checkBox;
+    private TextView terms;
     private Button okBtn;
 
     public RegisterActivity() {
@@ -54,9 +59,11 @@ public class RegisterActivity extends ImagePickerActivity {
             imageView = findViewById(R.id.imageView);
             nicknameEditText = findViewById(R.id.nickname);
             checkBox = findViewById(R.id.checkBox);
+            terms = findViewById(R.id.terms);
             okBtn = findViewById(R.id.okBtn);
 
             imageView.setOnClickListener(v -> startImagePicker());
+            terms.setOnClickListener(v -> showTerms());
             okBtn.setOnClickListener(v -> register());
         } else {
             // OK
@@ -68,6 +75,24 @@ public class RegisterActivity extends ImagePickerActivity {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setClass(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void showTerms() {
+        Configuration config = Configuration.getInstance();
+        open(R.string.terms, config.getTermsURL());
+    }
+
+    private void open(int resId, String url) {
+        String title = (String) Resources.getText(this, resId);
+        open(title, url);
+    }
+
+    private void open(String title, String url) {
+        Intent intent = new Intent();
+        intent.setClass(this, WebViewActivity.class);
+        intent.putExtra("title", title);
+        intent.putExtra("URL", url);
         startActivity(intent);
     }
 

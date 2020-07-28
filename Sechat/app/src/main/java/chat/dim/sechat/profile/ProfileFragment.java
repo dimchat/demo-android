@@ -19,6 +19,7 @@ import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
+import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 
 public class ProfileFragment extends Fragment {
@@ -30,7 +31,7 @@ public class ProfileFragment extends Fragment {
     private ID identifier;
 
     private ImageView imageView;
-    private TextView seedView;
+    private TextView nameView;
     private TextView addressView;
     private TextView numberView;
 
@@ -49,7 +50,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.profile_fragment, container, false);
 
         imageView = view.findViewById(R.id.avatarView);
-        seedView = view.findViewById(R.id.seedView);
+        nameView = view.findViewById(R.id.nameView);
         addressView = view.findViewById(R.id.addressView);
         numberView = view.findViewById(R.id.numberView);
 
@@ -90,16 +91,16 @@ public class ProfileFragment extends Fragment {
         Uri avatar = UserViewModel.getAvatarUri(identifier);
         imageView.setImageURI(avatar);
 
-        seedView.setText(identifier.name);
-        addressView.setText(identifier.address.toString());
-        numberView.setText(facebook.getNumberString(identifier));
+        nameView.setText(UserViewModel.getNickname(identifier));
+        addressView.setText(EntityViewModel.getAddressString(identifier));
+        numberView.setText(EntityViewModel.getNumberString(identifier));
 
         if (mViewModel.existsContact(identifier)) {
-            addButton.setVisibility(View.INVISIBLE);
+            addButton.setVisibility(View.GONE);
             messageButton.setVisibility(View.VISIBLE);
         } else {
             addButton.setVisibility(View.VISIBLE);
-            messageButton.setVisibility(View.INVISIBLE);
+            messageButton.setVisibility(View.GONE);
         }
     }
 

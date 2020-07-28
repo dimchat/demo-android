@@ -63,7 +63,7 @@ public class ChatManageFragment extends Fragment {
         clearHistoryButton.setOnClickListener(v -> clearHistory());
 
         nameTextView = view.findViewById(R.id.nameView);
-        seedTextView = view.findViewById(R.id.seedView);
+        seedTextView = view.findViewById(R.id.nameView);
         addressTextView = view.findViewById(R.id.addressView);
         numberTextView = view.findViewById(R.id.numberView);
 

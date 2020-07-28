@@ -89,6 +89,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchView.setIconified(true);
+                searchView.setQueryHint(query);
                 return search(query);
             }
 

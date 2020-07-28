@@ -73,23 +73,23 @@
                 <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
                     android:padding="@dimen/text_margin">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/id_seed"
+                        android:text="@string/id_number"
                         android:textColor="@android:color/darker_gray" />
 
                     <TextView
-                        android:id="@+id/seedView"
+                        android:id="@+id/numberView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:text="Seed"
-                        android:textColor="@android:color/black" />
+                        android:text="Search Number"
+                        android:textColor="@android:color/black"
+                        android:textIsSelectable="true" />
                 </TableRow>
 
                 <TableRow
@@ -110,33 +110,14 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right"
+                        android:lines="1"
                         android:text="Address"
                         android:textColor="@android:color/black"
                         android:textIsSelectable="true"
-                        android:textSize="12sp" />
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeTextType="uniform" />
                 </TableRow>
 
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="@dimen/text_margin">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/id_number"
-                        android:textColor="@android:color/darker_gray" />
-
-                    <TextView
-                        android:id="@+id/numberView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="right"
-                        android:text="Search Number"
-                        android:textColor="@android:color/black"
-                        android:textIsSelectable="true" />
-                </TableRow>
             </TableLayout>
 
             <Button

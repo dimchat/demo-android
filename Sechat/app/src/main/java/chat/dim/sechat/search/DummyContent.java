@@ -8,6 +8,7 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.SearchCommand;
+import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
@@ -75,7 +76,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         }
 
         String getDesc() {
-            return account.identifier.toString();
+            return EntityViewModel.getAddressString(account.identifier);
         }
     }
 }
