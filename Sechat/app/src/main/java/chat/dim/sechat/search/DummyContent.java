@@ -25,9 +25,9 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
     public SearchCommand response = null;
 
-    DummyContent() {
-        super();
-        reloadData();
+    public void clearData() {
+        response = null;
+        clearItems();
     }
 
     public void reloadData() {

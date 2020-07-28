@@ -76,15 +76,14 @@ public class ListFragment<VA extends ViewAdapter, L extends DummyList> extends F
     }
 
     public void reloadData() {
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
+        dummyList.reloadData();
+        msgHandler.sendMessage(new Message());
     }
 
     @SuppressLint("HandlerLeak")
     private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            dummyList.reloadData();
             adapter.notifyDataSetChanged();
         }
     };

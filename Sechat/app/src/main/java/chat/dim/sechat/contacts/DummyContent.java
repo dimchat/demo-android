@@ -22,11 +22,6 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
     private static Facebook facebook = Facebook.getInstance();
 
-    DummyContent() {
-        super();
-        reloadData();
-    }
-
     public void reloadData() {
         clearItems();
 

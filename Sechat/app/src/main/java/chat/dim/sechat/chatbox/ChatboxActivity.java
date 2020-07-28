@@ -15,6 +15,7 @@ import chat.dim.filesys.Paths;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
+import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.ui.ImagePickerActivity;
 
@@ -51,18 +52,17 @@ public class ChatboxActivity extends ImagePickerActivity {
 
         if (identifier.isGroup()) {
             setTitle(chatBox.getName() + " (...)");
-            Thread bg = new Thread() {
-                @Override
-                public void run() {
-                    Message msg = new Message();
-                    msg.obj = chatBox.getTitle();
-                    msgHandler.sendMessage(msg);
-                }
-            };
-            bg.start();
+            BackgroundThread bg = BackgroundThread.getInstance();
+            bg.addTask(() -> refreshTitle(chatBox));
         } else {
             setTitle(chatBox.getName());
         }
+    }
+
+    private void refreshTitle(Conversation chatBox) {
+        Message msg = new Message();
+        msg.obj = chatBox.getTitle();
+        msgHandler.sendMessage(msg);
     }
 
     @SuppressLint("HandlerLeak")

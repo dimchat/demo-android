@@ -14,6 +14,7 @@ import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
+import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.list.ListFragment;
@@ -41,6 +42,14 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, ConversationDatabase.MessageUpdated);
+
+        reloadData();
+    }
+
+    @Override
+    public void reloadData() {
+        BackgroundThread bg = BackgroundThread.getInstance();
+        bg.addTask(super::reloadData);
     }
 
     @Override

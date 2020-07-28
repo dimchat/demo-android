@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import chat.dim.ID;
+import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
@@ -35,8 +36,13 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
         };
         adapter = new RecyclerViewAdapter(dummyList, listener);
 
-//        NotificationCenter nc = NotificationCenter.getInstance();
-//        nc.addObserver(this, ConversationDatabase.MessageUpdated);
+        reloadData();
+    }
+
+    @Override
+    public void reloadData() {
+        BackgroundThread bg = BackgroundThread.getInstance();
+        bg.addTask(super::reloadData);
     }
 
     @Override

@@ -37,6 +37,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Images;
@@ -58,13 +59,7 @@ public class GroupViewModel extends EntityViewModel {
         }
         return null;
     }
-
-    public static Uri getLogoUri(ID identifier) {
-        Uri uri = logos.get(identifier);
-        if (uri != null) {
-            return uri;
-        }
-        String path = Database.getEntityFilePath(identifier, "avatar.png");
+    private static void refreshLogo(ID identifier, String path) {
         Bitmap bitmap = drawLogo(identifier);
         if (bitmap != null) {
             byte[] png = Images.png(bitmap);
@@ -74,6 +69,16 @@ public class GroupViewModel extends EntityViewModel {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static Uri getLogoUri(ID identifier) {
+        Uri uri = logos.get(identifier);
+        if (uri != null) {
+            return uri;
+        }
+        String path = Database.getEntityFilePath(identifier, "avatar.png");
+        BackgroundThread bg = BackgroundThread.getInstance();
+        bg.addTask(() -> refreshLogo(identifier, path));
         if (ExternalStorage.exists(path)) {
             uri = Uri.parse(path);
             logos.put(identifier, uri);

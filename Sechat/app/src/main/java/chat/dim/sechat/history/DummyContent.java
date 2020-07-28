@@ -31,11 +31,6 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     private static Amanuensis clerk = Amanuensis.getInstance();
     private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
-    DummyContent() {
-        super();
-        reloadData();
-    }
-
     public void reloadData() {
         clearItems();
         msgDB.reloadConversations();
