@@ -51,9 +51,9 @@ public class UserViewModel extends EntityViewModel {
         return getAvatarUri(getIdentifier());
     }
 
-    public static String getNickname(ID identifier) {
+    public static String getNickname(Object identifier) {
         if (identifier == null) {
-            throw new NullPointerException("current user not set");
+            throw new NullPointerException("user ID empty");
         }
         return facebook.getNickname(identifier);
     }
@@ -61,9 +61,19 @@ public class UserViewModel extends EntityViewModel {
         return getNickname(getIdentifier());
     }
 
+    public static String getUsername(Object identifier) {
+        if (identifier == null) {
+            throw new NullPointerException("user ID empty");
+        }
+        return facebook.getUsername(identifier);
+    }
+    public String getUsername() {
+        return getUsername(getIdentifier());
+    }
+
     public static String getUserTitle(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("current user not set");
+            throw new NullPointerException("user ID empty");
         }
         String name = EntityViewModel.getName(identifier);
         String number = facebook.getNumberString(identifier);

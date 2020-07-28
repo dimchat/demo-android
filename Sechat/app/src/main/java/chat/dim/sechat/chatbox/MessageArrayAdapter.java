@@ -17,6 +17,8 @@ import java.util.List;
 import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.filesys.ExternalStorage;
+import chat.dim.http.HTTPClient;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
@@ -26,6 +28,7 @@ import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
+import chat.dim.ui.image.ImageViewerActivity;
 
 public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
@@ -109,7 +112,18 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
     }
 
     private void showImage(InstantMessage iMsg) {
-        System.out.print("show image: " + iMsg);
+        if (iMsg.content instanceof ImageContent) {
+            ImageContent content = (ImageContent) iMsg.content;
+            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.envelope.sender));
+        }
+    }
+
+    private void showImage(String filename, String sender) {
+        String path = HTTPClient.getCachePath(filename);
+        if (!ExternalStorage.exists(path)) {
+            return;
+        }
+        ImageViewerActivity.show(getContext(), Uri.parse(path), sender);
     }
 
     private Facebook facebook = Facebook.getInstance();

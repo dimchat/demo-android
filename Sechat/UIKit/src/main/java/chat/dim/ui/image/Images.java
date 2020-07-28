@@ -47,6 +47,8 @@ public class Images {
             this.width = width;
             this.height = height;
         }
+
+        public static final Size ZERO = new Size(0, 0);
     }
 
     public static Size getSize(Bitmap bitmap) {

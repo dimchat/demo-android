@@ -21,6 +21,7 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
+import chat.dim.ui.image.ImageViewerActivity;
 
 public class ProfileFragment extends Fragment {
 
@@ -57,24 +58,33 @@ public class ProfileFragment extends Fragment {
         addButton = view.findViewById(R.id.addContact);
         messageButton = view.findViewById(R.id.sendMessage);
 
-        addButton.setOnClickListener(v -> {
-            addContact(identifier);
-            startChat(identifier);
-        });
-        messageButton.setOnClickListener(v -> startChat(identifier));
+        imageView.setOnClickListener(v -> showAvatar());
+
+        addButton.setOnClickListener(v -> addContact());
+        messageButton.setOnClickListener(v -> startChat());
 
         return view;
     }
 
-    private void addContact(ID identifier) {
+    private void showAvatar() {
+        Uri avatar = UserViewModel.getAvatarUri(identifier);
+        if (avatar != null) {
+            ImageViewerActivity.show(getActivity(), avatar, UserViewModel.getUsername(identifier));
+        }
+    }
+
+    private void addContact() {
         User user = facebook.getCurrentUser();
         if (user == null) {
             throw new NullPointerException("current user not set");
         }
         facebook.addContact(identifier, user.identifier);
+
+        // open chat box
+        startChat();
     }
 
-    private void startChat(ID identifier) {
+    private void startChat() {
         assert getContext() != null : "fragment context error";
         Intent intent = new Intent();
         intent.setClass(getContext(), ChatboxActivity.class);

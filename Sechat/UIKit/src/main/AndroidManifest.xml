@@ -8,7 +8,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application>
-        <activity android:name=".WebViewActivity" android:label="@string/title_activity_webview" />
+        <activity
+            android:name=".image.ImageViewerActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".WebViewActivity"
+            android:label="@string/title_activity_webview" />
     </application>
 
 </manifest>

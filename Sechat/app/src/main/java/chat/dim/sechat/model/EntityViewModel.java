@@ -58,7 +58,7 @@ public class EntityViewModel extends ViewModel {
     //
     public static String getNumberString(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("current user not set");
+            throw new NullPointerException("entity ID empty");
         }
         return facebook.getNumberString(identifier);
     }
@@ -71,7 +71,7 @@ public class EntityViewModel extends ViewModel {
     //
     public static String getAddressString(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("current user not set");
+            throw new NullPointerException("entity ID empty");
         }
         return identifier.address.toString();
     }
@@ -106,7 +106,7 @@ public class EntityViewModel extends ViewModel {
     //
     public static Profile getProfile(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("current user not set");
+            throw new NullPointerException("entity ID empty");
         }
         return facebook.getProfile(identifier);
     }

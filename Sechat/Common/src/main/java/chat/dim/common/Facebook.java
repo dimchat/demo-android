@@ -196,7 +196,6 @@ public class Facebook extends chat.dim.Facebook {
     public String getUsername(Object string) {
         return getUsername(getID(string));
     }
-
     public String getUsername(ID identifier) {
         String username = identifier.name;
         String nickname = getNickname(identifier);
@@ -214,6 +213,9 @@ public class Facebook extends chat.dim.Facebook {
         return identifier.address.toString();
     }
 
+    public String getNickname(Object identifier) {
+        return getNickname(getID(identifier));
+    }
     public String getNickname(ID identifier) {
         assert identifier.isUser() : "ID error: " + identifier;
         Profile profile = getProfile(identifier);
