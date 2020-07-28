@@ -108,7 +108,7 @@ public class WebViewFragment extends Fragment {
         WebSettings settings = webView.getSettings();
         if (settings != null) {
             settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-            //settings.setJavaScriptEnabled(true);
+            settings.setJavaScriptEnabled(true);
 
             settings.setUseWideViewPort(true);
             settings.setLoadWithOverviewMode(true);

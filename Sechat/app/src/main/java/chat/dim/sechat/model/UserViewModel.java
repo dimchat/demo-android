@@ -45,7 +45,7 @@ public class UserViewModel extends EntityViewModel {
                 return Uri.parse(avatar);
             }
         }
-        return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_round);
+        return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
     }
     public Uri getAvatarUri() {
         return getAvatarUri(getIdentifier());
