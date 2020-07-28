@@ -22,7 +22,7 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
-import chat.dim.ui.Images;
+import chat.dim.ui.image.Images;
 
 public class UpdateAccountFragment extends Fragment {
 

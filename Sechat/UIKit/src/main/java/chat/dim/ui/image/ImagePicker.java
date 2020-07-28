@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.ui.image;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -40,6 +40,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import chat.dim.ui.Alert;
+import chat.dim.ui.Permissions;
+import chat.dim.ui.R;
+import chat.dim.ui.Resources;
 
 public class ImagePicker implements DialogInterface.OnClickListener {
 

@@ -40,7 +40,7 @@ import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
-import chat.dim.ui.Images;
+import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
 

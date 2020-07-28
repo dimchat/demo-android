@@ -17,7 +17,7 @@ import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
-import chat.dim.ui.ImagePickerActivity;
+import chat.dim.ui.image.ImagePickerActivity;
 
 public class ChatboxActivity extends ImagePickerActivity {
 

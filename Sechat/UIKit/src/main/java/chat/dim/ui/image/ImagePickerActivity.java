@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.ui.image;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

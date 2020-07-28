@@ -39,7 +39,7 @@ import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.ui.Images;
+import chat.dim.ui.image.Images;
 
 public class ChatboxFragment extends Fragment implements Observer {
 

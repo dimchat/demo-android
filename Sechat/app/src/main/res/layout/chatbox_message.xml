@@ -46,7 +46,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="name" />
+                android:text="name"
+                android:textIsSelectable="true" />
 
             <FrameLayout
                 android:id="@+id/recv_frame"
@@ -105,7 +106,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="me" />
+                android:text="me"
+                android:textIsSelectable="true" />
 
             <FrameLayout
                 android:id="@+id/sent_frame"
@@ -167,6 +169,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="command" />
+            android:text="command"
+            android:textIsSelectable="true" />
     </LinearLayout>
 </LinearLayout>

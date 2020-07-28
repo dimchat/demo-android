@@ -24,10 +24,10 @@ import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
-import chat.dim.ui.ImagePickerActivity;
-import chat.dim.ui.Images;
 import chat.dim.ui.Resources;
 import chat.dim.ui.WebViewActivity;
+import chat.dim.ui.image.ImagePickerActivity;
+import chat.dim.ui.image.Images;
 
 public class RegisterActivity extends ImagePickerActivity {
 

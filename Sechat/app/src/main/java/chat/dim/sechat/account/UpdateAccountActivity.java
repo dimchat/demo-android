@@ -6,7 +6,7 @@ import android.os.Bundle;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.sechat.R;
-import chat.dim.ui.ImagePickerActivity;
+import chat.dim.ui.image.ImagePickerActivity;
 
 public class UpdateAccountActivity extends ImagePickerActivity {
 

@@ -101,7 +101,15 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             });
         }
 
+        if (viewHolder.imgView != null) {
+            viewHolder.imgView.setOnClickListener(v -> showImage(iMsg));
+        }
+
         return view;
+    }
+
+    private void showImage(InstantMessage iMsg) {
+        System.out.print("show image: " + iMsg);
     }
 
     private Facebook facebook = Facebook.getInstance();
