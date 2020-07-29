@@ -165,10 +165,10 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     @Override
-    public boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
-        boolean OK = messageTable.saveReceipt(receipt, chatBox.identifier);
+    public boolean saveReceipt(InstantMessage iMsg, Conversation chatBox) {
+        boolean OK = messageTable.saveReceipt(iMsg, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(receipt, chatBox.identifier);
+            postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;
     }

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Callback;
 import chat.dim.Content;
 import chat.dim.Envelope;
 import chat.dim.ID;
@@ -245,6 +246,33 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     //-------- Send
+
+    @Override
+    public boolean sendMessage(InstantMessage iMsg, Callback callback) {
+        // Send message (secured + certified) to target station
+        SecureMessage sMsg = encryptMessage(iMsg);
+        if (sMsg == null) {
+            // public key not found?
+            return false;
+            //throw new NullPointerException("failed to encrypt message: " + iMsg);
+        }
+        ReliableMessage rMsg = signMessage(sMsg);
+        if (rMsg == null) {
+            // TODO: set iMsg.state = error
+            throw new NullPointerException("failed to sign message: " + sMsg);
+        }
+
+        boolean OK = sendMessage(rMsg, callback);
+        // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
+
+        // save signature for receipt
+        iMsg.put("signature", rMsg.get("signature"));
+
+        if (!saveMessage(iMsg)) {
+            return false;
+        }
+        return OK;
+    }
 
     public boolean sendCommand(Command cmd) {
         return false;

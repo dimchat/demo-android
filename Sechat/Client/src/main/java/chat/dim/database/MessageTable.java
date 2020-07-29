@@ -34,6 +34,7 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
 public class MessageTable extends Database {
@@ -95,6 +96,36 @@ public class MessageTable extends Database {
         long t2 = time2.getTime();
         // NOTICE: timestamp in seconds
         return t1 / 1000 == t2 / 1000;
+    }
+
+    private boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {
+        // 1. check sender & receiver
+        Object sender = receipt.get("sender");
+        if (sender != null && !iMsg.envelope.sender.equals(sender)) {
+            return false;
+        }
+        Object receiver = receipt.get("receiver");
+        if (receiver != null && !iMsg.envelope.receiver.equals(receiver)) {
+            return false;
+        }
+        // 2. check signature
+        String sig1 = (String) receipt.get("signature");
+        String sig2 = (String) iMsg.get("signature");
+        if (sig1 != null && sig2 != null) {
+            sig1 = sig1.replaceAll("\n", "");
+            sig2 = sig2.replaceAll("\n", "");
+            int len1 = sig1.length();
+            int len2 = sig2.length();
+            if (len1 > len2) {
+                return sig1.contains(sig2);
+            } else if (len1 < len2) {
+                return sig2.contains(sig1);
+            } else {
+                return sig1.equals(sig2);
+            }
+        }
+        // 3. check sn
+        return iMsg.content.serialNumber == receipt.serialNumber;
     }
 
     //-------- messages
@@ -163,9 +194,36 @@ public class MessageTable extends Database {
         return false;
     }
 
-    public boolean saveReceipt(InstantMessage receipt, ID entity) {
-        // TODO: save receipt of instant message
-        return false;
+    public boolean saveReceipt(InstantMessage iMsg, ID entity) {
+        // save receipt of instant message
+        if (!(iMsg.content instanceof ReceiptCommand)) {
+            return false;
+        }
+        ReceiptCommand receipt = (ReceiptCommand) iMsg.content;
+        Object receiver = receipt.get("receiver");
+        if (receiver != null) {
+            entity = ID.getInstance(receiver);
+        }
+
+        List<InstantMessage> msgList = messagesInConversation(entity);
+        InstantMessage item;
+        int index = msgList.size() - 1;
+        for (; index >= 0; --index) {
+            item = msgList.get(index);
+            if (!isMatch(item, receipt)) {
+                continue;
+            }
+            @SuppressWarnings("unchecked")
+            List<Object> traces = (List<Object>) item.get("traces");
+            if (traces == null) {
+                traces = new ArrayList<>();
+                item.put("traces", traces);
+            }
+            // DISCUSS: what about the other fields 'sender', 'receiver', 'signature'
+            //          in this receipt command?
+            traces.add(iMsg.envelope.sender);
+        }
+        return saveMessages(entity);
     }
 
     public boolean removeMessages(ID entity) {

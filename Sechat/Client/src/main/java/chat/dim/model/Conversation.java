@@ -140,7 +140,7 @@ public class Conversation {
         return dataSource.withdrawMessage(iMsg, this);
     }
 
-    public boolean saveReceipt(InstantMessage receipt) {
-        return dataSource.saveReceipt(receipt, this);
+    public boolean saveReceipt(InstantMessage iMsg) {
+        return dataSource.saveReceipt(iMsg, this);
     }
 }

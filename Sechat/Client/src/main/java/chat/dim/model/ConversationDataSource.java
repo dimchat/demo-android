@@ -112,9 +112,9 @@ public interface ConversationDataSource {
     /**
      *  Update message state with receipt
      *
-     * @param receipt - receipt of message
+     * @param iMsg - message with receipt content
      * @param chatBox - conversation
      * @return true while target message found
      */
-    boolean saveReceipt(InstantMessage receipt, Conversation chatBox);
+    boolean saveReceipt(InstantMessage iMsg, Conversation chatBox);
 }

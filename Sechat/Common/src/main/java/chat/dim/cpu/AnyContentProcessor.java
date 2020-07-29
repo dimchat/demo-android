@@ -101,7 +101,9 @@ public class AnyContentProcessor extends ContentProcessor {
         }
 
         // response
-        return new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
+        ReceiptCommand receipt = new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
+        receipt.put("signature", rMsg.get("signature"));
+        return receipt;
     }
 
     //
