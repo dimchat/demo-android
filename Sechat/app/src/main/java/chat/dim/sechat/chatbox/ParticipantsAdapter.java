@@ -1,6 +1,7 @@
 package chat.dim.sechat.chatbox;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.UserViewModel;
+import chat.dim.sechat.profile.ProfileActivity;
+import chat.dim.ui.Alert;
 
 class ParticipantsAdapter extends ArrayAdapter<ID> {
 
@@ -58,10 +61,12 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
             viewHolder.avatarView.setVisibility(View.GONE);
             viewHolder.nameView.setVisibility(View.GONE);
             viewHolder.button.setVisibility(View.VISIBLE);
+            viewHolder.button.setOnClickListener(v -> addParticipant());
             return;
         }
 
         viewHolder.cardView.setVisibility(View.VISIBLE);
+        viewHolder.cardView.setOnClickListener(v -> showParticipant(identifier));
 
         // avatar
         if (viewHolder.avatarView != null) {
@@ -82,6 +87,17 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
         if (viewHolder.button != null) {
             viewHolder.button.setVisibility(View.GONE);
         }
+    }
+
+    private void addParticipant() {
+        Alert.tips(getContext(), "not implemented yet");
+    }
+
+    private void showParticipant(ID identifier) {
+        Intent intent = new Intent();
+        intent.setClass(getContext(), ProfileActivity.class);
+        intent.putExtra("ID", identifier.toString());
+        getContext().startActivity(intent);
     }
 
     static class ViewHolder {
