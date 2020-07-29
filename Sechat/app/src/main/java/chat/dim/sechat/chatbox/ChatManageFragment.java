@@ -99,6 +99,8 @@ public class ChatManageFragment extends Fragment {
     }
 
     private void clearHistory() {
-        Alert.tips(getActivity(), "not implemented yet");
+        if (mViewModel.clearHistory(identifier)) {
+            Alert.tips(getActivity(), R.string.clear_history_ok);
+        }
     }
 }

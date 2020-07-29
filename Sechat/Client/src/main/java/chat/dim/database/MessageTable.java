@@ -34,7 +34,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.model.Conversation;
 import chat.dim.utils.Times;
 
 public class MessageTable extends Database {
@@ -79,27 +78,6 @@ public class MessageTable extends Database {
         }
     }
 
-    private boolean removeMessages(ID entity) {
-        String path = getMessageFilePath(entity);
-        try {
-            return delete(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean clearMessages(ID entity) {
-        List<InstantMessage> messages = new ArrayList<>();
-        String path = getMessageFilePath(entity);
-        try {
-            return saveJSON(messages, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
         // 1. check sn
         if (msg1.content.serialNumber != msg2.content.serialNumber) {
@@ -121,11 +99,11 @@ public class MessageTable extends Database {
 
     //-------- messages
 
-    public List<InstantMessage> messagesInConversation(Conversation chatBox) {
-        List<InstantMessage> msgList = chatHistory.get(chatBox.identifier);
+    public List<InstantMessage> messagesInConversation(ID entity) {
+        List<InstantMessage> msgList = chatHistory.get(entity);
         if (msgList == null) {
             msgList = new ArrayList<>();
-            List messages = loadMessages(chatBox.identifier);
+            List messages = loadMessages(entity);
             if (messages != null) {
                 InstantMessage msg;
                 for (Object item : messages) {
@@ -136,28 +114,28 @@ public class MessageTable extends Database {
                     msgList.add(msg);
                 }
             }
-            chatHistory.put(chatBox.identifier, msgList);
+            chatHistory.put(entity, msgList);
         }
         return msgList;
     }
 
-    public int numberOfMessages(Conversation chatBox) {
-        List<InstantMessage> msgList = messagesInConversation(chatBox);
+    public int numberOfMessages(ID entity) {
+        List<InstantMessage> msgList = messagesInConversation(entity);
         return msgList.size();
     }
 
-    public InstantMessage messageAtIndex(int index, Conversation chatBox) {
-        List<InstantMessage> msgList = messagesInConversation(chatBox);
+    public InstantMessage messageAtIndex(int index, ID entity) {
+        List<InstantMessage> msgList = messagesInConversation(entity);
         return msgList.get(index);
     }
 
-    public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
+    public boolean insertMessage(InstantMessage iMsg, ID entity) {
         Date time = iMsg.envelope.time;
         if (time == null) {
             time = new Date();
         }
 
-        List<InstantMessage> msgList = messagesInConversation(chatBox);
+        List<InstantMessage> msgList = messagesInConversation(entity);
         InstantMessage item;
         int index = msgList.size() - 1;
         for (; index >= 0; --index) {
@@ -171,30 +149,50 @@ public class MessageTable extends Database {
             }
         }
         msgList.add(index + 1, iMsg);
-        return saveMessages(chatBox.identifier);
+        return saveMessages(entity);
     }
 
-    public boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
-        List<InstantMessage> msgList = messagesInConversation(chatBox);
+    public boolean removeMessage(InstantMessage iMsg, ID entity) {
+        List<InstantMessage> msgList = messagesInConversation(entity);
         msgList.remove(iMsg);
-        return saveMessages(chatBox.identifier);
+        return saveMessages(entity);
     }
 
-    public boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
+    public boolean withdrawMessage(InstantMessage iMsg, ID entity) {
         // TODO: withdraw a message;
         return false;
     }
 
-    public boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
+    public boolean saveReceipt(InstantMessage receipt, ID entity) {
         // TODO: save receipt of instant message
         return false;
     }
 
-    public boolean removeMessages(Conversation chatBox) {
-        return removeMessages(chatBox.identifier);
+    public boolean removeMessages(ID entity) {
+        String path = getMessageFilePath(entity);
+        try {
+            if (delete(path)) {
+                chatHistory.remove(entity);
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    public boolean clearMessages(Conversation chatBox) {
-        return clearMessages(chatBox.identifier);
+    public boolean clearMessages(ID entity) {
+        List<InstantMessage> messages = messagesInConversation(entity);
+        if (messages == null) {
+            return false;
+        }
+        messages.clear();
+        String path = getMessageFilePath(entity);
+        try {
+            return saveJSON(messages, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

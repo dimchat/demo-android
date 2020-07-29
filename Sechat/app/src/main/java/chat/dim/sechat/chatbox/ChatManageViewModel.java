@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.model.EntityViewModel;
 
@@ -31,5 +32,10 @@ public class ChatManageViewModel extends EntityViewModel {
             }
         }
         return participants;
+    }
+
+    boolean clearHistory(ID identifier) {
+        ConversationDatabase msgDB = ConversationDatabase.getInstance();
+        return msgDB.clearConversation(identifier);
     }
 }

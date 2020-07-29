@@ -91,7 +91,22 @@ public class ConversationDatabase implements ConversationDataSource {
 
     @Override
     public boolean removeConversation(ID identifier) {
-        return conversationTable.removeConversation(identifier);
+        if (!messageTable.removeMessages(identifier)) {
+            return false;
+        }
+        if (!conversationTable.removeConversation(identifier)) {
+            return false;
+        }
+        postMessageUpdatedNotification(null, identifier);
+        return true;
+    }
+
+    public boolean clearConversation(ID identifier) {
+        if (!messageTable.clearMessages(identifier)) {
+            return false;
+        }
+        postMessageUpdatedNotification(null, identifier);
+        return true;
     }
 
     public void reloadConversations() {
@@ -101,22 +116,22 @@ public class ConversationDatabase implements ConversationDataSource {
     // messages
 
     public List<InstantMessage> messagesInConversation(Conversation chatBox) {
-        return messageTable.messagesInConversation(chatBox);
+        return messageTable.messagesInConversation(chatBox.identifier);
     }
 
     @Override
     public int numberOfMessages(Conversation chatBox) {
-        return messageTable.numberOfMessages(chatBox);
+        return messageTable.numberOfMessages(chatBox.identifier);
     }
 
     @Override
     public InstantMessage messageAtIndex(int index, Conversation chatBox) {
-        return messageTable.messageAtIndex(index, chatBox);
+        return messageTable.messageAtIndex(index, chatBox.identifier);
     }
 
-    private void postMessageUpdatedNotification(InstantMessage iMsg, Conversation chatBox) {
+    private void postMessageUpdatedNotification(InstantMessage iMsg, ID identifier) {
         Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("ID", chatBox.identifier);
+        userInfo.put("ID", identifier);
         userInfo.put("msg", iMsg);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(MessageUpdated, this, userInfo);
@@ -124,36 +139,36 @@ public class ConversationDatabase implements ConversationDataSource {
 
     @Override
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        boolean OK = messageTable.insertMessage(iMsg, chatBox);
+        boolean OK = messageTable.insertMessage(iMsg, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(iMsg, chatBox);
+            postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;
     }
 
     @Override
     public boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
-        boolean OK = messageTable.removeMessage(iMsg, chatBox);
+        boolean OK = messageTable.removeMessage(iMsg, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(iMsg, chatBox);
+            postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;
     }
 
     @Override
     public boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
-        boolean OK = messageTable.withdrawMessage(iMsg, chatBox);
+        boolean OK = messageTable.withdrawMessage(iMsg, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(iMsg, chatBox);
+            postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;
     }
 
     @Override
     public boolean saveReceipt(InstantMessage receipt, Conversation chatBox) {
-        boolean OK = messageTable.saveReceipt(receipt, chatBox);
+        boolean OK = messageTable.saveReceipt(receipt, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(receipt, chatBox);
+            postMessageUpdatedNotification(receipt, chatBox.identifier);
         }
         return OK;
     }

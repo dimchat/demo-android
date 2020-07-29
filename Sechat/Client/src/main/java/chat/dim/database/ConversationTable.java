@@ -97,7 +97,6 @@ public class ConversationTable extends Database {
     }
 
     public boolean removeConversation(ID identifier) {
-        // TODO: remove '{address}/messages.js'
         return conversationList.remove(identifier);
     }
 
