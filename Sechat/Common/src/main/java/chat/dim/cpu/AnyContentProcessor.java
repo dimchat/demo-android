@@ -49,7 +49,7 @@ import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
-import chat.dim.utils.StringUtils;
+import chat.dim.utils.Strings;
 
 public class AnyContentProcessor extends ContentProcessor {
 
@@ -212,7 +212,7 @@ class MessageBuilder {
         for (Object item : addedList) {
             names.add(getUsername(item));
         }
-        String string = StringUtils.join(names, ", ");
+        String string = Strings.join(names, ", ");
         return String.format("%s has invited members: %s", getUsername(commander), string);
     }
 
@@ -225,7 +225,7 @@ class MessageBuilder {
         for (Object item : removedList) {
             names.add(getUsername(item));
         }
-        String string = StringUtils.join(names, ", ");
+        String string = Strings.join(names, ", ");
         return String.format("%s has removed members: %s", getUsername(commander), string);
     }
 
@@ -244,14 +244,14 @@ class MessageBuilder {
             for (Object item : removedList) {
                 names.add(getUsername(item));
             }
-            string = string + ", removed: " + StringUtils.join(names, ", ");
+            string = string + ", removed: " + Strings.join(names, ", ");
         }
         if (addedList != null && addedList.size() > 0) {
             List<String> names = new ArrayList<>();
             for (Object item : addedList) {
                 names.add(getUsername(item));
             }
-            string = string + ", added: " + StringUtils.join(names, ", ");
+            string = string + ", added: " + Strings.join(names, ", ");
         }
         return String.format("%s has updated members %s", getUsername(commander), string);
     }

@@ -77,8 +77,10 @@ public class GroupViewModel extends EntityViewModel {
             return uri;
         }
         String path = Database.getEntityFilePath(identifier, "avatar.png");
-        BackgroundThread bg = BackgroundThread.getInstance();
-        bg.addTask(() -> refreshLogo(identifier, path));
+
+        // refresh group logo in background
+        BackgroundThread.run(() -> refreshLogo(identifier, path));
+
         if (ExternalStorage.exists(path)) {
             uri = Uri.parse(path);
             logos.put(identifier, uri);

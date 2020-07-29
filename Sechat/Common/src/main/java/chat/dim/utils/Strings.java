@@ -25,9 +25,10 @@
  */
 package chat.dim.utils;
 
+import java.io.File;
 import java.util.List;
 
-public class StringUtils {
+public class Strings {
 
     /**
      *  Join all string items to a string with separator
@@ -66,11 +67,11 @@ public class StringUtils {
         if (pos > 0) {
             url = url.substring(0, pos);
         }
-        pos = url.lastIndexOf("/");
+        pos = url.lastIndexOf(File.separator);
         if (pos < 0) {
             return url;
         }
-        return url.substring(pos + 1);
+        return url.substring(pos + File.separator.length());
     }
 
     /**

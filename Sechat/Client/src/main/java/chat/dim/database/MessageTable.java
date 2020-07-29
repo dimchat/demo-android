@@ -35,6 +35,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.model.Conversation;
+import chat.dim.utils.Times;
 
 public class MessageTable extends Database {
 
@@ -151,11 +152,9 @@ public class MessageTable extends Database {
     }
 
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        long timestamp;
-        if (iMsg.envelope.time == null) {
-            timestamp = 0;
-        } else {
-            timestamp = iMsg.envelope.time.getTime();
+        Date time = iMsg.envelope.time;
+        if (time == null) {
+            time = new Date();
         }
 
         List<InstantMessage> msgList = messagesInConversation(chatBox);
@@ -167,7 +166,7 @@ public class MessageTable extends Database {
                 // duplicated message
                 return false;
             }
-            if (item.envelope.time == null || item.envelope.time.getTime() <= timestamp) {
+            if (item.envelope.time == null || Times.compare(item.envelope.time, time) <= 0) {
                 break;
             }
         }

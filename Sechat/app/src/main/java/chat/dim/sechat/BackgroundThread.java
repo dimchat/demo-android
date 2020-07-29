@@ -40,10 +40,14 @@ public class BackgroundThread extends Thread {
         start();
     }
 
+    public static void run(Runnable runnable) {
+        getInstance().addTask(runnable);
+    }
+
     private final List<Runnable> tasks = new ArrayList<>();
     private final ReadWriteLock taskLock = new ReentrantReadWriteLock();
 
-    public void addTask(Runnable runnable) {
+    private void addTask(Runnable runnable) {
         Lock writeLock = taskLock.writeLock();
         writeLock.lock();
         try {

@@ -1,6 +1,5 @@
 package chat.dim.sechat.history;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -53,7 +52,16 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         }
 
         holder.titleView.setText(item.getTitle());
+        holder.timeView.setText(item.getTime());
         holder.descView.setText(item.getDesc());
+
+        String badge = item.getUnread();
+        if (badge == null) {
+            holder.badgeCard.setVisibility(View.GONE);
+        } else {
+            holder.badgeCard.setVisibility(View.VISIBLE);
+            holder.badgeText.setText(badge);
+        }
 
         super.onBindViewHolder(holder, position);
     }
@@ -67,7 +75,11 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         final ImageView avatarView;
 
         final TextView titleView;
+        final TextView timeView;
         final TextView descView;
+
+        final CardView badgeCard;
+        final TextView badgeText;
 
         ViewHolder(View view) {
             super(view);
@@ -79,7 +91,11 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
             avatarView = view.findViewById(R.id.avatarView);
 
             titleView = view.findViewById(R.id.title);
+            timeView = view.findViewById(R.id.time);
             descView = view.findViewById(R.id.desc);
+
+            badgeCard = view.findViewById(R.id.badgeCard);
+            badgeText = view.findViewById(R.id.badgeText);
         }
 
         @NonNull

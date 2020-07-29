@@ -25,11 +25,9 @@
  */
 package chat.dim.model;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.Content;
@@ -41,6 +39,7 @@ import chat.dim.database.ConversationTable;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.protocol.Command;
+import chat.dim.utils.Times;
 
 public class ConversationDatabase implements ConversationDataSource {
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
@@ -62,12 +61,7 @@ public class ConversationDatabase implements ConversationDataSource {
         if (time == null) {
             return null;
         }
-        return getTimeString(time);
-    }
-
-    private String getTimeString(Date time) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
-        return formatter.format(time);
+        return Times.getTimeString(time);
     }
 
     public String getContentText(Content content) {

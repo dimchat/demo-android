@@ -131,8 +131,8 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
-        BackgroundThread bg = BackgroundThread.getInstance();
-        bg.addTask(() -> {
+        // send message in background
+        BackgroundThread.run(() -> {
             InstantMessage iMsg = new InstantMessage(content, sender, receiver);
             sendMessage(iMsg);
         });

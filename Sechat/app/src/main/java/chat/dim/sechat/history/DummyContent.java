@@ -1,6 +1,5 @@
 package chat.dim.sechat.history;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
+import chat.dim.utils.Times;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -51,7 +51,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         Comparator<Conversation> comparator = (chatBox1, chatBox2) -> {
             Date time1 = chatBox1.getLastTime();
             Date time2 = chatBox2.getLastTime();
-            return time2.compareTo(time1);
+            return Times.compare(time2, time1);
         };
         Collections.sort(conversationList, comparator);
         // refresh items
@@ -87,20 +87,31 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         }
 
         String getTitle() {
-            if (chatBox.identifier.isGroup()) {
-                return EntityViewModel.getName(chatBox.identifier);
-            } else {
-                return UserViewModel.getUserTitle(chatBox.identifier);
+            return EntityViewModel.getName(chatBox.identifier);
+        }
+
+        String getTime() {
+            String time = "";
+            InstantMessage iMsg = chatBox.getLastVisibleMessage();
+            if (iMsg != null && iMsg.envelope.time != null) {
+                time = Times.getTimeString(iMsg.envelope.time);
             }
+            return time;
         }
 
         String getDesc() {
-            String text = "(last message)";
+            String text = "(no message)";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
             if (iMsg != null) {
                 text = msgDB.getContentText(iMsg.content);
             }
             return text;
+        }
+
+        String getUnread() {
+            String unread = null;
+            // TODO: get unread message count
+            return unread;
         }
     }
 }

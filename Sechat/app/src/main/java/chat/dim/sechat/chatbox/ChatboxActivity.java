@@ -52,8 +52,8 @@ public class ChatboxActivity extends ImagePickerActivity {
 
         if (identifier.isGroup()) {
             setTitle(chatBox.getName() + " (...)");
-            BackgroundThread bg = BackgroundThread.getInstance();
-            bg.addTask(() -> refreshTitle(chatBox));
+            // refresh group title in background
+            BackgroundThread.run(() -> refreshTitle(chatBox));
         } else {
             setTitle(chatBox.getName());
         }

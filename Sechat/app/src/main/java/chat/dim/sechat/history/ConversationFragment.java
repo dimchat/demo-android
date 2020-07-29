@@ -48,8 +48,8 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
 
     @Override
     public void reloadData() {
-        BackgroundThread bg = BackgroundThread.getInstance();
-        bg.addTask(super::reloadData);
+        // reload data in background
+        BackgroundThread.run(super::reloadData);
     }
 
     @Override
