@@ -17,9 +17,20 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import chat.dim.ID;
-import chat.dim.sechat.BackgroundThread;
+import chat.dim.common.BackgroundThread;
+import chat.dim.extension.GroupManager;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.sechat.R;
+import chat.dim.ui.Alert;
 import chat.dim.ui.list.Listener;
 
 public class InviteFragment extends Fragment {
@@ -52,11 +63,40 @@ public class InviteFragment extends Fragment {
         dummyList = new CandidateList(group);
         Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
             boolean checked = viewHolder.checkBox.isChecked();
-            viewHolder.checkBox.setChecked(!checked);
+            if (checked) {
+                viewHolder.checkBox.setChecked(false);
+                selected.remove(viewHolder.item.getIdentifier());
+            } else {
+                viewHolder.checkBox.setChecked(true);
+                selected.add(viewHolder.item.getIdentifier());
+            }
         };
         adapter = new RecyclerViewAdapter(dummyList, listener);
 
         reloadData();
+    }
+
+    private final Set<ID> selected = new HashSet<>();
+
+    void updateMembers() {
+        if (selected.size() == 0) {
+            return;
+        }
+
+        GroupManager gm = new GroupManager(identifier);
+        //noinspection unchecked
+        if (gm.invite(new ArrayList(selected))) {
+            Map<String, Object> info = new HashMap<>();
+            info.put("ID", identifier);
+            info.put("command", GroupCommand.INVITE);
+            info.put("members", selected);
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.postNotification(NotificationNames.MembersUpdated, this, info);
+
+            Alert.tips(getContext(), R.string.group_members_updated);
+        } else {
+            Alert.tips(getContext(), R.string.group_members_error);
+        }
     }
 
     public void reloadData() {

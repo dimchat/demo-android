@@ -10,11 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import chat.dim.ID;
-import chat.dim.model.ConversationDatabase;
+import chat.dim.common.BackgroundThread;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
-import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.list.ListFragment;
@@ -41,7 +41,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         adapter = new RecyclerViewAdapter(dummyList, listener);
 
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.addObserver(this, ConversationDatabase.MessageUpdated);
+        nc.addObserver(this, NotificationNames.MessageUpdated);
 
         reloadData();
     }

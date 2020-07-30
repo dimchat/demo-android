@@ -38,6 +38,7 @@ import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.database.ConversationTable;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
 import chat.dim.utils.Times;
 
@@ -48,10 +49,6 @@ public class ConversationDatabase implements ConversationDataSource {
         super();
         AnyContentProcessor.facebook = Facebook.getInstance();
     }
-
-    // constants
-    public static final String MessageUpdated = "MessageUpdated";
-    public static final String MessageCleaned = "MessageCleaned";
 
     private ConversationTable conversationTable = new ConversationTable();
     private MessageTable messageTable = new MessageTable();
@@ -134,7 +131,7 @@ public class ConversationDatabase implements ConversationDataSource {
         userInfo.put("ID", identifier);
         userInfo.put("msg", iMsg);
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.postNotification(MessageUpdated, this, userInfo);
+        nc.postNotification(NotificationNames.MessageUpdated, this, userInfo);
     }
 
     @Override

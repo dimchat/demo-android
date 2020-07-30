@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sechat;
+package chat.dim.common;
 
 import java.util.ArrayList;
 import java.util.List;

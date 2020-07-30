@@ -29,15 +29,14 @@ import chat.dim.User;
 import chat.dim.digest.MD5;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
-import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
-import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.Images;
@@ -62,7 +61,7 @@ public class ChatboxFragment extends Fragment implements Observer {
     public ChatboxFragment() {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.addObserver(this, ConversationDatabase.MessageUpdated);
+        nc.addObserver(this, NotificationNames.MessageUpdated);
     }
 
     @SuppressLint("HandlerLeak")
@@ -131,11 +130,8 @@ public class ChatboxFragment extends Fragment implements Observer {
         if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
-        // send message in background
-        BackgroundThread.run(() -> {
-            InstantMessage iMsg = new InstantMessage(content, sender, receiver);
-            sendMessage(iMsg);
-        });
+        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+        sendMessage(iMsg);
     }
 
     private void send() {

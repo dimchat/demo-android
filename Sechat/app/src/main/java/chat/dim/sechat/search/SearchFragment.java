@@ -12,10 +12,10 @@ import android.widget.SearchView;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.model.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
@@ -50,7 +50,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
         adapter = new RecyclerViewAdapter(dummyList, listener);
 
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.addObserver(this, SearchCommandProcessor.SearchUpdated);
+        nc.addObserver(this, NotificationNames.SearchUpdated);
 
         // show online users
         search(SearchCommand.ONLINE_USERS);

@@ -43,4 +43,6 @@
     <string name="participants_invite">Invite Participants</string>
     <string name="participants_expel">Expel Participants</string>
     <string name="group_owner">Owner</string>
+    <string name="group_members_updated">Members updated</string>
+    <string name="group_members_error">Members error</string>
 </resources>

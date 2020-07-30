@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.common.BackgroundThread;
 import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.image.Images;

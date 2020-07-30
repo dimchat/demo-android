@@ -42,4 +42,6 @@
     <string name="participants_invite">邀请与会者</string>
     <string name="participants_expel">移除与会者</string>
     <string name="group_owner">群主</string>
+    <string name="group_members_updated">群成员列表已更新</string>
+    <string name="group_members_error">群成员列表错误</string>
 </resources>

@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Albert Moky
+ * Copyright (c) 2020 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,47 +23,23 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui.list;
+package chat.dim.notification;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+public class NotificationNames {
 
-public abstract class ViewAdapter<VH extends ViewHolder, L extends DummyList>
-        extends RecyclerView.Adapter<VH> {
+    // constants
+    public static final String ServerStateChanged = "ServerStateChanged";
 
-    protected final L dummyList;
-    protected final Listener listener;
+    public static final String SearchUpdated = "SearchUpdated";
 
-    public ViewAdapter(L list, Listener observer) {
-        super();
-        dummyList = list;
-        listener = observer;
-    }
+    public static final String MembersUpdated = "MembersUpdated";
 
-//    @NonNull
-//    @Override
-//    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        View view = LayoutInflater.from(parent.getContext()).inflate(resId, parent, false);
-//        return new VH(view);
-//    }
+    public static final String MessageUpdated = "MessageUpdated";
+    public static final String MessageCleaned = "MessageCleaned";
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onBindViewHolder(@NonNull VH holder, int position) {
-        holder.item = dummyList.getItem(position);
+    public static final String FileDownloadSuccess = "FileDownloadSuccess";
+    public static final String FileDownloadFailure = "FileDownloadFailure";
 
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                // Notify the active callbacks interface (the activity, if the
-                // fragment is attached to one) that an item has been selected.
-                listener.onListFragmentInteraction(holder);
-            }
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return dummyList.getCount();
-    }
+    public static final String FileUploadSuccess = "FileUploadSuccess";
+    public static final String FileUploadFailure = "FileUploadFailure";
 }
-

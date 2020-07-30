@@ -40,6 +40,7 @@ import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.utils.Strings;
 
 public class HTTPClient extends Thread {
@@ -50,12 +51,6 @@ public class HTTPClient extends Thread {
         super();
         start();
     }
-
-    public static final String FileDownloadSuccess = "FileDownloadSuccess";
-    public static final String FileDownloadFailure = "FileDownloadFailure";
-
-    public static final String FileUploadSuccess = "FileUploadSuccess";
-    public static final String FileUploadFailure = "FileUploadFailure";
 
     private boolean running = false;
 
@@ -202,10 +197,10 @@ public class HTTPClient extends Thread {
                     info.put("name", task.name);
                     info.put("data", task.data);
                     if (response == null) {
-                        nc.postNotification(FileUploadFailure, this, info);
+                        nc.postNotification(NotificationNames.FileUploadFailure, this, info);
                     } else {
                         info.put("response", response);
-                        nc.postNotification(FileUploadSuccess, this, info);
+                        nc.postNotification(NotificationNames.FileUploadSuccess, this, info);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -229,10 +224,10 @@ public class HTTPClient extends Thread {
                     Map<String, Object> info = new HashMap<>();
                     info.put("URL", url);
                     if (filepath == null) {
-                        nc.postNotification(FileDownloadFailure, this, info);
+                        nc.postNotification(NotificationNames.FileDownloadFailure, this, info);
                     } else {
                         info.put("path", filepath);
-                        nc.postNotification(FileDownloadSuccess, this, info);
+                        nc.postNotification(NotificationNames.FileDownloadSuccess, this, info);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

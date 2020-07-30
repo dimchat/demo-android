@@ -34,11 +34,10 @@ import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.Meta;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.SearchCommand;
 
 public class SearchCommandProcessor extends CommandProcessor {
-
-    public static final String SearchUpdated = "SearchUpdated";
 
     public SearchCommandProcessor(Messenger messenger) {
         super(messenger);
@@ -84,7 +83,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         parse((SearchCommand) content);
 
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.postNotification(SearchUpdated, this, content);
+        nc.postNotification(NotificationNames.SearchUpdated, this, content);
 
         return null;
     }

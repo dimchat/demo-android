@@ -35,6 +35,7 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 
 public class Facebook extends chat.dim.common.Facebook {
+
     private static final Facebook ourInstance = new Facebook();
     public static Facebook getInstance() { return ourInstance; }
     private Facebook() {

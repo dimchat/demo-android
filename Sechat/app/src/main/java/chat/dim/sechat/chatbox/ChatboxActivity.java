@@ -10,12 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import chat.dim.ID;
+import chat.dim.common.BackgroundThread;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
-import chat.dim.sechat.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.ImagePickerActivity;
 

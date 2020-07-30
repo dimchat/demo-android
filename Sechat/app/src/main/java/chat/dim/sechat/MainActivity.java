@@ -19,10 +19,10 @@ import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Messenger;
-import chat.dim.network.Server;
 import chat.dim.network.StateMachine;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
@@ -39,13 +39,14 @@ public class MainActivity extends AppCompatActivity implements Observer {
     public MainActivity() {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.addObserver(this, Server.ServerStateChanged);
+        nc.addObserver(this, NotificationNames.ServerStateChanged);
     }
 
     @Override
     public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
         Map info = notification.userInfo;
-        if (Server.ServerStateChanged.equals(notification.name)) {
+        if (name.equals(NotificationNames.ServerStateChanged)) {
             serverState = (String) info.get("state");
             Message msg = new Message();
             msgHandler.sendMessage(msg);

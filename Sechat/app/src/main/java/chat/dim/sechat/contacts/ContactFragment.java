@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import chat.dim.ID;
-import chat.dim.sechat.BackgroundThread;
+import chat.dim.common.BackgroundThread;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
