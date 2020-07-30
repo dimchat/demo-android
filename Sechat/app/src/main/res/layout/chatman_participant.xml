@@ -35,9 +35,15 @@
     </android.support.v7.widget.CardView>
 
     <ImageButton
-        android:id="@+id/button"
+        android:id="@+id/inviteButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         app:srcCompat="@android:drawable/ic_input_add" />
+
+    <ImageButton
+        android:id="@+id/expelButton"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        app:srcCompat="@android:drawable/ic_delete" />
 
 </LinearLayout>

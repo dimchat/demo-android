@@ -39,4 +39,7 @@
     <string name="account_saved">账号保存成功</string>
     <string name="choose_avatar">选择头像</string>
     <string name="clear_history_ok">聊天记录已删除</string>
+    <string name="participants_invite">邀请与会者</string>
+    <string name="participants_expel">移除与会者</string>
+    <string name="group_owner">群主</string>
 </resources>

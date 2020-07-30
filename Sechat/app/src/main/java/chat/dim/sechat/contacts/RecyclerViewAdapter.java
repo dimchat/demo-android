@@ -14,13 +14,13 @@ import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.ViewAdapter;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyContent.Item} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link ContactList.Item} and makes a call to the
  * specified {@link Listener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, DummyContent> {
+public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, ContactList> {
 
-    RecyclerViewAdapter(DummyContent list, Listener listener) {
+    public RecyclerViewAdapter(ContactList list, Listener listener) {
         super(list, listener);
     }
 
@@ -34,7 +34,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DummyContent.Item item = dummyList.getItem(position);
+        ContactList.Item item = dummyList.getItem(position);
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
@@ -44,7 +44,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    static public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    public static class ViewHolder extends chat.dim.ui.list.ViewHolder<ContactList.Item> {
 
         final ImageView mAvatarView;
         final TextView mTitleView;

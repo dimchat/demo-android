@@ -30,8 +30,8 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
         super();
 
         dummyList = new DummyContent();
-        Listener listener = (Listener<DummyContent.Item>) item -> {
-            ID identifier = item.getIdentifier();
+        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+            ID identifier = viewHolder.item.getIdentifier();
             assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
             intent.setClass(getContext(), ChatboxActivity.class);

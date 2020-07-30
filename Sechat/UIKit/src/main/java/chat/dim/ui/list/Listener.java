@@ -25,7 +25,7 @@
  */
 package chat.dim.ui.list;
 
-public interface Listener<E extends DummyItem> {
+public interface Listener<VH extends ViewHolder> {
 
-    void onListFragmentInteraction(E item);
+    void onListFragmentInteraction(VH viewHolder);
 }

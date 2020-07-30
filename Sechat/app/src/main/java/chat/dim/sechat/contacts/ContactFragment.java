@@ -16,7 +16,7 @@ import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyContent> {
+public class ContactFragment extends ListFragment<RecyclerViewAdapter, ContactList> {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -25,9 +25,9 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
     public ContactFragment() {
         super();
 
-        dummyList = new DummyContent();
-        Listener listener = (Listener<DummyContent.Item>) item -> {
-            ID identifier = item.getIdentifier();
+        dummyList = new ContactList();
+        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+            ID identifier = viewHolder.item.getIdentifier();
             assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
             intent.setClass(getContext(), ProfileActivity.class);

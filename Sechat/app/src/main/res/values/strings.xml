@@ -40,4 +40,7 @@
     <string name="account_saved">Account saved</string>
     <string name="choose_avatar">Choose</string>
     <string name="clear_history_ok">Chat history cleared</string>
+    <string name="participants_invite">Invite Participants</string>
+    <string name="participants_expel">Expel Participants</string>
+    <string name="group_owner">Owner</string>
 </resources>

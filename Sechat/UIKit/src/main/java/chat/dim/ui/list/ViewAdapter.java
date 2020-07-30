@@ -56,7 +56,7 @@ public abstract class ViewAdapter<VH extends ViewHolder, L extends DummyList>
             if (listener != null) {
                 // Notify the active callbacks interface (the activity, if the
                 // fragment is attached to one) that an item has been selected.
-                listener.onListFragmentInteraction(holder.item);
+                listener.onListFragmentInteraction(holder);
             }
         });
     }

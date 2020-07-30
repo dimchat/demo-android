@@ -18,7 +18,7 @@ import chat.dim.ui.list.DummyList;
  * <p>
  * TODO: Replace all uses of this class before publishing your app.
  */
-public class DummyContent extends DummyList<DummyContent.Item> {
+public class ContactList extends DummyList<ContactList.Item> {
 
     private static Facebook facebook = Facebook.getInstance();
 
@@ -39,7 +39,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     /**
      * A dummy item representing a piece of content.
      */
-    static class Item extends DummyItem {
+    public static class Item extends DummyItem {
 
         private final User account;
 

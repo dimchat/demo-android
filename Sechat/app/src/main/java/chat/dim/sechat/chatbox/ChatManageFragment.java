@@ -15,13 +15,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.User;
+import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.ui.Alert;
 
 public class ChatManageFragment extends Fragment {
 
-    public static int MAX_PARTICIPANTS_SHOWN = 2 * 3 * 5 - 1;
+    public static int MAX_ITEM_COUNT = 2 * 3 * 5;
 
     private ChatManageViewModel mViewModel;
     private ParticipantsAdapter adapter;
@@ -75,17 +77,38 @@ public class ChatManageFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ChatManageViewModel.class);
 
+        boolean isGroupAdmin = false;
+        if (identifier.isGroup()) {
+            Client client = Client.getInstance();
+            User user = client.getCurrentUser();
+            if (ChatManageViewModel.isAdmin(user, identifier)) {
+                isGroupAdmin = true;
+            }
+        }
+
         // participants
         List<ID> participants = mViewModel.getParticipants(identifier);
-        if (participants.size() > MAX_PARTICIPANTS_SHOWN) {
-            participants = participants.subList(0, MAX_PARTICIPANTS_SHOWN);
-            showMembersButton.setVisibility(View.VISIBLE);
+        int count = participants.size();
+        if (isGroupAdmin) {
+            if (count > (MAX_ITEM_COUNT - 2)) {
+                participants = participants.subList(0, MAX_ITEM_COUNT - 2);
+                showMembersButton.setVisibility(View.VISIBLE);
+            } else {
+                showMembersButton.setVisibility(View.GONE);
+            }
+            participants.add(ChatManageViewModel.INVITE_BTN_ID);
+            participants.add(ChatManageViewModel.EXPEL_BTN_ID);
         } else {
-            showMembersButton.setVisibility(View.GONE);
+            if (participants.size() > (MAX_ITEM_COUNT - 1)) {
+                participants = participants.subList(0, MAX_ITEM_COUNT - 1);
+                showMembersButton.setVisibility(View.VISIBLE);
+            } else {
+                showMembersButton.setVisibility(View.GONE);
+            }
+            participants.add(ChatManageViewModel.INVITE_BTN_ID);
         }
-        participants.add(ID.ANYONE);
 
-        adapter = new ParticipantsAdapter(getContext(), R.layout.chatman_participant, participants);
+        adapter = new ParticipantsAdapter(getContext(), R.layout.chatman_participant, participants, identifier);
         participantsView.setAdapter(adapter);
 
         nameTextView.setText(EntityViewModel.getName(identifier));
