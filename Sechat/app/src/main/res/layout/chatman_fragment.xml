@@ -30,7 +30,7 @@
                 android:horizontalSpacing="4dp"
                 android:numColumns="auto_fit"
                 android:verticalSpacing="4dp"
-                tools:listitem="@layout/chat_manage_participant" >
+                tools:listitem="@layout/chatman_participant" >
 
             </chat.dim.ui.FixedGridView>
 

@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list"
-    android:name="chat.dim.sechat.contacts.ContactFragment"
+    android:name="chat.dim.sechat.conversations.ConversationFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".contacts.ContactFragment"
-    tools:listitem="@layout/fragment_contact" />
+    tools:context=".history.ConversationFragment"
+    tools:listitem="@layout/conversations_item" />

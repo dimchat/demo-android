@@ -55,7 +55,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_conversation_list, container, false);
+        View view = inflater.inflate(R.layout.conversations_fragment, container, false);
 
         // Set the adapter
         assert view instanceof RecyclerView : "recycler view error: " + view;

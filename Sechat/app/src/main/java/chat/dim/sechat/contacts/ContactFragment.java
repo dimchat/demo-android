@@ -48,7 +48,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, DummyCont
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
+        View view = inflater.inflate(R.layout.contacts_fragment, container, false);
 
         // Set the adapter
         assert view instanceof RecyclerView : "recycler view error: " + view;

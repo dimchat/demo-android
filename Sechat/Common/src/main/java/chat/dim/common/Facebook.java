@@ -173,6 +173,7 @@ public class Facebook extends chat.dim.Facebook {
             // profile's signature not match
             return false;
         }
+        profile.remove(EXPIRES_KEY);
         return profileTable.saveProfile(profile);
     }
 
@@ -260,33 +261,33 @@ public class Facebook extends chat.dim.Facebook {
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = profileTable.getProfile(identifier);
-        if (profile != null) {
+        if (profile == null) {
+            // try from immortals
+            if (identifier.getType() == NetworkType.Main.value) {
+                Profile tai = immortals.getProfile(identifier);
+                if (tai != null) {
+                    profileTable.saveProfile(tai);
+                    return tai;
+                }
+            }
+        } else {
             // check expired time
-            Date now = new Date();
-            long timestamp = now.getTime() / 1000;
             Number expires = (Number) profile.get(EXPIRES_KEY);
             if (expires == null) {
                 // set expired time
+                Date now = new Date();
+                long timestamp = now.getTime() / 1000;
                 profile.put(EXPIRES_KEY, timestamp + EXPIRES);
-                // is empty?
-                Set<String> names = profile.propertyNames();
-                if (names != null && names.size() > 0) {
-                    return profile;
-                }
-            } else if (expires.longValue() > timestamp) {
-                // not expired yet
-                return profile;
             }
         }
-        // try from immortals
-        if (identifier.getType() == NetworkType.Main.value) {
-            Profile tai = immortals.getProfile(identifier);
-            if (tai != null) {
-                profileTable.saveProfile(tai);
-                return tai;
-            }
-        }
-        return null;
+        return profile;
+    }
+
+    protected static boolean isExpired(Profile profile) {
+        Date now = new Date();
+        long timestamp = now.getTime() / 1000;
+        Number expires = (Number) profile.get(EXPIRES_KEY);
+        return expires != null && expires.longValue() > timestamp;
     }
 
     //-------- UserDataSource

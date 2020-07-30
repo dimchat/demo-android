@@ -14,7 +14,7 @@ public class ChatManageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.chat_manage_activity);
+        setContentView(R.layout.chatman_activity);
 
         Facebook facebook = Facebook.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();

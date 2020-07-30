@@ -52,7 +52,7 @@ public class ChatManageFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.chat_manage_fragment, container, false);
+        View view = inflater.inflate(R.layout.chatman_fragment, container, false);
 
         participantsView = view.findViewById(R.id.participants);
 
@@ -85,7 +85,7 @@ public class ChatManageFragment extends Fragment {
         }
         participants.add(ID.ANYONE);
 
-        adapter = new ParticipantsAdapter(getContext(), R.layout.chat_manage_participant, participants);
+        adapter = new ParticipantsAdapter(getContext(), R.layout.chatman_participant, participants);
         participantsView.setAdapter(adapter);
 
         nameTextView.setText(EntityViewModel.getName(identifier));

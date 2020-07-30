@@ -81,13 +81,13 @@ public class Facebook extends chat.dim.common.Facebook {
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = super.getProfile(identifier);
-        if (profile != null) {
+        if (profile != null && !isExpired(profile)) {
             return profile;
         }
         // query from DIM network
         Messenger messenger = Messenger.getInstance();
         messenger.queryProfile(identifier);
-        return null;
+        return profile;
     }
 
     @Override

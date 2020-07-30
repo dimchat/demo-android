@@ -30,7 +30,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_conversation, parent, false);
+                .inflate(R.layout.conversations_item, parent, false);
         return new ViewHolder(view);
     }
 
