@@ -39,6 +39,7 @@ import chat.dim.ReliableMessage;
 import chat.dim.User;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
+import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
@@ -48,6 +49,7 @@ import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ProfileCommand;
@@ -78,6 +80,11 @@ public class Messenger extends chat.dim.common.Messenger {
         if (content instanceof HandshakeCommand) {
             // handshake command will be processed by CPUs
             // no need to save handshake command here
+            return true;
+        }
+        if (content instanceof LoginCommand) {
+            // login command will be processed by CPUs
+            // no need to save login command here
             return true;
         }
         if (content instanceof MetaCommand) {
@@ -358,6 +365,8 @@ public class Messenger extends chat.dim.common.Messenger {
     static {
         // register CPUs
         CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
+
+        CommandProcessor.register(Command.LOGIN, LoginCommandProcessor.class);
 
         // storage (contacts, private_key)
         CommandProcessor.register(StorageCommand.STORAGE, StorageCommandProcessor.class);

@@ -32,7 +32,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     public void reloadData() {
-        msgDB.reloadConversations();
+        //msgDB.reloadConversations();
 
         List<Conversation> conversationList = new ArrayList<>();
         Conversation chatBox;
@@ -51,7 +51,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         Comparator<Conversation> comparator = (chatBox1, chatBox2) -> {
             Date time1 = chatBox1.getLastTime();
             Date time2 = chatBox2.getLastTime();
-            return Times.compare(time2, time1);
+            return time2.compareTo(time1);
         };
         Collections.sort(conversationList, comparator);
         // refresh items

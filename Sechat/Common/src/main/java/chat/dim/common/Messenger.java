@@ -249,7 +249,7 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     @Override
     public boolean sendMessage(final InstantMessage iMsg, final Callback callback) {
-        BackgroundThread.run(new Runnable() {
+        BackgroundThread.wait(new Runnable() {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station

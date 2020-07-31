@@ -35,6 +35,10 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 /**
  * A fragment representing a list of Items.
  */
@@ -47,6 +51,8 @@ public class ListFragment<VA extends ViewAdapter, L extends DummyList> extends F
 
     protected L dummyList = null;
     protected VA adapter = null;
+
+    private ReadWriteLock dummyLock = new ReentrantReadWriteLock();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -76,15 +82,27 @@ public class ListFragment<VA extends ViewAdapter, L extends DummyList> extends F
     }
 
     public void reloadData() {
-        dummyList.reloadData();
-        msgHandler.sendMessage(new Message());
+        Lock writeLock = dummyLock.writeLock();
+        writeLock.lock();
+        try {
+            dummyList.reloadData();
+            msgHandler.sendMessage(new Message());
+        } finally {
+            writeLock.unlock();;
+        }
     }
 
     @SuppressLint("HandlerLeak")
     private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            adapter.notifyDataSetChanged();
+            Lock readLock = dummyLock.readLock();
+            readLock.lock();
+            try {
+                adapter.notifyDataSetChanged();
+            } finally {
+                readLock.unlock();
+            }
         }
     };
 }

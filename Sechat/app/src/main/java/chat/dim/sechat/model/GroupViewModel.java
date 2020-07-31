@@ -25,6 +25,7 @@
  */
 package chat.dim.sechat.model;
 
+import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -44,30 +45,45 @@ import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
 
-    private static Bitmap drawLogo(ID identifier) {
+    private static Bitmap drawLogo(ID identifier) throws IOException {
         List<ID> members = facebook.getCacheMembers(identifier);
-        if (members != null && members.size() > 0) {
-            List<String> avatars = new ArrayList<>();
-            String url;
-            for (ID item : members) {
-                url = facebook.getAvatar(item);
-                if (url != null && url.length() > 0) {
-                    avatars.add(url);
-                }
-            }
-            return Images.tiles(avatars);
+        if (members == null || members.size() < 1) {
+            return null;
         }
-        return null;
+        ContentResolver contentResolver = SechatApp.getInstance().getContentResolver();
+        Images.Size size = new Images.Size(64, 64);
+        List<Bitmap> avatars = new ArrayList<>();
+        Uri uri;
+        Bitmap img;
+        int count = 0;
+        for (ID item : members) {
+            uri = UserViewModel.getAvatarUri(item);
+            if (uri == null) {
+                continue;
+            }
+            img = Images.bitmapFormUri(contentResolver, uri, size);
+            if (img == null) {
+                continue;
+            }
+            if (++count > 9) {
+                break;
+            }
+            avatars.add(img);
+        }
+        return Images.tiles(avatars, new Images.Size(128, 128));
     }
     private static void refreshLogo(ID identifier, String path) {
-        Bitmap bitmap = drawLogo(identifier);
-        if (bitmap != null) {
-            byte[] png = Images.png(bitmap);
-            try {
-                ExternalStorage.saveData(png, path);
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            Bitmap bitmap = drawLogo(identifier);
+            if (bitmap == null) {
+                return;
             }
+            byte[] png = Images.png(bitmap);
+            if (ExternalStorage.saveData(png, path)) {
+                logos.put(identifier, Uri.parse(path));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -76,10 +92,10 @@ public class GroupViewModel extends EntityViewModel {
         if (uri != null) {
             return uri;
         }
-        String path = Database.getEntityFilePath(identifier, "avatar.png");
+        String path = Database.getEntityFilePath(identifier, "logo.png");
 
         // refresh group logo in background
-        BackgroundThread.run(() -> refreshLogo(identifier, path));
+        BackgroundThread.wait(() -> refreshLogo(identifier, path));
 
         if (ExternalStorage.exists(path)) {
             uri = Uri.parse(path);

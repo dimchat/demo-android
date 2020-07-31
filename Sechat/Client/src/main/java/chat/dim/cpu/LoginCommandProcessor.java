@@ -32,6 +32,8 @@ import chat.dim.ID;
 import chat.dim.Messenger;
 import chat.dim.ReliableMessage;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.utils.Log;
+import chat.dim.utils.Times;
 
 public class LoginCommandProcessor extends CommandProcessor {
 
@@ -47,6 +49,8 @@ public class LoginCommandProcessor extends CommandProcessor {
         Object identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
         // TODO: update contact's login status
+
+        Log.info("[" + Times.getTimeString(cmd.time) + "] user (" + identifier + ") login: " + station);
 
         // no need to response login command
         return null;
