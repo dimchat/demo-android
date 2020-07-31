@@ -55,7 +55,7 @@ public class SechatApp extends Application {
     public Bitmap getBitmapFromMipmap(int resId) {
         Uri uri = getUriFromMipmap(resId);
         try {
-            return Images.bitmapFormUri(getContentResolver(), uri);
+            return Images.bitmapFormUri(uri, getContentResolver());
         } catch (IOException e) {
             e.printStackTrace();
             return null;

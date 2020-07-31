@@ -1,13 +1,11 @@
 package chat.dim.sechat.contacts;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
@@ -21,14 +19,12 @@ import chat.dim.ui.list.DummyList;
  */
 public class ContactList extends DummyList<ContactList.Item> {
 
-    private static Facebook facebook = Facebook.getInstance();
-
     public void reloadData() {
         clearItems();
 
-        User user = facebook.getCurrentUser();
+        User user = UserViewModel.getCurrentUser();
         if (user != null) {
-            List<ID> contacts = facebook.getContacts(user.identifier);
+            List<ID> contacts = UserViewModel.getContacts(user.identifier);
             if (contacts != null) {
                 for (ID identifier : contacts) {
                     addItem(new Item(identifier));

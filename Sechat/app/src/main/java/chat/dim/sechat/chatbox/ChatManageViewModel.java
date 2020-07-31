@@ -36,6 +36,7 @@ public class ChatManageViewModel extends EntityViewModel {
         } else if (identifier.isGroup()) {
             ID owner = facebook.getOwner(identifier);
             if (owner != null) {
+                --count;
                 participants.add(owner);
             }
             List<ID> members = facebook.getMembers(identifier);

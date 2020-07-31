@@ -3,7 +3,6 @@ package chat.dim.sechat.chatbox;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +18,10 @@ import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.extension.Register;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.ExpelActivity;
 import chat.dim.sechat.group.InviteActivity;
+import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.Alert;
@@ -116,8 +115,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void invite() {
-        Facebook facebook = Facebook.getInstance();
-        User user = facebook.getCurrentUser();
+        User user = UserViewModel.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
             return;
@@ -125,16 +123,16 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         Group group;
         if (identifier.isGroup()) {
-            if (!facebook.existsMember(user.identifier, identifier)) {
+            if (!GroupViewModel.existsMember(user.identifier, identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
-            group = facebook.getGroup(identifier);
+            group = GroupViewModel.getGroup(identifier);
         } else {
             assert identifier.isUser() : "user ID error: " + identifier;
             Register register = new Register();
             group = register.createGroup(user.identifier, "Sophon Shield");
-            facebook.addMember(identifier, group.identifier);
+            GroupViewModel.addMember(identifier, group.identifier);
         }
 
         // open Invite activity
@@ -147,8 +145,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void expel() {
-        Facebook facebook = Facebook.getInstance();
-        User user = facebook.getCurrentUser();
+        User user = UserViewModel.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
             return;

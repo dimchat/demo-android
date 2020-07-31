@@ -16,9 +16,11 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
-import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.model.GroupViewModel;
+import chat.dim.sechat.model.UserViewModel;
+import chat.dim.sechat.profile.ProfileViewModel;
 import chat.dim.ui.Alert;
 
 public class ChatManageFragment extends Fragment {
@@ -34,7 +36,6 @@ public class ChatManageFragment extends Fragment {
     private Button clearHistoryButton;
 
     private TextView nameTextView;
-    private TextView seedTextView;
     private TextView addressTextView;
     private TextView numberTextView;
 
@@ -42,27 +43,28 @@ public class ChatManageFragment extends Fragment {
     private List<ID> participants = null;
 
     public static ChatManageFragment newInstance(ID identifier) {
+        if (identifier.isGroup()) {
+            GroupViewModel.checkMembers(identifier);
+            // refresh group profile
+            ProfileViewModel.updateProfile(identifier);
+        }
+
         ChatManageFragment fragment = new ChatManageFragment();
         fragment.identifier = identifier;
         return fragment;
     }
 
-    public ChatManageFragment() {
-        super();
-    }
-
     private List<ID> getParticipants() {
         boolean isGroupAdmin = false;
         if (identifier.isGroup()) {
-            Client client = Client.getInstance();
-            User user = client.getCurrentUser();
+            User user = UserViewModel.getCurrentUser();
             if (ChatManageViewModel.isAdmin(user, identifier)) {
                 isGroupAdmin = true;
             }
         }
         if (isGroupAdmin) {
             participants = mViewModel.getParticipants(identifier, MAX_ITEM_COUNT - 2);
-            if (participants.size() == MAX_ITEM_COUNT - 2) {
+            if (participants.size() >= (MAX_ITEM_COUNT - 2)) {
                 showMembersButton.setVisibility(View.VISIBLE);
             } else {
                 showMembersButton.setVisibility(View.GONE);
@@ -71,7 +73,7 @@ public class ChatManageFragment extends Fragment {
             participants.add(ChatManageViewModel.EXPEL_BTN_ID);
         } else {
             participants = mViewModel.getParticipants(identifier, MAX_ITEM_COUNT - 1);
-            if (participants.size() == MAX_ITEM_COUNT - 1) {
+            if (participants.size() >= (MAX_ITEM_COUNT - 1)) {
                 showMembersButton.setVisibility(View.VISIBLE);
             } else {
                 showMembersButton.setVisibility(View.GONE);
@@ -101,7 +103,6 @@ public class ChatManageFragment extends Fragment {
         clearHistoryButton.setOnClickListener(v -> clearHistory());
 
         nameTextView = view.findViewById(R.id.nameView);
-        seedTextView = view.findViewById(R.id.nameView);
         addressTextView = view.findViewById(R.id.addressView);
         numberTextView = view.findViewById(R.id.numberView);
 
@@ -119,7 +120,6 @@ public class ChatManageFragment extends Fragment {
         participantsView.setAdapter(adapter);
 
         nameTextView.setText(EntityViewModel.getName(identifier));
-        seedTextView.setText(identifier.name);
         addressTextView.setText(identifier.address.toString());
         numberTextView.setText(EntityViewModel.getNumberString(identifier));
     }

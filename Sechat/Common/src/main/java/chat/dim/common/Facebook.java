@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import chat.dim.AddressNameService;
 import chat.dim.ID;
@@ -283,7 +282,7 @@ public class Facebook extends chat.dim.Facebook {
         return profile;
     }
 
-    protected static boolean isExpired(Profile profile) {
+    public boolean isExpired(Profile profile) {
         Date now = new Date();
         long timestamp = now.getTime() / 1000;
         Number expires = (Number) profile.get(EXPIRES_KEY);

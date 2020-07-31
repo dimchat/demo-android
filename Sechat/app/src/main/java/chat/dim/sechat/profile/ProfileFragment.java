@@ -16,17 +16,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.ID;
-import chat.dim.User;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
-import chat.dim.sechat.model.EntityViewModel;
-import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.image.ImageViewerActivity;
 
 public class ProfileFragment extends Fragment {
-
-    private Facebook facebook = Facebook.getInstance();
 
     private ProfileViewModel mViewModel;
 
@@ -41,6 +35,9 @@ public class ProfileFragment extends Fragment {
     private Button messageButton;
 
     public static ProfileFragment newInstance(ID identifier) {
+        // refresh user profile
+        ProfileViewModel.updateProfile(identifier);
+
         ProfileFragment fragment = new ProfileFragment();
         fragment.identifier = identifier;
         return fragment;
@@ -68,21 +65,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showAvatar() {
-        String avatar = facebook.getAvatar(identifier);
+        Uri avatar = mViewModel.getAvatarUri();
         if (avatar != null) {
-            Uri uri = Uri.parse(avatar);
-            String name = UserViewModel.getUsername(identifier);
-            ImageViewerActivity.show(getActivity(), uri, name);
+            String name = mViewModel.getUsername();
+            ImageViewerActivity.show(getActivity(), avatar, name);
         }
     }
 
     private void addContact() {
-        User user = facebook.getCurrentUser();
-        if (user == null) {
-            throw new NullPointerException("current user not set");
-        }
-        facebook.addContact(identifier, user.identifier);
-
+        mViewModel.addContact(identifier);
         // open chat box
         startChat();
     }
@@ -99,14 +90,15 @@ public class ProfileFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+        mViewModel.setIdentifier(identifier);
         // TODO: Use the ViewModel
 
-        Bitmap avatar = UserViewModel.getAvatar(identifier);
+        Bitmap avatar = mViewModel.getAvatar();
         imageView.setImageBitmap(avatar);
 
-        nameView.setText(UserViewModel.getNickname(identifier));
-        addressView.setText(EntityViewModel.getAddressString(identifier));
-        numberView.setText(EntityViewModel.getNumberString(identifier));
+        nameView.setText(mViewModel.getNickname());
+        addressView.setText(mViewModel.getAddressString());
+        numberView.setText(mViewModel.getNumberString());
 
         if (mViewModel.existsContact(identifier)) {
             addButton.setVisibility(View.GONE);

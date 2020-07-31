@@ -26,13 +26,20 @@
 package chat.dim.sechat.model;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+
+import java.io.IOException;
+import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.sechat.SechatApp;
+import chat.dim.ui.image.Images;
 
 public class UserViewModel extends EntityViewModel {
+
+    public static User getCurrentUser() {
+        return facebook.getCurrentUser();
+    }
 
     public static User getUser(Object identifier) {
         return facebook.getUser(facebook.getID(identifier));
@@ -42,7 +49,11 @@ public class UserViewModel extends EntityViewModel {
         if (identifier != null) {
             String avatar = facebook.getAvatar(identifier);
             if (avatar != null) {
-                return BitmapFactory.decodeFile(avatar);
+                try {
+                    return Images.bitmapFromPath(avatar, new Images.Size(128, 128));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return SechatApp.getInstance().getIcon();
@@ -81,5 +92,21 @@ public class UserViewModel extends EntityViewModel {
     }
     public String getUserTitle() {
         return getUserTitle(getIdentifier());
+    }
+
+    //
+    //  Contacts
+    //
+
+    public static List<ID> getContacts(ID user) {
+        return facebook.getContacts(user);
+    }
+
+    public boolean addContact(ID contact) {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("current user not set");
+        }
+        return facebook.addContact(contact, user.identifier);
     }
 }

@@ -34,14 +34,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.common.BackgroundThread;
 import chat.dim.database.Database;
+import chat.dim.extension.GroupManager;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
+
+    public static Group getGroup(ID identifier) {
+        return facebook.getGroup(identifier);
+    }
+
+    //
+    //  Members
+    //
+
+    public static void checkMembers(ID group) {
+        List<ID> members = facebook.getMembers(group);
+        if (members == null || members.size() < 1) {
+            BackgroundThread.wait(() -> (new GroupManager(group)).query());
+        }
+    }
+
+    public static boolean existsMember(ID member, ID group) {
+        return facebook.existsMember(member, group);
+    }
+
+    public static boolean addMember(ID member, ID group) {
+        return facebook.addMember(member, group);
+    }
+
+    //
+    //  Logo
+    //
 
     private static Bitmap drawLogo(ID identifier) {
         List<ID> members = facebook.getMembers(identifier);

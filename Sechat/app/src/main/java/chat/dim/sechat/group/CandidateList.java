@@ -1,21 +1,18 @@
 package chat.dim.sechat.group;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 
 public class CandidateList extends DummyList<CandidateList.Item> {
-
-    private static Facebook facebook = Facebook.getInstance();
 
     private final ID group;
 
@@ -27,14 +24,14 @@ public class CandidateList extends DummyList<CandidateList.Item> {
     public void reloadData() {
         clearItems();
 
-        User user = facebook.getCurrentUser();
+        User user = UserViewModel.getCurrentUser();
         if (user == null) {
             return;
         }
-        List<ID> contacts = facebook.getContacts(user.identifier);
+        List<ID> contacts = UserViewModel.getContacts(user.identifier);
         if (contacts != null) {
             for (ID member : contacts) {
-                if (facebook.existsMember(member, group)) {
+                if (GroupViewModel.existsMember(member, group)) {
                     // already exists
                     continue;
                 }

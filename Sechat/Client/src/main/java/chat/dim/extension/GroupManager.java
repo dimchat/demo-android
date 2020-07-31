@@ -41,6 +41,7 @@ import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 
 /**
@@ -242,6 +243,15 @@ public class GroupManager {
 
         // 2. update local storage
         return removeMember(me);
+    }
+
+    public boolean query() {
+        Facebook facebook = Facebook.getInstance();
+        List<ID> assistants = facebook.getAssistants(group);
+        assert assistants != null : "failed to get assistants for group: " + group;
+
+        Command cmd = new QueryCommand(group);
+        return sendGroupCommand(cmd, assistants);
     }
 
     //-------- local storage

@@ -29,28 +29,19 @@ import android.arch.lifecycle.ViewModel;
 
 import chat.dim.ID;
 import chat.dim.Profile;
-import chat.dim.User;
 import chat.dim.model.Facebook;
 
 public class EntityViewModel extends ViewModel {
 
     protected static Facebook facebook = Facebook.getInstance();
 
-    private User currentUser = null;
-
-    public User getCurrentUser() {
-        if (currentUser == null) {
-            currentUser = facebook.getCurrentUser();
-        }
-        return currentUser;
-    }
+    private ID identifier = null;
 
     public ID getIdentifier() {
-        User user = getCurrentUser();
-        if (user == null) {
-            throw new NullPointerException("current user not set");
-        }
-        return user.identifier;
+        return identifier;
+    }
+    public void setIdentifier(ID identifier) {
+        this.identifier = identifier;
     }
 
     //

@@ -110,10 +110,16 @@ public class Images {
     //  Load
     //
 
-    public static Bitmap bitmapFormUri(ContentResolver contentResolver, Uri uri) throws IOException {
-        return bitmapFormUri(contentResolver, uri, null);
+    public static Bitmap bitmapFromPath(String path) throws IOException {
+        return bitmapFormUri(Uri.parse(path), null, null);
     }
-    public static Bitmap bitmapFormUri(ContentResolver contentResolver, Uri uri, Size size) throws IOException {
+    public static Bitmap bitmapFromPath(String path, Size size) throws IOException {
+        return bitmapFormUri(Uri.parse(path), null, size);
+    }
+    public static Bitmap bitmapFormUri(Uri uri, ContentResolver contentResolver) throws IOException {
+        return bitmapFormUri(uri, contentResolver, null);
+    }
+    public static Bitmap bitmapFormUri(Uri uri, ContentResolver contentResolver, Size size) throws IOException {
         // decode for bounds
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
         onlyBoundsOptions.inJustDecodeBounds = true;
@@ -133,11 +139,7 @@ public class Images {
             }
             int dx = width / size.width;
             int dy = height / size.height;
-            if (dx > dy) {
-                inSampleSize = dx;
-            } else {
-                inSampleSize = dy;
-            }
+            inSampleSize = Math.max(dx, dy);
         }
 
         // decode for bitmap

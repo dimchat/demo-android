@@ -19,10 +19,10 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
-import chat.dim.sechat.Client;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.Alert;
 import chat.dim.ui.Resources;
 import chat.dim.ui.WebViewActivity;
@@ -52,8 +52,7 @@ public class RegisterActivity extends ImagePickerActivity {
 
         setTitle(R.string.register);
 
-        Client client = Client.getInstance();
-        User user = client.getCurrentUser();
+        User user = UserViewModel.getCurrentUser();
         if (user == null) {
             // register new account
             imageView = findViewById(R.id.imageView);
