@@ -138,6 +138,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
         Intent intent = new Intent();
         intent.setClass(context, InviteActivity.class);
         intent.putExtra("ID", group.identifier.toString());
+        intent.putExtra("from", identifier.toString());
         context.startActivity(intent);
     }
 

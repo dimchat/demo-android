@@ -38,7 +38,8 @@ public class ChatManageFragment extends Fragment {
     private TextView addressTextView;
     private TextView numberTextView;
 
-    private ID identifier = null;
+    ID identifier = null;
+    private List<ID> participants = null;
 
     public static ChatManageFragment newInstance(ID identifier) {
         ChatManageFragment fragment = new ChatManageFragment();
@@ -48,6 +49,41 @@ public class ChatManageFragment extends Fragment {
 
     public ChatManageFragment() {
         super();
+    }
+
+    private List<ID> getParticipants() {
+        boolean isGroupAdmin = false;
+        if (identifier.isGroup()) {
+            Client client = Client.getInstance();
+            User user = client.getCurrentUser();
+            if (ChatManageViewModel.isAdmin(user, identifier)) {
+                isGroupAdmin = true;
+            }
+        }
+        if (isGroupAdmin) {
+            participants = mViewModel.getParticipants(identifier, MAX_ITEM_COUNT - 2);
+            if (participants.size() == MAX_ITEM_COUNT - 2) {
+                showMembersButton.setVisibility(View.VISIBLE);
+            } else {
+                showMembersButton.setVisibility(View.GONE);
+            }
+            participants.add(ChatManageViewModel.INVITE_BTN_ID);
+            participants.add(ChatManageViewModel.EXPEL_BTN_ID);
+        } else {
+            participants = mViewModel.getParticipants(identifier, MAX_ITEM_COUNT - 1);
+            if (participants.size() == MAX_ITEM_COUNT - 1) {
+                showMembersButton.setVisibility(View.VISIBLE);
+            } else {
+                showMembersButton.setVisibility(View.GONE);
+            }
+            participants.add(ChatManageViewModel.INVITE_BTN_ID);
+        }
+        return participants;
+    }
+
+    void reloadData() {
+        participants = getParticipants();
+        adapter.notifyDataSetChanged();
     }
 
     @Nullable
@@ -77,37 +113,8 @@ public class ChatManageFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ChatManageViewModel.class);
 
-        boolean isGroupAdmin = false;
-        if (identifier.isGroup()) {
-            Client client = Client.getInstance();
-            User user = client.getCurrentUser();
-            if (ChatManageViewModel.isAdmin(user, identifier)) {
-                isGroupAdmin = true;
-            }
-        }
-
         // participants
-        List<ID> participants = mViewModel.getParticipants(identifier);
-        int count = participants.size();
-        if (isGroupAdmin) {
-            if (count > (MAX_ITEM_COUNT - 2)) {
-                participants = participants.subList(0, MAX_ITEM_COUNT - 2);
-                showMembersButton.setVisibility(View.VISIBLE);
-            } else {
-                showMembersButton.setVisibility(View.GONE);
-            }
-            participants.add(ChatManageViewModel.INVITE_BTN_ID);
-            participants.add(ChatManageViewModel.EXPEL_BTN_ID);
-        } else {
-            if (participants.size() > (MAX_ITEM_COUNT - 1)) {
-                participants = participants.subList(0, MAX_ITEM_COUNT - 1);
-                showMembersButton.setVisibility(View.VISIBLE);
-            } else {
-                showMembersButton.setVisibility(View.GONE);
-            }
-            participants.add(ChatManageViewModel.INVITE_BTN_ID);
-        }
-
+        participants = getParticipants();
         adapter = new ParticipantsAdapter(getContext(), R.layout.chatman_participant, participants, identifier);
         participantsView.setAdapter(adapter);
 

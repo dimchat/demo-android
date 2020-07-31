@@ -26,8 +26,11 @@ public class ChatManageViewModel extends EntityViewModel {
         return facebook.isOwner(user, group);
     }
 
-    List<ID> getParticipants(ID identifier) {
-        List<ID> participants = new ArrayList<>();
+    private List<ID> participants = new ArrayList<>();
+
+    List<ID> getParticipants(ID identifier, int count) {
+        participants.clear();
+
         if (identifier.isUser()) {
             participants.add(identifier);
         } else if (identifier.isGroup()) {
@@ -40,6 +43,9 @@ public class ChatManageViewModel extends EntityViewModel {
                 for (ID item : members) {
                     if (participants.contains(item)) {
                         continue;
+                    }
+                    if (--count < 0) {
+                        break;
                     }
                     participants.add(item);
                 }

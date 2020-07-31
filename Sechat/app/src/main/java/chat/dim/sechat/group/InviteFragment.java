@@ -37,6 +37,7 @@ public class InviteFragment extends Fragment {
 
     private InviteViewModel mViewModel;
     private ID identifier;
+    ID from;
 
     private ImageView groupLogo;
     private EditText groupName;
@@ -88,12 +89,14 @@ public class InviteFragment extends Fragment {
         if (gm.invite(new ArrayList(selected))) {
             Map<String, Object> info = new HashMap<>();
             info.put("ID", identifier);
+            info.put("from", from);
             info.put("command", GroupCommand.INVITE);
             info.put("members", selected);
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.postNotification(NotificationNames.MembersUpdated, this, info);
 
             Alert.tips(getContext(), R.string.group_members_updated);
+            getActivity().finish();
         } else {
             Alert.tips(getContext(), R.string.group_members_error);
         }

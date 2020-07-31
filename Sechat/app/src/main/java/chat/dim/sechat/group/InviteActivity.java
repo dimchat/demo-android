@@ -1,5 +1,6 @@
 package chat.dim.sechat.group;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,12 +20,14 @@ public class InviteActivity extends AppCompatActivity {
         setContentView(R.layout.invite_activity);
 
         Facebook facebook = Facebook.getInstance();
+        Intent intent = getIntent();
         // get extra info
-        String string = getIntent().getStringExtra("ID");
-        ID identifier = facebook.getID(string);
+        ID identifier = facebook.getID(intent.getStringExtra("ID"));
+        ID from = facebook.getID(intent.getStringExtra("from"));
 
         if (savedInstanceState == null) {
             fragment = InviteFragment.newInstance(identifier);
+            fragment.from = from;
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, fragment)
                     .commitNow();

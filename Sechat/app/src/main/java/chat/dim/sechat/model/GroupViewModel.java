@@ -46,7 +46,7 @@ import chat.dim.ui.image.Images;
 public class GroupViewModel extends EntityViewModel {
 
     private static Bitmap drawLogo(ID identifier) throws IOException {
-        List<ID> members = facebook.getCacheMembers(identifier);
+        List<ID> members = facebook.getMembers(identifier);
         if (members == null || members.size() < 1) {
             return null;
         }

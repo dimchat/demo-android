@@ -94,10 +94,6 @@ public class GroupTable extends Database {
         return null;
     }
 
-    public List<ID> getCacheMembers(ID group) {
-        return membersMap.get(group);
-    }
-
     public List<ID> getMembers(ID group) {
         List<ID> members = membersMap.get(group);
         if (members == null) {
