@@ -25,14 +25,31 @@
  */
 package chat.dim.sechat.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+
+import java.io.IOException;
 
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.ui.image.Images;
 
 public class UserViewModel extends EntityViewModel {
+
+    private static Uri defaultAvatarUri;
+    private static Bitmap defaultAvatar = null;
+    static {
+        SechatApp app = SechatApp.getInstance();
+        defaultAvatarUri = app.getUriFromMipmap(R.mipmap.ic_launcher_foreground);
+        try {
+            defaultAvatar = Images.bitmapFormUri(app.getContentResolver(), defaultAvatarUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static User getUser(Object identifier) {
         return facebook.getUser(facebook.getID(identifier));
@@ -45,10 +62,19 @@ public class UserViewModel extends EntityViewModel {
                 return Uri.parse(avatar);
             }
         }
-        return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
+        return defaultAvatarUri;
     }
-    public Uri getAvatarUri() {
-        return getAvatarUri(getIdentifier());
+    public static Bitmap getAvatar(ID identifier) {
+        if (identifier != null) {
+            String avatar = facebook.getAvatar(identifier);
+            if (avatar != null) {
+                return BitmapFactory.decodeFile(avatar);
+            }
+        }
+        return defaultAvatar;
+    }
+    public Bitmap getAvatar() {
+        return getAvatar(getIdentifier());
     }
 
     public static String getNickname(Object identifier) {

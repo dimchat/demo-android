@@ -50,18 +50,11 @@ public class GroupViewModel extends EntityViewModel {
         if (members == null || members.size() < 1) {
             return null;
         }
-        ContentResolver contentResolver = SechatApp.getInstance().getContentResolver();
-        Images.Size size = new Images.Size(64, 64);
         List<Bitmap> avatars = new ArrayList<>();
-        Uri uri;
         Bitmap img;
         int count = 0;
         for (ID item : members) {
-            uri = UserViewModel.getAvatarUri(item);
-            if (uri == null) {
-                continue;
-            }
-            img = Images.bitmapFormUri(contentResolver, uri, size);
+            img = UserViewModel.getAvatar(item);
             if (img == null) {
                 continue;
             }

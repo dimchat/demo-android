@@ -2,6 +2,7 @@ package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -93,8 +94,8 @@ public class AccountFragment extends Fragment {
         nameView.setText(mViewModel.getUserTitle());
         descView.setText(mViewModel.getAddressString());
 
-        Uri avatar = mViewModel.getAvatarUri();
-        avatarView.setImageURI(avatar);
+        Bitmap avatar = mViewModel.getAvatar();
+        avatarView.setImageBitmap(avatar);
     }
 
 }

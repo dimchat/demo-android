@@ -2,6 +2,7 @@ package chat.dim.sechat.chatbox;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -144,8 +145,8 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
 
         // avatar
         if (viewHolder.avatarView != null) {
-            Uri avatar = UserViewModel.getAvatarUri(sender);
-            viewHolder.avatarView.setImageURI(avatar);
+            Bitmap avatar = UserViewModel.getAvatar(sender);
+            viewHolder.avatarView.setImageBitmap(avatar);
         }
 
         // name

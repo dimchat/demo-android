@@ -1,5 +1,6 @@
 package chat.dim.sechat.search;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -38,8 +39,8 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
-        Uri avatar = item.getAvatarUri();
-        holder.mAvatarView.setImageURI(avatar);
+        Bitmap avatar = item.getAvatar();
+        holder.mAvatarView.setImageBitmap(avatar);
 
         super.onBindViewHolder(holder, position);
     }

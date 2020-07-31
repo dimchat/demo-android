@@ -1,5 +1,6 @@
 package chat.dim.sechat.group;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.List;
@@ -58,8 +59,8 @@ public class CandidateList extends DummyList<CandidateList.Item> {
             return account.identifier;
         }
 
-        Uri getAvatarUri() {
-            return UserViewModel.getAvatarUri(account.identifier);
+        Bitmap getAvatar() {
+            return UserViewModel.getAvatar(account.identifier);
         }
 
         String getTitle() {

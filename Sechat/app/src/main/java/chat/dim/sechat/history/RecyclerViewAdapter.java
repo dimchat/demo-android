@@ -1,5 +1,6 @@
 package chat.dim.sechat.history;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
@@ -47,8 +48,8 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         } else {
             holder.userCard.setVisibility(View.VISIBLE);
             holder.groupCard.setVisibility(View.GONE);
-            Uri avatar = item.getAvatarUri();
-            holder.avatarView.setImageURI(avatar);
+            Bitmap avatar = item.getAvatar();
+            holder.avatarView.setImageBitmap(avatar);
         }
 
         holder.titleView.setText(item.getTitle());

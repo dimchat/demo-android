@@ -2,6 +2,7 @@ package chat.dim.sechat.chatbox;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -93,8 +94,8 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
         if (viewHolder.avatarView != null) {
             viewHolder.avatarView.setVisibility(View.VISIBLE);
 
-            Uri avatar = UserViewModel.getAvatarUri(identifier);
-            viewHolder.avatarView.setImageURI(avatar);
+            Bitmap avatar = UserViewModel.getAvatar(identifier);
+            viewHolder.avatarView.setImageBitmap(avatar);
         }
 
         // name

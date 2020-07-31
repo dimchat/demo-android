@@ -2,6 +2,7 @@ package chat.dim.sechat.profile;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -98,8 +99,8 @@ public class ProfileFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         // TODO: Use the ViewModel
 
-        Uri avatar = UserViewModel.getAvatarUri(identifier);
-        imageView.setImageURI(avatar);
+        Bitmap avatar = UserViewModel.getAvatar(identifier);
+        imageView.setImageBitmap(avatar);
 
         nameView.setText(UserViewModel.getNickname(identifier));
         addressView.setText(EntityViewModel.getAddressString(identifier));

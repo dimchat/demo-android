@@ -1,5 +1,6 @@
 package chat.dim.sechat.contacts;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.util.List;
@@ -52,8 +53,8 @@ public class ContactList extends DummyList<ContactList.Item> {
             return account.identifier;
         }
 
-        Uri getAvatarUri() {
-            return UserViewModel.getAvatarUri(account.identifier);
+        Bitmap getAvatar() {
+            return UserViewModel.getAvatar(account.identifier);
         }
 
         String getTitle() {

@@ -68,8 +68,8 @@ public class UpdateAccountFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
 
         // avatar
-        Uri avatar = mViewModel.getAvatarUri();
-        avatarView.setImageURI(avatar);
+        Bitmap avatar = mViewModel.getAvatar();
+        avatarView.setImageBitmap(avatar);
 
         UpdateAccountActivity activity = (UpdateAccountActivity) getActivity();
         assert activity != null : "should not happen";
