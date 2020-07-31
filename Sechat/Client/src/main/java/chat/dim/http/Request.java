@@ -132,6 +132,7 @@ class Request {
 
     private static byte[] buildHTTPBody(byte[] data, String filename, String name) {
         String begin = String.format(BEGIN, name, filename);
+        //noinspection CharsetObjectCanBeUsed
         byte[] head = begin.getBytes(Charset.forName("UTF-8"));
 
         byte[] buffer = new byte[head.length + data.length + TAIL.length];
@@ -150,5 +151,6 @@ class Request {
             + "Content-Disposition: form-data; name=%s; filename=%s\r\n"
             + "Content-Type: application/octet-stream\r\n\r\n";
     private static final String END = "\r\n--" + BOUNDARY + "--";
+    @SuppressWarnings("CharsetObjectCanBeUsed")
     private static final byte[] TAIL = END.getBytes(Charset.forName("UTF-8"));
 }

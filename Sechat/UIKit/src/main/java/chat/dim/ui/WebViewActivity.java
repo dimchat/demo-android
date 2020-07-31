@@ -25,6 +25,7 @@
  */
 package chat.dim.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -54,5 +55,13 @@ public class WebViewActivity extends AppCompatActivity {
         if (url != null) {
             fragment.open(url);
         }
+    }
+
+    public static void open(Activity activity, String title, String url) {
+        Intent intent = new Intent();
+        intent.setClass(activity, WebViewActivity.class);
+        intent.putExtra("title", title);
+        intent.putExtra("URL", url);
+        activity.startActivity(intent);
     }
 }

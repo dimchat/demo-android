@@ -167,7 +167,8 @@ public class MessageArrayAdapter extends ArrayAdapter<InstantMessage> {
             viewHolder.frameLayout.setVisibility(View.GONE);
             viewHolder.msgView.setVisibility(View.GONE);
             viewHolder.imgView.setVisibility(View.VISIBLE);
-            viewHolder.imgView.setImageURI(ChatboxViewModel.getImageUri(imageContent, iMsg));
+            Uri uri = ChatboxViewModel.getImageUri(imageContent, iMsg);
+            viewHolder.imgView.setImageURI(uri);
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);

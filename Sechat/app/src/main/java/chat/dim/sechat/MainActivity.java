@@ -29,7 +29,6 @@ import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.register.RegisterActivity;
 import chat.dim.sechat.search.SearchActivity;
-import chat.dim.ui.Resources;
 
 public class MainActivity extends AppCompatActivity implements Observer {
 
@@ -66,17 +65,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
         if (serverState == null) {
             status = null;
         } else if (serverState.equals(StateMachine.defaultState)) {
-            status = Resources.getText(this, R.string.server_default);;
+            status = getText(R.string.server_default);;
         } else if (serverState.equals(StateMachine.connectingState)) {
-            status = Resources.getText(this, R.string.server_connecting);
+            status = getText(R.string.server_connecting);
         } else if (serverState.equals(StateMachine.connectedState)) {
-            status = Resources.getText(this, R.string.server_connected);
+            status = getText(R.string.server_connected);
         } else if (serverState.equals(StateMachine.handshakingState)) {
-            status = Resources.getText(this, R.string.server_handshaking);
+            status = getText(R.string.server_handshaking);
         } else if (serverState.equals(StateMachine.errorState)) {
-            status = Resources.getText(this, R.string.server_error);
+            status = getText(R.string.server_error);
         } else if (serverState.equals(StateMachine.stoppedState)) {
-            status = Resources.getText(this, R.string.server_stopped);
+            status = getText(R.string.server_stopped);
         } else if (serverState.equals(StateMachine.runningState)) {
             status = null;
         } else {
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     @Override
     public void setTitle(int titleId) {
-        CharSequence title = Resources.getText(this, titleId);
+        CharSequence title = getText(titleId);
         if (title instanceof String) {
             originTitle = (String) title;
         }

@@ -24,7 +24,6 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.Alert;
-import chat.dim.ui.Resources;
 import chat.dim.ui.WebViewActivity;
 import chat.dim.ui.image.ImagePickerActivity;
 import chat.dim.ui.image.Images;
@@ -79,20 +78,9 @@ public class RegisterActivity extends ImagePickerActivity {
 
     private void showTerms() {
         Configuration config = Configuration.getInstance();
-        open(R.string.terms, config.getTermsURL());
-    }
-
-    private void open(int resId, String url) {
-        String title = (String) Resources.getText(this, resId);
-        open(title, url);
-    }
-
-    private void open(String title, String url) {
-        Intent intent = new Intent();
-        intent.setClass(this, WebViewActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("URL", url);
-        startActivity(intent);
+        String url = config.getTermsURL();
+        String title = (String) getText(R.string.terms);
+        WebViewActivity.open(this, title, url);
     }
 
     private void register() {

@@ -1,9 +1,8 @@
 package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,7 +18,6 @@ import android.widget.TextView;
 
 import chat.dim.model.Configuration;
 import chat.dim.sechat.R;
-import chat.dim.ui.Resources;
 import chat.dim.ui.WebViewActivity;
 
 public class AccountFragment extends Fragment {
@@ -51,13 +49,8 @@ public class AccountFragment extends Fragment {
         descView = view.findViewById(R.id.descView);
 
         detailButton = view.findViewById(R.id.detailBtn);
-        detailButton.setOnClickListener(v -> detail());
-
         termsButton = view.findViewById(R.id.termBtn);
-        termsButton.setOnClickListener(v -> open(R.string.terms, config.getTermsURL()));
-
         aboutButton = view.findViewById(R.id.aboutBtn);
-        aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
 
         FragmentActivity activity = getActivity();
         assert activity != null : "should not happen";
@@ -67,35 +60,31 @@ public class AccountFragment extends Fragment {
     }
 
     private void detail() {
+        Context context = getContext();
+        assert context != null : "failed to get context";
         Intent intent = new Intent();
-        intent.setClass(getContext(), UpdateAccountActivity.class);
+        intent.setClass(context, UpdateAccountActivity.class);
         startActivity(intent);
     }
 
     private void open(int resId, String url) {
-        String title = (String) Resources.getText(getContext(), resId);
-        open(title, url);
-    }
-
-    private void open(String title, String url) {
-        Intent intent = new Intent();
-        intent.setClass(getContext(), WebViewActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("URL", url);
-        startActivity(intent);
+        String title = (String) getText(resId);
+        WebViewActivity.open(getActivity(), title, url);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
-        // TODO: Use the ViewModel
 
         nameView.setText(mViewModel.getUserTitle());
         descView.setText(mViewModel.getAddressString());
 
-        Bitmap avatar = mViewModel.getAvatar();
-        avatarView.setImageBitmap(avatar);
+        avatarView.setImageBitmap(mViewModel.getAvatar());
+
+        detailButton.setOnClickListener(v -> detail());
+        termsButton.setOnClickListener(v -> open(R.string.terms, config.getTermsURL()));
+        aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
     }
 
 }

@@ -1,7 +1,6 @@
 package chat.dim.sechat.search;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 import java.util.List;
 

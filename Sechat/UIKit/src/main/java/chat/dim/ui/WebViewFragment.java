@@ -53,7 +53,6 @@ public class WebViewFragment extends Fragment {
         return new WebViewFragment();
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

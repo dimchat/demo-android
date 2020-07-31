@@ -2,7 +2,6 @@ package chat.dim.sechat.account;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -83,12 +82,8 @@ public class UpdateAccountFragment extends Fragment {
         }
 
         // ID.number & address
-        String number = mViewModel.getNumberString();
-        numberView.setText(number);
-        ID identifier = mViewModel.getIdentifier();
-        if (identifier != null) {
-            addressView.setText(identifier.address.toString());
-        }
+        numberView.setText(mViewModel.getNumberString());
+        addressView.setText(mViewModel.getAddressString());
 
         saveButton.setOnClickListener(v -> save());
         exportButton.setOnClickListener(v -> export());

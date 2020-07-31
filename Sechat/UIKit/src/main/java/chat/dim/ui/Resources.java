@@ -26,21 +26,25 @@
 package chat.dim.ui;
 
 import android.content.ContentResolver;
-import android.content.Context;
+import android.content.ContextWrapper;
+import android.graphics.Bitmap;
 import android.net.Uri;
+
+import java.io.IOException;
+
+import chat.dim.ui.image.Images;
 
 public class Resources {
 
-    public static CharSequence getText(Context context, int resId) {
-        return getText(context.getResources(), resId);
-    }
+    public static Bitmap getBitmapFromMipmap(ContextWrapper wrapper, int resId) {
+        Uri uri = getUriFromMipmap(wrapper.getResources(), resId);
+        try {
+            return Images.bitmapFormUri(uri, wrapper.getContentResolver());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-    public static CharSequence getText(android.content.res.Resources resources, int resId) {
-        return resources.getText(resId);
-    }
-
-    public static Uri getUriFromMipmap(Context context, int resId) {
-        return getUriFromMipmap(context.getResources(), resId);
     }
     public static Uri getUriFromMipmap(android.content.res.Resources resources, int resId) {
         return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"

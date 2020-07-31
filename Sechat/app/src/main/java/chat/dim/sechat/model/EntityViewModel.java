@@ -35,7 +35,7 @@ public class EntityViewModel extends ViewModel {
 
     protected static Facebook facebook = Facebook.getInstance();
 
-    private ID identifier = null;
+    protected ID identifier = null;
 
     public ID getIdentifier() {
         return identifier;

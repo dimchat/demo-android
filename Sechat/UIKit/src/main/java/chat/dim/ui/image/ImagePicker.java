@@ -44,7 +44,6 @@ import java.io.InputStream;
 import chat.dim.ui.Alert;
 import chat.dim.ui.Permissions;
 import chat.dim.ui.R;
-import chat.dim.ui.Resources;
 
 public class ImagePicker implements DialogInterface.OnClickListener {
 
@@ -93,8 +92,8 @@ public class ImagePicker implements DialogInterface.OnClickListener {
             return;
         }
         CharSequence[] items = {
-                Resources.getText(activity, R.string.camera),
-                Resources.getText(activity, R.string.album),
+                activity.getText(R.string.camera),
+                activity.getText(R.string.album),
         };
         Alert.alert(activity, items, this);
     }

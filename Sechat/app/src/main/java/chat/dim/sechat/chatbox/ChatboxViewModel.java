@@ -16,6 +16,7 @@ import chat.dim.network.FtpServer;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ImageContent;
 import chat.dim.sechat.SechatApp;
+import chat.dim.ui.Resources;
 
 enum MsgType {
 
@@ -35,11 +36,6 @@ public class ChatboxViewModel extends ViewModel {
     List<InstantMessage> getMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         return msgDB.messagesInConversation(chatBox);
-    }
-
-    boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
-        ConversationDatabase msgDB = ConversationDatabase.getInstance();
-        return msgDB.insertMessage(iMsg, chatBox);
     }
 
     static MsgType getType(InstantMessage iMsg, Conversation chatBox) {
@@ -69,6 +65,6 @@ public class ChatboxViewModel extends ViewModel {
         if (path != null) {
             return Uri.parse(path);
         }
-        return SechatApp.getInstance().getUriFromMipmap(android.R.drawable.ic_menu_gallery);
+        return Resources.getUriFromMipmap(SechatApp.getInstance().getResources(), android.R.drawable.ic_menu_gallery);
     }
 }
