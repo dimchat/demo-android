@@ -2,9 +2,11 @@ package chat.dim.sechat;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.ui.Permissions;
 import chat.dim.ui.Resources;
+import chat.dim.ui.image.Images;
 
 public class SechatApp extends Application {
 
@@ -37,8 +40,26 @@ public class SechatApp extends Application {
         return true;
     }
 
+    private Bitmap icon = null;
+
+    public Bitmap getIcon() {
+        if (icon == null) {
+            icon = getBitmapFromMipmap(R.mipmap.ic_launcher_foreground);
+        }
+        return icon;
+    }
+
     public Uri getUriFromMipmap(int resId) {
         return Resources.getUriFromMipmap(this, resId);
+    }
+    public Bitmap getBitmapFromMipmap(int resId) {
+        Uri uri = getUriFromMipmap(resId);
+        try {
+            return Images.bitmapFormUri(getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     static {

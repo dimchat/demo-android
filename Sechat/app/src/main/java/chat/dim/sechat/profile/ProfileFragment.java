@@ -68,9 +68,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showAvatar() {
-        Uri avatar = UserViewModel.getAvatarUri(identifier);
+        String avatar = facebook.getAvatar(identifier);
         if (avatar != null) {
-            ImageViewerActivity.show(getActivity(), avatar, UserViewModel.getUsername(identifier));
+            Uri uri = Uri.parse(avatar);
+            String name = UserViewModel.getUsername(identifier);
+            ImageViewerActivity.show(getActivity(), uri, name);
         }
     }
 

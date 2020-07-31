@@ -14,6 +14,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
+import chat.dim.sechat.model.GroupViewModel;
 
 public class ChatManageActivity extends AppCompatActivity implements Observer {
 
@@ -42,6 +43,8 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
         if (from.isUser()) {
             finish();
         } else {
+            GroupViewModel.refreshLogo(fragment.identifier);
+
             Amanuensis clerk = Amanuensis.getInstance();
             Conversation chatBox = clerk.getConversation(fragment.identifier);
             setTitle(chatBox.getTitle());

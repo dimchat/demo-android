@@ -25,9 +25,8 @@
  */
 package chat.dim.sechat.model;
 
-import android.content.ContentResolver;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.graphics.BitmapFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,13 +38,12 @@ import chat.dim.ID;
 import chat.dim.common.BackgroundThread;
 import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
 
-    private static Bitmap drawLogo(ID identifier) throws IOException {
+    private static Bitmap drawLogo(ID identifier) {
         List<ID> members = facebook.getMembers(identifier);
         if (members == null || members.size() < 1) {
             return null;
@@ -65,38 +63,37 @@ public class GroupViewModel extends EntityViewModel {
         }
         return Images.tiles(avatars, new Images.Size(128, 128));
     }
-    private static void refreshLogo(ID identifier, String path) {
-        try {
-            Bitmap bitmap = drawLogo(identifier);
-            if (bitmap == null) {
-                return;
-            }
-            byte[] png = Images.png(bitmap);
-            if (ExternalStorage.saveData(png, path)) {
-                logos.put(identifier, Uri.parse(path));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static Uri getLogoUri(ID identifier) {
-        Uri uri = logos.get(identifier);
-        if (uri != null) {
-            return uri;
-        }
+    public static String refreshLogo(ID identifier) {
         String path = Database.getEntityFilePath(identifier, "logo.png");
-
-        // refresh group logo in background
-        BackgroundThread.wait(() -> refreshLogo(identifier, path));
-
-        if (ExternalStorage.exists(path)) {
-            uri = Uri.parse(path);
-            logos.put(identifier, uri);
-            return uri;
-        }
-        return SechatApp.getInstance().getUriFromMipmap(R.mipmap.ic_launcher_foreground);
+        BackgroundThread.wait(() -> {
+            try {
+                Bitmap bitmap = drawLogo(identifier);
+                if (bitmap == null) {
+                    return;
+                }
+                byte[] png = Images.png(bitmap);
+                if (ExternalStorage.saveData(png, path)) {
+                    logos.put(identifier, path);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        return path;
     }
 
-    private static final Map<ID, Uri> logos = new HashMap<>();
+    public static Bitmap getLogo(ID identifier) {
+        String path = logos.get(identifier);
+        if (path == null) {
+            // refresh group logo in background
+            path = refreshLogo(identifier);
+        }
+        if (ExternalStorage.exists(path)) {
+            logos.put(identifier, path);
+            return BitmapFactory.decodeFile(path);
+        }
+        return SechatApp.getInstance().getIcon();
+    }
+
+    private static final Map<ID, String> logos = new HashMap<>();
 }

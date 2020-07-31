@@ -1,7 +1,7 @@
 package chat.dim.sechat.group;
 
 import android.arch.lifecycle.ViewModel;
-import android.net.Uri;
+import android.graphics.Bitmap;
 
 import chat.dim.Group;
 import chat.dim.ID;
@@ -19,8 +19,8 @@ public class ParticipantViewModel extends ViewModel {
         group = facebook.getGroup(identifier);
     }
 
-    Uri getLogoUri() {
-        return GroupViewModel.getLogoUri(group.identifier);
+    Bitmap getLogo() {
+        return GroupViewModel.getLogo(group.identifier);
     }
 
     String getName() {

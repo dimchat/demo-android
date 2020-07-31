@@ -142,7 +142,7 @@ public class InviteFragment extends Fragment {
 
         // TODO: Use the ViewModel
 
-        groupLogo.setImageURI(mViewModel.getLogoUri());
+        groupLogo.setImageBitmap(mViewModel.getLogo());
         groupName.setText(mViewModel.getName());
         groupOwner.setText(mViewModel.getOwnerName());
     }
