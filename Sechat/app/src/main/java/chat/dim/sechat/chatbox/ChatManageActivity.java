@@ -33,6 +33,9 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
         }
         Map info = notification.userInfo;
         ID from = (ID) info.get("from");
+        if (from == null) {
+            from = (ID) info.get("ID");
+        }
         if (from == null || !from.equals(fragment.identifier)) {
             return;
         }

@@ -27,16 +27,17 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         clearItems();
 
         User user = facebook.getCurrentUser();
-        if (user != null) {
-            List<ID> contacts = facebook.getContacts(user.identifier);
-            if (contacts != null) {
-                for (ID member : contacts) {
-                    if (facebook.existsMember(member, group)) {
-                        // already exists
-                        continue;
-                    }
-                    addItem(new Item(member));
+        if (user == null) {
+            return;
+        }
+        List<ID> contacts = facebook.getContacts(user.identifier);
+        if (contacts != null) {
+            for (ID member : contacts) {
+                if (facebook.existsMember(member, group)) {
+                    // already exists
+                    continue;
                 }
+                addItem(new Item(member));
             }
         }
     }

@@ -45,4 +45,5 @@
     <string name="group_owner">Owner</string>
     <string name="group_members_updated">Members updated</string>
     <string name="group_members_error">Members error</string>
+    <string name="group_members">Members</string>
 </resources>

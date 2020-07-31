@@ -166,9 +166,8 @@ public class GroupManager {
      *
      * @param outMembers - existed member ID list
      * @return true on success
-     * @throws IllegalAccessException on permission error
      */
-    public boolean expel(List<ID> outMembers) throws IllegalAccessException {
+    public boolean expel(List<ID> outMembers) {
         Facebook facebook = Facebook.getInstance();
 
         ID owner = facebook.getOwner(group);
@@ -181,11 +180,11 @@ public class GroupManager {
         // 0. check members list
         for (ID ass : assistants) {
             if (outMembers.contains(ass)) {
-                throw new IllegalAccessException("Cannot expel group assistant: " + ass);
+                throw new RuntimeException("Cannot expel group assistant: " + ass);
             }
         }
         if (outMembers.contains(owner)) {
-            throw new IllegalAccessException("Cannot expel group owner: " + owner);
+            throw new RuntimeException("Cannot expel group owner: " + owner);
         }
 
         // 1. send 'expel' command to all members
@@ -210,7 +209,7 @@ public class GroupManager {
      * @param me - my ID
      * @return true on success
      */
-    public boolean quit(ID me) throws IllegalAccessException {
+    public boolean quit(ID me) {
         Facebook facebook = Facebook.getInstance();
 
         ID owner = facebook.getOwner(group);
@@ -223,11 +222,11 @@ public class GroupManager {
         // 0. check members list
         for (ID ass : assistants) {
             if (me.equals(ass)) {
-                throw new IllegalAccessException("Group assistant cannot quit: " + ass);
+                throw new RuntimeException("Group assistant cannot quit: " + ass);
             }
         }
         if (me.equals(owner)) {
-            throw new IllegalAccessException("Group owner cannot quit: " + owner);
+            throw new RuntimeException("Group owner cannot quit: " + owner);
         }
 
         // 1. send 'quit' command to all members

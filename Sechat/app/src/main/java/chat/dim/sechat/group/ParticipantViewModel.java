@@ -10,7 +10,7 @@ import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 
-public class InviteViewModel extends ViewModel {
+public class ParticipantViewModel extends ViewModel {
 
     private Group group = null;
 

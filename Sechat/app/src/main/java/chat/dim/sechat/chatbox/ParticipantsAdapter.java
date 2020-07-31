@@ -20,6 +20,7 @@ import chat.dim.User;
 import chat.dim.extension.Register;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
+import chat.dim.sechat.group.ExpelActivity;
 import chat.dim.sechat.group.InviteActivity;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
@@ -120,6 +121,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
             Alert.tips(getContext(), "Current user not found");
             return;
         }
+
         Group group;
         if (identifier.isGroup()) {
             if (!facebook.existsMember(user.identifier, identifier)) {
@@ -133,6 +135,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
             group = register.createGroup(user.identifier, "Sophon Shield");
             facebook.addMember(identifier, group.identifier);
         }
+
         // open Invite activity
         Context context = getContext();
         Intent intent = new Intent();
@@ -145,11 +148,22 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
     private void expel() {
         Facebook facebook = Facebook.getInstance();
         User user = facebook.getCurrentUser();
+        if (user == null) {
+            Alert.tips(getContext(), "Current user not found");
+            return;
+        }
+
         if (!ChatManageViewModel.isAdmin(user, identifier)) {
             Alert.tips(getContext(), "You are not admin of this group: " + identifier);
             return;
         }
-        Group group = facebook.getGroup(identifier);
+
+        // open Expel activity
+        Context context = getContext();
+        Intent intent = new Intent();
+        intent.setClass(context, ExpelActivity.class);
+        intent.putExtra("ID", identifier.toString());
+        context.startActivity(intent);
     }
 
     private void showParticipant(ID identifier) {

@@ -33,27 +33,22 @@ import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.Listener;
 
-public class InviteFragment extends Fragment {
+public class ExpelFragment extends Fragment {
 
     private ParticipantViewModel mViewModel;
     private ID identifier;
-    ID from;
 
     private ImageView groupLogo;
     private EditText groupName;
     private TextView groupOwner;
 
-    private RecyclerView contacts;
+    private RecyclerView members;
 
-    private CandidateList dummyList;
+    private MemberList dummyList;
     private RecyclerViewAdapter adapter;
 
-    public InviteFragment() {
-        super();
-    }
-
-    public static InviteFragment newInstance(ID group) {
-        InviteFragment fragment = new InviteFragment();
+    public static ExpelFragment newInstance(ID group) {
+        ExpelFragment fragment = new ExpelFragment();
         fragment.setIdentifier(group);
         return fragment;
     }
@@ -61,7 +56,7 @@ public class InviteFragment extends Fragment {
     private void setIdentifier(ID group) {
         identifier = group;
 
-        dummyList = new CandidateList(group);
+        dummyList = new MemberList(group);
         Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
             boolean checked = viewHolder.checkBox.isChecked();
             if (checked) {
@@ -86,11 +81,10 @@ public class InviteFragment extends Fragment {
 
         GroupManager gm = new GroupManager(identifier);
         //noinspection unchecked
-        if (gm.invite(new ArrayList(selected))) {
+        if (gm.expel(new ArrayList(selected))) {
             Map<String, Object> info = new HashMap<>();
             info.put("ID", identifier);
-            info.put("from", from);
-            info.put("command", GroupCommand.INVITE);
+            info.put("command", GroupCommand.EXPEL);
             info.put("members", selected);
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.postNotification(NotificationNames.MembersUpdated, this, info);
@@ -121,15 +115,15 @@ public class InviteFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.invite_fragment, container, false);
+        View view = inflater.inflate(R.layout.expel_fragment, container, false);
 
         groupLogo = view.findViewById(R.id.logo);
         groupName = view.findViewById(R.id.name);
         groupOwner = view.findViewById(R.id.owner);
 
-        contacts = view.findViewById(R.id.contacts);
-        contacts.setLayoutManager(new LinearLayoutManager(getContext()));
-        contacts.setAdapter(adapter);
+        members = view.findViewById(R.id.members);
+        members.setLayoutManager(new LinearLayoutManager(getContext()));
+        members.setAdapter(adapter);
 
         return view;
     }
