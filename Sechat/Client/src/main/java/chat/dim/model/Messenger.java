@@ -203,13 +203,14 @@ public class Messenger extends chat.dim.common.Messenger {
             // TODO: save the message content in waiting queue
             throw new IllegalStateException("login first");
         }
-        ID identifier = getFacebook().getID(profile.getIdentifier());
+        Facebook facebook = (Facebook) getFacebook();
+        ID identifier = facebook.getID(profile.getIdentifier());
         assert identifier.equals(user.identifier) : "profile error: " + profile;
         // check profile
-        if (profile.get("data") == null || profile.get("signature") == null) {
-            profile = null;
-        } else {
+        if (facebook.isSigned(profile)) {
             profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        } else {
+            profile = null;
         }
         // pack and send profile to every contact
         Command cmd = new ProfileCommand(identifier, profile);
@@ -226,10 +227,11 @@ public class Messenger extends chat.dim.common.Messenger {
     public boolean postProfile(Profile profile, Meta meta) {
         ID identifier = ID.getInstance(profile.getIdentifier());
         // check profile
-        if (profile.get("data") == null || profile.get("signature") == null) {
-            profile = null;
-        } else {
+        Facebook facebook = (Facebook) getFacebook();
+        if (facebook.isSigned(profile)) {
             profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        } else {
+            profile = null;
         }
         Command cmd = new ProfileCommand(identifier, meta, profile);
         return sendCommand(cmd);

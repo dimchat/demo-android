@@ -69,26 +69,24 @@ public class Facebook extends chat.dim.common.Facebook {
         }
         // try from database
         Meta meta = super.getMeta(identifier);
-        if (meta != null) {
-            return meta;
+        if (meta == null) {
+            // query from DIM network
+            Messenger messenger = Messenger.getInstance();
+            messenger.queryMeta(identifier);
         }
-        // query from DIM network
-        Messenger messenger = Messenger.getInstance();
-        messenger.queryMeta(identifier);
-        return null;
+        return meta;
     }
 
     @Override
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = super.getProfile(identifier);
-        if (profile != null/* && !isExpired(profile)*/) {
-            return profile;
+        if (isEmpty(profile)) {
+            // query from DIM network
+            Messenger messenger = Messenger.getInstance();
+            messenger.queryProfile(identifier);
         }
-        // query from DIM network
-        Messenger messenger = Messenger.getInstance();
-        messenger.queryProfile(identifier);
-        return null;
+        return profile;
     }
 
     @Override

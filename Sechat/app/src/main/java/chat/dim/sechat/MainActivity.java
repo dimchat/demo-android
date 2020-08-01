@@ -18,6 +18,7 @@ import java.util.Map;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
+import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.network.StateMachine;
 import chat.dim.notification.Notification;
@@ -147,7 +148,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
             }
             Profile profile = user.getProfile();
             // check profile
-            if (profile != null && profile.get("data") != null && profile.get("signature") != null) {
+            Facebook facebook = Facebook.getInstance();
+            if (facebook.isSigned(profile)) {
                 profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
                 Messenger messenger = Messenger.getInstance();
                 messenger.postProfile(profile, meta);

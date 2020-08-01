@@ -282,6 +282,22 @@ public class Facebook extends chat.dim.Facebook {
         return profile;
     }
 
+    public boolean isEmpty(Profile profile) {
+        if (profile == null) {
+            return true;
+        }
+        String json = (String) profile.get("data");
+        return json == null || json.length() == 0;
+    }
+
+    public boolean isSigned(Profile profile) {
+        if (isEmpty(profile)) {
+            return false;
+        }
+        String base64 = (String) profile.get("signature");
+        return base64 != null && base64.length() > 0;
+    }
+
     public boolean isExpired(Profile profile) {
         Date now = new Date();
         long timestamp = now.getTime() / 1000;
