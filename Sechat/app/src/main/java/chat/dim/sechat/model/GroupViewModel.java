@@ -36,11 +36,11 @@ import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.ID;
-import chat.dim.common.BackgroundThread;
 import chat.dim.database.Database;
 import chat.dim.extension.GroupManager;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.SechatApp;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
@@ -56,7 +56,7 @@ public class GroupViewModel extends EntityViewModel {
     public static void checkMembers(ID group) {
         List<ID> members = facebook.getMembers(group);
         if (members == null || members.size() < 1) {
-            BackgroundThread.wait(() -> (new GroupManager(group)).query());
+            BackgroundThreads.wait(() -> (new GroupManager(group)).query());
         }
     }
 
@@ -94,7 +94,7 @@ public class GroupViewModel extends EntityViewModel {
     }
     public static String refreshLogo(ID identifier) {
         String path = Database.getEntityFilePath(identifier, "logo.png");
-        BackgroundThread.wait(() -> {
+        BackgroundThreads.wait(() -> {
             try {
                 Bitmap bitmap = drawLogo(identifier);
                 if (bitmap == null) {

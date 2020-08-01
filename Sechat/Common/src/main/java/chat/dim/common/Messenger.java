@@ -56,6 +56,7 @@ import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
+import chat.dim.threading.BackgroundThreads;
 
 public abstract class Messenger extends chat.dim.Messenger {
 
@@ -249,7 +250,7 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     @Override
     public boolean sendMessage(final InstantMessage iMsg, final Callback callback) {
-        BackgroundThread.wait(new Runnable() {
+        BackgroundThreads.wait(new Runnable() {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station

@@ -10,13 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import chat.dim.ID;
-import chat.dim.common.BackgroundThread;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.image.ImagePickerActivity;
 
 public class ChatboxActivity extends ImagePickerActivity {
@@ -53,7 +53,7 @@ public class ChatboxActivity extends ImagePickerActivity {
         if (identifier.isGroup()) {
             setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
-            BackgroundThread.run(() -> refreshTitle(chatBox));
+            BackgroundThreads.rush(() -> refreshTitle(chatBox));
         } else {
             setTitle(chatBox.getName());
         }

@@ -7,9 +7,9 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.User;
-import chat.dim.common.BackgroundThread;
 import chat.dim.model.Messenger;
 import chat.dim.sechat.model.UserViewModel;
+import chat.dim.threading.BackgroundThreads;
 
 public class ProfileViewModel extends UserViewModel {
 
@@ -17,7 +17,7 @@ public class ProfileViewModel extends UserViewModel {
         if (identifier == null) {
             return;
         }
-        BackgroundThread.wait(() -> {
+        BackgroundThreads.wait(() -> {
             Messenger messenger = Messenger.getInstance();
             Profile profile = facebook.getProfile(identifier);
             if (profile == null || facebook.isExpired(profile)) {

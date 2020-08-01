@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 import chat.dim.ID;
-import chat.dim.common.BackgroundThread;
 import chat.dim.extension.GroupManager;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.sechat.R;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.Listener;
 
@@ -97,7 +97,7 @@ public class ExpelFragment extends Fragment {
     }
 
     public void reloadData() {
-        BackgroundThread.run(() -> {
+        BackgroundThreads.rush(() -> {
             dummyList.reloadData();
             msgHandler.sendMessage(new Message());
         });

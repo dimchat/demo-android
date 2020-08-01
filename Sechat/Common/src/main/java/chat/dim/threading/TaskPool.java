@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.threading;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,26 +31,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class BackgroundThread extends Thread {
-
-    private static final BackgroundThread ourInstance = new BackgroundThread();
-    public static BackgroundThread getInstance() { return ourInstance; }
-    private BackgroundThread() {
-        super();
-        start();
-    }
-
-    public static void wait(Runnable runnable) {
-        getInstance().appendTask(runnable);
-    }
-    public static void run(Runnable runnable) {
-        getInstance().insertTask(runnable);
-    }
+class TaskPool {
 
     private final List<Runnable> tasks = new ArrayList<>();
     private final ReadWriteLock taskLock = new ReentrantReadWriteLock();
 
-    private void appendTask(Runnable runnable) {
+    void addTask(Runnable runnable) {
         Lock writeLock = taskLock.writeLock();
         writeLock.lock();
         try {
@@ -59,53 +45,22 @@ public class BackgroundThread extends Thread {
             writeLock.unlock();
         }
     }
-    private void insertTask(Runnable runnable) {
-        Lock writeLock = taskLock.writeLock();
-        writeLock.lock();
-        try {
-            tasks.add(0, runnable);
-        } finally {
-            writeLock.unlock();
-        }
-    }
 
-    private Runnable getTask() {
-        Runnable task = null;
+    Runnable getTask() {
+        Runnable runnable;
         Lock writeLock = taskLock.writeLock();
         writeLock.lock();
         try {
-            if (tasks.size() > 0) {
-                task = tasks.remove(0);
+            // NOTICE: take the last job
+            int index = tasks.size() - 1;
+            if (index < 0) {
+                runnable = null;
+            } else {
+                runnable = tasks.remove(index);
             }
         } finally {
             writeLock.unlock();
         }
-        return task;
-    }
-
-    private static void _sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void run() {
-        Runnable task;
-        while (true) {
-            task = getTask();
-            if (task == null) {
-                // no more task, have a rest. ^_^
-                _sleep(100);
-                continue;
-            }
-            try {
-                task.run();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        return runnable;
     }
 }

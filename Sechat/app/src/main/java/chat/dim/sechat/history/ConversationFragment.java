@@ -10,13 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import chat.dim.ID;
-import chat.dim.common.BackgroundThread;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
@@ -49,7 +49,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
     @Override
     public void reloadData() {
         // reload data in background
-        BackgroundThread.run(super::reloadData);
+        BackgroundThreads.rush(super::reloadData);
     }
 
     @Override
