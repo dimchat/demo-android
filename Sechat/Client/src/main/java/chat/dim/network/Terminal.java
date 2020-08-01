@@ -172,6 +172,7 @@ public class Terminal implements StationDelegate {
         }
     }
 
+    private boolean isServerPaused = false;
 
     public void enterBackground() {
         Server server = getCurrentServer();
@@ -182,7 +183,10 @@ public class Terminal implements StationDelegate {
             cmd.put("state", "background");
             messenger.sendCommand(cmd);
             // pause the server
-            server.pause();
+            if (!isServerPaused) {
+                server.pause();
+                isServerPaused = true;
+            }
         }
     }
 
@@ -190,7 +194,10 @@ public class Terminal implements StationDelegate {
         Server server = getCurrentServer();
         if (server != null) {
             // resume the server
-            server.resume();
+            if (isServerPaused) {
+                server.resume();
+                isServerPaused = false;
+            }
 
             // clear icon badge
 

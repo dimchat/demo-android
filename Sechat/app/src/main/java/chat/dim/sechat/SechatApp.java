@@ -1,7 +1,6 @@
 package chat.dim.sechat;
 
 import android.app.Activity;
-import android.app.Application;
 import android.graphics.Bitmap;
 import android.os.Environment;
 
@@ -11,6 +10,7 @@ import java.util.Map;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
+import chat.dim.ui.Application;
 import chat.dim.ui.Permissions;
 import chat.dim.ui.Resources;
 
@@ -23,7 +23,19 @@ public class SechatApp extends Application {
         ourInstance = this;
     }
 
-    public static boolean launch(Application app, Activity activity) {
+    @Override
+    protected void onEnterForeground(Activity activity) {
+        Client client = Client.getInstance();
+        client.enterForeground();
+    }
+
+    @Override
+    protected void onEnterBackground(Activity activity) {
+        Client client = Client.getInstance();
+        client.enterBackground();
+    }
+
+    public static boolean launch(android.app.Application app, Activity activity) {
         if (!Permissions.canWriteExternalStorage(activity)) {
             Permissions.requestExternalStoragePermissions(activity);
             return false;
