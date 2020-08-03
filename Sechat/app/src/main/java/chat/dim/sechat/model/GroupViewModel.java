@@ -36,6 +36,7 @@ import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.ID;
+import chat.dim.User;
 import chat.dim.database.Database;
 import chat.dim.extension.GroupManager;
 import chat.dim.filesys.ExternalStorage;
@@ -45,8 +46,59 @@ import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
 
-    public static Group getGroup(ID identifier) {
-        return facebook.getGroup(identifier);
+    public static Group getGroup(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        return facebook.getGroup(group);
+    }
+    public Group getGroup() {
+        return getGroup(getIdentifier());
+    }
+
+    //
+    //  Administrators
+    //
+
+    public static ID getOwner(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        return facebook.getOwner(group);
+    }
+    public ID getOwner() {
+        return getOwner(getIdentifier());
+    }
+
+    public static String getOwnerName(ID group) {
+        ID owner = getOwner(group);
+        if (owner == null) {
+            return null;
+        }
+        return UserViewModel.getUserTitle(owner);
+    }
+    public String getOwnerName() {
+        return getOwnerName(getIdentifier());
+    }
+
+    public static boolean isAdmin(ID user, ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        return facebook.isOwner(user, group);
+    }
+    public boolean isAdmin(ID user) {
+        return isAdmin(user, getIdentifier());
+    }
+
+    public static boolean isAdmin(User user, ID group) {
+        if (user == null) {
+            return false;
+        }
+        return isAdmin(user.identifier, group);
+    }
+    public boolean isAdmin(User user) {
+        return isAdmin(user, getIdentifier());
     }
 
     //
@@ -54,26 +106,57 @@ public class GroupViewModel extends EntityViewModel {
     //
 
     public static void checkMembers(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
         List<ID> members = facebook.getMembers(group);
         if (members == null || members.size() < 1) {
             BackgroundThreads.wait(() -> (new GroupManager(group)).query());
         }
     }
+    public void checkMembers() {
+        checkMembers(getIdentifier());
+    }
 
     public static boolean existsMember(ID member, ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
         return facebook.existsMember(member, group);
+    }
+    public boolean existsMember(ID member) {
+        return existsMember(member, getIdentifier());
     }
 
     public static boolean addMember(ID member, ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
         return facebook.addMember(member, group);
+    }
+    public boolean addMember(ID member) {
+        return addMember(member, getIdentifier());
+    }
+
+    public static List<ID> getMembers(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        return facebook.getMembers(group);
+    }
+    public List<ID> getMembers() {
+        return getMembers(getIdentifier());
     }
 
     //
     //  Logo
     //
 
-    private static Bitmap drawLogo(ID identifier) {
-        List<ID> members = facebook.getMembers(identifier);
+    private static Bitmap drawLogo(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        List<ID> members = facebook.getMembers(group);
         if (members == null || members.size() < 1) {
             return null;
         }
@@ -92,17 +175,20 @@ public class GroupViewModel extends EntityViewModel {
         }
         return Images.tiles(avatars, new Images.Size(128, 128));
     }
-    public static String refreshLogo(ID identifier) {
-        String path = Database.getEntityFilePath(identifier, "logo.png");
+    public static String refreshLogo(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        String path = Database.getEntityFilePath(group, "logo.png");
         BackgroundThreads.wait(() -> {
             try {
-                Bitmap bitmap = drawLogo(identifier);
+                Bitmap bitmap = drawLogo(group);
                 if (bitmap == null) {
                     return;
                 }
                 byte[] png = Images.png(bitmap);
                 if (ExternalStorage.saveData(png, path)) {
-                    logos.put(identifier, path);
+                    logos.put(group, path);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -110,18 +196,27 @@ public class GroupViewModel extends EntityViewModel {
         });
         return path;
     }
+    public String refreshLogo() {
+        return refreshLogo(getIdentifier());
+    }
 
-    public static Bitmap getLogo(ID identifier) {
-        String path = logos.get(identifier);
+    public static Bitmap getLogo(ID group) {
+        if (group == null) {
+            throw new NullPointerException("group ID empty");
+        }
+        String path = logos.get(group);
         if (path == null) {
             // refresh group logo in background
-            path = refreshLogo(identifier);
+            path = refreshLogo(group);
         }
         if (ExternalStorage.exists(path)) {
-            logos.put(identifier, path);
+            logos.put(group, path);
             return BitmapFactory.decodeFile(path);
         }
         return SechatApp.getInstance().getIcon();
+    }
+    public Bitmap getLogo() {
+        return getLogo(getIdentifier());
     }
 
     private static final Map<ID, String> logos = new HashMap<>();

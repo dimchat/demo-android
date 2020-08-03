@@ -42,7 +42,13 @@ public class UserViewModel extends EntityViewModel {
     }
 
     public static User getUser(Object identifier) {
+        if (identifier == null) {
+            throw new NullPointerException("user ID empty");
+        }
         return facebook.getUser(facebook.getID(identifier));
+    }
+    public User getUser() {
+        return getUser(getIdentifier());
     }
 
     public static Bitmap getAvatar(ID identifier) {
@@ -99,7 +105,17 @@ public class UserViewModel extends EntityViewModel {
     //
 
     public static List<ID> getContacts(ID user) {
+        if (user == null) {
+            throw new NullPointerException("user ID empty");
+        }
         return facebook.getContacts(user);
+    }
+    public List<ID> getContacts() {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("current user not set");
+        }
+        return getContacts(user.identifier);
     }
 
     public boolean addContact(ID contact) {

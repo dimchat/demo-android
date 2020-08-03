@@ -29,13 +29,14 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.sechat.R;
+import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.Listener;
 
 public class ExpelFragment extends Fragment {
 
-    private ParticipantViewModel mViewModel;
+    private GroupViewModel mViewModel;
     private ID identifier;
 
     private ImageView groupLogo;
@@ -131,8 +132,8 @@ public class ExpelFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ParticipantViewModel.class);
-        mViewModel.setGroup(identifier);
+        mViewModel = ViewModelProviders.of(this).get(GroupViewModel.class);
+        mViewModel.setIdentifier(identifier);
 
         // TODO: Use the ViewModel
 

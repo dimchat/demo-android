@@ -1,4 +1,4 @@
-package chat.dim.sechat.chatbox;
+package chat.dim.sechat.group;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,19 +19,20 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.extension.Register;
 import chat.dim.sechat.R;
-import chat.dim.sechat.group.ExpelActivity;
-import chat.dim.sechat.group.InviteActivity;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.Alert;
 
-class ParticipantsAdapter extends ArrayAdapter<ID> {
+public class ParticipantsAdapter extends ArrayAdapter<ID> {
+
+    public static final ID INVITE_BTN_ID = ID.getInstance("invite@anywhere");
+    public static final ID EXPEL_BTN_ID = ID.getInstance("expel@anywhere");
 
     private final int resId;
     private final ID identifier;
 
-    ParticipantsAdapter(Context context, int resource, List<ID> objects, ID conversation) {
+    public ParticipantsAdapter(Context context, int resource, List<ID> objects, ID conversation) {
         super(context, resource, objects);
         resId = resource;
         identifier = conversation;
@@ -65,7 +66,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
 
     private void showParticipant(ID identifier, ViewHolder viewHolder) {
 
-        if (ChatManageViewModel.INVITE_BTN_ID.equals(identifier)) {
+        if (INVITE_BTN_ID.equals(identifier)) {
             // invite
             viewHolder.cardView.setVisibility(View.GONE);
             viewHolder.avatarView.setVisibility(View.GONE);
@@ -75,7 +76,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
             viewHolder.expelButton.setVisibility(View.GONE);
             return;
         }
-        if (ChatManageViewModel.EXPEL_BTN_ID.equals(identifier)) {
+        if (EXPEL_BTN_ID.equals(identifier)) {
             // expel
             viewHolder.cardView.setVisibility(View.GONE);
             viewHolder.avatarView.setVisibility(View.GONE);
@@ -151,7 +152,7 @@ class ParticipantsAdapter extends ArrayAdapter<ID> {
             return;
         }
 
-        if (!ChatManageViewModel.isAdmin(user, identifier)) {
+        if (!GroupViewModel.isAdmin(user, identifier)) {
             Alert.tips(getContext(), "You are not admin of this group: " + identifier);
             return;
         }

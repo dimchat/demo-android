@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         if (serverState == null) {
             status = null;
         } else if (serverState.equals(StateMachine.defaultState)) {
-            status = getText(R.string.server_default);;
+            status = getText(R.string.server_default);
         } else if (serverState.equals(StateMachine.connectingState)) {
             status = getText(R.string.server_connecting);
         } else if (serverState.equals(StateMachine.connectedState)) {

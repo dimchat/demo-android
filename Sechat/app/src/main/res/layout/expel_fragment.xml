@@ -114,7 +114,7 @@
                 android:id="@+id/members"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:listitem="@layout/members_item" />
+                tools:listitem="@layout/participants_list_item" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.constraint.ConstraintLayout>

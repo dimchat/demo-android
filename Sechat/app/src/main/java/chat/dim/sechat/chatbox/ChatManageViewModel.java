@@ -6,29 +6,36 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.model.GroupViewModel;
+import chat.dim.sechat.model.UserViewModel;
 
 public class ChatManageViewModel extends EntityViewModel {
 
-    private static Facebook facebook = Facebook.getInstance();
+    public static int MAX_ITEM_COUNT = 2 * 3 * 5;
 
-    static final ID INVITE_BTN_ID = ID.getInstance("invite@anywhere");
-    static final ID EXPEL_BTN_ID = ID.getInstance("expel@anywhere");
-
-    static boolean isAdmin(User user, ID group) {
-        if (user == null) {
-            return false;
-        }
-        return isAdmin(user.identifier, group);
-    }
-    private static boolean isAdmin(ID user, ID group) {
-        return facebook.isOwner(user, group);
-    }
+    public static int UNLIMITED = -1;
 
     private List<ID> participants = new ArrayList<>();
 
-    List<ID> getParticipants(ID identifier, int count) {
+    int getMaxItemCount() {
+        if (isGroupAdmin()) {
+            return MAX_ITEM_COUNT - 2;
+        } else {
+            return MAX_ITEM_COUNT - 1;
+        }
+    }
+
+    boolean isGroupAdmin() {
+        ID identifier = getIdentifier();
+        if (identifier != null && identifier.isGroup()) {
+            User user = UserViewModel.getCurrentUser();
+            return GroupViewModel.isAdmin(user, identifier);
+        }
+        return false;
+    }
+
+    public List<ID> getParticipants(int count) {
         participants.clear();
 
         if (identifier.isUser()) {
@@ -45,7 +52,7 @@ public class ChatManageViewModel extends EntityViewModel {
                     if (participants.contains(item)) {
                         continue;
                     }
-                    if (--count < 0) {
+                    if (--count == UNLIMITED) {
                         break;
                     }
                     participants.add(item);
