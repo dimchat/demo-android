@@ -61,8 +61,30 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == ImagePicker.RequestCode.Camera.value) {
-            // capture OK, open album to pick the photo
-            imagePicker.openAlbum();
+            Uri source;
+            if (data == null) {
+                source = imagePicker.captureUri;
+            } else {
+                source = data.getData();
+            }
+            if (source == null) {
+                // should not happen
+                imagePicker.openAlbum();
+                return;
+            }
+            if (imagePicker.crop != null && imagePicker.crop.equals("true")) {
+                try {
+                    if (imagePicker.cropPicture(source, getTemporaryDirectory())) {
+                        // waiting for crop
+                        return;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+            // fetch image without crop
+            fetchImage(imagePicker.getBitmap(source));
         } else if (requestCode == ImagePicker.RequestCode.Album.value) {
             if (data == null) {
                 // cancelled

@@ -30,6 +30,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -54,6 +55,7 @@ public class ImagePicker implements DialogInterface.OnClickListener {
     private static final String ACTION_CROP = "com.android.camera.action.CROP";
 
     private static final Uri EXTERNAL_CONTENT_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final String TITLE = MediaStore.Images.Media.TITLE;
     private static final String DATA_TYPE = "image/*";
     private static final String OUTPUT_FORMAT = Bitmap.CompressFormat.JPEG.toString();
 
@@ -113,16 +115,22 @@ public class ImagePicker implements DialogInterface.OnClickListener {
         }
     }
 
+    Uri captureUri = null;
+
     private void openCamera() {
-        System.out.println("open camera");
+        String filename = "photo-" + System.currentTimeMillis() + ".jpeg";
+        ContentValues values = new ContentValues();
+        values.put(TITLE, filename);
+
+        ContentResolver resolver = activity.getContentResolver();
+
         Intent intent = new Intent(ACTION_IMAGE_CAPTURE);
-        Uri uri = activity.getContentResolver().insert(EXTERNAL_CONTENT_URI, new ContentValues());
-        intent.putExtra(EXTRA_OUTPUT, uri);
+        captureUri = resolver.insert(EXTERNAL_CONTENT_URI, values);
+        intent.putExtra(EXTRA_OUTPUT, captureUri);
         activity.startActivityForResult(intent, RequestCode.Camera.value);
     }
 
     void openAlbum() {
-        System.out.println("open album");
         Intent intent = new Intent(ACTION_PICK);
         intent.setDataAndType(EXTERNAL_CONTENT_URI, DATA_TYPE);
         activity.startActivityForResult(intent, RequestCode.Album.value);
@@ -144,28 +152,28 @@ public class ImagePicker implements DialogInterface.OnClickListener {
                 source = Uri.parse(action);
             }
         }
-        if (source != null) {
-            try {
-                ContentResolver resolver = activity.getContentResolver();
-                InputStream is = resolver.openInputStream(source);
-                bitmap = BitmapFactory.decodeStream(is);
-                if (bitmap != null) {
-                    return bitmap;
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+        return getBitmap(source);
+    }
+    public Bitmap getBitmap(Uri source) {
+        if (source == null) {
+            return null;
+        }
+        try {
+            ContentResolver resolver = activity.getContentResolver();
+            InputStream is = resolver.openInputStream(source);
+            return BitmapFactory.decodeStream(is);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     private static Uri createTempFile(String tempDir) throws IOException {
-        String filename = "crop-" + System.currentTimeMillis();
         File dir = new File(tempDir);
         if (!dir.exists() && !dir.mkdirs()) {
             return null;
         }
-        File file = File.createTempFile(filename, ".jpeg", dir);
+        File file = File.createTempFile("picture", ".jpeg", dir);
         return Uri.fromFile(file);
     }
 
