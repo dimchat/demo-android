@@ -30,6 +30,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         clearItems();
     }
 
+    @Override
     public void reloadData() {
         clearItems();
 

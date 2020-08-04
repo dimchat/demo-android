@@ -20,7 +20,7 @@ import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ConversationFragment extends ListFragment<RecyclerViewAdapter, DummyContent> implements Observer {
+public class ConversationFragment extends ListFragment<ConversationViewAdapter, ConversationList> implements Observer {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -29,8 +29,8 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
     public ConversationFragment() {
         super();
 
-        dummyList = new DummyContent();
-        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+        dummyList = new ConversationList();
+        Listener listener = (Listener<ConversationViewAdapter.ViewHolder>) viewHolder -> {
             ID identifier = viewHolder.item.getIdentifier();
             assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
@@ -38,7 +38,7 @@ public class ConversationFragment extends ListFragment<RecyclerViewAdapter, Dumm
             intent.putExtra("ID", identifier.toString());
             startActivity(intent);
         };
-        adapter = new RecyclerViewAdapter(dummyList, listener);
+        adapter = new ConversationViewAdapter(dummyList, listener);
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MessageUpdated);

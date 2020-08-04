@@ -26,15 +26,16 @@ import chat.dim.utils.Times;
  * <p>
  * TODO: Replace all uses of this class before publishing your app.
  */
-public class DummyContent extends DummyList<DummyContent.Item> {
+public class ConversationList extends DummyList<ConversationList.Item> {
 
     private static Amanuensis clerk = Amanuensis.getInstance();
     private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
+    @Override
     public void reloadData() {
         //msgDB.reloadConversations();
 
-        List<Conversation> conversationList = new ArrayList<>();
+        List<Conversation> conversations = new ArrayList<>();
         Conversation chatBox;
         // load
         int count = msgDB.numberOfConversations();
@@ -45,7 +46,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             if (chatBox == null) {
                 throw new NullPointerException("failed to create chat box: " + identifier);
             }
-            conversationList.add(chatBox);
+            conversations.add(chatBox);
         }
         // sort
         Comparator<Conversation> comparator = (chatBox1, chatBox2) -> {
@@ -53,11 +54,11 @@ public class DummyContent extends DummyList<DummyContent.Item> {
             Date time2 = chatBox2.getLastTime();
             return time2.compareTo(time1);
         };
-        Collections.sort(conversationList, comparator);
+        Collections.sort(conversations, comparator);
         // refresh items
         clearItems();
         for (int index = 0; index < count; index++) {
-            chatBox = conversationList.get(index);
+            chatBox = conversations.get(index);
             addItem(new Item(chatBox));
         }
     }

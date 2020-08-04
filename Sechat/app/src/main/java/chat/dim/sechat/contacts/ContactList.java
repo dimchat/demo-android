@@ -19,6 +19,7 @@ import chat.dim.ui.list.DummyList;
  */
 public class ContactList extends DummyList<ContactList.Item> {
 
+    @Override
     public void reloadData() {
         clearItems();
 

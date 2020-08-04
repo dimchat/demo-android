@@ -21,6 +21,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         group = identifier;
     }
 
+    @Override
     public void reloadData() {
         clearItems();
 

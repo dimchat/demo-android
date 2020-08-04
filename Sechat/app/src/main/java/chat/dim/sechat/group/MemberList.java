@@ -16,6 +16,7 @@ public class MemberList extends CandidateList {
         group = identifier;
     }
 
+    @Override
     public void reloadData() {
         clearItems();
 

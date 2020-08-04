@@ -25,14 +25,44 @@
  */
 package chat.dim.ui.list;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 
-public class ViewHolder<E extends DummyItem> extends RecyclerView.ViewHolder {
+public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L extends DummyList> extends RecyclerView.Adapter<VH> {
 
-    public E item;
+    protected final L dummyList;
+    protected final Listener listener;
 
-    public ViewHolder(View itemView) {
-        super(itemView);
+    public RecyclerViewAdapter(L list, Listener observer) {
+        super();
+        dummyList = list;
+        listener = observer;
+    }
+
+//    @NonNull
+//    @Override
+//    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(parent.getContext()).inflate(resId, parent, false);
+//        return new VH(view);
+//    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onBindViewHolder(@NonNull VH holder, int position) {
+        holder.item = dummyList.getItem(position);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                // Notify the active callbacks interface (the activity, if the
+                // fragment is attached to one) that an item has been selected.
+                listener.onListFragmentInteraction(holder);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return dummyList.getCount();
     }
 }
+

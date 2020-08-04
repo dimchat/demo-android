@@ -23,7 +23,7 @@ import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyContent> implements Observer {
+public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent> implements Observer {
 
     private SearchView searchView;
 
@@ -39,7 +39,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
         super();
 
         dummyList = new DummyContent();
-        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+        Listener listener = (Listener<SearchViewAdapter.ViewHolder>) viewHolder -> {
             ID identifier = viewHolder.item.getIdentifier();
             assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
@@ -47,7 +47,7 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
             intent.putExtra("ID", identifier.toString());
             startActivity(intent);
         };
-        adapter = new RecyclerViewAdapter(dummyList, listener);
+        adapter = new SearchViewAdapter(dummyList, listener);
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.SearchUpdated);
@@ -78,10 +78,8 @@ public class SearchFragment extends ListFragment<RecyclerViewAdapter, DummyConte
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.search_fragment, container, false);
 
-        View usersView = view.findViewById(R.id.search_user_list);
-        // Set the adapter
-        assert usersView instanceof RecyclerView : "recycler view error: " + usersView;
-        bindRecyclerView((RecyclerView) usersView);
+        RecyclerView usersView = view.findViewById(R.id.search_user_list);
+        bindRecyclerView(usersView); // Set the adapter
 
         searchView = view.findViewById(R.id.search_box);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

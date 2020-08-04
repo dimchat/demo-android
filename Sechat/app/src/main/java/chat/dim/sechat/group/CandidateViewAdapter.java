@@ -12,16 +12,16 @@ import android.widget.TextView;
 
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
-import chat.dim.ui.list.ViewAdapter;
+import chat.dim.ui.list.RecyclerViewAdapter;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link CandidateList.Item} and makes a call to the
  * specified {@link Listener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, CandidateList> {
+public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapter.ViewHolder, CandidateList> {
 
-    public RecyclerViewAdapter(CandidateList list, Listener listener) {
+    public CandidateViewAdapter(CandidateList list, Listener listener) {
         super(list, listener);
     }
 
@@ -47,7 +47,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    public static class ViewHolder extends chat.dim.ui.list.ViewHolder<CandidateList.Item> {
+    public static class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<CandidateList.Item> {
 
         final ImageView avatarView;
         final TextView titleView;

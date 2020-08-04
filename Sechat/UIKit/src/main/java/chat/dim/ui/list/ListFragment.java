@@ -42,7 +42,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * A fragment representing a list of Items.
  */
-public class ListFragment<VA extends ViewAdapter, L extends DummyList> extends Fragment {
+public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";

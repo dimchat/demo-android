@@ -13,16 +13,16 @@ import android.widget.TextView;
 import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
-import chat.dim.ui.list.ViewAdapter;
+import chat.dim.ui.list.RecyclerViewAdapter;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyContent.Item} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link ConversationList.Item} and makes a call to the
  * specified {@link Listener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, DummyContent> {
+public class ConversationViewAdapter extends RecyclerViewAdapter<ConversationViewAdapter.ViewHolder, ConversationList> {
 
-    RecyclerViewAdapter(DummyContent list, Listener listener) {
+    ConversationViewAdapter(ConversationList list, Listener listener) {
         super(list, listener);
     }
 
@@ -36,7 +36,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DummyContent.Item item = dummyList.getItem(position);
+        ConversationList.Item item = dummyList.getItem(position);
 
         ID identifier = item.getIdentifier();
         if (identifier.isGroup()) {
@@ -66,7 +66,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    static class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    static class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<ConversationList.Item> {
 
         final CardView groupCard;
         final ImageView logoView;

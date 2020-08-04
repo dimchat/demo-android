@@ -16,7 +16,7 @@ import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ContactFragment extends ListFragment<RecyclerViewAdapter, ContactList> {
+public class ContactFragment extends ListFragment<ContactViewAdapter, ContactList> {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -26,7 +26,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, ContactLi
         super();
 
         dummyList = new ContactList();
-        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+        Listener listener = (Listener<ContactViewAdapter.ViewHolder>) viewHolder -> {
             ID identifier = viewHolder.item.getIdentifier();
             assert getContext() != null : "fragment context error";
             Intent intent = new Intent();
@@ -34,7 +34,7 @@ public class ContactFragment extends ListFragment<RecyclerViewAdapter, ContactLi
             intent.putExtra("ID", identifier.toString());
             startActivity(intent);
         };
-        adapter = new RecyclerViewAdapter(dummyList, listener);
+        adapter = new ContactViewAdapter(dummyList, listener);
 
         reloadData();
     }

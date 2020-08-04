@@ -1,4 +1,4 @@
-package chat.dim.sechat.search;
+package chat.dim.sechat.contacts;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
@@ -11,16 +11,16 @@ import android.widget.TextView;
 
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
-import chat.dim.ui.list.ViewAdapter;
+import chat.dim.ui.list.RecyclerViewAdapter;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyContent.Item} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link ContactList.Item} and makes a call to the
  * specified {@link Listener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHolder, DummyContent> {
+public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.ViewHolder, ContactList> {
 
-    RecyclerViewAdapter(DummyContent list, Listener listener) {
+    public ContactViewAdapter(ContactList list, Listener listener) {
         super(list, listener);
     }
 
@@ -28,13 +28,13 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.search_item, parent, false);
+                .inflate(R.layout.contacts_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DummyContent.Item item = dummyList.getItem(position);
+        ContactList.Item item = dummyList.getItem(position);
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 
@@ -44,7 +44,7 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
         super.onBindViewHolder(holder, position);
     }
 
-    static public class ViewHolder extends chat.dim.ui.list.ViewHolder<DummyContent.Item> {
+    public static class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<ContactList.Item> {
 
         final ImageView mAvatarView;
         final TextView mTitleView;
@@ -52,9 +52,9 @@ public class RecyclerViewAdapter extends ViewAdapter<RecyclerViewAdapter.ViewHol
 
         ViewHolder(View view) {
             super(view);
-            mAvatarView = view.findViewById(R.id.search_avatar);
-            mTitleView = view.findViewById(R.id.search_title);
-            mDescView = view.findViewById(R.id.search_desc);
+            mAvatarView = view.findViewById(R.id.avatarView);
+            mTitleView = view.findViewById(R.id.title);
+            mDescView = view.findViewById(R.id.desc);
         }
 
         @NonNull

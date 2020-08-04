@@ -25,7 +25,7 @@
  */
 package chat.dim.ui.list;
 
-public interface Listener<VH extends ViewHolder> {
+public interface Listener<VH extends RecyclerViewHolder> {
 
     void onListFragmentInteraction(VH viewHolder);
 }

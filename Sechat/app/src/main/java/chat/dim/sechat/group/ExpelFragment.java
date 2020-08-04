@@ -1,14 +1,9 @@
 package chat.dim.sechat.group;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +27,10 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.Alert;
+import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ExpelFragment extends Fragment {
+public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList> {
 
     private GroupViewModel mViewModel;
     private ID identifier;
@@ -42,11 +38,6 @@ public class ExpelFragment extends Fragment {
     private ImageView groupLogo;
     private EditText groupName;
     private TextView groupOwner;
-
-    private RecyclerView members;
-
-    private MemberList dummyList;
-    private RecyclerViewAdapter adapter;
 
     public static ExpelFragment newInstance(ID group) {
         ExpelFragment fragment = new ExpelFragment();
@@ -58,7 +49,7 @@ public class ExpelFragment extends Fragment {
         identifier = group;
 
         dummyList = new MemberList(group);
-        Listener listener = (Listener<RecyclerViewAdapter.ViewHolder>) viewHolder -> {
+        Listener listener = (Listener<CandidateViewAdapter.ViewHolder>) viewHolder -> {
             boolean checked = viewHolder.checkBox.isChecked();
             if (checked) {
                 viewHolder.checkBox.setChecked(false);
@@ -68,7 +59,7 @@ public class ExpelFragment extends Fragment {
                 selected.add(viewHolder.item.getIdentifier());
             }
         };
-        adapter = new RecyclerViewAdapter(dummyList, listener);
+        adapter = new CandidateViewAdapter(dummyList, listener);
 
         reloadData();
     }
@@ -97,20 +88,11 @@ public class ExpelFragment extends Fragment {
         }
     }
 
+    @Override
     public void reloadData() {
-        BackgroundThreads.rush(() -> {
-            dummyList.reloadData();
-            msgHandler.sendMessage(new Message());
-        });
+        // reload data in background
+        BackgroundThreads.rush(super::reloadData);
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            adapter.notifyDataSetChanged();
-        }
-    };
 
     @Nullable
     @Override
@@ -118,13 +100,12 @@ public class ExpelFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.expel_fragment, container, false);
 
+        RecyclerView members = view.findViewById(R.id.members);
+        bindRecyclerView(members); // Set the adapter
+
         groupLogo = view.findViewById(R.id.logo);
         groupName = view.findViewById(R.id.name);
         groupOwner = view.findViewById(R.id.owner);
-
-        members = view.findViewById(R.id.members);
-        members.setLayoutManager(new LinearLayoutManager(getContext()));
-        members.setAdapter(adapter);
 
         return view;
     }
