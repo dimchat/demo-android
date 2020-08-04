@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import chat.dim.model.Configuration;
 import chat.dim.sechat.R;
-import chat.dim.ui.WebViewActivity;
+import chat.dim.ui.web.WebViewActivity;
 
 public class AccountFragment extends Fragment {
 

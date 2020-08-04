@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.ui.web;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -35,6 +35,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+
+import chat.dim.ui.R;
 
 /**
  * A placeholder fragment containing a simple view.

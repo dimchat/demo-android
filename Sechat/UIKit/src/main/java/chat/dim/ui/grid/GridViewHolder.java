@@ -23,45 +23,23 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.ui.grid;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
-public class WebViewActivity extends AppCompatActivity {
+import chat.dim.ui.list.DummyItem;
 
-    WebViewFragment fragment = WebViewFragment.newInstance();
+public class GridViewHolder<E extends DummyItem> {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.webview_activity);
+    public E item;
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragment)
-                    .commitNow();
+    public final View itemView;
+
+    public GridViewHolder(View itemView) {
+        if (itemView == null) {
+            throw new IllegalArgumentException("itemView may not be null");
+        } else {
+            this.itemView = itemView;
         }
-
-        // get extra info
-        Intent intent = getIntent();
-        String title = intent.getStringExtra("title");
-        if (title != null) {
-            setTitle(title);
-        }
-        String url = intent.getStringExtra("URL");
-        if (url != null) {
-            fragment.open(url);
-        }
-    }
-
-    public static void open(Activity activity, String title, String url) {
-        Intent intent = new Intent();
-        intent.setClass(activity, WebViewActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("URL", url);
-        activity.startActivity(intent);
     }
 }

@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.ui.grid;
 
 import android.content.Context;
 import android.util.AttributeSet;

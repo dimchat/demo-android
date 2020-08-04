@@ -24,9 +24,9 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.Alert;
-import chat.dim.ui.WebViewActivity;
 import chat.dim.ui.image.ImagePickerActivity;
 import chat.dim.ui.image.Images;
+import chat.dim.ui.web.WebViewActivity;
 
 public class RegisterActivity extends ImagePickerActivity {
 
