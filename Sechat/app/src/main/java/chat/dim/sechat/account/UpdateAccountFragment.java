@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import chat.dim.ID;
@@ -20,6 +21,7 @@ import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.Images;
 
@@ -57,6 +59,15 @@ public class UpdateAccountFragment extends Fragment {
 
         saveButton = view.findViewById(R.id.save);
         exportButton = view.findViewById(R.id.export);
+
+        // hide keyboard
+        nicknameText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                SechatApp.getInstance().hideKeyboard(nicknameText);
+            }
+        });
+        LinearLayout scrollView = view.findViewById(R.id.linearLayout);
+        scrollView.setOnClickListener(v -> nicknameText.clearFocus());
 
         return view;
     }

@@ -95,8 +95,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         // OK
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
+        reloadData();
     }
 
     //

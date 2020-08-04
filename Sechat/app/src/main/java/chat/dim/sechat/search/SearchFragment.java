@@ -19,6 +19,7 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
@@ -51,9 +52,6 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.SearchUpdated);
-
-        // show online users
-        search(SearchCommand.ONLINE_USERS);
     }
 
     @Override
@@ -87,6 +85,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
             public boolean onQueryTextSubmit(String query) {
                 searchView.setIconified(true);
                 searchView.setQueryHint(query);
+                searchView.clearFocus();
                 return search(query);
             }
 
@@ -95,6 +94,9 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
                 return false;
             }
         });
+
+        // show online users
+        search(SearchCommand.ONLINE_USERS);
 
         return view;
     }

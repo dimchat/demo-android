@@ -43,7 +43,7 @@ public class GridFragment<VA extends GridViewAdapter, L extends DummyList> exten
     }
 
     @SuppressLint("HandlerLeak")
-    protected final Handler msgHandler = new Handler() {
+    private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             Lock readLock = dummyLock.readLock();

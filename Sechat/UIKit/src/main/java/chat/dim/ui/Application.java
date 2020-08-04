@@ -26,7 +26,10 @@
 package chat.dim.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 public abstract class Application extends android.app.Application {
 
@@ -81,4 +84,15 @@ public abstract class Application extends android.app.Application {
     protected abstract void onEnterForeground(Activity activity);
 
     protected abstract void onEnterBackground(Activity activity);
+
+    //
+    //  Keyboard
+    //
+
+    public void hideKeyboard(View view) {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (manager != null) {
+            manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
 }
