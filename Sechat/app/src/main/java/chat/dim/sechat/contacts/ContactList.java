@@ -37,7 +37,7 @@ public class ContactList extends DummyList<ContactList.Item> {
     /**
      * A dummy item representing a piece of content.
      */
-    public static class Item extends DummyItem {
+    public static class Item implements DummyItem {
 
         private final User account;
 

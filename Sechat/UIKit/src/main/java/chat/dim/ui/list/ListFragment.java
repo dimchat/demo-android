@@ -86,22 +86,29 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
         writeLock.lock();
         try {
             dummyList.reloadData();
-            msgHandler.sendMessage(new Message());
+            Message msg = new Message();
+            msg.what = 0x9527;
+            msgHandler.sendMessage(msg);
         } finally {
             writeLock.unlock();;
         }
     }
+    protected void onReloaded() {
+        Lock readLock = dummyLock.readLock();
+        readLock.lock();
+        try {
+            adapter.notifyDataSetChanged();
+        } finally {
+            readLock.unlock();
+        }
+    }
 
     @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
+    protected final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Lock readLock = dummyLock.readLock();
-            readLock.lock();
-            try {
-                adapter.notifyDataSetChanged();
-            } finally {
-                readLock.unlock();
+            if (msg.what == 0x9527) {
+                onReloaded();
             }
         }
     };

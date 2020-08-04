@@ -44,7 +44,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
     /**
      * A dummy item representing a piece of content.
      */
-    public static class Item extends DummyItem {
+    public static class Item implements DummyItem {
 
         private final User account;
 

@@ -28,6 +28,6 @@ package chat.dim.ui.list;
 /**
  * A dummy item representing a piece of content.
  */
-public abstract class DummyItem {
+public interface DummyItem {
 
 }

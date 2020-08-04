@@ -51,13 +51,11 @@ public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L exten
     public void onBindViewHolder(@NonNull VH holder, int position) {
         holder.item = dummyList.getItem(position);
 
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                // Notify the active callbacks interface (the activity, if the
-                // fragment is attached to one) that an item has been selected.
-                listener.onListFragmentInteraction(holder);
-            }
-        });
+        if (listener != null) {
+            // Notify the active callbacks interface (the activity, if the
+            // fragment is attached to one) that an item has been selected.
+            holder.itemView.setOnClickListener(v -> listener.onListFragmentInteraction(holder));
+        }
     }
 
     @Override

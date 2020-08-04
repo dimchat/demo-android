@@ -12,6 +12,7 @@ import android.widget.TextView;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
+import chat.dim.ui.list.RecyclerViewHolder;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link ContactList.Item} and makes a call to the
@@ -44,7 +45,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
         super.onBindViewHolder(holder, position);
     }
 
-    public static class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<ContactList.Item> {
+    public static class ViewHolder extends RecyclerViewHolder<ContactList.Item> {
 
         final ImageView mAvatarView;
         final TextView mTitleView;

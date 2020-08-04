@@ -12,6 +12,7 @@ import android.widget.TextView;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
+import chat.dim.ui.list.RecyclerViewHolder;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyContent.Item} and makes a call to the
@@ -44,7 +45,7 @@ public class SearchViewAdapter extends RecyclerViewAdapter<SearchViewAdapter.Vie
         super.onBindViewHolder(holder, position);
     }
 
-    static public class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<DummyContent.Item> {
+    static public class ViewHolder extends RecyclerViewHolder<DummyContent.Item> {
 
         final ImageView mAvatarView;
         final TextView mTitleView;

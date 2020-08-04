@@ -1,14 +1,13 @@
 package chat.dim.sechat.chatbox;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
@@ -40,23 +37,18 @@ import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.Images;
+import chat.dim.ui.list.ListFragment;
 
-public class ChatboxFragment extends Fragment implements Observer {
+public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageList> implements Observer {
 
     private ChatboxViewModel mViewModel;
-    private MessageArrayAdapter adapter;
 
-    private ListView msgListView;
+    RecyclerView msgListView;
+
     private EditText inputText;
     private ImageButton photoButton;
 
     private Conversation chatBox = null;
-
-    public static ChatboxFragment newInstance(Conversation chatBox) {
-        ChatboxFragment fragment = new ChatboxFragment();
-        fragment.chatBox = chatBox;
-        return fragment;
-    }
 
     public ChatboxFragment() {
         super();
@@ -64,14 +56,33 @@ public class ChatboxFragment extends Fragment implements Observer {
         nc.addObserver(this, NotificationNames.MessageUpdated);
     }
 
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            adapter.notifyDataSetChanged();
-            scrollToBottom();
-        }
-    };
+    public static ChatboxFragment newInstance(Conversation chatBox) {
+        ChatboxFragment fragment = new ChatboxFragment();
+        fragment.setConversation(chatBox);
+        return fragment;
+    }
+
+    private void setConversation(Conversation conversation) {
+        chatBox = conversation;
+
+        dummyList = new MessageList(chatBox);
+        adapter = new MessageViewAdapter(dummyList, null);
+
+        //reloadData();
+    }
+
+    private void scrollToBottom() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.scrollToPositionWithOffset(adapter.getItemCount() - 1, Integer.MIN_VALUE);
+        msgListView.setLayoutManager(linearLayoutManager);
+    }
+
+    @Override
+    protected void onReloaded() {
+        super.onReloaded();
+        scrollToBottom();
+    }
 
     @Override
     public void onReceiveNotification(Notification notification) {
@@ -86,18 +97,6 @@ public class ChatboxFragment extends Fragment implements Observer {
         // OK
         Message msg = new Message();
         msgHandler.sendMessage(msg);
-    }
-
-    void scrollToBottom() {
-        List messages = mViewModel.getMessages(chatBox);
-        msgListView.setSelection(messages.size());
-    }
-
-    private List<InstantMessage> getMessages() {
-        if (chatBox == null) {
-            return null;
-        }
-        return mViewModel.getMessages(chatBox);
     }
 
     //
@@ -181,6 +180,8 @@ public class ChatboxFragment extends Fragment implements Observer {
         View view = inflater.inflate(R.layout.chatbox_fragment, container, false);
 
         msgListView = view.findViewById(R.id.msgListView);
+        bindRecyclerView(msgListView); // Set the adapter
+
         inputText = view.findViewById(R.id.inputMsg);
         photoButton = view.findViewById(R.id.photoButton);
 
@@ -213,9 +214,9 @@ public class ChatboxFragment extends Fragment implements Observer {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
 
-        adapter = new MessageArrayAdapter(getContext(), R.layout.chatbox_message, getMessages());
-        adapter.chatBox = chatBox;
-        msgListView.setAdapter(adapter);
-        scrollToBottom();
+        // TODO: Use the ViewModel
+
+        dummyList.setViewModel(mViewModel);
+        reloadData();
     }
 }

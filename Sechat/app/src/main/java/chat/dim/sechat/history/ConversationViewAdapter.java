@@ -14,6 +14,7 @@ import chat.dim.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
+import chat.dim.ui.list.RecyclerViewHolder;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link ConversationList.Item} and makes a call to the
@@ -66,7 +67,7 @@ public class ConversationViewAdapter extends RecyclerViewAdapter<ConversationVie
         super.onBindViewHolder(holder, position);
     }
 
-    static class ViewHolder extends chat.dim.ui.list.RecyclerViewHolder<ConversationList.Item> {
+    static class ViewHolder extends RecyclerViewHolder<ConversationList.Item> {
 
         final CardView groupCard;
         final ImageView logoView;
