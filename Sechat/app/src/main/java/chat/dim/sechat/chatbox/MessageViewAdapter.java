@@ -171,7 +171,18 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
             viewHolder.imgView.setVisibility(View.VISIBLE);
             Uri uri = ChatboxViewModel.getImageUri(imageContent, iMsg);
-            viewHolder.imgView.setImageURI(uri);
+            if (uri == null) {
+                Bitmap bitmap = ChatboxViewModel.getThumbnail(imageContent);
+                if (bitmap == null) {
+                    // should not happen
+                    uri = ChatboxViewModel.getGalleryUri();
+                    viewHolder.imgView.setImageURI(uri);
+                } else {
+                    viewHolder.imgView.setImageBitmap(bitmap);
+                }
+            } else {
+                viewHolder.imgView.setImageURI(uri);
+            }
         } else if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);

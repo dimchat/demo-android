@@ -202,13 +202,13 @@ class MessageBuilder {
         if (cmd instanceof QueryCommand) {
             return getQueryCommandText((QueryCommand) cmd, commander);
         }
-        throw new UnsupportedOperationException("unsupported group command: " + cmd);
+        return String.format("unsupported group command: %s", cmd);
     }
 
     private static String getInviteCommandText(InviteCommand cmd, ID commander) {
         List addedList = (List) cmd.get("added");
-        if (addedList == null || addedList.size() == 0) {
-            return null;
+        if (addedList == null) {
+            addedList = new ArrayList();
         }
         List<String> names = new ArrayList<>();
         for (Object item : addedList) {
@@ -220,8 +220,8 @@ class MessageBuilder {
 
     private static String getExpelCommandText(ExpelCommand cmd, ID commander) {
         List removedList = (List) cmd.get("removed");
-        if (removedList == null || removedList.size() == 0) {
-            return null;
+        if (removedList == null) {
+            removedList = new ArrayList();
         }
         List<String> names = new ArrayList<>();
         for (Object item : removedList) {

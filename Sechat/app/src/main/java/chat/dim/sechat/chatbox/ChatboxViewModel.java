@@ -1,6 +1,8 @@
 package chat.dim.sechat.chatbox;
 
 import android.arch.lifecycle.ViewModel;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 import java.util.List;
@@ -17,6 +19,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.ImageContent;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Resources;
+import chat.dim.ui.image.Images;
 
 enum MsgType {
 
@@ -65,6 +68,23 @@ public class ChatboxViewModel extends ViewModel {
         if (path != null) {
             return Uri.parse(path);
         }
-        return Resources.getUriFromMipmap(SechatApp.getInstance().getResources(), android.R.drawable.ic_menu_gallery);
+        return null;
     }
+
+    static Bitmap getThumbnail(ImageContent content) {
+        byte[] thumbnail = content.getThumbnail();
+        if (thumbnail == null) {
+            return null;
+        }
+        Bitmap image = BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
+        Images.Size size = Images.getSize(image);
+        size = new Images.Size(size.width << 1, size.height << 1);
+        return Images.scale(image, size);
+    }
+
+    static Uri getGalleryUri() {
+        return gallery;
+    }
+
+    private static final Uri gallery = Resources.getUriFromMipmap(SechatApp.getInstance().getResources(), android.R.drawable.ic_menu_gallery);
 }
