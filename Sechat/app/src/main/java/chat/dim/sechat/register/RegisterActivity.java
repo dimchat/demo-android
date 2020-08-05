@@ -12,9 +12,8 @@ import android.widget.TextView;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
+import chat.dim.database.Database;
 import chat.dim.extension.Register;
-import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Paths;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
@@ -146,7 +145,7 @@ public class RegisterActivity extends ImagePickerActivity {
 
     @Override
     protected String getTemporaryDirectory() {
-        return Paths.appendPathComponent(ExternalStorage.root, "tmp");
+        return Database.getTemporaryDirectory();
     }
 
     @Override

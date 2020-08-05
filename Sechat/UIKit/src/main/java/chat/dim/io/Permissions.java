@@ -23,19 +23,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.io;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 
-public class Permissions extends ActivityCompat {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Permissions {
 
     public enum RequestCode {
 
         ExternalStorage (0x0101),
-        Camera          (0x0102);
+        Camera          (0x0102),
+        Microphone      (0x0104);
 
         public final int value;
 
@@ -46,16 +52,40 @@ public class Permissions extends ActivityCompat {
 
     private static final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
 
+    private static boolean isGranted(Context context, String permission) {
+        return PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, permission);
+    }
+
+    private static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
+        List<String> requests = new ArrayList<>();
+        for (String item : permissions) {
+            if (isGranted(activity, item)) {
+                // granted
+                continue;
+            }
+            requests.add(item);
+        }
+        permissions = (String[]) requests.toArray();
+        if (permissions == null || permissions.length == 0) {
+            // all permissions granted
+            return;
+        }
+        ActivityCompat.requestPermissions(activity, permissions, requestCode);
+    }
+
     //
     //  External Storage
     //
 
     private static final String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static String[] EXTERNAL_STORAGE_PERMISSIONS = {READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE};
+    private static String[] EXTERNAL_STORAGE_PERMISSIONS = {
+            READ_EXTERNAL_STORAGE,
+            WRITE_EXTERNAL_STORAGE
+    };
 
     public static boolean canWriteExternalStorage(Activity activity) {
-        return PERMISSION_GRANTED == checkSelfPermission(activity, WRITE_EXTERNAL_STORAGE);
+        return isGranted(activity, WRITE_EXTERNAL_STORAGE);
     }
 
     public static void requestExternalStoragePermissions(Activity activity) {
@@ -67,13 +97,36 @@ public class Permissions extends ActivityCompat {
     //
 
     private static final String CAMERA = Manifest.permission.CAMERA;
-    private static String[] CAMERA_PERMISSIONS = {CAMERA};
+    private static String[] CAMERA_PERMISSIONS = {
+            READ_EXTERNAL_STORAGE,
+            WRITE_EXTERNAL_STORAGE,
+            CAMERA
+    };
 
     public static boolean canAccessCamera(Activity activity) {
-        return PERMISSION_GRANTED == checkSelfPermission(activity, CAMERA);
+        return isGranted(activity, CAMERA);
     }
 
     public static void requestCameraPermissions(Activity activity) {
         requestPermissions(activity, CAMERA_PERMISSIONS, RequestCode.Camera.value);
+    }
+
+    //
+    //  Microphone
+    //
+
+    private static final String RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
+    private static String[] MICROPHONE_PERMISSIONS = {
+            READ_EXTERNAL_STORAGE,
+            WRITE_EXTERNAL_STORAGE,
+            RECORD_AUDIO
+    };
+
+    public static boolean canAccessMicrophone(Activity activity) {
+        return isGranted(activity, RECORD_AUDIO);
+    }
+
+    public static void requestMicrophonePermissions(Activity activity) {
+        requestPermissions(activity, MICROPHONE_PERMISSIONS, RequestCode.Microphone.value);
     }
 }

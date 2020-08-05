@@ -23,33 +23,26 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.ui;
+package chat.dim.io;
 
-import android.content.ContentResolver;
-import android.content.ContextWrapper;
-import android.graphics.Bitmap;
-import android.net.Uri;
-
+import java.io.File;
 import java.io.IOException;
 
-import chat.dim.ui.image.Images;
+public class Storage {
 
-public class Resources {
+    public static File createTempFile(String prefix, String suffix) throws IOException {
+        return createTempFile(prefix, suffix, null);
+    }
 
-    public static Bitmap getBitmapFromMipmap(ContextWrapper wrapper, int resId) {
-        Uri uri = getUriFromMipmap(wrapper.getResources(), resId);
-        try {
-            return Images.bitmapFormUri(uri, wrapper.getContentResolver());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static File createTempFile(String prefix, String suffix, String tempDir) throws IOException {
+        if (tempDir == null || tempDir.length() == 0) {
+            // user the default temporary-file directory
+            return File.createTempFile(prefix, suffix);
+        }
+        File dir = new File(tempDir);
+        if (!dir.exists() && !dir.mkdirs()) {
             return null;
         }
-
-    }
-    public static Uri getUriFromMipmap(android.content.res.Resources resources, int resId) {
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(resId) + "/"
-                + resources.getResourceTypeName(resId) + "/"
-                + resources.getResourceEntryName(resId));
+        return File.createTempFile(prefix, suffix, dir);
     }
 }

@@ -10,9 +10,9 @@ import java.util.Map;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
+import chat.dim.io.Permissions;
+import chat.dim.io.Resources;
 import chat.dim.ui.Application;
-import chat.dim.ui.Permissions;
-import chat.dim.ui.Resources;
 
 public class SechatApp extends Application {
 

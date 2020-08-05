@@ -41,8 +41,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import chat.dim.io.Permissions;
+import chat.dim.io.Storage;
 import chat.dim.ui.Alert;
-import chat.dim.ui.Permissions;
 import chat.dim.ui.R;
 
 public class ImagePicker implements DialogInterface.OnClickListener {
@@ -167,20 +168,12 @@ public class ImagePicker implements DialogInterface.OnClickListener {
         return null;
     }
 
-    private static Uri createTempFile(String tempDir) throws IOException {
-        File dir = new File(tempDir);
-        if (!dir.exists() && !dir.mkdirs()) {
-            return null;
-        }
-        File file = File.createTempFile("picture", ".jpeg", dir);
-        return Uri.fromFile(file);
-    }
-
     public boolean cropPicture(Uri data, String tempDir) throws IOException {
-        Uri output = createTempFile(tempDir);
-        if (output == null) {
+        File file = Storage.createTempFile("picture", ".jpeg", tempDir);
+        if (file == null) {
             return false;
         }
+        Uri output = Uri.fromFile(file);
 
         Intent intent = new Intent(ACTION_CROP);
         intent.setDataAndType(data, DATA_TYPE);

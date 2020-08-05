@@ -10,8 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import chat.dim.ID;
-import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Paths;
+import chat.dim.database.Database;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
@@ -98,7 +97,7 @@ public class ChatboxActivity extends ImagePickerActivity {
 
     @Override
     protected String getTemporaryDirectory() {
-        return Paths.appendPathComponent(ExternalStorage.root, "tmp");
+        return Database.getTemporaryDirectory();
     }
 
     @Override

@@ -11,6 +11,7 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
+import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
@@ -18,7 +19,6 @@ import chat.dim.network.FtpServer;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ImageContent;
 import chat.dim.sechat.SechatApp;
-import chat.dim.ui.Resources;
 import chat.dim.ui.image.Images;
 
 enum MsgType {
