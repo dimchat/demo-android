@@ -10,8 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.Map;
 
@@ -29,12 +27,11 @@ import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.register.RegisterActivity;
-import chat.dim.sechat.search.SearchActivity;
 
 public class MainActivity extends AppCompatActivity implements Observer {
 
     private String originTitle = null;
-    private String serverState = null;
+    public String serverState = null;
 
     public MainActivity() {
         super();
@@ -64,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private void refreshTitle() {
         CharSequence status;
         if (serverState == null) {
-            status = null;
+            status = getText(R.string.server_default);
         } else if (serverState.equals(StateMachine.defaultState)) {
             status = getText(R.string.server_default);
         } else if (serverState.equals(StateMachine.connectingState)) {
@@ -155,21 +152,5 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 messenger.postProfile(profile, meta);
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.right_top_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.search_user) {
-            Intent intent = new Intent();
-            intent.setClass(getApplicationContext(), SearchActivity.class);
-            startActivity(intent);
-        }
-        return true;
     }
 }

@@ -76,6 +76,8 @@ public class ChatboxViewModel extends ViewModel {
         if (thumbnail == null) {
             return null;
         }
+        // TODO: save thumbnail data into local storage and remove from message content
+
         Bitmap image = BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
         Images.Size size = Images.getSize(image);
         size = new Images.Size(size.width << 1, size.height << 1);
