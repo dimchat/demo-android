@@ -215,8 +215,10 @@ public class Messenger extends chat.dim.common.Messenger {
         // pack and send profile to every contact
         Command cmd = new ProfileCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
-        for (ID contact : contacts) {
-            sendContent(cmd, contact, null);
+        if (contacts != null) {
+            for (ID contact : contacts) {
+                sendContent(cmd, contact, null);
+            }
         }
     }
 

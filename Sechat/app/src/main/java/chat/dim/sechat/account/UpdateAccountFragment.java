@@ -97,7 +97,7 @@ public class UpdateAccountFragment extends Fragment {
         addressView.setText(mViewModel.getAddressString());
 
         saveButton.setOnClickListener(v -> save());
-        exportButton.setOnClickListener(v -> export());
+        exportButton.setOnClickListener(v -> activity.exportAccount(mViewModel));
     }
 
     public void setAvatarImage(Bitmap bitmap) {
@@ -140,10 +140,5 @@ public class UpdateAccountFragment extends Fragment {
         mViewModel.updateProfile(profile);
 
         Alert.tips(getActivity(), R.string.account_saved);
-    }
-
-    private void export() {
-        // TODO: export user info with private key
-        Alert.tips(getActivity(), "not implemented yet");
     }
 }

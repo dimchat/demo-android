@@ -2,6 +2,8 @@ package chat.dim.sechat.account;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 import chat.dim.database.Database;
 import chat.dim.sechat.R;
@@ -27,6 +29,14 @@ public class UpdateAccountActivity extends ImagePickerActivity {
                     .replace(R.id.container, fragment)
                     .commitNow();
         }
+    }
+
+    void exportAccount(AccountViewModel viewModel) {
+        ExportFragment fragment = ExportFragment.newInstance(viewModel);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.container, fragment);
+        transaction.commit();
     }
 
     //

@@ -49,4 +49,5 @@
     <string name="voice_record_start">Hold to talk</string>
     <string name="voice_record_stop">Release to send</string>
     <string name="downloading">Downloading</string>
+    <string name="export_hint">Copy and save your private info carefully.</string>
 </resources>
