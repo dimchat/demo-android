@@ -16,7 +16,9 @@ import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
+import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ImageContent;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.image.Images;
@@ -62,13 +64,17 @@ public class ChatboxViewModel extends ViewModel {
         return MsgType.RECEIVED;
     }
 
-    static Uri getImageUri(ImageContent content, InstantMessage iMsg) {
+    private static Uri getFileUri(FileContent content) {
         FtpServer ftp = FtpServer.getInstance();
         String path = ftp.getFilePath(content);
         if (path != null) {
             return Uri.parse(path);
         }
         return null;
+    }
+
+    static Uri getImageUri(ImageContent content) {
+        return getFileUri(content);
     }
 
     static Bitmap getThumbnail(ImageContent content) {
@@ -86,6 +92,10 @@ public class ChatboxViewModel extends ViewModel {
 
     static Uri getGalleryUri() {
         return gallery;
+    }
+
+    static Uri getAudioUri(AudioContent content) {
+        return getFileUri(content);
     }
 
     private static final Uri gallery = Resources.getUriFromMipmap(SechatApp.getInstance().getResources(), android.R.drawable.ic_menu_gallery);

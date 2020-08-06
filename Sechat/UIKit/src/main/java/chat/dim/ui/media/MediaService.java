@@ -43,6 +43,8 @@ public class MediaService extends Service {
     private MediaRecorder recorder = null;
 
     private String tempFile = null;
+    private long recordStart = 0;
+    private long recordStop = 0;
 
     public MediaService() {
         super();
@@ -91,8 +93,8 @@ public class MediaService extends Service {
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         recorder.setAudioChannels(1);
-        recorder.setAudioSamplingRate(44100);
-        recorder.setAudioEncodingBitRate(192000);
+        recorder.setAudioSamplingRate(44100);    // fits all android
+        recorder.setAudioEncodingBitRate(96000);
 
         recorder.setOutputFile(outputFile);
         try {
@@ -103,6 +105,7 @@ public class MediaService extends Service {
         }
 
         tempFile = outputFile;
+        recordStart = recordStop = System.currentTimeMillis();
     }
 
     private String stopRecording() {
@@ -110,8 +113,13 @@ public class MediaService extends Service {
             recorder.stop();
             recorder.release();
             recorder = null;
+            recordStop = System.currentTimeMillis();
         }
         return tempFile;
+    }
+
+    private int getRecordedDuration() {
+        return (int) (recordStop - recordStart);
     }
 
     //
@@ -139,7 +147,7 @@ public class MediaService extends Service {
         }
     }
 
-    private int getPlayDuration() {
+    private int getPlayingDuration() {
         if (player == null) {
             return -1;
         }
@@ -160,6 +168,10 @@ public class MediaService extends Service {
             return stopRecording();
         }
 
+        int getRecordDuration() {
+            return getRecordedDuration();
+        }
+
         void startPlay(Uri inputUri) {
             startPlaying(inputUri);
         }
@@ -168,8 +180,13 @@ public class MediaService extends Service {
             stopPlaying();
         }
 
-        int getDuration() {
-            return getPlayDuration();
+        /**
+         *  Get duration from player
+         *
+         * @return the duration in milliseconds
+         */
+        int getPlayDuration() {
+            return getPlayingDuration();
         }
     }
 }

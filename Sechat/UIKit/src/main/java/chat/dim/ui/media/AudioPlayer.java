@@ -25,9 +25,9 @@
  */
 package chat.dim.ui.media;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
@@ -35,24 +35,22 @@ import android.os.IBinder;
 
 public class AudioPlayer {
 
-    private final Activity activity;
-    private final Intent intent;
+    private final ContextWrapper activity;
 
     private MediaService.Binder binder = null;
     private Connection connection = new Connection();
 
-    public AudioPlayer(Activity activity) {
+    public AudioPlayer(ContextWrapper activity) {
         super();
         this.activity = activity;
-        this.intent = new Intent(activity, MediaService.class);
     }
 
     public void startPlay(Uri inputUri) {
+        Intent intent = new Intent(activity, MediaService.class);
+        intent.setAction(MediaService.PLAY);
+        intent.setData(inputUri);
         activity.startService(intent);
         activity.bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        if (binder != null) {
-            binder.startPlay(inputUri);
-        }
     }
 
     public void stopPlay() {
@@ -60,14 +58,14 @@ public class AudioPlayer {
             binder.stopPlay();
         }
         activity.unbindService(connection);
-        activity.stopService(intent);
+        activity.stopService(new Intent(activity, MediaService.class));
     }
 
-    public int getDuration() {
+    public int getPlayDuration() {
         if (binder == null) {
             return -1;
         }
-        return binder.getDuration();
+        return binder.getPlayDuration();
     }
 
     private class Connection implements ServiceConnection {

@@ -61,6 +61,9 @@ public class HTTPClient extends Thread {
         if (pos != 32) {
             // filename not hashed by MD5, hash the whole URL instead
             String ext = Strings.extension(filename);
+            if (ext == null || ext.length() == 0) {
+                ext = "tmp";
+            }
             byte[] data = url.getBytes(Charset.forName("UTF-8"));
             filename = Hex.encode(MD5.digest(data)) + "." + ext;
 

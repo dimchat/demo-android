@@ -30,6 +30,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.IBinder;
 
 import chat.dim.io.Permissions;
@@ -37,15 +38,15 @@ import chat.dim.io.Permissions;
 public class AudioRecorder {
 
     private final Activity activity;
-    private final Intent intent;
 
     private MediaService.Binder binder = null;
     private Connection connection = new Connection();
 
+    private int duration = 0;
+
     public AudioRecorder(Activity activity) {
         super();
         this.activity = activity;
-        this.intent = new Intent(activity, MediaService.class);
         checkPermissions();
     }
 
@@ -61,21 +62,26 @@ public class AudioRecorder {
         if (!checkPermissions()) {
             return;
         }
+        Intent intent = new Intent(activity, MediaService.class);
+        intent.setAction(MediaService.RECORD);
+        intent.setData(Uri.parse(outputFile));
         activity.startService(intent);
         activity.bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        if (binder != null) {
-            binder.startRecord(outputFile);
-        }
     }
 
     public String stopRecord() {
         String filePath = null;
         if (binder != null) {
             filePath = binder.stopRecord();
+            duration = binder.getRecordDuration();
         }
         activity.unbindService(connection);
-        activity.stopService(intent);
+        activity.stopService(new Intent(activity, MediaService.class));
         return filePath;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     private class Connection implements ServiceConnection {

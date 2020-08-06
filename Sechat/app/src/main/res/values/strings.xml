@@ -46,4 +46,7 @@
     <string name="group_members_updated">Members updated</string>
     <string name="group_members_error">Members error</string>
     <string name="group_members">Members</string>
+    <string name="voice_record_start">Hold to talk</string>
+    <string name="voice_record_stop">Release to send</string>
+    <string name="downloading">Downloading</string>
 </resources>

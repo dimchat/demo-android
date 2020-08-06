@@ -138,6 +138,7 @@ public class ConversationDatabase implements ConversationDataSource {
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.insertMessage(iMsg, chatBox.identifier);
         if (OK) {
+            conversationTable.insertConversation(chatBox.identifier);
             postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;

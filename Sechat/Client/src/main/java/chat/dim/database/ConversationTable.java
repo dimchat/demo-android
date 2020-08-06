@@ -81,7 +81,7 @@ public class ConversationTable extends Database {
     //---- conversations
 
     public int numberOfConversations() {
-        if (conversationList == null && ! scanConversations()) {
+        if (conversationList == null && !scanConversations()) {
             return 0;
         }
         return conversationList.size();
@@ -98,6 +98,19 @@ public class ConversationTable extends Database {
 
     public boolean removeConversation(ID identifier) {
         return conversationList.remove(identifier);
+    }
+
+    public boolean insertConversation(ID identifier) {
+        if (conversationList == null && !scanConversations()) {
+            return false;
+        }
+        int pos = conversationList.indexOf(identifier);
+        if (pos < 0) {
+            conversationList.add(0, identifier);
+            sortConversations();
+            pos = conversationList.indexOf(identifier);
+        }
+        return pos >= 0;
     }
 
     public void reloadConversations() {

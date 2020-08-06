@@ -9,12 +9,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.Callback;
@@ -22,6 +25,7 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
+import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
@@ -31,18 +35,24 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
+import chat.dim.ui.media.AudioRecorder;
 
 public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageList> implements Observer {
 
     private ChatboxViewModel mViewModel;
 
-    RecyclerView msgListView;
+    private RecyclerView msgListView;
+
+    private ImageButton switchButton;
+
+    private Button recordButton;
 
     private EditText inputText;
     private ImageButton photoButton;
@@ -180,8 +190,58 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         msgListView = view.findViewById(R.id.msgListView);
         bindRecyclerView(msgListView); // Set the adapter
 
+        switchButton = view.findViewById(R.id.switchButton);
+
+        recordButton = view.findViewById(R.id.recordVoice);
+
         inputText = view.findViewById(R.id.inputMsg);
         photoButton = view.findViewById(R.id.photoButton);
+
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
+
+        // TODO: Use the ViewModel
+
+        dummyList.setViewModel(mViewModel);
+        reloadData();
+
+        switchButton.setOnClickListener(v -> {
+            if (v.isActivated()) {
+                v.setActivated(false);
+                recordButton.setVisibility(View.GONE);
+                inputText.setVisibility(View.VISIBLE);
+            } else {
+                v.setActivated(true);
+                recordButton.setVisibility(View.VISIBLE);
+                inputText.setVisibility(View.GONE);
+            }
+        });
+
+        recordButton.setOnTouchListener((v, event) -> {
+            Button btn = (Button) v;
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    startRecord();
+                    btn.setText(R.string.voice_record_stop);
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    stopRecord();
+                    btn.setText(R.string.voice_record_start);
+                    v.performClick();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+            return false;
+        });
 
         inputText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
@@ -203,18 +263,58 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             assert activity != null : "chatbox activity error";
             activity.startImagePicker();
         });
-
-        return view;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
+    private AudioRecorder recorder = null;
+    private final String mp4FilePath = Database.getTemporaryFilePath("audio.mp4");
 
-        // TODO: Use the ViewModel
+    private void startRecord() {
+        String path = mp4FilePath;
+        if (Database.exists(path)) {
+            try {
+                Database.delete(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-        dummyList.setViewModel(mViewModel);
-        reloadData();
+        if (recorder == null) {
+            recorder = new AudioRecorder(getActivity());
+        }
+        recorder.startRecord(path);
+    }
+    private void stopRecord() {
+        if (recorder == null) {
+            return;
+        }
+        String path = recorder.stopRecord();
+        if (path != null && Database.exists(path)) {
+            try {
+                byte[] mp4 = Database.loadData(path);
+                sendVoice(mp4, recorder.getDuration());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        recorder = null;
+    }
+
+    private void sendVoice(byte[] mp4, int duration) {
+        if (mp4 == null) {
+            return;
+        }
+        String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
+        String path = Database.getCacheFilePath(filename);
+        if (!Database.exists(path)) {
+            try {
+                Database.saveData(mp4, path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        AudioContent content = new AudioContent(mp4, filename);
+        content.put("duration", duration);
+        sendContent(content);
     }
 }

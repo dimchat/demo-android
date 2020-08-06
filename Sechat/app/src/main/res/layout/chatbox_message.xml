@@ -49,11 +49,18 @@
                 android:text="name"
                 android:textIsSelectable="true" />
 
-            <FrameLayout
+            <LinearLayout
                 android:id="@+id/recv_frame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/msg_received">
+                android:background="@drawable/msg_received"
+                android:gravity="center|left">
+
+                <ImageView
+                    android:id="@+id/recv_speaker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@android:drawable/ic_lock_silent_mode_off" />
 
                 <TextView
                     android:id="@+id/recv_text"
@@ -64,7 +71,7 @@
                     android:textColor="@android:color/background_dark"
                     android:textIsSelectable="true" />
 
-            </FrameLayout>
+            </LinearLayout>
 
             <android.support.v7.widget.CardView
                 android:layout_width="wrap_content"
@@ -109,11 +116,12 @@
                 android:text="me"
                 android:textIsSelectable="true" />
 
-            <FrameLayout
+            <LinearLayout
                 android:id="@+id/sent_frame"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/msg_sent">
+                android:background="@drawable/msg_sent"
+                android:gravity="center|left">
 
                 <TextView
                     android:id="@+id/sent_text"
@@ -124,7 +132,14 @@
                     android:textColor="@android:color/background_light"
                     android:textIsSelectable="true" />
 
-            </FrameLayout>
+                <ImageView
+                    android:id="@+id/sent_speaker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:scaleX="-1"
+                    app:srcCompat="@android:drawable/ic_lock_silent_mode_off" />
+
+            </LinearLayout>
 
             <android.support.v7.widget.CardView
                 android:layout_width="wrap_content"

@@ -84,7 +84,7 @@ public class Permissions {
             WRITE_EXTERNAL_STORAGE
     };
 
-    public static boolean canWriteExternalStorage(Activity activity) {
+    public static boolean canWriteExternalStorage(Context activity) {
         return isGranted(activity, WRITE_EXTERNAL_STORAGE);
     }
 
@@ -122,7 +122,7 @@ public class Permissions {
             RECORD_AUDIO
     };
 
-    public static boolean canAccessMicrophone(Activity activity) {
+    public static boolean canAccessMicrophone(Context activity) {
         return isGranted(activity, RECORD_AUDIO);
     }
 

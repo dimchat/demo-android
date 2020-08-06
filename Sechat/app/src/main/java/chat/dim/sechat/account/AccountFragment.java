@@ -59,19 +59,6 @@ public class AccountFragment extends Fragment {
         return view;
     }
 
-    private void detail() {
-        Context context = getContext();
-        assert context != null : "failed to get context";
-        Intent intent = new Intent();
-        intent.setClass(context, UpdateAccountActivity.class);
-        startActivity(intent);
-    }
-
-    private void open(int resId, String url) {
-        String title = (String) getText(resId);
-        WebViewActivity.open(getActivity(), title, url);
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -87,4 +74,16 @@ public class AccountFragment extends Fragment {
         aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
     }
 
+    private void detail() {
+        Context context = getContext();
+        assert context != null : "failed to get context";
+        Intent intent = new Intent();
+        intent.setClass(context, UpdateAccountActivity.class);
+        startActivity(intent);
+    }
+
+    private void open(int resId, String url) {
+        String title = (String) getText(resId);
+        WebViewActivity.open(getActivity(), title, url);
+    }
 }

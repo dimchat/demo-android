@@ -31,6 +31,20 @@
             android:background="#DDDDDD"
             android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/switchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/chat_switch" />
+
+            <Button
+                android:id="@+id/recordVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/voice_record_start"
+                android:visibility="gone" />
+
             <EditText
                 android:id="@+id/inputMsg"
                 android:layout_width="wrap_content"
