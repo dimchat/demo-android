@@ -72,7 +72,7 @@ public class SechatApp extends Application {
             }
         };
 
-        String path = Environment.getExternalStorageDirectory().getPath();
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
         ExternalStorage.root = path + ExternalStorage.separator + "chat.dim.sechat";
     }
 }

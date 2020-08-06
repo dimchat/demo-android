@@ -65,7 +65,7 @@ public class Permissions {
             }
             requests.add(item);
         }
-        permissions = (String[]) requests.toArray();
+        permissions = requests.toArray(new String[0]);
         if (permissions == null || permissions.length == 0) {
             // all permissions granted
             return;
@@ -103,8 +103,8 @@ public class Permissions {
             CAMERA
     };
 
-    public static boolean canAccessCamera(Activity activity) {
-        return isGranted(activity, CAMERA);
+    public static boolean canAccessCamera(Context context) {
+        return isGranted(context, CAMERA);
     }
 
     public static void requestCameraPermissions(Activity activity) {

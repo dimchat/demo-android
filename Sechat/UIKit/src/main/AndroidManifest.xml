@@ -6,13 +6,16 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application>
+        <service android:name=".media.MediaService" />
+
         <activity
             android:name=".image.ImageViewerActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".WebViewActivity"
+            android:name=".web.WebViewActivity"
             android:label="@string/title_activity_webview" />
     </application>
 
