@@ -1,7 +1,6 @@
 package chat.dim.sechat.chatbox;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -45,8 +44,17 @@ import chat.dim.ui.media.AudioPlayer;
  */
 public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.ViewHolder, MessageList> {
 
+    private AudioPlayer audioPlayer = null;
+
     public MessageViewAdapter(MessageList list, Listener listener) {
         super(list, listener);
+    }
+
+    void setAudioPlayer(AudioPlayer player) {
+        if (audioPlayer != null) {
+            audioPlayer.stopPlay();
+        }
+        audioPlayer = player;
     }
 
     @NonNull
@@ -114,7 +122,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         if (holder.frameLayout != null) {
-            holder.frameLayout.setOnClickListener(v -> playAudio(iMsg, context));
+            holder.frameLayout.setOnClickListener(v -> playAudio(iMsg));
         }
 
         if (holder.imgView != null) {
@@ -124,18 +132,20 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         super.onBindViewHolder(holder, position);
     }
 
-    private void playAudio(InstantMessage iMsg, Context context) {
+    private void playAudio(InstantMessage iMsg) {
+        if (audioPlayer == null) {
+            return;
+        }
         if (iMsg.content instanceof AudioContent) {
             AudioContent content = (AudioContent) iMsg.content;
             String filename = content.getFilename();
-            if (filename != null) {
-                String path = Database.getCacheFilePath(filename);
-                if (Database.exists(path)) {
-                    System.out.println("playing " + path);
-                    AudioPlayer player = new AudioPlayer((ContextWrapper) context);
-                    player.startPlay(Uri.parse(path));
-                    System.out.println("go " + path);
-                }
+            if (filename == null) {
+                return;
+            }
+            String path = Database.getCacheFilePath(filename);
+            if (Database.exists(path)) {
+                System.out.println("playing " + path);
+                audioPlayer.startPlay(Uri.parse(path));
             }
         }
     }

@@ -74,8 +74,8 @@ public class AudioRecorder {
         if (binder != null) {
             filePath = binder.stopRecord();
             duration = binder.getRecordDuration();
+            activity.unbindService(connection);
         }
-        activity.unbindService(connection);
         activity.stopService(new Intent(activity, MediaService.class));
         return filePath;
     }

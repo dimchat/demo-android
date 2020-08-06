@@ -56,8 +56,8 @@ public class AudioPlayer {
     public void stopPlay() {
         if (binder != null) {
             binder.stopPlay();
+            activity.unbindService(connection);
         }
-        activity.unbindService(connection);
         activity.stopService(new Intent(activity, MediaService.class));
     }
 

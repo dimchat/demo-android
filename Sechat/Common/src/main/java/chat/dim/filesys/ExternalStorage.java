@@ -39,9 +39,23 @@ import chat.dim.format.UTF8;
 public class ExternalStorage {
 
     // "/sdcard/chat.dim.sechat"
-    public static String root = "/tmp/.dim";
+    protected static String root = "/tmp/.dim";
 
-    public static String separator = File.separator;
+    protected static String separator = File.separator;
+
+    public static void setRoot(String dir) {
+        root = dir;
+
+        // forbid the gallery from scanning media files
+        String path = dir + separator + ".nomedia";
+        if (!exists(path)) {
+            try {
+                saveText("Moky loves May Lee forever!", path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     //-------- read
 

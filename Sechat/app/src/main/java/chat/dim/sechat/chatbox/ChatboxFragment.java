@@ -42,6 +42,7 @@ import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
+import chat.dim.ui.media.AudioPlayer;
 import chat.dim.ui.media.AudioRecorder;
 
 public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageList> implements Observer {
@@ -263,6 +264,16 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             assert activity != null : "chatbox activity error";
             activity.startImagePicker();
         });
+
+        // create audio player
+        adapter.setAudioPlayer(new AudioPlayer(getActivity()));
+    }
+
+    @Override
+    public void onDestroy() {
+        // destroy audio player
+        adapter.setAudioPlayer(null);
+        super.onDestroy();
     }
 
     private AudioRecorder recorder = null;

@@ -177,4 +177,12 @@ public class Database extends ExternalStorage {
     public static String getPrivateDirectory() {
         return root + separator + ".private";
     }
+
+    public static String getProtectedDirectory() {
+        return root + separator + ".protected";
+    }
+
+    public static String getProtectedFilePath(String filename) {
+        return getProtectedDirectory() + separator + filename;
+    }
 }

@@ -34,8 +34,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.core.KeyCache;
+import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Paths;
 
 public class KeyStore extends KeyCache {
 
@@ -47,8 +47,7 @@ public class KeyStore extends KeyCache {
 
     // '/tmp/.dim/protected/keystore.js'
     private String getPath() {
-        String root = ExternalStorage.root;
-        return Paths.appendPathComponent(root, "protected", "keystore.js");
+        return Database.getProtectedFilePath("keystore.js");
     }
 
     @Override
