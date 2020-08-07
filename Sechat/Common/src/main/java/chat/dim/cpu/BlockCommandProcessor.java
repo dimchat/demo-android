@@ -27,11 +27,11 @@ package chat.dim.cpu;
 
 import java.util.List;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
+import chat.dim.protocol.Content;
 
 public class BlockCommandProcessor extends CommandProcessor {
 

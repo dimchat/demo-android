@@ -114,7 +114,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         if (MsgType.RECEIVED == type) {
             holder.avatarView.setOnClickListener(v -> {
-                Object sender = iMsg.envelope.sender;
+                Object sender = iMsg.envelope.getSender();
                 Intent intent = new Intent();
                 intent.setClass(context, ProfileActivity.class);
                 intent.putExtra("ID", sender.toString());
@@ -137,8 +137,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         if (audioPlayer == null) {
             return;
         }
-        if (iMsg.content instanceof AudioContent) {
-            AudioContent content = (AudioContent) iMsg.content;
+        if (iMsg.getContent() instanceof AudioContent) {
+            AudioContent content = (AudioContent) iMsg.getContent();
             String filename = content.getFilename();
             if (filename == null) {
                 return;
@@ -152,9 +152,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     }
 
     private void showImage(InstantMessage iMsg, Context context) {
-        if (iMsg.content instanceof ImageContent) {
-            ImageContent content = (ImageContent) iMsg.content;
-            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.envelope.sender), context);
+        if (iMsg.getContent() instanceof ImageContent) {
+            ImageContent content = (ImageContent) iMsg.getContent();
+            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.envelope.getSender()), context);
         }
     }
 
@@ -170,8 +170,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     private void showMessage(InstantMessage<ID, SymmetricKey> iMsg, ViewHolder viewHolder) {
-        ID sender = iMsg.envelope.sender;
-        Content content = iMsg.content;
+        ID sender = iMsg.envelope.getSender();
+        Content content = iMsg.getContent();
 
         // time
         String time = msgDB.getTimeString(iMsg);

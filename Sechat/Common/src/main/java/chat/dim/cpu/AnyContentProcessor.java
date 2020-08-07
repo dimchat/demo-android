@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
@@ -37,6 +36,7 @@ import chat.dim.common.Facebook;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ImageContent;
@@ -59,7 +59,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    public Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    public Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -111,7 +111,7 @@ public class AnyContentProcessor extends ContentProcessor {
     //  Text Builder
     //
 
-    public static String getContentText(Content content) {
+    public static String getContentText(chat.dim.Content content) {
         String text = (String) content.get("text");
         if (text != null) {
             return text;

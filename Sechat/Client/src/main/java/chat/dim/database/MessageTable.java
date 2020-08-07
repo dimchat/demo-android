@@ -34,6 +34,8 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.crypto.SymmetricKey;
+import chat.dim.model.Messenger;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
@@ -79,14 +81,16 @@ public class MessageTable extends Database {
         }
     }
 
-    private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
+    private boolean isEqual(InstantMessage<ID, SymmetricKey> msg1, InstantMessage<ID, SymmetricKey> msg2) {
         // 1. check sn
-        if (msg1.content.serialNumber != msg2.content.serialNumber) {
+        msg1.setDelegate(Messenger.getInstance());
+        msg2.setDelegate(Messenger.getInstance());
+        if (msg1.getContent().serialNumber != msg2.getContent().serialNumber) {
             return false;
         }
         // 2. check time
-        Date time1 = msg1.envelope.time;
-        Date time2 = msg2.envelope.time;
+        Date time1 = msg1.envelope.getTime();
+        Date time2 = msg2.envelope.getTime();
         if (time1 == null) {
             return time2 == null;
         } else if (time2 == null) {
@@ -99,13 +103,16 @@ public class MessageTable extends Database {
     }
 
     private boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {
+        //noinspection unchecked
+        iMsg.setDelegate(Messenger.getInstance());
+
         // 1. check sender & receiver
         Object sender = receipt.get("sender");
-        if (sender != null && !iMsg.envelope.sender.equals(sender)) {
+        if (sender != null && !iMsg.envelope.getSender().equals(sender)) {
             return false;
         }
         Object receiver = receipt.get("receiver");
-        if (receiver != null && !iMsg.envelope.receiver.equals(receiver)) {
+        if (receiver != null && !iMsg.envelope.getReceiver().equals(receiver)) {
             return false;
         }
         // 2. check signature
@@ -125,7 +132,7 @@ public class MessageTable extends Database {
             }
         }
         // 3. check sn
-        return iMsg.content.serialNumber == receipt.serialNumber;
+        return iMsg.getContent().serialNumber == receipt.serialNumber;
     }
 
     //-------- messages
@@ -157,11 +164,14 @@ public class MessageTable extends Database {
 
     public InstantMessage messageAtIndex(int index, ID entity) {
         List<InstantMessage> msgList = messagesInConversation(entity);
-        return msgList.get(index);
+        InstantMessage iMsg = msgList.get(index);
+        //noinspection unchecked
+        iMsg.setDelegate(Messenger.getInstance());
+        return iMsg;
     }
 
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
-        Date time = iMsg.envelope.time;
+        Date time = iMsg.envelope.getTime();
         if (time == null) {
             time = new Date();
         }
@@ -175,7 +185,7 @@ public class MessageTable extends Database {
                 // duplicated message
                 return false;
             }
-            if (item.envelope.time == null || Times.compare(item.envelope.time, time) <= 0) {
+            if (item.envelope.getTime() == null || Times.compare(item.envelope.getTime(), time) <= 0) {
                 break;
             }
         }
@@ -196,10 +206,10 @@ public class MessageTable extends Database {
 
     public boolean saveReceipt(InstantMessage iMsg, ID entity) {
         // save receipt of instant message
-        if (!(iMsg.content instanceof ReceiptCommand)) {
+        if (!(iMsg.getContent() instanceof ReceiptCommand)) {
             return false;
         }
-        ReceiptCommand receipt = (ReceiptCommand) iMsg.content;
+        ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
         Object receiver = receipt.get("receiver");
         if (receiver != null) {
             entity = ID.getInstance(receiver);
@@ -221,7 +231,7 @@ public class MessageTable extends Database {
             }
             // DISCUSS: what about the other fields 'sender', 'receiver', 'signature'
             //          in this receipt command?
-            traces.add(iMsg.envelope.sender);
+            traces.add(iMsg.envelope.getSender());
         }
         return saveMessages(entity);
     }

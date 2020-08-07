@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Meta;
@@ -50,6 +49,7 @@ import chat.dim.format.Base64;
 import chat.dim.mtp.Utils;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.group.InviteCommand;
@@ -81,7 +81,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     // check whether need to update group
-    private boolean checkGroup(Content<ID> content, ID sender) {
+    private boolean checkGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
         if (group == null || group.isBroadcast()) {
@@ -177,10 +177,10 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
         // get key with direction
         SymmetricKey key;
-        ID sender = rMsg.envelope.sender;
+        ID sender = rMsg.envelope.getSender();
         ID group = rMsg.envelope.getGroup();
         if (group == null) {
-            ID receiver = rMsg.envelope.receiver;
+            ID receiver = rMsg.envelope.getReceiver();
             key = getCipherKeyDelegate().getCipherKey(sender, receiver);
         } else {
             key = getCipherKeyDelegate().getCipherKey(sender, group);
@@ -206,11 +206,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
         SecureMessage<ID, SymmetricKey> sMsg = super.encryptMessage(iMsg);
 
-        ID receiver = iMsg.envelope.receiver;
+        ID receiver = iMsg.envelope.getReceiver();
         if (receiver.isGroup()) {
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
             // reuse group message keys
-            ID sender = iMsg.envelope.sender;
+            ID sender = iMsg.envelope.getSender();
             SymmetricKey key = keyCache.getCipherKey(sender, receiver);
             key.put("reused", true);
         }
@@ -222,7 +222,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     @Override
     public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
         if (password.get("reused") != null) {
-            ID receiver = iMsg.envelope.receiver;
+            ID receiver = iMsg.envelope.getReceiver();
             if (receiver.isGroup()) {
                 // reuse key for grouped message
                 return null;
@@ -232,7 +232,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    protected Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             suspendMessage(rMsg);

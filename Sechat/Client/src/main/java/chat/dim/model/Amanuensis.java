@@ -62,19 +62,19 @@ public class Amanuensis {
 
     private Conversation getConversation(InstantMessage<ID, SymmetricKey> iMsg) {
         // check receiver
-        ID receiver = iMsg.envelope.receiver;
+        ID receiver = iMsg.envelope.getReceiver();
         if (receiver.isGroup()) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
         // check group
-        ID group = iMsg.content.getGroup();
+        ID group = iMsg.getContent().getGroup();
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        ID sender = iMsg.envelope.sender;
+        ID sender = iMsg.envelope.getSender();
         User user = facebook.getCurrentUser();
         if (sender.equals(user.identifier)) {
             return getConversation(receiver);

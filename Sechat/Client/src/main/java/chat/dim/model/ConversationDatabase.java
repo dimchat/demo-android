@@ -54,7 +54,7 @@ public class ConversationDatabase implements ConversationDataSource {
     private MessageTable messageTable = new MessageTable();
 
     public String getTimeString(Message msg) {
-        Date time = msg.envelope.time;
+        Date time = msg.envelope.getTime();
         if (time == null) {
             return null;
         }

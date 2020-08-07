@@ -27,7 +27,6 @@ package chat.dim.cpu;
 
 import java.util.List;
 
-import chat.dim.Content;
 import chat.dim.Facebook;
 import chat.dim.ID;
 import chat.dim.ReliableMessage;
@@ -37,6 +36,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.extension.Password;
 import chat.dim.format.JSON;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.StorageCommand;
 
 public class StorageCommandProcessor extends CommandProcessor {

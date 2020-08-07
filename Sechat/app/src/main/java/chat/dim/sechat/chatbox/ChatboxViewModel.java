@@ -45,12 +45,12 @@ public class ChatboxViewModel extends ViewModel {
     }
 
     static MsgType getType(InstantMessage<ID, SymmetricKey> iMsg, Conversation chatBox) {
-        Content content = iMsg.content;
+        Content content = iMsg.getContent();
         if (content instanceof Command) {
             return MsgType.COMMAND;
         }
 
-        ID sender = iMsg.envelope.sender;
+        ID sender = iMsg.envelope.getSender();
         if (sender.equals(chatBox.identifier)) {
             return MsgType.RECEIVED;
         }

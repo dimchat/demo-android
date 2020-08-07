@@ -32,6 +32,7 @@ import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.NetworkType;
 
@@ -82,7 +83,7 @@ public class Conversation {
         Date time = null;
         InstantMessage iMsg = getLastMessage();
         if (iMsg != null) {
-            time = iMsg.envelope.time;
+            time = iMsg.envelope.getTime();
         }
         if (time == null) {
             time = new Date(0);
@@ -104,7 +105,7 @@ public class Conversation {
         int msgType;
         for (int index = count - 1; index >= 0; --index) {
             iMsg = messageAtIndex(index);
-            msgType = iMsg.content.type;
+            msgType = iMsg.getContent().type;
             if (ContentType.TEXT.value == msgType ||
                     ContentType.FILE.value == msgType ||
                     ContentType.IMAGE.value == msgType ||

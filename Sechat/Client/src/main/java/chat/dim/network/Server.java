@@ -345,8 +345,8 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public String uploadData(byte[] data, InstantMessage iMsg) {
-        ID sender = ID.getInstance(iMsg.envelope.sender);
-        FileContent content = (FileContent) iMsg.content;
+        ID sender = ID.getInstance(iMsg.envelope.getSender());
+        FileContent content = (FileContent) iMsg.getContent();
         String filename = content.getFilename();
 
         FtpServer ftp = FtpServer.getInstance();

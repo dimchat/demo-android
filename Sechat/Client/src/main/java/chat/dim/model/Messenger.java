@@ -71,7 +71,7 @@ public class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
-        Content<ID> content = iMsg.content;
+        Content<ID> content = iMsg.getContent();
         // TODO: check message type
         //       only save normal message and group commands
         //       ignore 'Handshake', ...
@@ -110,7 +110,7 @@ public class Messenger extends chat.dim.common.Messenger {
 
         if (content instanceof InviteCommand) {
             // send keys again
-            ID me = iMsg.envelope.receiver;
+            ID me = iMsg.envelope.getReceiver();
             ID group = content.getGroup();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
             if (key != null) {
@@ -143,8 +143,8 @@ public class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
-    protected Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
-        Content<ID> res = super.process(content, sender, rMsg);
+    protected chat.dim.protocol.Content process(chat.dim.protocol.Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+        chat.dim.protocol.Content res = super.process(content, sender, rMsg);
         if (res == null) {
             // respond nothing
             return null;
@@ -164,7 +164,7 @@ public class Messenger extends chat.dim.common.Messenger {
          */
 
         // check receiver
-        ID receiver = rMsg.envelope.receiver;
+        ID receiver = rMsg.envelope.getReceiver();
         User user = select(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message

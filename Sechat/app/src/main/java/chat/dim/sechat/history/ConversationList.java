@@ -94,8 +94,8 @@ public class ConversationList extends DummyList<ConversationList.Item> {
         String getTime() {
             String time = "";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
-            if (iMsg != null && iMsg.envelope.time != null) {
-                time = Times.getTimeString(iMsg.envelope.time);
+            if (iMsg != null && iMsg.envelope.getTime() != null) {
+                time = Times.getTimeString(iMsg.envelope.getTime());
             }
             return time;
         }
@@ -104,7 +104,7 @@ public class ConversationList extends DummyList<ConversationList.Item> {
             String text = "(no message)";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
             if (iMsg != null) {
-                text = msgDB.getContentText(iMsg.content);
+                text = msgDB.getContentText(iMsg.getContent());
             }
             return text;
         }
