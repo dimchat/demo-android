@@ -70,8 +70,8 @@ public class Messenger extends chat.dim.common.Messenger {
     public Server server = null;
 
     @Override
-    public boolean saveMessage(InstantMessage iMsg) {
-        Content content = iMsg.content;
+    public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
+        Content<ID> content = iMsg.content;
         // TODO: check message type
         //       only save normal message and group commands
         //       ignore 'Handshake', ...
@@ -110,8 +110,8 @@ public class Messenger extends chat.dim.common.Messenger {
 
         if (content instanceof InviteCommand) {
             // send keys again
-            ID me = getFacebook().getID(iMsg.envelope.receiver);
-            ID group = getFacebook().getID(content.getGroup());
+            ID me = iMsg.envelope.receiver;
+            ID group = content.getGroup();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
             if (key != null) {
                 //key.put("reused", null);
@@ -143,8 +143,8 @@ public class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        Content res = super.process(content, sender, rMsg);
+    protected Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+        Content<ID> res = super.process(content, sender, rMsg);
         if (res == null) {
             // respond nothing
             return null;
@@ -164,11 +164,11 @@ public class Messenger extends chat.dim.common.Messenger {
          */
 
         // check receiver
-        ID receiver = getEntityDelegate().getID(rMsg.envelope.receiver);
+        ID receiver = rMsg.envelope.receiver;
         User user = select(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message
-        InstantMessage iMsg = new InstantMessage(res, user.identifier, sender);
+        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(res, user.identifier, sender);
         // normal response
         sendMessage(iMsg, null);
         // DON'T respond to station directly
@@ -192,7 +192,7 @@ public class Messenger extends chat.dim.common.Messenger {
      * @param content - message content
      * @return true on success
      */
-    public boolean broadcastContent(Content content) {
+    public boolean broadcastContent(Content<ID> content) {
         content.setGroup(ID.EVERYONE);
         return sendContent(content, ID.EVERYONE, null);
     }

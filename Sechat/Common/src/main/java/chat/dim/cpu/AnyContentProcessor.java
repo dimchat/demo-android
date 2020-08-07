@@ -34,6 +34,7 @@ import chat.dim.ID;
 import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.common.Facebook;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
@@ -58,7 +59,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage rMsg) {
+    public Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -87,7 +88,7 @@ public class AnyContentProcessor extends ContentProcessor {
         } else {
             text = "Content (type: " + content.type + ") not support yet!";
             TextContent res = new TextContent(text);
-            Object group = content.getGroup();
+            ID group = content.getGroup();
             if (group != null) {
                 res.setGroup(group);
             }

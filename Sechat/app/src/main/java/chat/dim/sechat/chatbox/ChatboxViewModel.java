@@ -11,6 +11,7 @@ import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
@@ -43,19 +44,18 @@ public class ChatboxViewModel extends ViewModel {
         return msgDB.messagesInConversation(chatBox);
     }
 
-    static MsgType getType(InstantMessage iMsg, Conversation chatBox) {
+    static MsgType getType(InstantMessage<ID, SymmetricKey> iMsg, Conversation chatBox) {
         Content content = iMsg.content;
         if (content instanceof Command) {
             return MsgType.COMMAND;
         }
 
-        Facebook facebook = Facebook.getInstance();
-        ID sender = facebook.getID(iMsg.envelope.sender);
+        ID sender = iMsg.envelope.sender;
         if (sender.equals(chatBox.identifier)) {
             return MsgType.RECEIVED;
         }
 
-        List<User> users = facebook.getLocalUsers();
+        List<User> users = Facebook.getInstance().getLocalUsers();
         for (User user : users) {
             if (user.identifier.equals(sender)) {
                 return MsgType.SENT;

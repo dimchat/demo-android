@@ -37,6 +37,7 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.ReliableMessage;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.dmtp.protocol.Message;
 import chat.dim.dmtp.values.BinaryValue;
 import chat.dim.dmtp.values.StringValue;
@@ -79,7 +80,6 @@ public class Utils {
         if (content != null) {
             if (content.startsWith("{")) {
                 // JsON
-                //noinspection CharsetObjectCanBeUsed
                 info.put("data", content.getBytes(Charset.forName("UTF-8")));
             } else {
                 // Base64
@@ -122,7 +122,7 @@ public class Utils {
         return message.getBytes();
     }
 
-    public static ReliableMessage deserializeMessage(byte[] data) {
+    public static ReliableMessage<ID, SymmetricKey> deserializeMessage(byte[] data) {
         Message msg = Message.parse(new Data(data));
         if (msg == null || msg.getSender() == null || msg.getReceiver() == null) {
             throw new NullPointerException("failed to deserialize data: " + Arrays.toString(data));
@@ -183,7 +183,7 @@ public class Utils {
             info.put("profile", JSON.decode(profile.getBytes()));
         }
 
-        // create reliable message
+        //noinspection unchecked
         return ReliableMessage.getInstance(info);
     }
 

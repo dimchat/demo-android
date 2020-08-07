@@ -32,14 +32,12 @@ import java.util.Map;
 
 import chat.dim.Callback;
 import chat.dim.Content;
-import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Meta;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.core.CipherKeyDelegate;
-import chat.dim.core.EntityDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
@@ -83,16 +81,16 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     // check whether need to update group
-    private boolean checkGroup(Content content, ID sender) {
+    private boolean checkGroup(Content<ID> content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
-        chat.dim.Facebook facebook = getFacebook();
-        ID group = facebook.getID(content.getGroup());
+        ID group = content.getGroup();
         if (group == null || group.isBroadcast()) {
             // 1. personal message
             // 2. broadcast message
             return false;
         }
         // check meta for new group ID
+        chat.dim.Facebook facebook = getFacebook();
         Meta meta = facebook.getMeta(group);
         if (meta == null) {
             // NOTICE: if meta for group not found,
@@ -137,7 +135,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //-------- Serialization
 
     @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
+    public byte[] serializeMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
         attachKeyDigest(rMsg);
         if (mtpFormat == MTP_JSON) {
             // JsON
@@ -149,7 +147,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
+    public ReliableMessage<ID, SymmetricKey> deserializeMessage(byte[] data) {
         if (data == null || data.length < 2) {
             return null;
         }
@@ -162,7 +160,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
     }
 
-    private void attachKeyDigest(ReliableMessage rMsg) {
+    private void attachKeyDigest(ReliableMessage<ID, SymmetricKey> rMsg) {
         if (rMsg.getDelegate() == null) {
             rMsg.setDelegate(this);
         }
@@ -179,14 +177,13 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
         // get key with direction
         SymmetricKey key;
-        EntityDelegate facebook = getEntityDelegate();
-        Object sender = rMsg.envelope.sender;
-        Object group = rMsg.envelope.getGroup();
+        ID sender = rMsg.envelope.sender;
+        ID group = rMsg.envelope.getGroup();
         if (group == null) {
-            Object receiver = rMsg.envelope.receiver;
-            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(receiver));
+            ID receiver = rMsg.envelope.receiver;
+            key = getCipherKeyDelegate().getCipherKey(sender, receiver);
         } else {
-            key = getCipherKeyDelegate().getCipherKey(facebook.getID(sender), facebook.getID(group));
+            key = getCipherKeyDelegate().getCipherKey(sender, group);
         }
         // get key data
         byte[] data = key.getData();
@@ -206,16 +203,14 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
-        SecureMessage sMsg = super.encryptMessage(iMsg);
+    public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
+        SecureMessage<ID, SymmetricKey> sMsg = super.encryptMessage(iMsg);
 
-        EntityDelegate facebook = getEntityDelegate();
-        Envelope env = iMsg.envelope;
-        ID receiver = facebook.getID(env.receiver);
+        ID receiver = iMsg.envelope.receiver;
         if (receiver.isGroup()) {
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
             // reuse group message keys
-            ID sender = facebook.getID(env.sender);
+            ID sender = iMsg.envelope.sender;
             SymmetricKey key = keyCache.getCipherKey(sender, receiver);
             key.put("reused", true);
         }
@@ -225,9 +220,9 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public byte[] serializeKey(Map<String, Object> password, InstantMessage iMsg) {
+    public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
         if (password.get("reused") != null) {
-            ID receiver = getEntityDelegate().getID(iMsg.envelope.receiver);
+            ID receiver = iMsg.envelope.receiver;
             if (receiver.isGroup()) {
                 // reuse key for grouped message
                 return null;
@@ -237,7 +232,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
+    protected Content<ID> process(Content<ID> content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             suspendMessage(rMsg);
@@ -249,7 +244,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //-------- Send
 
     @Override
-    public boolean sendMessage(final InstantMessage iMsg, final Callback callback) {
+    public boolean sendMessage(final InstantMessage<ID, SymmetricKey> iMsg, final Callback callback) {
         BackgroundThreads.wait(new Runnable() {
             @Override
             public void run() {

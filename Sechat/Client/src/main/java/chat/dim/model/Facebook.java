@@ -28,6 +28,7 @@ package chat.dim.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -40,6 +41,14 @@ public class Facebook extends chat.dim.common.Facebook {
     public static Facebook getInstance() { return ourInstance; }
     private Facebook() {
         super();
+
+        // ID parser
+        Envelope.parser = new Envelope.Parser() {
+            @Override
+            public Object getID(Object identifier) {
+                return Facebook.getInstance().getID(identifier);
+            }
+        };
     }
 
     public String getAvatar(ID identifier) {
