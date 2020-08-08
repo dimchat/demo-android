@@ -134,6 +134,21 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     //-------- Serialization
 
+    public InstantMessage<ID, SymmetricKey> getInstantMessage(Object msg) {
+        InstantMessage<ID, SymmetricKey> iMsg = null;
+        if (msg instanceof InstantMessage) {
+            //noinspection unchecked
+            iMsg = (InstantMessage<ID, SymmetricKey>) msg;
+        } else if (msg instanceof Map) {
+            //noinspection unchecked
+            iMsg = InstantMessage.getInstance(msg);
+        }
+        if (iMsg != null) {
+            iMsg.setDelegate(this);
+        }
+        return iMsg;
+    }
+
     @Override
     public byte[] serializeMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
         attachKeyDigest(rMsg);
@@ -151,13 +166,18 @@ public abstract class Messenger extends chat.dim.Messenger {
         if (data == null || data.length < 2) {
             return null;
         }
+        ReliableMessage<ID, SymmetricKey> rMsg;
         if (data[0] == '{') {
             // JsON
-            return super.deserializeMessage(data);
-        } else {
-            // D-MTP
-            return Utils.deserializeMessage(data);
+            rMsg = super.deserializeMessage(data);
+        } else { // D-MTP
+            //noinspection unchecked
+            rMsg = Utils.deserializeMessage(data);
         }
+        if (rMsg != null) {
+            rMsg.setDelegate(this);
+        }
+        return rMsg;
     }
 
     private void attachKeyDigest(ReliableMessage<ID, SymmetricKey> rMsg) {

@@ -42,28 +42,32 @@ public class MessageTable extends Database {
 
     private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
 
-    private List cacheMessages(Object array, ID entity) {
-        if (!(array instanceof List)) {
-            return null;
-        }
-        List list = (List) array;
+    private List<InstantMessage> cacheMessages(List array, ID entity) {
         List<InstantMessage> messages = new ArrayList<>();
-        for (Object msg : list) {
-            messages.add(InstantMessage.getInstance(msg));
+        Messenger messenger = Messenger.getInstance();
+        InstantMessage iMsg;
+        for (Object item : array) {
+            iMsg = messenger.getInstantMessage(item);
+            if (iMsg == null) {
+                throw new NullPointerException("message error: " + item);
+            }
+            messages.add(iMsg);
         }
         chatHistory.put(entity, messages);
         return messages;
     }
 
-    private List loadMessages(ID entity) {
+    private List<InstantMessage> loadMessages(ID entity) {
         String path = getMessageFilePath(entity);
         try {
             Object array = loadJSON(path);
-            return cacheMessages(array, entity);
+            if (array instanceof List) {
+                return cacheMessages((List) array, entity);
+            }
         } catch (IOException e) {
             //e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     private boolean saveMessages(ID entity) {
@@ -82,8 +86,6 @@ public class MessageTable extends Database {
 
     private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
         // 1. check sn
-        msg1.setDelegate(Messenger.getInstance());
-        msg2.setDelegate(Messenger.getInstance());
         if (msg1.getContent().serialNumber != msg2.getContent().serialNumber) {
             return false;
         }
@@ -102,8 +104,6 @@ public class MessageTable extends Database {
     }
 
     private boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {
-        //noinspection unchecked
-        iMsg.setDelegate(Messenger.getInstance());
 
         // 1. check sender & receiver
         Object sender = receipt.get("sender");
@@ -139,21 +139,10 @@ public class MessageTable extends Database {
     public List<InstantMessage> messagesInConversation(ID entity) {
         List<InstantMessage> msgList = chatHistory.get(entity);
         if (msgList == null) {
-            msgList = new ArrayList<>();
-            List messages = loadMessages(entity);
-            if (messages != null) {
-                Messenger messenger = Messenger.getInstance();
-                InstantMessage msg;
-                for (Object item : messages) {
-                    msg = InstantMessage.getInstance(item);
-                    if (msg == null) {
-                        throw new NullPointerException("message error: " + item);
-                    }
-                    msg.setDelegate(messenger);
-                    msgList.add(msg);
-                }
+            msgList = loadMessages(entity);
+            if (msgList != null) {
+                chatHistory.put(entity, msgList);
             }
-            chatHistory.put(entity, msgList);
         }
         return msgList;
     }
@@ -180,10 +169,7 @@ public class MessageTable extends Database {
 
     public InstantMessage messageAtIndex(int index, ID entity) {
         List<InstantMessage> msgList = messagesInConversation(entity);
-        InstantMessage iMsg = msgList.get(index);
-        //noinspection unchecked
-        iMsg.setDelegate(Messenger.getInstance());
-        return iMsg;
+        return msgList.get(index);
     }
 
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
