@@ -142,12 +142,14 @@ public class MessageTable extends Database {
             msgList = new ArrayList<>();
             List messages = loadMessages(entity);
             if (messages != null) {
+                Messenger messenger = Messenger.getInstance();
                 InstantMessage msg;
                 for (Object item : messages) {
                     msg = InstantMessage.getInstance(item);
                     if (msg == null) {
                         throw new NullPointerException("message error: " + item);
                     }
+                    msg.setDelegate(messenger);
                     msgList.add(msg);
                 }
             }
@@ -159,6 +161,21 @@ public class MessageTable extends Database {
     public int numberOfMessages(ID entity) {
         List<InstantMessage> msgList = messagesInConversation(entity);
         return msgList.size();
+    }
+
+    public int numberOfUnreadMessages(ID entity) {
+        int count = 0;
+        List<InstantMessage> msgList = messagesInConversation(entity);
+        int index = msgList.size() - 1;
+        InstantMessage iMsg;
+        for (; index >= 0; --index) {
+            iMsg = msgList.get(index);
+            if (iMsg.get("read") != null) {
+                break;
+            }
+            ++count;
+        }
+        return count;
     }
 
     public InstantMessage messageAtIndex(int index, ID entity) {

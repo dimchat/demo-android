@@ -168,6 +168,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
+        // mark it as read
+        iMsg.put("read", "yes");
+
         ID sender = (ID) iMsg.envelope.getSender();
 
         // time

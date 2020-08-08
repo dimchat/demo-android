@@ -110,9 +110,12 @@ public class ConversationList extends DummyList<ConversationList.Item> {
         }
 
         String getUnread() {
-            String unread = null;
-            // TODO: get unread message count
-            return unread;
+            int count = msgDB.numberOfUnreadMessages(chatBox);
+            if (count > 0) {
+                int total = msgDB.numberOfMessages(chatBox);
+                return count + "/" + total;
+            }
+            return null;
         }
     }
 }

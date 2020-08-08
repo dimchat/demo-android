@@ -74,6 +74,14 @@ public interface ConversationDataSource {
     int numberOfMessages(Conversation chatBox);
 
     /**
+     *  Get unread message count in this conversation for an entyty
+     *
+     * @param chatBox - conversation instance
+     * @return unread count
+     */
+    int numberOfUnreadMessages(Conversation chatBox);
+
+    /**
      *  Get message at index of this conversation
      *
      * @param index - start from 0, latest first

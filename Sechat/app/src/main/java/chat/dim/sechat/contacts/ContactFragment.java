@@ -81,7 +81,7 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
         assert activity != null : "main activity not found";
 
         String serverState = activity.serverState;
-        if (!serverState.equals(StateMachine.runningState)) {
+        if (serverState == null || !serverState.equals(StateMachine.runningState)) {
             Alert.tips(activity, R.string.server_connecting);
             return false;
         }

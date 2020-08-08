@@ -124,6 +124,10 @@ public class Conversation {
         return dataSource.numberOfMessages(this);
     }
 
+    public int numberOfUnreadMessages() {
+        return dataSource.numberOfUnreadMessages(this);
+    }
+
     public InstantMessage messageAtIndex(int index) {
         return dataSource.messageAtIndex(index, this);
     }
