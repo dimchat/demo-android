@@ -49,7 +49,7 @@ public class Resources {
             }
         }
         Resource resource = new Resource();
-        resource.load(path);
+        resource.read(path);
         return resource.getData();
     }
 

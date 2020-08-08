@@ -25,7 +25,6 @@
  */
 package chat.dim.utils;
 
-import java.io.File;
 import java.util.List;
 
 public class Strings {
@@ -49,43 +48,5 @@ public class Strings {
             sb.append(item);
         }
         return sb.toString();
-    }
-
-    /**
-     *  Get filename from a URL
-     *
-     * @param url - url string
-     * @return filename
-     */
-    public static String filename(String url) {
-        int pos;
-        pos = url.indexOf("?");
-        if (pos > 0) {
-            url = url.substring(0, pos);
-        }
-        pos = url.indexOf("#");
-        if (pos > 0) {
-            url = url.substring(0, pos);
-        }
-        pos = url.lastIndexOf(File.separator);
-        if (pos < 0) {
-            return url;
-        }
-        return url.substring(pos + File.separator.length());
-    }
-
-    /**
-     *  Get extension from a filename
-     *
-     * @param filename - file name
-     * @return file extension
-     */
-    public static String extension(String filename) {
-        int pos = filename.lastIndexOf(".");
-        if (pos > 0) {
-            return filename.substring(pos + 1);
-        } else {
-            return null;
-        }
     }
 }

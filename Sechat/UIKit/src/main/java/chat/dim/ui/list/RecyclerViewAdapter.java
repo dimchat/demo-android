@@ -31,9 +31,9 @@ import android.support.v7.widget.RecyclerView;
 public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L extends DummyList> extends RecyclerView.Adapter<VH> {
 
     protected final L dummyList;
-    protected final Listener listener;
+    protected final Listener<VH> listener;
 
-    public RecyclerViewAdapter(L list, Listener observer) {
+    public RecyclerViewAdapter(L list, Listener<VH> observer) {
         super();
         dummyList = list;
         listener = observer;
@@ -46,7 +46,6 @@ public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L exten
 //        return new VH(view);
 //    }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         holder.item = dummyList.getItem(position);

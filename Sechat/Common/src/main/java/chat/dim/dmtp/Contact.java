@@ -40,7 +40,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.dmtp.fields.FieldName;
-import chat.dim.dmtp.values.*;
+import chat.dim.dmtp.values.BinaryValue;
+import chat.dim.dmtp.values.LocationValue;
+import chat.dim.dmtp.values.MappedAddressValue;
+import chat.dim.dmtp.values.RelayedAddressValue;
+import chat.dim.dmtp.values.SourceAddressValue;
+import chat.dim.dmtp.values.TimestampValue;
 import chat.dim.tlv.Data;
 import chat.dim.udp.Connection;
 

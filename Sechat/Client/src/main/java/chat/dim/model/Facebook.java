@@ -28,7 +28,6 @@ package chat.dim.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;

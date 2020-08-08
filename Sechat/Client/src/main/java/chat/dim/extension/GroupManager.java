@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
@@ -62,7 +61,7 @@ public class GroupManager {
      * @param content - message content
      * @return true on success
      */
-    public boolean send(Content content) {
+    public boolean send(chat.dim.protocol.Content content) {
         Messenger messenger = Messenger.getInstance();
         Facebook facebook = Facebook.getInstance();
         // check group ID
@@ -321,7 +320,7 @@ public class GroupManager {
         gm.invite(members);
 
         // send message content
-        Content content = new TextContent("Hello world!");
+        chat.dim.protocol.Content content = new TextContent("Hello world!");
         gm.send(content);
     }
 }

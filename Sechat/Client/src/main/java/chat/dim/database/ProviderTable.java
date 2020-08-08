@@ -44,12 +44,12 @@ public class ProviderTable extends Database {
         return getCommonFilePath("service_providers.js");
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getProviderConfig(ID sp) {
         String path = getConfigFilePath(sp);
         Map<String, Object> config = null;
         try {
-            config = (Map<String, Object>) loadJSON(path);
+            //noinspection unchecked
+            config = (Map) loadJSON(path);
         } catch (IOException e) {
             //e.printStackTrace();
         }
@@ -60,11 +60,11 @@ public class ProviderTable extends Database {
         return config;
     }
 
-    @SuppressWarnings("unchecked")
     public List<String> allProviders() {
         String path = getListFilePath();
         try {
-            return (List<String>) loadJSON(path);
+            //noinspection unchecked
+            return (List) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

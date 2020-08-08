@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Message;
@@ -61,7 +60,7 @@ public class ConversationDatabase implements ConversationDataSource {
         return Times.getTimeString(time);
     }
 
-    public String getContentText(Content content) {
+    public String getContentText(chat.dim.Content content) {
         return AnyContentProcessor.getContentText(content);
     }
 

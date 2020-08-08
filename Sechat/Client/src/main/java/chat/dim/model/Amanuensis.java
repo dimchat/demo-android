@@ -29,7 +29,6 @@ import chat.dim.Entity;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
-import chat.dim.crypto.SymmetricKey;
 
 public class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
@@ -60,21 +59,21 @@ public class Amanuensis {
         return chatBox;
     }
 
-    private Conversation getConversation(InstantMessage<ID, SymmetricKey> iMsg) {
+    private Conversation getConversation(InstantMessage iMsg) {
         // check receiver
-        ID receiver = iMsg.envelope.getReceiver();
+        ID receiver = (ID) iMsg.envelope.getReceiver();
         if (receiver.isGroup()) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
         // check group
-        ID group = iMsg.getContent().getGroup();
+        ID group = (ID) iMsg.getContent().getGroup();
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        ID sender = iMsg.envelope.getSender();
+        ID sender = (ID) iMsg.envelope.getSender();
         User user = facebook.getCurrentUser();
         if (sender.equals(user.identifier)) {
             return getConversation(receiver);
@@ -83,7 +82,7 @@ public class Amanuensis {
         }
     }
 
-    public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
+    public boolean saveMessage(InstantMessage iMsg) {
         Conversation chatBox = getConversation(iMsg);
         if (chatBox == null) {
             return false;
@@ -91,7 +90,7 @@ public class Amanuensis {
         return chatBox.insertMessage(iMsg);
     }
 
-    public boolean saveReceipt(InstantMessage<ID, SymmetricKey> iMsg) {
+    public boolean saveReceipt(InstantMessage iMsg) {
         Conversation chatBox = getConversation(iMsg);
         if (chatBox == null) {
             return false;

@@ -78,7 +78,7 @@ public class ExternalStorage {
      */
     public static byte[] loadData(String pathname) throws IOException {
         Storage file = new Storage();
-        file.load(pathname);
+        file.read(pathname);
         return file.getData();
     }
 
@@ -122,7 +122,7 @@ public class ExternalStorage {
     public static boolean saveData(byte[] data, String pathname) throws IOException {
         Storage file = new Storage();
         file.setData(data);
-        int len = file.save(pathname);
+        int len = file.write(pathname);
         return len == data.length;
     }
 

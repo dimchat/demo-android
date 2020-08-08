@@ -37,7 +37,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.ReliableMessage;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.dmtp.protocol.Message;
 import chat.dim.dmtp.values.BinaryValue;
 import chat.dim.dmtp.values.StringValue;
@@ -51,7 +50,6 @@ import chat.dim.tlv.VarIntData;
 
 public class Utils {
 
-    @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
         Map<String, Object> info = new HashMap<>(msg);
         //
@@ -93,7 +91,8 @@ public class Utils {
         // symmetric key, keys
         String key = (String) info.get("key");
         if (key == null) {
-            Map<Object, String> keys = (Map<Object, String>) info.get("keys");
+            //noinspection unchecked
+            Map<Object, String> keys = (Map) info.get("keys");
             if (keys != null) {
                 Data data = buildKeys(keys);
                 data = KEYS_PREFIX.concat(data);
@@ -103,15 +102,19 @@ public class Utils {
         } else {
             info.put("key", Base64.decode(key));
         }
+
         //
         //  attachments
         //
-        Map<String, Object> meta = (Map<String, Object>) info.get("meta");
+
+        //noinspection unchecked
+        Map<String, Object> meta = (Map) info.get("meta");
         if (meta != null) {
             // dict to JSON
             info.put("meta", JSON.encode(meta));
         }
-        Map<String, Object> profile = (Map<String, Object>) info.get("profile");
+        //noinspection unchecked
+        Map<String, Object> profile = (Map) info.get("profile");
         if (profile != null) {
             // dict to JSON
             info.put("profile", JSON.encode(profile));
@@ -122,7 +125,7 @@ public class Utils {
         return message.getBytes();
     }
 
-    public static ReliableMessage<ID, SymmetricKey> deserializeMessage(byte[] data) {
+    public static ReliableMessage deserializeMessage(byte[] data) {
         Message msg = Message.parse(new Data(data));
         if (msg == null || msg.getSender() == null || msg.getReceiver() == null) {
             throw new NullPointerException("failed to deserialize data: " + Arrays.toString(data));
@@ -183,7 +186,6 @@ public class Utils {
             info.put("profile", JSON.decode(profile.getBytes()));
         }
 
-        //noinspection unchecked
         return ReliableMessage.getInstance(info);
     }
 

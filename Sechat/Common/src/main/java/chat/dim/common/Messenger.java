@@ -249,13 +249,13 @@ public abstract class Messenger extends chat.dim.Messenger {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station
-                SecureMessage sMsg = encryptMessage(iMsg);
+                SecureMessage<ID, SymmetricKey> sMsg = encryptMessage(iMsg);
                 if (sMsg == null) {
                     // public key not found?
                     return ;
                     //throw new NullPointerException("failed to encrypt message: " + iMsg);
                 }
-                ReliableMessage rMsg = signMessage(sMsg);
+                ReliableMessage<ID, SymmetricKey> rMsg = signMessage(sMsg);
                 if (rMsg == null) {
                     // TODO: set iMsg.state = error
                     throw new NullPointerException("failed to sign message: " + sMsg);

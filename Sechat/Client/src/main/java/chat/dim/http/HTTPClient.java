@@ -38,10 +38,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.utils.Strings;
 
 public class HTTPClient extends Thread {
 
@@ -56,11 +56,11 @@ public class HTTPClient extends Thread {
 
     // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
     public static String getCachePath(String url) {
-        String filename = Strings.filename(url);
+        String filename = Paths.getFilename(url);
         int pos = filename.indexOf(".");
         if (pos != 32) {
             // filename not hashed by MD5, hash the whole URL instead
-            String ext = Strings.extension(filename);
+            String ext = Paths.getExtension(filename);
             if (ext == null || ext.length() == 0) {
                 ext = "tmp";
             }

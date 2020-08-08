@@ -30,7 +30,6 @@ import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
 
 import chat.dim.stargate.StarStatus;
-
 import chat.dim.utils.Log;
 
 class ServerState extends State {

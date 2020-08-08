@@ -125,12 +125,12 @@ public class Terminal implements StationDelegate {
         messenger.login(null);
     }
 
-    @SuppressWarnings("unchecked")
     private void launchServiceProvider(Map<String, Object> spConfig) {
         Facebook facebook = Facebook.getInstance();
         ID spID = facebook.getID(spConfig.get("ID"));
         ServiceProvider sp = new ServiceProvider(spID);
 
+        //noinspection unchecked
         List<Map<String, Object>> stations = (List) spConfig.get("stations");
         if (stations == null) {
             stations = NetworkDatabase.getInstance().allStations(spID);
@@ -147,13 +147,14 @@ public class Terminal implements StationDelegate {
 
     //-------- AppDelegate
 
-    @SuppressWarnings("unchecked")
     public void launch(Map<String, Object> options) {
 
         //
         // launch server
         //
-        Map<String, Object> spConfig = (Map<String, Object>) options.get("SP");
+
+        //noinspection unchecked
+        Map<String, Object> spConfig = (Map) options.get("SP");
         if (spConfig == null) {
             spConfig = NetworkDatabase.getInstance().getProviderConfig(ID.ANYONE);
         }

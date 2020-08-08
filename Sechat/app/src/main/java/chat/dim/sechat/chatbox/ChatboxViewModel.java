@@ -7,11 +7,9 @@ import android.net.Uri;
 
 import java.util.List;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
@@ -44,13 +42,12 @@ public class ChatboxViewModel extends ViewModel {
         return msgDB.messagesInConversation(chatBox);
     }
 
-    static MsgType getType(InstantMessage<ID, SymmetricKey> iMsg, Conversation chatBox) {
-        Content content = iMsg.getContent();
-        if (content instanceof Command) {
+    static MsgType getType(InstantMessage iMsg, Conversation chatBox) {
+        if (iMsg.getContent() instanceof Command) {
             return MsgType.COMMAND;
         }
 
-        ID sender = iMsg.envelope.getSender();
+        ID sender = (ID) iMsg.envelope.getSender();
         if (sender.equals(chatBox.identifier)) {
             return MsgType.RECEIVED;
         }

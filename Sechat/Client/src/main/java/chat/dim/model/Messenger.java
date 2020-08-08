@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Meta;
@@ -47,6 +46,7 @@ import chat.dim.format.JSON;
 import chat.dim.network.Server;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.LoginCommand;
@@ -71,7 +71,7 @@ public class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
-        Content<ID> content = iMsg.getContent();
+        chat.dim.Content content = iMsg.getContent();
         // TODO: check message type
         //       only save normal message and group commands
         //       ignore 'Handshake', ...
@@ -111,7 +111,7 @@ public class Messenger extends chat.dim.common.Messenger {
         if (content instanceof InviteCommand) {
             // send keys again
             ID me = iMsg.envelope.getReceiver();
-            ID group = content.getGroup();
+            ID group = (ID) content.getGroup();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
             if (key != null) {
                 //key.put("reused", null);
@@ -143,8 +143,8 @@ public class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
-    protected chat.dim.protocol.Content process(chat.dim.protocol.Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
-        chat.dim.protocol.Content res = super.process(content, sender, rMsg);
+    protected Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+        Content res = super.process(content, sender, rMsg);
         if (res == null) {
             // respond nothing
             return null;
@@ -192,7 +192,7 @@ public class Messenger extends chat.dim.common.Messenger {
      * @param content - message content
      * @return true on success
      */
-    public boolean broadcastContent(Content<ID> content) {
+    public boolean broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
         return sendContent(content, ID.EVERYONE, null);
     }

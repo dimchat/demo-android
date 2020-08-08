@@ -78,7 +78,7 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         MainActivity activity = (MainActivity) getActivity();
-        assert activity != null : "main activity error: " + activity;
+        assert activity != null : "main activity not found";
 
         String serverState = activity.serverState;
         if (!serverState.equals(StateMachine.runningState)) {

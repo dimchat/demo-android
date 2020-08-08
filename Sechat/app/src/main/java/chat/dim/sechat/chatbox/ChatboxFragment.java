@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
@@ -123,7 +122,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         }
     }
 
-    private void sendContent(Content content) {
+    private void sendContent(chat.dim.protocol.Content content) {
         Client client = Client.getInstance();
         User user = client.getCurrentUser();
         if (user == null) {
@@ -138,7 +137,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
-        InstantMessage iMsg = new InstantMessage(content, sender, receiver);
+        InstantMessage iMsg = new InstantMessage<>(content, sender, receiver);
         sendMessage(iMsg);
     }
 
@@ -147,8 +146,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         if (text.length() == 0) {
             return;
         }
-        Content content = new TextContent(text);
-        sendContent(content);
+        sendContent(new TextContent(text));
         // sent OK
         inputText.setText("");
     }

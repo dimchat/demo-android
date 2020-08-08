@@ -15,10 +15,8 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
@@ -169,9 +167,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     private Facebook facebook = Facebook.getInstance();
     private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
-    private void showMessage(InstantMessage<ID, SymmetricKey> iMsg, ViewHolder viewHolder) {
-        ID sender = iMsg.envelope.getSender();
-        Content content = iMsg.getContent();
+    private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
+        ID sender = (ID) iMsg.envelope.getSender();
 
         // time
         String time = msgDB.getTimeString(iMsg);
@@ -195,6 +192,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         // show by content type
+        chat.dim.Content content = iMsg.getContent();
         if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);

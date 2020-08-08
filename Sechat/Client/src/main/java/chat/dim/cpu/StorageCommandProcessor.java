@@ -92,13 +92,14 @@ public class StorageCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    // decrypt and save contacts for user
     private Content processContacts(StorageCommand cmd) {
-        // decrypt and save contacts for user
-        Object contacts = cmd.get("contacts");
+        //noinspection unchecked
+        List<String> contacts = (List) cmd.get("contacts");
         if (contacts == null) {
             try {
-                contacts = decryptData(cmd);
+                //noinspection unchecked
+                contacts = (List) decryptData(cmd);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -108,7 +109,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         }
         Facebook facebook = getFacebook();
         ID identifier = facebook.getID(cmd.getIdentifier());
-        return saveContacts((List<String>) contacts, identifier);
+        return saveContacts(contacts, identifier);
     }
 
     //---- Private Key

@@ -49,11 +49,11 @@ public class StationTable extends Database {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> allStations(ID sp) {
         String path = getStationsFilePath(sp);
         try {
-            return (List<Map<String, Object>>) loadJSON(path);
+            //noinspection unchecked
+            return (List) loadJSON(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -64,13 +64,13 @@ public class SearchCommand extends Command {
      *
      * @return ID string list
      */
-    @SuppressWarnings("unchecked")
     public List<String> getUsers() {
-        Object users = dictionary.get("users");
+        //noinspection unchecked
+        List<String> users = (List) dictionary.get("users");
         if (users == null) {
             return null;
         }
-        return (List<String>) users;
+        return users;
     }
 
     /**
@@ -78,13 +78,13 @@ public class SearchCommand extends Command {
      *
      * @return meta dictionary
      */
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getResults() {
-        Object results = dictionary.get("results");
+        //noinspection unchecked
+        Map<String, Object> results = (Map) dictionary.get("results");
         if (results == null) {
             return null;
         }
-        return (Map<String, Object>) results;
+        return results;
     }
 
     static {

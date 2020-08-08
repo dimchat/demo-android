@@ -19,7 +19,6 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
-import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;

@@ -39,7 +39,7 @@ public class Times {
      * @param time2 - date 2
      * @return -1 on time1 before than time2, 1 on time1 after than time2
      */
-    public static int compare(Date time1, Date time2) {
+    public static int fuzzyCompare(Date time1, Date time2) {
         long t1 = time1.getTime();
         long t2 = time2.getTime();
         if (t1 < (t2 - 60 * 1000)) {

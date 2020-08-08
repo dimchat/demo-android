@@ -32,7 +32,6 @@ import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.NetworkType;
 

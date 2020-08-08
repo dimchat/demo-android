@@ -34,7 +34,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
@@ -81,7 +80,7 @@ public class MessageTable extends Database {
         }
     }
 
-    private boolean isEqual(InstantMessage<ID, SymmetricKey> msg1, InstantMessage<ID, SymmetricKey> msg2) {
+    private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
         // 1. check sn
         msg1.setDelegate(Messenger.getInstance());
         msg2.setDelegate(Messenger.getInstance());
@@ -185,7 +184,7 @@ public class MessageTable extends Database {
                 // duplicated message
                 return false;
             }
-            if (item.envelope.getTime() == null || Times.compare(item.envelope.getTime(), time) <= 0) {
+            if (item.envelope.getTime() == null || Times.fuzzyCompare(item.envelope.getTime(), time) <= 0) {
                 break;
             }
         }
@@ -223,8 +222,8 @@ public class MessageTable extends Database {
             if (!isMatch(item, receipt)) {
                 continue;
             }
-            @SuppressWarnings("unchecked")
-            List<Object> traces = (List<Object>) item.get("traces");
+            //noinspection unchecked
+            List<Object> traces = (List) item.get("traces");
             if (traces == null) {
                 traces = new ArrayList<>();
                 item.put("traces", traces);

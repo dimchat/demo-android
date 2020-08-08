@@ -42,12 +42,12 @@ public class GroupTable extends Database {
         return getEntityFilePath(group, "members.js");
     }
 
-    @SuppressWarnings("unchecked")
     private List<ID> loadMembers(ID group) {
         String path = getMembersFilePath(group);
         List<String> array;
         try {
-            array = (List<String>) loadJSON(path);
+            //noinspection unchecked
+            array = (List) loadJSON(path);
         } catch (IOException e) {
             //e.printStackTrace();
             return null;

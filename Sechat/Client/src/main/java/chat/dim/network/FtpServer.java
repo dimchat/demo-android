@@ -33,11 +33,11 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.Configuration;
 import chat.dim.protocol.FileContent;
-import chat.dim.utils.Strings;
 
 public class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -119,7 +119,7 @@ public class FtpServer {
     public String uploadEncryptedData(byte[] data, String filename, ID sender) {
 
         // prepare filename (make sure that filenames won't conflict)
-        String ext = Strings.extension(filename);
+        String ext = Paths.getExtension(filename);
         filename = Hex.encode(MD5.digest(data));
         if (ext != null && ext.length() > 0) {
             filename = filename + "." + ext;
