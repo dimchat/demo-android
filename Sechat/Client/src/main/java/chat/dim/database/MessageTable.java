@@ -140,9 +140,10 @@ public class MessageTable extends Database {
         List<InstantMessage> msgList = chatHistory.get(entity);
         if (msgList == null) {
             msgList = loadMessages(entity);
-            if (msgList != null) {
-                chatHistory.put(entity, msgList);
+            if (msgList == null) {
+                msgList = new ArrayList<>();
             }
+            chatHistory.put(entity, msgList);
         }
         return msgList;
     }
@@ -165,6 +166,20 @@ public class MessageTable extends Database {
             ++count;
         }
         return count;
+    }
+
+    public boolean clearUnreadMessages(ID entity) {
+        List<InstantMessage> msgList = messagesInConversation(entity);
+        int index = msgList.size() - 1;
+        if (index < 0) {
+            return false;
+        }
+        InstantMessage iMsg = msgList.get(index);
+        if (iMsg.get("read") != null) {
+            return true;
+        }
+        iMsg.put("read", "yes");
+        return saveMessages(entity);
     }
 
     public InstantMessage messageAtIndex(int index, ID entity) {
@@ -197,7 +212,9 @@ public class MessageTable extends Database {
 
     public boolean removeMessage(InstantMessage iMsg, ID entity) {
         List<InstantMessage> msgList = messagesInConversation(entity);
-        msgList.remove(iMsg);
+        if (!msgList.remove(iMsg)) {
+            return false;
+        }
         return saveMessages(entity);
     }
 
@@ -253,9 +270,6 @@ public class MessageTable extends Database {
 
     public boolean clearMessages(ID entity) {
         List<InstantMessage> messages = messagesInConversation(entity);
-        if (messages == null) {
-            return false;
-        }
         messages.clear();
         String path = getMessageFilePath(entity);
         try {

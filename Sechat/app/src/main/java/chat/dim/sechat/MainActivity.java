@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private void refreshTitle() {
         CharSequence status;
         if (serverState == null) {
-            status = getText(R.string.server_default);
+            status = null;
         } else if (serverState.equals(StateMachine.defaultState)) {
             status = getText(R.string.server_default);
         } else if (serverState.equals(StateMachine.connectingState)) {

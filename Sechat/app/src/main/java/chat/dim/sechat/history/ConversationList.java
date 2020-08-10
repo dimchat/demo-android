@@ -111,9 +111,10 @@ public class ConversationList extends DummyList<ConversationList.Item> {
 
         String getUnread() {
             int count = msgDB.numberOfUnreadMessages(chatBox);
-            if (count > 0) {
-                int total = msgDB.numberOfMessages(chatBox);
-                return count + "/" + total;
+            if (count > 99) {
+                return "99+";
+            } else if (count > 0) {
+                return "" + count;
             }
             return null;
         }

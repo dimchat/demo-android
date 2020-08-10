@@ -29,6 +29,7 @@
             android:id="@+id/search_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="title"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@android:color/black" />
@@ -37,6 +38,7 @@
             android:id="@+id/search_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:text="desc"
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
     </LinearLayout>

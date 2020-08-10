@@ -39,6 +39,7 @@ public class ChatboxViewModel extends ViewModel {
 
     List<InstantMessage> getMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
+        msgDB.clearUnreadMessages(chatBox);
         return msgDB.messagesInConversation(chatBox);
     }
 

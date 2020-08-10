@@ -9,14 +9,18 @@
     tools:context=".account.AccountFragment">
 
     <LinearLayout
+        android:id="@+id/detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/background_light"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="@dimen/fab_margin">
 
         <android.support.v7.widget.CardView
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:layout_margin="8dp"
             app:cardCornerRadius="40dp">
 
             <ImageView
@@ -29,7 +33,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:layout_marginLeft="8dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -38,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:gravity="center_vertical"
+                android:singleLine="true"
                 android:text="@string/name"
                 android:textSize="18sp"
                 app:autoSizeMaxTextSize="18sp"
@@ -49,56 +53,94 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lines="1"
+                android:singleLine="true"
                 android:textIsSelectable="true"
                 app:autoSizeMinTextSize="8sp"
                 app:autoSizeTextType="uniform"
                 tools:text="@string/id_address" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/detailBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="4dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_menu_info_details" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="›"
+            android:textSize="36sp" />
 
     </LinearLayout>
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:divider="@android:color/darker_gray"
+        android:dividerPadding="@dimen/text_margin"
+        android:gravity="center_vertical"
+        android:showDividers="middle">
 
         <TableRow
+            android:id="@+id/termsRow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@android:color/background_light"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_dialog_alert"
+                app:srcCompat="@android:drawable/ic_dialog_alert" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/text_margin"
+                android:text="@string/terms" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="36sp" />
+        </TableRow>
 
         <TableRow
+            android:id="@+id/aboutRow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@android:color/background_light"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_dialog_info"
+                app:srcCompat="@android:drawable/ic_dialog_info" />
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/text_margin"
+                android:layout_weight="1"
+                android:padding="@dimen/text_margin"
+                android:text="@string/about" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="36sp" />
+        </TableRow>
+
     </TableLayout>
-
-    <Button
-        android:id="@+id/termBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
-        android:text="@string/terms" />
-
-    <Button
-        android:id="@+id/aboutBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left|center_vertical"
-        android:text="@string/about" />
 
 </LinearLayout>

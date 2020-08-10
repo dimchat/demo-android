@@ -21,7 +21,6 @@ import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.ImageContent;
@@ -164,12 +163,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         ImageViewerActivity.show(context, Uri.parse(path), sender);
     }
 
-    private Facebook facebook = Facebook.getInstance();
     private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
-        // mark it as read
-        iMsg.put("read", "yes");
 
         ID sender = (ID) iMsg.envelope.getSender();
 

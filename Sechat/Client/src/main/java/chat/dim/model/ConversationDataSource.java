@@ -74,12 +74,20 @@ public interface ConversationDataSource {
     int numberOfMessages(Conversation chatBox);
 
     /**
-     *  Get unread message count in this conversation for an entyty
+     *  Get unread message count in this conversation for an entity
      *
      * @param chatBox - conversation instance
      * @return unread count
      */
     int numberOfUnreadMessages(Conversation chatBox);
+
+    /**
+     *  Clear unread flag in this conversation for an entity
+     *
+     * @param chatBox - conversation instance
+     * @return false on failed
+     */
+    boolean clearUnreadMessages(Conversation chatBox);
 
     /**
      *  Get message at index of this conversation

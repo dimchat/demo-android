@@ -11,9 +11,9 @@ import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import chat.dim.model.Configuration;
@@ -28,10 +28,10 @@ public class AccountFragment extends Fragment {
     private TextView nameView;
     private TextView descView;
 
-    private ImageButton detailButton;
+    private LinearLayout detail;
 
-    private Button termsButton;
-    private Button aboutButton;
+    private TableRow termsButton;
+    private TableRow aboutButton;
 
     public static AccountFragment newInstance() {
         return new AccountFragment();
@@ -48,9 +48,9 @@ public class AccountFragment extends Fragment {
         nameView = view.findViewById(R.id.nameView);
         descView = view.findViewById(R.id.descView);
 
-        detailButton = view.findViewById(R.id.detailBtn);
-        termsButton = view.findViewById(R.id.termBtn);
-        aboutButton = view.findViewById(R.id.aboutBtn);
+        detail = view.findViewById(R.id.detail);
+        termsButton = view.findViewById(R.id.termsRow);
+        aboutButton = view.findViewById(R.id.aboutRow);
 
         FragmentActivity activity = getActivity();
         assert activity != null : "should not happen";
@@ -69,12 +69,12 @@ public class AccountFragment extends Fragment {
 
         avatarView.setImageBitmap(mViewModel.getAvatar());
 
-        detailButton.setOnClickListener(v -> detail());
+        detail.setOnClickListener(v -> showDetail());
         termsButton.setOnClickListener(v -> open(R.string.terms, config.getTermsURL()));
         aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
     }
 
-    private void detail() {
+    private void showDetail() {
         Context context = getContext();
         assert context != null : "failed to get context";
         Intent intent = new Intent();

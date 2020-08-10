@@ -26,6 +26,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:lines="1"
+        android:singleLine="true"
         android:text="@string/name" />
 
     <CheckBox

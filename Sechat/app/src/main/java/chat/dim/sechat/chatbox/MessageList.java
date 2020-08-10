@@ -29,9 +29,6 @@ public class MessageList extends DummyList<MessageList.Item> {
         clearItems();
 
         List<InstantMessage> messages = viewModel.getMessages(chatBox);
-        if (messages == null) {
-            return;
-        }
         for (InstantMessage msg : messages) {
             addItem(new Item(msg));
         }

@@ -126,6 +126,11 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     @Override
+    public boolean clearUnreadMessages(Conversation chatBox) {
+        return messageTable.clearUnreadMessages(chatBox.identifier);
+    }
+
+    @Override
     public InstantMessage messageAtIndex(int index, Conversation chatBox) {
         return messageTable.messageAtIndex(index, chatBox.identifier);
     }
