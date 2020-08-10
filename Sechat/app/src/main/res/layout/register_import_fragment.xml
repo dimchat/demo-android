@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
-    tools:context=".account.ExportFragment">
+    tools:context=".register.ImportFragment">
 
     <android.support.v7.widget.CardView
         android:layout_width="0dp"
@@ -27,42 +27,37 @@
             android:layout_height="match_parent"
             android:padding="@dimen/fab_margin">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="@dimen/text_margin"
-                android:layout_marginLeft="@dimen/text_margin"
-                android:layout_marginTop="@dimen/text_margin"
-                android:layout_marginEnd="@dimen/text_margin"
-                android:layout_marginRight="@dimen/text_margin"
-                android:layout_marginBottom="@dimen/text_margin"
-                android:padding="@dimen/text_margin"
-                android:text="@string/export_hint" />
-
             <ImageButton
                 android:id="@+id/close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
-                android:background="@android:color/transparent"
-                android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                android:background="@android:drawable/ic_menu_close_clear_cancel" />
 
-            <TextView
-                android:id="@+id/userInfo"
+            <EditText
+                android:id="@+id/privateInfo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_above="@id/importButton"
                 android:layout_below="@id/close"
                 android:background="#F5F2F2"
+                android:ems="10"
+                android:gravity="top"
+                android:hint="@string/import_hint"
+                android:inputType="textMultiLine"
                 android:padding="8dp"
-                android:selectAllOnFocus="true"
-                android:text="private key"
-                android:textColor="#041269"
-                android:textIsSelectable="true" />
+                android:textColor="#041269" />
 
+            <Button
+                android:id="@+id/importButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:text="@string/import_hint" />
         </RelativeLayout>
-
     </android.support.v7.widget.CardView>
 </android.support.constraint.ConstraintLayout>

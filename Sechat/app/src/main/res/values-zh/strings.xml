@@ -49,4 +49,6 @@
     <string name="voice_record_stop">松开发送</string>
     <string name="downloading">正在下载</string>
     <string name="export_hint">复制并小心保管您的私密信息</string>
+    <string name="import_hint">导入已有账号</string>
+    <string name="register_account_error">账号信息错误</string>
 </resources>
