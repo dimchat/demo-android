@@ -193,7 +193,8 @@ public class Terminal implements StationDelegate {
 
     public void enterForeground() {
         Server server = getCurrentServer();
-        if (server != null) {
+        User user = getCurrentUser();
+        if (server != null && user != null) {
             // resume the server
             if (isServerPaused) {
                 server.resume();

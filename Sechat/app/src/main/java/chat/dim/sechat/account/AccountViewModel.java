@@ -22,10 +22,9 @@ public class AccountViewModel extends UserViewModel {
     public ID getIdentifier() {
         if (identifier == null) {
             User user = getCurrentUser();
-            if (user == null) {
-                throw new NullPointerException("current user not found");
+            if (user != null) {
+                identifier = user.identifier;
             }
-            identifier = user.identifier;
         }
         return identifier;
     }
