@@ -323,6 +323,25 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     private List<RequestWrapper> waitingList = new ArrayList<>();
     private Map<String, RequestWrapper> sendingTable = new HashMap<>();
 
+    private void sendAllWaiting() {
+        RequestWrapper wrapper;
+        while (waitingList.size() > 0) {
+            if (StarStatus.Connected.equals(star.getStatus())) {
+                wrapper = waitingList.remove(0);
+                send(wrapper);
+            }
+        }
+    }
+
+    private void send(RequestWrapper wrapper) {
+        send(wrapper.data);
+
+        if (wrapper.handler != null) {
+            String key = RequestWrapper.getKey(wrapper.data);
+            sendingTable.put(key, wrapper);
+        }
+    }
+
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
         RequestWrapper wrapper = new RequestWrapper(data, handler);
@@ -333,13 +352,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             return true;
         }
 
-        send(data);
-
-        if (handler != null) {
-            String key = RequestWrapper.getKey(data);
-            sendingTable.put(key, wrapper);
-        }
-
+        send(wrapper);
         return true;
     }
 
@@ -386,7 +399,8 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             this.session = null;
             handshake(session);
         } else if (serverState.name.equals(StateMachine.runningState)) {
-            // TODO: send all packages waiting
+            // send all packages waiting
+            sendAllWaiting();
         } else if (serverState.name.equals(StateMachine.errorState)) {
             // reconnect
             restart();

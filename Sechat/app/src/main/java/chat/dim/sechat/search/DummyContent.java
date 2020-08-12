@@ -31,7 +31,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
     }
 
     @Override
-    public void reloadData() {
+    public synchronized void reloadData() {
         clearItems();
 
         if (response == null) {

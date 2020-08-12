@@ -41,8 +41,14 @@ import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.ContentProcessor;
+import chat.dim.cpu.GroupCommandProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
 import chat.dim.cpu.ReceiptCommandProcessor;
+import chat.dim.cpu.group.ExpelCommandProcessor;
+import chat.dim.cpu.group.InviteCommandProcessor;
+import chat.dim.cpu.group.QueryCommandProcessor;
+import chat.dim.cpu.group.QuitCommandProcessor;
+import chat.dim.cpu.group.ResetCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
@@ -51,6 +57,7 @@ import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
@@ -241,14 +248,22 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     @Override
     public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
-        if (password.get("reused") != null) {
+        Object reused = password.get("reused");
+        if (reused != null) {
             ID receiver = iMsg.envelope.getReceiver();
             if (receiver.isGroup()) {
                 // reuse key for grouped message
                 return null;
             }
+            // remove before serialize key
+            password.remove("reused");
         }
-        return super.serializeKey(password, iMsg);
+        byte[] data = super.serializeKey(password, iMsg);
+        if (reused != null) {
+            // put it back
+            password.put("reused", reused);
+        }
+        return data;
     }
 
     @Override
@@ -324,5 +339,12 @@ public abstract class Messenger extends chat.dim.Messenger {
 
         // default content processor
         ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);
+
+        // FIXME: import group command processors
+        GroupCommandProcessor.register(GroupCommand.INVITE, InviteCommandProcessor.class);
+        GroupCommandProcessor.register(GroupCommand.EXPEL, ExpelCommandProcessor.class);
+        GroupCommandProcessor.register(GroupCommand.QUIT, QuitCommandProcessor.class);
+        GroupCommandProcessor.register(GroupCommand.RESET, ResetCommandProcessor.class);
+        GroupCommandProcessor.register(GroupCommand.QUERY, QueryCommandProcessor.class);
     }
 }

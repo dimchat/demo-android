@@ -1,5 +1,6 @@
 package chat.dim.sechat.chatbox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.InstantMessage;
@@ -10,9 +11,9 @@ import chat.dim.ui.list.DummyList;
 public class MessageList extends DummyList<MessageList.Item> {
 
     final Conversation chatBox;
-    ChatboxViewModel viewModel = null;
+    private ChatboxViewModel viewModel = null;
 
-    public MessageList(Conversation chatBox) {
+    MessageList(Conversation chatBox) {
         super();
         this.chatBox = chatBox;
     }
@@ -22,13 +23,13 @@ public class MessageList extends DummyList<MessageList.Item> {
     }
 
     @Override
-    public void reloadData() {
+    public synchronized void reloadData() {
         if (viewModel == null) {
             return;
         }
         clearItems();
 
-        List<InstantMessage> messages = viewModel.getMessages(chatBox);
+        List<InstantMessage> messages = new ArrayList<>(viewModel.getMessages(chatBox));
         for (InstantMessage msg : messages) {
             addItem(new Item(msg));
         }
@@ -39,7 +40,7 @@ public class MessageList extends DummyList<MessageList.Item> {
      */
     public static class Item implements DummyItem {
 
-        public final InstantMessage msg;
+        final InstantMessage msg;
 
         public Item(InstantMessage iMsg) {
             msg = iMsg;

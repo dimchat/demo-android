@@ -36,6 +36,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ContactList.Item item = dummyList.getItem(position);
+
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 

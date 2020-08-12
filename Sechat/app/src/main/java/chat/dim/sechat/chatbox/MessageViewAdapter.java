@@ -66,6 +66,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MessageList.Item item = dummyList.getItem(position);
+
         InstantMessage iMsg = item.msg;
         View view = holder.itemView;
         Context context = view.getContext();

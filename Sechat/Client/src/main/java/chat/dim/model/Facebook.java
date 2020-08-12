@@ -71,6 +71,7 @@ public class Facebook extends chat.dim.common.Facebook {
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
             // query from DIM network
+            System.out.println("querying meta: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryMeta(identifier);
         }
@@ -83,6 +84,7 @@ public class Facebook extends chat.dim.common.Facebook {
         Profile profile = super.getProfile(identifier);
         if (isEmpty(profile)) {
             // query from DIM network
+            System.out.println("querying profile: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryProfile(identifier);
         }

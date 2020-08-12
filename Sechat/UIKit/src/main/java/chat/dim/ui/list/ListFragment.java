@@ -49,6 +49,8 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
     // TODO: Customize parameters
     private int columns = 1;
 
+    private boolean isReloading = false;
+
     protected L dummyList = null;
     protected VA adapter = null;
 
@@ -82,33 +84,34 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
     }
 
     public void reloadData() {
-        Lock writeLock = dummyLock.writeLock();
-        writeLock.lock();
-        try {
-            dummyList.reloadData();
-            Message msg = new Message();
-            msg.what = 0x9527;
-            msgHandler.sendMessage(msg);
-        } finally {
-            writeLock.unlock();;
-        }
+        Message msg = new Message();
+        msg.what = 0x9527;
+        msgHandler.sendMessage(msg);
     }
     protected void onReloaded() {
-        Lock readLock = dummyLock.readLock();
-        readLock.lock();
-        try {
-            adapter.notifyDataSetChanged();
-        } finally {
-            readLock.unlock();
-        }
+        adapter.notifyDataSetChanged();
     }
 
     @SuppressLint("HandlerLeak")
-    protected final Handler msgHandler = new Handler() {
+    private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 0x9527) {
-                onReloaded();
+                if (isReloading) {
+                    return;
+                }
+                isReloading = true;
+
+                Lock writeLock = dummyLock.writeLock();
+                writeLock.lock();
+                try {
+                    dummyList.reloadData();
+                    onReloaded();
+                } finally {
+                    writeLock.unlock();
+                }
+
+                isReloading = false;
             }
         }
     };

@@ -17,7 +17,7 @@ public class MemberList extends CandidateList {
     }
 
     @Override
-    public void reloadData() {
+    public synchronized void reloadData() {
         clearItems();
 
         List<ID> members = facebook.getMembers(group);

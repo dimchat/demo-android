@@ -22,7 +22,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
     }
 
     @Override
-    public void reloadData() {
+    public synchronized void reloadData() {
         clearItems();
 
         User user = UserViewModel.getCurrentUser();

@@ -36,6 +36,7 @@ public class SearchViewAdapter extends RecyclerViewAdapter<SearchViewAdapter.Vie
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DummyContent.Item item = dummyList.getItem(position);
+
         holder.mTitleView.setText(item.getTitle());
         holder.mDescView.setText(item.getDesc());
 

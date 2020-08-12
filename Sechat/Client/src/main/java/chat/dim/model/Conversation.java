@@ -104,6 +104,10 @@ public class Conversation {
         int msgType;
         for (int index = count - 1; index >= 0; --index) {
             iMsg = messageAtIndex(index);
+            if (iMsg == null) {
+                continue;
+            }
+            // FIXME: here will throw a NullPointerException
             msgType = iMsg.getContent().type;
             if (ContentType.TEXT.value == msgType ||
                     ContentType.FILE.value == msgType ||

@@ -32,7 +32,7 @@ public class ConversationList extends DummyList<ConversationList.Item> {
     private static ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
     @Override
-    public void reloadData() {
+    public synchronized void reloadData() {
         //msgDB.reloadConversations();
 
         List<Conversation> conversations = new ArrayList<>();
@@ -111,9 +111,7 @@ public class ConversationList extends DummyList<ConversationList.Item> {
 
         String getUnread() {
             int count = msgDB.numberOfUnreadMessages(chatBox);
-            if (count > 99) {
-                return "99+";
-            } else if (count > 0) {
+            if (count > 0) {
                 return "" + count;
             }
             return null;

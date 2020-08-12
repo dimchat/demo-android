@@ -88,7 +88,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     }
 
     @Override
-    protected void onReloaded() {
+    protected synchronized void onReloaded() {
         super.onReloaded();
         scrollToBottom();
     }

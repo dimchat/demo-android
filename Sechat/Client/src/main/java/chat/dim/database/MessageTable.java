@@ -25,6 +25,8 @@
  */
 package chat.dim.database;
 
+import com.alibaba.fastjson.JSONException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,9 +38,12 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.utils.Log;
 import chat.dim.utils.Times;
 
 public class MessageTable extends Database {
+
+    public static int MAX_MESSAGES_COUNT = 999;
 
     private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
 
@@ -49,7 +54,8 @@ public class MessageTable extends Database {
         for (Object item : array) {
             iMsg = messenger.getInstantMessage(item);
             if (iMsg == null) {
-                throw new NullPointerException("message error: " + item);
+                //throw new NullPointerException("message error: " + item);
+                continue;
             }
             messages.add(iMsg);
         }
@@ -64,6 +70,10 @@ public class MessageTable extends Database {
             if (array instanceof List) {
                 return cacheMessages((List) array, entity);
             }
+        } catch (JSONException e) {
+            //delete(path);
+            Log.error("JSON file error: " + path);
+            return null;
         } catch (IOException e) {
             //e.printStackTrace();
         }
@@ -75,6 +85,12 @@ public class MessageTable extends Database {
         if (messages == null) {
             return false;
         }
+
+        // TODO: Burn after reading
+        while (messages.size() > MAX_MESSAGES_COUNT) {
+            messages.remove(0);
+        }
+
         String path = getMessageFilePath(entity);
         try {
             return saveJSON(messages, path);
@@ -184,7 +200,11 @@ public class MessageTable extends Database {
 
     public InstantMessage messageAtIndex(int index, ID entity) {
         List<InstantMessage> msgList = messagesInConversation(entity);
-        return msgList.get(index);
+        if (index >= 0 && index < msgList.size()) {
+            return msgList.get(index);
+        } else {
+            return null;
+        }
     }
 
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
@@ -251,6 +271,7 @@ public class MessageTable extends Database {
             // DISCUSS: what about the other fields 'sender', 'receiver', 'signature'
             //          in this receipt command?
             traces.add(iMsg.envelope.getSender());
+            break;
         }
         return saveMessages(entity);
     }
