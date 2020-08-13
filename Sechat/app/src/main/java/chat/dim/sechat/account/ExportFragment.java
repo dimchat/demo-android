@@ -11,6 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.List;
+
+import chat.dim.ID;
+import chat.dim.model.Messenger;
 import chat.dim.sechat.R;
 
 public class ExportFragment extends Fragment {
@@ -44,6 +48,13 @@ public class ExportFragment extends Fragment {
 
         TextView textView = view.findViewById(R.id.userInfo);
         textView.setText(mViewModel.serializePrivateInfo());
+
+        // backup contacts(encrypted) to DIM station
+        List<ID> contacts = mViewModel.getContacts();
+        if (contacts != null && contacts.size() > 0) {
+            Messenger messenger = Messenger.getInstance();
+            messenger.postContacts(contacts);
+        }
 
         return view;
     }

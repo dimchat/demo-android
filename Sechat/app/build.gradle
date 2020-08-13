@@ -7,7 +7,7 @@ android {
         targetCompatibility 1.8
     }
     defaultConfig {
-        applicationId "chat.dim.sechat"
+        applicationId "chat.dim.client"
         minSdkVersion 16
         targetSdkVersion 28
         vectorDrawables {

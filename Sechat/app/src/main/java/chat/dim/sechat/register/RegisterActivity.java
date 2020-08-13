@@ -27,6 +27,8 @@ public class RegisterActivity extends ImagePickerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity);
 
+        setTitle(R.string.register);
+
         tryLaunch();
 
         if (savedInstanceState == null) {

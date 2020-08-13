@@ -2,6 +2,7 @@ package chat.dim.sechat.account;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
@@ -27,6 +28,14 @@ public class AccountViewModel extends UserViewModel {
             }
         }
         return identifier;
+    }
+
+    public List<ID> getContacts() {
+        User user = facebook.getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        return user.getContacts();
     }
 
     void updateProfile(Profile profile) {
@@ -99,12 +108,6 @@ public class AccountViewModel extends UserViewModel {
         String seed = identifier.name;
         if (seed != null && seed.length() > 0) {
             info.put("username", seed);
-        }
-
-        // profile.name
-        String name = facebook.getNickname(identifier);
-        if (name != null && name.length() > 0) {
-            info.put("nickname", name);
         }
 
         byte[] data = JSON.encode(info);

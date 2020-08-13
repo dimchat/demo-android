@@ -178,11 +178,15 @@ public class Terminal implements StationDelegate {
     public void enterBackground() {
         Server server = getCurrentServer();
         if (server != null) {
-            // report client state
-            Command cmd = new Command("broadcast");
-            cmd.put("title", "report");
-            cmd.put("state", "background");
-            messenger.sendCommand(cmd);
+            User user = getCurrentUser();
+            if (user != null) {
+                // report client state
+                Command cmd = new Command("broadcast");
+                cmd.put("title", "report");
+                cmd.put("state", "background");
+                messenger.sendCommand(cmd);
+            }
+
             // pause the server
             if (!isServerPaused) {
                 server.pause();
@@ -193,8 +197,7 @@ public class Terminal implements StationDelegate {
 
     public void enterForeground() {
         Server server = getCurrentServer();
-        User user = getCurrentUser();
-        if (server != null && user != null) {
+        if (server != null) {
             // resume the server
             if (isServerPaused) {
                 server.resume();
@@ -203,11 +206,14 @@ public class Terminal implements StationDelegate {
 
             // clear icon badge
 
-            // report client state
-            Command cmd = new Command("broadcast");
-            cmd.put("title", "report");
-            cmd.put("state", "foreground");
-            messenger.sendCommand(cmd);
+            User user = getCurrentUser();
+            if (user != null) {
+                // report client state
+                Command cmd = new Command("broadcast");
+                cmd.put("title", "report");
+                cmd.put("state", "foreground");
+                messenger.sendCommand(cmd);
+            }
         }
     }
 

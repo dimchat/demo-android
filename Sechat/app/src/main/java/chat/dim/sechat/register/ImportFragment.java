@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
+import chat.dim.model.Messenger;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.Alert;
@@ -76,6 +77,9 @@ public class ImportFragment extends Fragment {
             return;
         }
         facebook.setCurrentUser(user);
+
+        Messenger messenger = Messenger.getInstance();
+        messenger.queryContacts();
 
         activity.close();
     }
