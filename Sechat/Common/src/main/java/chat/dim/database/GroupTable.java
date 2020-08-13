@@ -25,109 +25,21 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.ID;
 
-public class GroupTable extends Database {
+public interface GroupTable {
 
-    private Map<ID, List<ID>> membersMap = new HashMap<>();
+    ID getFounder(ID group);
 
-    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/members.js"
-    private static String getMembersFilePath(ID group) {
-        return getEntityFilePath(group, "members.js");
-    }
+    ID getOwner(ID group);
 
-    private List<ID> loadMembers(ID group) {
-        String path = getMembersFilePath(group);
-        List<String> array;
-        try {
-            //noinspection unchecked
-            array = (List) loadJSON(path);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            return null;
-        }
-        if (array == null || array.size() == 0) {
-            return null;
-        }
-        List<ID> memberList = new ArrayList<>();
-        ID member;
-        for (String item : array) {
-            // FIXME: get ID by facebook
-            member = ID.getInstance(item);
-            assert member.isValid() : "member error: " + item;
-            if (memberList.contains(member)) {
-                continue;
-            }
-            memberList.add(member);
-        }
-        // TODO: ensure the founder is at the front
-        return memberList;
-    }
+    List<ID> getMembers(ID group);
 
-    private boolean saveMembers(ID group) {
-        List<ID> memberList = membersMap.get(group);
-        if (memberList == null || memberList.size() == 0) {
-            throw new NullPointerException("group members cannot be empty: " + group);
-        }
-        String path = getMembersFilePath(group);
-        try {
-            return saveJSON(memberList, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    boolean addMember(ID member, ID group);
 
-    public ID getFounder(ID group) {
-        // TODO: get founder of group
-        return null;
-    }
+    boolean removeMember(ID member, ID group);
 
-    public ID getOwner(ID group) {
-        // TODO: get owner of group
-        return null;
-    }
-
-    public List<ID> getMembers(ID group) {
-        List<ID> members = membersMap.get(group);
-        if (members == null) {
-            members = loadMembers(group);
-            if (members == null) {
-                // no need to load again
-                members = new ArrayList<>();
-            }
-            membersMap.put(group, members);
-        }
-        return members;
-    }
-
-    public boolean addMember(ID member, ID group) {
-        List<ID> members = getMembers(group);
-        if (members.contains(member)) {
-            return false;
-        }
-        members.add(member);
-        return saveMembers(group);
-    }
-
-    public boolean removeMember(ID member, ID group) {
-        List<ID> members = getMembers(group);
-        if (!members.contains(member)) {
-            return false;
-        }
-        members.remove(member);
-        return saveMembers(group);
-    }
-
-    public boolean saveMembers(List<ID> members, ID group) {
-        assert members.size() > 0 : "group members list empty";
-        membersMap.put(group, members);
-        return saveMembers(group);
-    }
+    boolean saveMembers(List<ID> members, ID group);
 }

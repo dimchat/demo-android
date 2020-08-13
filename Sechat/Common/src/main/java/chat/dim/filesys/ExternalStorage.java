@@ -43,6 +43,9 @@ public class ExternalStorage {
 
     protected static String separator = File.separator;
 
+    public static String getRoot() {
+        return root;
+    }
     public static void setRoot(String dir) {
         root = dir;
 

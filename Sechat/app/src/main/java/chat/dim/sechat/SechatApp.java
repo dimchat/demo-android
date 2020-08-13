@@ -13,6 +13,9 @@ import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
+import chat.dim.model.Facebook;
+import chat.dim.sqlite.EntityDatabase;
+import chat.dim.sqlite.GroupTable;
 import chat.dim.ui.Application;
 
 public class SechatApp extends Application {
@@ -22,6 +25,10 @@ public class SechatApp extends Application {
     public SechatApp() {
         super();
         ourInstance = this;
+
+        // databases
+        EntityDatabase.setContext(this);
+        Facebook.getInstance().groupTable = GroupTable.getInstance();
     }
 
     @Override
