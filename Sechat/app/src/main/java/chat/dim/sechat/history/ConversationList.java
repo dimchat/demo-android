@@ -33,7 +33,6 @@ public class ConversationList extends DummyList<ConversationList.Item> {
 
     @Override
     public synchronized void reloadData() {
-        //msgDB.reloadConversations();
 
         List<Conversation> conversations = new ArrayList<>();
         Conversation chatBox;

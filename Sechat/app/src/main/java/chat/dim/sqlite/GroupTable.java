@@ -67,7 +67,7 @@ public class GroupTable implements chat.dim.database.GroupTable {
         String[] selectionArgs = {group.toString()};
         try (Cursor cursor = db.query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                founder = entityDatabase.getID(cursor.getString(0));
+                founder = EntityDatabase.getID(cursor.getString(0));
             }
         }
         // TODO: check founder within members
@@ -85,10 +85,10 @@ public class GroupTable implements chat.dim.database.GroupTable {
         String[] selectionArgs = {group.toString()};
         try (Cursor cursor = db.query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                owner = entityDatabase.getID(cursor.getString(0));
+                owner = EntityDatabase.getID(cursor.getString(0));
                 if (owner == null && group.getType() == NetworkType.Polylogue.value) {
                     // Polylogue's owner is its founder
-                    owner = entityDatabase.getID(cursor.getString(1));
+                    owner = EntityDatabase.getID(cursor.getString(1));
                 }
             }
         }
@@ -107,7 +107,7 @@ public class GroupTable implements chat.dim.database.GroupTable {
             List<ID> members = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = entityDatabase.getID(cursor.getString(0));
+                identifier = EntityDatabase.getID(cursor.getString(0));
                 if (identifier != null) {
                     members.add(identifier);
                 }

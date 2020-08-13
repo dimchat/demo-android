@@ -34,7 +34,6 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Message;
 import chat.dim.cpu.AnyContentProcessor;
-import chat.dim.database.ConversationTable;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -49,8 +48,7 @@ public class ConversationDatabase implements ConversationDataSource {
         AnyContentProcessor.facebook = Facebook.getInstance();
     }
 
-    private ConversationTable conversationTable = new ConversationTable();
-    private MessageTable messageTable = new MessageTable();
+    public MessageTable messageTable = null;
 
     public String getTimeString(Message msg) {
         Date time = msg.envelope.getTime();
@@ -72,17 +70,17 @@ public class ConversationDatabase implements ConversationDataSource {
 
     @Override
     public int numberOfConversations() {
-        return conversationTable.numberOfConversations();
+        return messageTable.numberOfConversations();
     }
 
     @Override
     public ID conversationAtIndex(int index) {
-        return conversationTable.conversationAtIndex(index);
+        return messageTable.conversationAtIndex(index);
     }
 
     @Override
     public boolean removeConversationAtIndex(int index) {
-        return conversationTable.removeConversationAtIndex(index);
+        return messageTable.removeConversationAtIndex(index);
     }
 
     @Override
@@ -90,7 +88,7 @@ public class ConversationDatabase implements ConversationDataSource {
         if (!messageTable.removeMessages(identifier)) {
             return false;
         }
-        if (!conversationTable.removeConversation(identifier)) {
+        if (!messageTable.removeConversation(identifier)) {
             return false;
         }
         postMessageUpdatedNotification(null, identifier);
@@ -98,15 +96,11 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     public boolean clearConversation(ID identifier) {
-        if (!messageTable.clearMessages(identifier)) {
+        if (!messageTable.removeMessages(identifier)) {
             return false;
         }
         postMessageUpdatedNotification(null, identifier);
         return true;
-    }
-
-    public void reloadConversations() {
-        conversationTable.reloadConversations();
     }
 
     // messages
@@ -147,7 +141,6 @@ public class ConversationDatabase implements ConversationDataSource {
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.insertMessage(iMsg, chatBox.identifier);
         if (OK) {
-            conversationTable.insertConversation(chatBox.identifier);
             postMessageUpdatedNotification(iMsg, chatBox.identifier);
         }
         return OK;

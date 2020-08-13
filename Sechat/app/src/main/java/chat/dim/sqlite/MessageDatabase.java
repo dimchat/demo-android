@@ -29,35 +29,44 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
 import chat.dim.ID;
+import chat.dim.InstantMessage;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
-import chat.dim.model.Facebook;
+import chat.dim.format.JSON;
+import chat.dim.model.Messenger;
 
-public class EntityDatabase extends SQLiteOpenHelper {
+public class MessageDatabase extends SQLiteOpenHelper {
 
-    private EntityDatabase(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private MessageDatabase(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
-    private static EntityDatabase ourInstance = null;
+    private static MessageDatabase ourInstance = null;
+
     public static void setContext(Context context) {
-        ourInstance = new EntityDatabase(context, getDbName(), null, DB_VERSION);
+        ourInstance = new MessageDatabase(context, getDbName(), null, DB_VERSION);
     }
-    static EntityDatabase getInstance() {
+
+    static MessageDatabase getInstance() {
         assert ourInstance != null : "database should be initialized with context first";
         return ourInstance;
     }
 
-    private static final String DB_NAME = "mkm.sqlite";
+    private static final String DB_NAME = "dkd.sqlite";
     private static final int DB_VERSION = 1;
 
     private static String getDbName() {
         return Paths.appendPathComponent(ExternalStorage.getRoot(), "db", DB_NAME);
     }
 
-    static final String T_GROUP = "t_group";
-    static final String T_MEMBERS = "t_members";
+    static final String T_MESSAGES = "t_messages";
+    static final String T_TRACES = "t_traces";
 
     //
     //  SQLiteOpenHelper
@@ -65,8 +74,15 @@ public class EntityDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + T_GROUP + "(gid VARCHAR(64), name VARCHAR(32), founder VARCHAR(64), owner VARCHAR(64))");
-        db.execSQL("CREATE TABLE " + T_MEMBERS + "(gid VARCHAR(64), member VARCHAR(64))");
+        // t_messages
+        db.execSQL("CREATE TABLE " + T_MESSAGES + "(cid VARCHAR(64), sender VARCHAR(64), receiver VARCHAR(64), time INTEGER," +
+                // content
+                " sn VARCHAR(20), type INTEGER, content TEXT," +
+                // extra
+                " read BIT)");
+        // t_traces
+        db.execSQL("CREATE TABLE " + T_TRACES + "(cid VARCHAR(64), sender VARCHAR(64), sn VARCHAR(20)," +
+                " trace TEXT)");
     }
 
     @Override
@@ -75,11 +91,28 @@ public class EntityDatabase extends SQLiteOpenHelper {
     }
 
     //
-    //  MingKeMing
+    //  DaoKeDao
     //
 
-    static ID getID(String identifier) {
-        Facebook facebook = Facebook.getInstance();
-        return facebook.getID(identifier);
+    static InstantMessage<ID, SymmetricKey> getInstanceMessage(String sender, String receiver, long timestamp, String content) {
+        Map dict = (Map) JSON.decode(content.getBytes(Charset.forName("UTF-8")));
+        if (dict == null) {
+            throw new NullPointerException("message content error: " + content);
+        }
+        Map<String, Object> msg = new HashMap<>();
+        msg.put("sender", sender);
+        msg.put("receiver", receiver);
+        msg.put("time", timestamp);
+        msg.put("content", dict);
+        return getInstanceMessage(msg);
+    }
+
+    private static InstantMessage<ID, SymmetricKey> getInstanceMessage(Map msg) {
+        //noinspection unchecked
+        InstantMessage<ID, SymmetricKey> iMsg = InstantMessage.getInstance(msg);
+        if (iMsg != null) {
+            iMsg.setDelegate(Messenger.getInstance());
+        }
+        return iMsg;
     }
 }

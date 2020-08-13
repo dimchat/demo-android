@@ -25,279 +25,42 @@
  */
 package chat.dim.database;
 
-import com.alibaba.fastjson.JSONException;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.model.Messenger;
-import chat.dim.protocol.ReceiptCommand;
-import chat.dim.utils.Log;
-import chat.dim.utils.Times;
 
-public class MessageTable extends Database {
+public interface MessageTable {
 
-    public static int MAX_MESSAGES_COUNT = 999;
+    //---- conversations
 
-    private Map<ID, List<InstantMessage>> chatHistory = new HashMap<>();
+    int numberOfConversations();
 
-    private List<InstantMessage> cacheMessages(List array, ID entity) {
-        List<InstantMessage> messages = new ArrayList<>();
-        Messenger messenger = Messenger.getInstance();
-        InstantMessage iMsg;
-        for (Object item : array) {
-            iMsg = messenger.getInstantMessage(item);
-            if (iMsg == null) {
-                //throw new NullPointerException("message error: " + item);
-                continue;
-            }
-            messages.add(iMsg);
-        }
-        chatHistory.put(entity, messages);
-        return messages;
-    }
+    ID conversationAtIndex(int index);
 
-    private List<InstantMessage> loadMessages(ID entity) {
-        String path = getMessageFilePath(entity);
-        try {
-            Object array = loadJSON(path);
-            if (array instanceof List) {
-                return cacheMessages((List) array, entity);
-            }
-        } catch (JSONException e) {
-            //delete(path);
-            Log.error("JSON file error: " + path);
-            return null;
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
-        return null;
-    }
+    boolean removeConversationAtIndex(int index);
 
-    private boolean saveMessages(ID entity) {
-        List<InstantMessage> messages = chatHistory.get(entity);
-        if (messages == null) {
-            return false;
-        }
-
-        // TODO: Burn after reading
-        while (messages.size() > MAX_MESSAGES_COUNT) {
-            messages.remove(0);
-        }
-
-        String path = getMessageFilePath(entity);
-        try {
-            return saveJSON(messages, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private boolean isEqual(InstantMessage msg1, InstantMessage msg2) {
-        // 1. check sn
-        if (msg1.getContent().serialNumber != msg2.getContent().serialNumber) {
-            return false;
-        }
-        // 2. check time
-        Date time1 = msg1.envelope.getTime();
-        Date time2 = msg2.envelope.getTime();
-        if (time1 == null) {
-            return time2 == null;
-        } else if (time2 == null) {
-            return false;
-        }
-        long t1 = time1.getTime();
-        long t2 = time2.getTime();
-        // NOTICE: timestamp in seconds
-        return t1 / 1000 == t2 / 1000;
-    }
-
-    private boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {
-
-        // 1. check sender & receiver
-        Object sender = receipt.get("sender");
-        if (sender != null && !iMsg.envelope.getSender().equals(sender)) {
-            return false;
-        }
-        Object receiver = receipt.get("receiver");
-        if (receiver != null && !iMsg.envelope.getReceiver().equals(receiver)) {
-            return false;
-        }
-        // 2. check signature
-        String sig1 = (String) receipt.get("signature");
-        String sig2 = (String) iMsg.get("signature");
-        if (sig1 != null && sig2 != null) {
-            sig1 = sig1.replaceAll("\n", "");
-            sig2 = sig2.replaceAll("\n", "");
-            int len1 = sig1.length();
-            int len2 = sig2.length();
-            if (len1 > len2) {
-                return sig1.contains(sig2);
-            } else if (len1 < len2) {
-                return sig2.contains(sig1);
-            } else {
-                return sig1.equals(sig2);
-            }
-        }
-        // 3. check sn
-        return iMsg.getContent().serialNumber == receipt.serialNumber;
-    }
+    boolean removeConversation(ID identifier);
 
     //-------- messages
 
-    public List<InstantMessage> messagesInConversation(ID entity) {
-        List<InstantMessage> msgList = chatHistory.get(entity);
-        if (msgList == null) {
-            msgList = loadMessages(entity);
-            if (msgList == null) {
-                msgList = new ArrayList<>();
-            }
-            chatHistory.put(entity, msgList);
-        }
-        return msgList;
-    }
+    List<InstantMessage> messagesInConversation(ID entity);
 
-    public int numberOfMessages(ID entity) {
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        return msgList.size();
-    }
+    int numberOfMessages(ID entity);
 
-    public int numberOfUnreadMessages(ID entity) {
-        int count = 0;
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        int index = msgList.size() - 1;
-        InstantMessage iMsg;
-        for (; index >= 0; --index) {
-            iMsg = msgList.get(index);
-            if (iMsg.get("read") != null) {
-                break;
-            }
-            ++count;
-        }
-        return count;
-    }
+    int numberOfUnreadMessages(ID entity);
 
-    public boolean clearUnreadMessages(ID entity) {
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        int index = msgList.size() - 1;
-        if (index < 0) {
-            return false;
-        }
-        InstantMessage iMsg = msgList.get(index);
-        if (iMsg.get("read") != null) {
-            return true;
-        }
-        iMsg.put("read", "yes");
-        return saveMessages(entity);
-    }
+    boolean clearUnreadMessages(ID entity);
 
-    public InstantMessage messageAtIndex(int index, ID entity) {
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        if (index >= 0 && index < msgList.size()) {
-            return msgList.get(index);
-        } else {
-            return null;
-        }
-    }
+    InstantMessage messageAtIndex(int index, ID entity);
 
-    public boolean insertMessage(InstantMessage iMsg, ID entity) {
-        Date time = iMsg.envelope.getTime();
-        if (time == null) {
-            time = new Date();
-        }
+    boolean insertMessage(InstantMessage iMsg, ID entity);
 
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        InstantMessage item;
-        int index = msgList.size() - 1;
-        for (; index >= 0; --index) {
-            item = msgList.get(index);
-            if (isEqual(item, iMsg)) {
-                // duplicated message
-                return false;
-            }
-            if (item.envelope.getTime() == null || Times.fuzzyCompare(item.envelope.getTime(), time) <= 0) {
-                break;
-            }
-        }
-        msgList.add(index + 1, iMsg);
-        return saveMessages(entity);
-    }
+    boolean removeMessage(InstantMessage iMsg, ID entity);
 
-    public boolean removeMessage(InstantMessage iMsg, ID entity) {
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        if (!msgList.remove(iMsg)) {
-            return false;
-        }
-        return saveMessages(entity);
-    }
+    boolean withdrawMessage(InstantMessage iMsg, ID entity);
 
-    public boolean withdrawMessage(InstantMessage iMsg, ID entity) {
-        // TODO: withdraw a message;
-        return false;
-    }
+    boolean saveReceipt(InstantMessage iMsg, ID entity);
 
-    public boolean saveReceipt(InstantMessage iMsg, ID entity) {
-        // save receipt of instant message
-        if (!(iMsg.getContent() instanceof ReceiptCommand)) {
-            return false;
-        }
-        ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
-        Object receiver = receipt.get("receiver");
-        if (receiver != null) {
-            entity = ID.getInstance(receiver);
-        }
-
-        List<InstantMessage> msgList = messagesInConversation(entity);
-        InstantMessage item;
-        int index = msgList.size() - 1;
-        for (; index >= 0; --index) {
-            item = msgList.get(index);
-            if (!isMatch(item, receipt)) {
-                continue;
-            }
-            //noinspection unchecked
-            List<Object> traces = (List) item.get("traces");
-            if (traces == null) {
-                traces = new ArrayList<>();
-                item.put("traces", traces);
-            }
-            // DISCUSS: what about the other fields 'sender', 'receiver', 'signature'
-            //          in this receipt command?
-            traces.add(iMsg.envelope.getSender());
-            break;
-        }
-        return saveMessages(entity);
-    }
-
-    public boolean removeMessages(ID entity) {
-        String path = getMessageFilePath(entity);
-        try {
-            if (delete(path)) {
-                chatHistory.remove(entity);
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean clearMessages(ID entity) {
-        List<InstantMessage> messages = messagesInConversation(entity);
-        messages.clear();
-        String path = getMessageFilePath(entity);
-        try {
-            return saveJSON(messages, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    boolean removeMessages(ID entity);
 }
