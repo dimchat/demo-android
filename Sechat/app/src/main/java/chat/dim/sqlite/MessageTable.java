@@ -27,7 +27,6 @@ package chat.dim.sqlite;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -41,13 +40,10 @@ import chat.dim.InstantMessage;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ReceiptCommand;
 
-public class MessageTable implements chat.dim.database.MessageTable {
-
-    private final MessageDatabase messageDatabase;
+public class MessageTable extends DataTable implements chat.dim.database.MessageTable {
 
     private MessageTable() {
-        super();
-        messageDatabase = MessageDatabase.getInstance();
+        super(MessageDatabase.getInstance());
     }
 
     private static MessageTable ourInstance;
@@ -64,19 +60,10 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     //---- conversations
 
-    private List<ID> conversations = null;
-
     private List<ID> allConversations() {
-        if (conversations != null) {
-            return conversations;
-        }
-        SQLiteDatabase db = messageDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
-        }
         String[] columns = {"cid"};
-        try (Cursor cursor = db.query(MessageDatabase.T_MESSAGES, columns, null, null, "cid", null, null)) {
-            conversations = new ArrayList<>();
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, null, null, "cid", null, null)) {
+            List<ID> conversations = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
                 identifier = EntityDatabase.getID(cursor.getString(0));
@@ -127,87 +114,104 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     //-------- messages
 
-    private Map<ID, List<InstantMessage>> messageCaches = new HashMap<>();
-    private Map<ID, Map<String, Map>> tracesCaches = new HashMap<>();
+    private ID cachedMessagesID = null;
+    private List<InstantMessage> cachedMessages = null;
 
-    private Map<String, Map> tracesInConversation(ID entity) {
-        Map<String, Map> traces = tracesCaches.get(entity);
-        if (traces != null) {
-            return traces;
-        }
-        SQLiteDatabase db = messageDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
+    private ID cachedTracesID = null;
+    private Map<String, List<Map>> cachedTraces = null;
+
+    private Map<String, List<Map>> tracesInConversation(ID entity) {
+        if (entity.equals(cachedTracesID) && cachedTraces != null) {
+            return cachedTraces;
         }
         String[] columns = {"sender, sn, trace"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = db.query(MessageDatabase.T_TRACES, columns, "cid=?", selectionArgs, null, null, null)) {
-            traces = new HashMap<>();
+        try (Cursor cursor = query(MessageDatabase.T_TRACES, columns, "cid=?", selectionArgs, null, null, null)) {
+            Map<String, List<Map>> traces = new HashMap<>();
+            List<Map> array;
             String sender;
             String sn;
+            String key;
             String value;
             Map receipt;
             while (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 sn = cursor.getString(1);
+                key = sender + "," + sn;
                 value = cursor.getString(2);
-                if (value != null) {
-                    receipt = (Map) JSON.decode(value.getBytes(Charset.forName("UTF-8")));
-                    traces.put(sender + "," + sn, receipt);
+                if (value == null) {
+                    throw new NullPointerException("trace info empty: " + sender + ", " + sn);
                 }
+                receipt = (Map) JSON.decode(value.getBytes(Charset.forName("UTF-8")));
+                array = traces.get(key);
+                if (array == null) {
+                    array = new ArrayList<>();
+                    traces.put(key, array);
+                }
+                array.add(receipt);
             }
-            tracesCaches.put(entity, traces);
+            cachedTraces = traces;
+            cachedTracesID = entity;
             return traces;
         }
     }
 
     @Override
     public List<InstantMessage> messagesInConversation(ID entity) {
-        List<InstantMessage> messages = messageCaches.get(entity);
-        if (messages != null) {
-            return messages;
+        if (entity.equals(cachedMessagesID) && cachedMessages != null) {
+            return cachedMessages;
         }
-        SQLiteDatabase db = messageDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
+        Map<String, List<Map>> traces = tracesInConversation(entity);
+        if (traces == null) {
+            traces = new HashMap<>();
         }
-        String[] columns = {"sender", "receiver", "time", "content"};
+        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = db.query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, null)) {
-            messages = new ArrayList<>();
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, null)) {
+            List<InstantMessage> messages = new ArrayList<>();
             String sender;
             String receiver;
             long time;
+            String sn;
             String content;
+            String signature;
             InstantMessage iMsg;
+            List<Map> array;
             while (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 receiver = cursor.getString(1);
                 time = cursor.getLong(2);
-                content = cursor.getString(3);
+                sn = cursor.getString(3);
+                content = cursor.getString(4);
+                signature = cursor.getString(5);
                 iMsg = MessageDatabase.getInstanceMessage(sender, receiver, time, content);
                 if (iMsg != null) {
+                    // signature
+                    if (signature != null && signature.length() > 0) {
+                        iMsg.put("signature", signature);
+                    }
+                    // traces
+                    array = traces.get(sender + "," + sn);
+                    if (array != null && array.size() > 0) {
+                        iMsg.put("traces", array);
+                    }
                     messages.add(iMsg);
                 }
             }
-            messageCaches.put(entity, messages);
+            cachedMessages = messages;
+            cachedMessagesID = entity;
             return messages;
         }
     }
 
     @Override
     public int numberOfMessages(ID entity) {
-        List<InstantMessage> messages = messageCaches.get(entity);
-        if (messages != null) {
-            return messages.size();
-        }
-        SQLiteDatabase db = messageDatabase.getReadableDatabase();
-        if (db == null) {
-            return 0;
+        if (entity.equals(cachedMessagesID) &&  cachedMessages != null) {
+            return cachedMessages.size();
         }
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = db.query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, "cid", null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 return cursor.getInt(0);
             }
@@ -217,13 +221,9 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     @Override
     public int numberOfUnreadMessages(ID entity) {
-        SQLiteDatabase db = messageDatabase.getReadableDatabase();
-        if (db == null) {
-            return 0;
-        }
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = db.query(MessageDatabase.T_MESSAGES, columns, "cid=? AND read != 1", selectionArgs, "cid", null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=? AND read != 1", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 return cursor.getInt(0);
             }
@@ -233,14 +233,10 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     @Override
     public boolean clearUnreadMessages(ID entity) {
-        SQLiteDatabase db = messageDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         ContentValues values = new ContentValues();
         values.put("read", 1);
         String[] whereArgs = {entity.toString()};
-        return db.update(MessageDatabase.T_MESSAGES, values, "cid=?", whereArgs) >= 0;
+        return update(MessageDatabase.T_MESSAGES, values, "cid=?", whereArgs) >= 0;
     }
 
     @Override
@@ -254,10 +250,8 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     @Override
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
-        SQLiteDatabase db = messageDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
+        // TODO: check for duplicated
+
         ContentValues values = new ContentValues();
         values.put("cid", entity.toString());
         // envelope
@@ -271,29 +265,27 @@ public class MessageTable implements chat.dim.database.MessageTable {
         byte[] data = JSON.encode(content);
         String text = new String(data, Charset.forName("UTF-8"));
         values.put("content", text);
-        if (db.insert(MessageDatabase.T_MESSAGES, null, values) < 0) {
+        if (insert(MessageDatabase.T_MESSAGES, null, values) < 0) {
             return false;
         }
         // clear for reload
-        messageCaches.remove(entity);
+        cachedMessages = null;
+        cachedMessagesID = null;
         return true;
     }
 
     @Override
     public boolean removeMessage(InstantMessage iMsg, ID entity) {
-        SQLiteDatabase db = messageDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         Object sender = iMsg.envelope.getSender();
         long sn = iMsg.getContent().serialNumber;
         String[] whereArgs = {entity.toString(), sender.toString(), "" + sn};
-        db.delete(MessageDatabase.T_TRACES, "cid=? AND sender=? AND sn=?", whereArgs);
-        if (db.delete(MessageDatabase.T_MESSAGES, "cid=? AND sender=? AND sn=?", whereArgs) < 0) {
+        delete(MessageDatabase.T_TRACES, "cid=? AND sender=? AND sn=?", whereArgs);
+        if (delete(MessageDatabase.T_MESSAGES, "cid=? AND sender=? AND sn=?", whereArgs) < 0) {
             return false;
         }
         // clear for reload
-        messageCaches.remove(entity);
+        cachedMessages = null;
+        cachedMessagesID = null;
         return true;
     }
 
@@ -308,10 +300,6 @@ public class MessageTable implements chat.dim.database.MessageTable {
         if (!(iMsg.getContent() instanceof ReceiptCommand)) {
             return false;
         }
-        SQLiteDatabase db = messageDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
 
         Object sender = iMsg.envelope.getSender();
         ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
@@ -324,17 +312,16 @@ public class MessageTable implements chat.dim.database.MessageTable {
         values.put("sender", sender.toString());
         values.put("sn", "" + sn);
         values.put("trace", json);
-        if (db.insert(MessageDatabase.T_TRACES, null, values) < 0) {
+        if (insert(MessageDatabase.T_TRACES, null, values) < 0) {
             return false;
         }
 
-        List<InstantMessage> messages = messageCaches.get(entity);
-        if (messages != null) {
-            // update message already loaded into memory cache
+        // update message already loaded into memory cache
+        if (entity.equals(cachedMessagesID) && cachedMessages != null) {
             InstantMessage item;
-            int index = messages.size() - 1;
+            int index = cachedMessages.size() - 1;
             for (; index >= 0; --index) {
-                item = messages.get(index);
+                item = cachedMessages.get(index);
                 if (!isMatch(item, receipt)) {
                     continue;
                 }
@@ -355,13 +342,9 @@ public class MessageTable implements chat.dim.database.MessageTable {
 
     @Override
     public boolean removeMessages(ID entity) {
-        SQLiteDatabase db = messageDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         String[] whereArgs = {entity.toString()};
-        db.delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
-        return db.delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
+        delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
+        return delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
     }
 
     private static boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {

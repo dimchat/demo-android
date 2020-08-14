@@ -27,7 +27,6 @@ package chat.dim.sqlite;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +34,10 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.protocol.NetworkType;
 
-public class GroupTable implements chat.dim.database.GroupTable {
-
-    private final EntityDatabase entityDatabase;
+public class GroupTable extends DataTable implements chat.dim.database.GroupTable {
 
     private GroupTable() {
-        super();
-        entityDatabase = EntityDatabase.getInstance();
+        super(EntityDatabase.getInstance());
     }
 
     private static GroupTable ourInstance;
@@ -58,14 +54,10 @@ public class GroupTable implements chat.dim.database.GroupTable {
 
     @Override
     public ID getFounder(ID group) {
-        SQLiteDatabase db = entityDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
-        }
         ID founder = null;
         String[] columns = {"founder"};
         String[] selectionArgs = {group.toString()};
-        try (Cursor cursor = db.query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 founder = EntityDatabase.getID(cursor.getString(0));
             }
@@ -76,14 +68,10 @@ public class GroupTable implements chat.dim.database.GroupTable {
 
     @Override
     public ID getOwner(ID group) {
-        SQLiteDatabase db = entityDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
-        }
         ID owner = null;
         String[] columns = {"owner", "founder"};
         String[] selectionArgs = {group.toString()};
-        try (Cursor cursor = db.query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 owner = EntityDatabase.getID(cursor.getString(0));
                 if (owner == null && group.getType() == NetworkType.Polylogue.value) {
@@ -97,13 +85,9 @@ public class GroupTable implements chat.dim.database.GroupTable {
 
     @Override
     public List<ID> getMembers(ID group) {
-        SQLiteDatabase db = entityDatabase.getReadableDatabase();
-        if (db == null) {
-            return null;
-        }
         String[] columns = {"member"};
         String[] selectionArgs = {group.toString()};
-        try (Cursor cursor = db.query(EntityDatabase.T_MEMBERS, columns, "gid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(EntityDatabase.T_MEMBERS, columns, "gid=?", selectionArgs, null, null, null)) {
             List<ID> members = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
@@ -118,41 +102,29 @@ public class GroupTable implements chat.dim.database.GroupTable {
 
     @Override
     public boolean addMember(ID member, ID group) {
-        SQLiteDatabase db = entityDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         ContentValues values = new ContentValues();
         values.put("gid", group.toString());
         values.put("member", member.toString());
-        return db.insert(EntityDatabase.T_MEMBERS, null, values) >= 0;
+        return insert(EntityDatabase.T_MEMBERS, null, values) >= 0;
     }
 
     @Override
     public boolean removeMember(ID member, ID group) {
-        SQLiteDatabase db = entityDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         String[] whereArgs = {group.toString(), member.toString()};
-        return db.delete(EntityDatabase.T_MEMBERS, "gid=? AND member=?", whereArgs) >= 0;
+        return delete(EntityDatabase.T_MEMBERS, "gid=? AND member=?", whereArgs) > 0;
     }
 
     @Override
     public boolean saveMembers(List<ID> members, ID group) {
-        SQLiteDatabase db = entityDatabase.getWritableDatabase();
-        if (db == null) {
-            return false;
-        }
         // remove all members
         String[] whereArgs = {group.toString()};
-        db.delete(EntityDatabase.T_MEMBERS, "gid=?", whereArgs);
+        delete(EntityDatabase.T_MEMBERS, "gid=?", whereArgs);
         // add members one by one
         ContentValues values = new ContentValues();
         values.put("gid", group.toString());
         for (ID member : members) {
             values.put("member", member.toString());
-            db.insert(EntityDatabase.T_MEMBERS, null, values);
+            insert(EntityDatabase.T_MEMBERS, null, values);
         }
         return true;
     }

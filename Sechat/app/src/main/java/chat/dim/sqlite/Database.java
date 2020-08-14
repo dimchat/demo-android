@@ -26,52 +26,18 @@
 package chat.dim.sqlite;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
-import chat.dim.ID;
-import chat.dim.model.Facebook;
+import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 
-public class EntityDatabase extends Database {
+public abstract class Database extends SQLiteOpenHelper {
 
-    private EntityDatabase(Context context, String name, int version) {
-        super(context, name, version);
+    protected Database(Context context, String name, int version) {
+        super(context, name, null, version);
     }
 
-    private static EntityDatabase ourInstance = null;
-    public static void setContext(Context context) {
-        ourInstance = new EntityDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
-    static EntityDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
-        return ourInstance;
-    }
-
-    private static final String DB_NAME = "mkm.sqlite";
-    private static final int DB_VERSION = 1;
-
-    static final String T_GROUP = "t_group";
-    static final String T_MEMBERS = "t_members";
-
-    //
-    //  SQLiteOpenHelper
-    //
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + T_GROUP + "(gid VARCHAR(64), name VARCHAR(32), founder VARCHAR(64), owner VARCHAR(64))");
-        db.execSQL("CREATE TABLE " + T_MEMBERS + "(gid VARCHAR(64), member VARCHAR(64))");
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    }
-
-    //
-    //  MingKeMing
-    //
-
-    static ID getID(String identifier) {
-        Facebook facebook = Facebook.getInstance();
-        return facebook.getID(identifier);
+    static String getFilePath(String dbName) {
+        return Paths.appendPathComponent(ExternalStorage.getRoot(), "db", dbName);
     }
 }

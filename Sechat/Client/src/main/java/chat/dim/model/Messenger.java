@@ -182,7 +182,9 @@ public class Messenger extends chat.dim.common.Messenger {
      * @return true on success
      */
     public boolean sendCommand(Command cmd) {
-        assert server != null : "server not connect yet";
+        if (server == null) {
+            return false;
+        }
         return sendContent(cmd, server.identifier, null);
     }
 

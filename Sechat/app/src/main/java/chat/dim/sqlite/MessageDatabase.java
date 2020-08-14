@@ -27,7 +27,6 @@ package chat.dim.sqlite;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -36,21 +35,19 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.filesys.ExternalStorage;
-import chat.dim.filesys.Paths;
 import chat.dim.format.JSON;
 import chat.dim.model.Messenger;
 
-public class MessageDatabase extends SQLiteOpenHelper {
+public class MessageDatabase extends Database {
 
-    private MessageDatabase(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
+    private MessageDatabase(Context context, String name, int version) {
+        super(context, name, version);
     }
 
     private static MessageDatabase ourInstance = null;
 
     public static void setContext(Context context) {
-        ourInstance = new MessageDatabase(context, getDbName(), null, DB_VERSION);
+        ourInstance = new MessageDatabase(context, getFilePath(DB_NAME), DB_VERSION);
     }
 
     static MessageDatabase getInstance() {
@@ -60,10 +57,6 @@ public class MessageDatabase extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "dkd.sqlite";
     private static final int DB_VERSION = 1;
-
-    private static String getDbName() {
-        return Paths.appendPathComponent(ExternalStorage.getRoot(), "db", DB_NAME);
-    }
 
     static final String T_MESSAGES = "t_messages";
     static final String T_TRACES = "t_traces";
@@ -79,7 +72,7 @@ public class MessageDatabase extends SQLiteOpenHelper {
                 // content
                 " sn VARCHAR(20), type INTEGER, content TEXT," +
                 // extra
-                " read BIT)");
+                " signature VARCHAR(172), read BIT)");
         // t_traces
         db.execSQL("CREATE TABLE " + T_TRACES + "(cid VARCHAR(64), sender VARCHAR(64), sn VARCHAR(20)," +
                 " trace TEXT)");
@@ -87,7 +80,6 @@ public class MessageDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 
     //
