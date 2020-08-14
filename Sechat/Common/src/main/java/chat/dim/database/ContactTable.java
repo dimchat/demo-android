@@ -68,7 +68,6 @@ public class ContactTable extends Database {
             }
             contacts.add(contact);
         }
-        // TODO: sort it
         return contacts;
     }
 
@@ -102,17 +101,12 @@ public class ContactTable extends Database {
         return contactList;
     }
 
-    private void sortContacts(List<ID> contacts) {
-        // TODO: sort contact list
-    }
-
     public boolean addContact(ID contact, ID user) {
         List<ID> contacts = getContacts(user);
         if (contacts.contains(contact)) {
             return false;
         }
         contacts.add(contact);
-        sortContacts(contacts);
         return saveContacts(user);
     }
 
@@ -122,7 +116,6 @@ public class ContactTable extends Database {
             return false;
         }
         contacts.remove(contact);
-        sortContacts(contacts);
         return saveContacts(user);
     }
 

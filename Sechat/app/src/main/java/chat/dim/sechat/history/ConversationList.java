@@ -3,9 +3,6 @@ package chat.dim.sechat.history;
 import android.graphics.Bitmap;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import chat.dim.ID;
@@ -47,13 +44,6 @@ public class ConversationList extends DummyList<ConversationList.Item> {
             }
             conversations.add(chatBox);
         }
-        // sort
-        Comparator<Conversation> comparator = (chatBox1, chatBox2) -> {
-            Date time1 = chatBox1.getLastTime();
-            Date time2 = chatBox2.getLastTime();
-            return time2.compareTo(time1);
-        };
-        Collections.sort(conversations, comparator);
         // refresh items
         clearItems();
         for (int index = 0; index < count; index++) {

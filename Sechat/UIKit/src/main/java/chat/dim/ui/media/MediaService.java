@@ -34,6 +34,8 @@ import android.os.IBinder;
 
 import java.io.IOException;
 
+import chat.dim.ui.Alert;
+
 public class MediaService extends Service {
 
     public static final String RECORD = "record";
@@ -110,7 +112,11 @@ public class MediaService extends Service {
 
     private String stopRecording() {
         if (recorder != null) {
-            recorder.stop();
+            try {
+                recorder.stop();
+            } catch (Exception e) {
+                Alert.tips(getApplicationContext(), e.toString());
+            }
             recorder.release();
             recorder = null;
             recordStop = System.currentTimeMillis();

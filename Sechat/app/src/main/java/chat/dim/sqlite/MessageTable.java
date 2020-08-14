@@ -30,6 +30,8 @@ import android.database.Cursor;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,24 +64,45 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     //---- conversations
 
+    private List<ID> conversations = null;
+
     private List<ID> allConversations() {
+        if (conversations != null) {
+            return conversations;
+        }
         String[] columns = {"cid"};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, null, null, "cid", null, null)) {
-            List<ID> conversations = new ArrayList<>();
+            // get conversation IDs
+            List<ID> array = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
                 identifier = EntityDatabase.getID(cursor.getString(0));
                 if (identifier != null) {
-                    conversations.add(identifier);
+                    array.add(identifier);
                 }
             }
-            sortConversations();
+            // sort by last message time
+            Comparator<ID> comparator = (cid1, cid2) -> {
+                Date time1, time2;
+                InstantMessage msg1 = lastMessage(cid1);
+                if (msg1 == null) {
+                    time1 = new Date();
+                } else {
+                    time1 = msg1.envelope.getTime();
+                }
+                InstantMessage msg2 = lastMessage(cid2);
+                if (msg2 == null) {
+                    time2 = new Date();
+                } else {
+                    time2 = msg2.envelope.getTime();
+                }
+                return time2.compareTo(time1);
+            };
+            Collections.sort(array, comparator);
+
+            conversations = array;
             return conversations;
         }
-    }
-
-    private void sortConversations() {
-        // TODO: sort by last message time
     }
 
     @Override
@@ -111,6 +134,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     @Override
     public boolean removeConversation(ID identifier) {
+        conversations = null;
         String[] whereArgs = {identifier.toString()};
         delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
         return delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
@@ -333,6 +357,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         // clear for reload
         cachedMessages = null;
         cachedMessagesID = null;
+        conversations = null;
         return true;
     }
 
@@ -348,6 +373,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         // clear for reload
         cachedMessages = null;
         cachedMessagesID = null;
+        conversations = null;
         return true;
     }
 

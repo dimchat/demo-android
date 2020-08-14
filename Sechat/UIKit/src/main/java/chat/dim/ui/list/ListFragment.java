@@ -84,6 +84,15 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
     }
 
     public void reloadData() {
+        if (isReloading) {
+            return;
+        }
+        isReloading = true;
+
+        // reload data in background
+        dummyList.reloadData();
+
+        // notify foreground to refresh
         Message msg = new Message();
         msg.what = 0x9527;
         msgHandler.sendMessage(msg);
@@ -97,21 +106,15 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == 0x9527) {
-                if (isReloading) {
-                    return;
-                }
-                isReloading = true;
-
                 Lock writeLock = dummyLock.writeLock();
                 writeLock.lock();
                 try {
-                    dummyList.reloadData();
                     onReloaded();
                 } finally {
                     writeLock.unlock();
-                }
 
-                isReloading = false;
+                    isReloading = false;
+                }
             }
         }
     };

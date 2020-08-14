@@ -53,11 +53,13 @@ public class Database extends ExternalStorage {
 
     public static String getCacheDirectory(String filename) {
         assert filename.length() > 2 : "filename too short " + filename;
-        return getCachesDirectory() + separator + filename.substring(0, 2);
+        String dir = getCachesDirectory() + separator + filename.substring(0, 2);
+        return mkdirs(dir);
     }
 
     public static String getCachesDirectory() {
-        return root + separator + "caches";
+        String dir = root + separator + "caches";
+        return mkdirs(dir);
     }
 
     /**
@@ -71,7 +73,8 @@ public class Database extends ExternalStorage {
     }
 
     public static String getTemporaryDirectory() {
-        return root + separator + "tmp";
+        String dir = root + separator + "tmp";
+        return mkdirs(dir);
     }
 
     /**
@@ -85,7 +88,8 @@ public class Database extends ExternalStorage {
     }
 
     public static String getCommonDirectory() {
-        return root + separator + "dim";
+        String dir = root + separator + "dim";
+        return mkdirs(dir);
     }
 
     /**
@@ -104,7 +108,8 @@ public class Database extends ExternalStorage {
     }
 
     public static String getProviderDirectory(Address address) {
-        return getCommonDirectory() + separator + address.toString();
+        String dir = getCommonDirectory() + separator + address.toString();
+        return mkdirs(dir);
     }
 
     /**
@@ -122,11 +127,13 @@ public class Database extends ExternalStorage {
     }
 
     public static String getMessageDirectory(Address address) {
-        return getMessageDirectory() + separator + address.toString();
+        String dir = getMessageDirectory() + separator + address.toString();
+        return mkdirs(dir);
     }
 
     public static String getMessageDirectory() {
-        return root + separator + "dkd";
+        String dir = root + separator + "dkd";
+        return mkdirs(dir);
     }
 
     /**
@@ -146,9 +153,10 @@ public class Database extends ExternalStorage {
 
     public static String getEntityDirectory(Address address) {
         String string = address.toString();
-        return root + separator + "mkm" + separator
+        String dir = root + separator + "mkm" + separator
                 + string.substring(0, 2) + separator
                 + string;
+        return mkdirs(dir);
     }
 
     /**
@@ -171,15 +179,18 @@ public class Database extends ExternalStorage {
     }
 
     public static String getUserPrivateDirectory(Address address) {
-        return getPrivateDirectory() + separator + address.toString();
+        String dir = getPrivateDirectory() + separator + address.toString();
+        return mkdirs(dir);
     }
 
     public static String getPrivateDirectory() {
-        return root + separator + ".private";
+        String dir = root + separator + ".private";
+        return mkdirs(dir);
     }
 
     public static String getProtectedDirectory() {
-        return root + separator + ".protected";
+        String dir = root + separator + ".protected";
+        return mkdirs(dir);
     }
 
     public static String getProtectedFilePath(String filename) {
