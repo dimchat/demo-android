@@ -30,6 +30,7 @@ import android.database.Cursor;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.utils.Log;
 
 public class MessageTable extends DataTable implements chat.dim.database.MessageTable {
 
@@ -291,18 +293,37 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     @Override
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
-        // TODO: check for duplicated
+        Content content = iMsg.getContent();
+        if (content == null) {
+            return false;
+        }
+        String cid = entity.toString();
+        String sender = iMsg.envelope.getSender().toString();
+        String receiver = iMsg.envelope.getReceiver().toString();
+        Date time = iMsg.envelope.getTime();
+        long sn = content.serialNumber;
+        int type = content.type;
+
+        // check for duplicated
+        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
+        String[] selectionArgs = {cid, sender, ""+sn};
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
+            if (cursor.moveToNext()) {
+                // record exists
+                Log.info("drop duplicated msg: " + iMsg);
+                return false;
+            }
+        }
 
         ContentValues values = new ContentValues();
-        values.put("cid", entity.toString());
+        values.put("cid", cid);
         // envelope
-        values.put("sender", iMsg.envelope.getSender().toString());
-        values.put("receiver", iMsg.envelope.getReceiver().toString());
-        values.put("time", iMsg.envelope.getTime().getTime() / 1000);
+        values.put("sender", sender);
+        values.put("receiver", receiver);
+        values.put("time", time.getTime() / 1000);
         // content
-        Content content = iMsg.getContent();
-        values.put("sn", content.serialNumber);
-        values.put("type", content.type);
+        values.put("sn", sn);
+        values.put("type", type);
         byte[] data = JSON.encode(content);
         String text = new String(data, Charset.forName("UTF-8"));
         values.put("content", text);
