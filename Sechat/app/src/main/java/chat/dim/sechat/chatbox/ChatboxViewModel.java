@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
@@ -37,10 +38,20 @@ enum MsgType {
 
 public class ChatboxViewModel extends ViewModel {
 
-    List<InstantMessage> getMessages(Conversation chatBox) {
+    List<InstantMessage> getAllMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.clearUnreadMessages(chatBox);
-        return msgDB.messagesInConversation(chatBox);
+        List<InstantMessage> messages = new ArrayList<>();
+        InstantMessage iMsg;
+        int count = msgDB.numberOfMessages(chatBox);
+        for (int index = 0; index < count; ++index) {
+            iMsg = msgDB.messageAtIndex(index, chatBox);
+            if (iMsg == null) {
+                continue;
+            }
+            messages.add(iMsg);
+        }
+        return messages;
     }
 
     static MsgType getType(InstantMessage iMsg, Conversation chatBox) {

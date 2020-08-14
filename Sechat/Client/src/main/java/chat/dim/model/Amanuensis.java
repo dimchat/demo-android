@@ -38,7 +38,7 @@ public class Amanuensis {
         database = ConversationDatabase.getInstance();
     }
 
-    public final ConversationDataSource database;
+    public final ConversationDatabase database;
 
     private final Facebook facebook = Facebook.getInstance();
 
@@ -55,7 +55,7 @@ public class Amanuensis {
             throw new NullPointerException("failed to create conversation:" + identifier);
         }
         Conversation chatBox = new Conversation(entity);
-        chatBox.dataSource = database;
+        chatBox.database = database;
         return chatBox;
     }
 

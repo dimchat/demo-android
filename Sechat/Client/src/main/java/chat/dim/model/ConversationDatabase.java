@@ -27,7 +27,6 @@ package chat.dim.model;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
@@ -40,7 +39,7 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
 import chat.dim.utils.Times;
 
-public class ConversationDatabase implements ConversationDataSource {
+public class ConversationDatabase {
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
     public static ConversationDatabase getInstance() { return ourInstance; }
     private ConversationDatabase() {
@@ -68,24 +67,20 @@ public class ConversationDatabase implements ConversationDataSource {
 
     //-------- ConversationDataSource
 
-    @Override
     public int numberOfConversations() {
         return messageTable.numberOfConversations();
     }
 
-    @Override
     public ID conversationAtIndex(int index) {
         return messageTable.conversationAtIndex(index);
     }
 
-    @Override
     public boolean removeConversationAtIndex(int index) {
         return messageTable.removeConversationAtIndex(index);
     }
 
-    @Override
     public boolean removeConversation(ID identifier) {
-        if (!messageTable.removeMessages(identifier)) {
+        if (!messageTable.removeConversation(identifier)) {
             return false;
         }
         if (!messageTable.removeConversation(identifier)) {
@@ -96,7 +91,7 @@ public class ConversationDatabase implements ConversationDataSource {
     }
 
     public boolean clearConversation(ID identifier) {
-        if (!messageTable.removeMessages(identifier)) {
+        if (!messageTable.removeConversation(identifier)) {
             return false;
         }
         postMessageUpdatedNotification(null, identifier);
@@ -105,26 +100,22 @@ public class ConversationDatabase implements ConversationDataSource {
 
     // messages
 
-    public List<InstantMessage> messagesInConversation(Conversation chatBox) {
-        return messageTable.messagesInConversation(chatBox.identifier);
-    }
-
-    @Override
     public int numberOfMessages(Conversation chatBox) {
         return messageTable.numberOfMessages(chatBox.identifier);
     }
 
-    @Override
     public int numberOfUnreadMessages(Conversation chatBox) {
         return messageTable.numberOfUnreadMessages(chatBox.identifier);
     }
 
-    @Override
     public boolean clearUnreadMessages(Conversation chatBox) {
         return messageTable.clearUnreadMessages(chatBox.identifier);
     }
 
-    @Override
+    public InstantMessage lastMessage(Conversation chatBox) {
+        return messageTable.lastMessage(chatBox.identifier);
+    }
+
     public InstantMessage messageAtIndex(int index, Conversation chatBox) {
         return messageTable.messageAtIndex(index, chatBox.identifier);
     }
@@ -137,7 +128,6 @@ public class ConversationDatabase implements ConversationDataSource {
         nc.postNotification(NotificationNames.MessageUpdated, this, userInfo);
     }
 
-    @Override
     public boolean insertMessage(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.insertMessage(iMsg, chatBox.identifier);
         if (OK) {
@@ -146,7 +136,6 @@ public class ConversationDatabase implements ConversationDataSource {
         return OK;
     }
 
-    @Override
     public boolean removeMessage(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.removeMessage(iMsg, chatBox.identifier);
         if (OK) {
@@ -155,7 +144,6 @@ public class ConversationDatabase implements ConversationDataSource {
         return OK;
     }
 
-    @Override
     public boolean withdrawMessage(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.withdrawMessage(iMsg, chatBox.identifier);
         if (OK) {
@@ -164,7 +152,6 @@ public class ConversationDatabase implements ConversationDataSource {
         return OK;
     }
 
-    @Override
     public boolean saveReceipt(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.saveReceipt(iMsg, chatBox.identifier);
         if (OK) {

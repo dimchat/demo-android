@@ -25,8 +25,6 @@
  */
 package chat.dim.database;
 
-import java.util.List;
-
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 
@@ -34,33 +32,113 @@ public interface MessageTable {
 
     //---- conversations
 
+    /**
+     *  Get how many chat boxes
+     *
+     * @return conversations count
+     */
     int numberOfConversations();
 
+    /**
+     *  Get chat box info
+     *
+     * @param index - sorted index
+     * @return conversation ID
+     */
     ID conversationAtIndex(int index);
 
+    /**
+     *  Remove one chat box
+     *
+     * @param index - chat box index
+     * @return false on error
+     */
     boolean removeConversationAtIndex(int index);
 
-    boolean removeConversation(ID identifier);
+    /**
+     *  Remove the chat box
+     *
+     * @param entity - conversation ID
+     * @return false on error
+     */
+    boolean removeConversation(ID entity);
 
     //-------- messages
 
-    List<InstantMessage> messagesInConversation(ID entity);
-
+    /**
+     *  Get message count in this conversation for an entity
+     *
+     * @param entity - conversation ID
+     * @return total count
+     */
     int numberOfMessages(ID entity);
 
+    /**
+     *  Get unread message count in this conversation for an entity
+     *
+     * @param entity - conversation ID
+     * @return unread count
+     */
     int numberOfUnreadMessages(ID entity);
 
+    /**
+     *  Clear unread flag in this conversation for an entity
+     *
+     * @param entity - conversation ID
+     * @return false on failed
+     */
     boolean clearUnreadMessages(ID entity);
 
+    /**
+     *  Get last message of this conversation
+     *
+     * @param entity - conversation ID
+     * @return instant message
+     */
+    InstantMessage lastMessage(ID entity);
+
+    /**
+     *  Get message at index of this conversation
+     *
+     * @param index - start from 0, latest first
+     * @param entity - conversation ID
+     * @return instant message
+     */
     InstantMessage messageAtIndex(int index, ID entity);
 
+    /**
+     *  Save the new message to local storage
+     *
+     * @param iMsg - instant message
+     * @param entity - conversation ID
+     * @return true on success
+     */
     boolean insertMessage(InstantMessage iMsg, ID entity);
 
+    /**
+     *  Delete the message
+     *
+     * @param iMsg - instant message
+     * @param entity - conversation ID
+     * @return true on success
+     */
     boolean removeMessage(InstantMessage iMsg, ID entity);
 
+    /**
+     *  Try to withdraw the message, maybe won't success
+     *
+     * @param iMsg - instant message
+     * @param entity - conversation ID
+     * @return true on success
+     */
     boolean withdrawMessage(InstantMessage iMsg, ID entity);
 
+    /**
+     *  Update message state with receipt
+     *
+     * @param iMsg - message with receipt content
+     * @param entity - conversation ID
+     * @return true while target message found
+     */
     boolean saveReceipt(InstantMessage iMsg, ID entity);
-
-    boolean removeMessages(ID entity);
 }

@@ -32,7 +32,6 @@ import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.NetworkType;
 
 public class Conversation {
@@ -43,7 +42,7 @@ public class Conversation {
     public final ID identifier;
     public final byte type;
 
-    public ConversationDataSource dataSource = null;
+    public ConversationDatabase database = ConversationDatabase.getInstance();
 
     public Conversation(Entity entity) {
         super();
@@ -91,14 +90,12 @@ public class Conversation {
     }
 
     public InstantMessage getLastMessage() {
-        int count = numberOfMessages();
-        if (count <= 0) {
-            return null;
-        }
-        return messageAtIndex(count - 1);
+        return database.lastMessage(this);
     }
 
     public InstantMessage getLastVisibleMessage() {
+        return database.lastMessage(this);
+        /*
         int count = numberOfMessages();
         InstantMessage iMsg;
         int msgType;
@@ -120,35 +117,36 @@ public class Conversation {
             }
         }
         return null;
+         */
     }
 
     // interfaces for ConversationDataSource
 
     public int numberOfMessages() {
-        return dataSource.numberOfMessages(this);
+        return database.numberOfMessages(this);
     }
 
     public int numberOfUnreadMessages() {
-        return dataSource.numberOfUnreadMessages(this);
+        return database.numberOfUnreadMessages(this);
     }
 
     public InstantMessage messageAtIndex(int index) {
-        return dataSource.messageAtIndex(index, this);
+        return database.messageAtIndex(index, this);
     }
 
     public boolean insertMessage(InstantMessage iMsg) {
-        return dataSource.insertMessage(iMsg, this);
+        return database.insertMessage(iMsg, this);
     }
 
     public boolean removeMessage(InstantMessage iMsg) {
-        return dataSource.removeMessage(iMsg, this);
+        return database.removeMessage(iMsg, this);
     }
 
     public boolean withdrawMessage(InstantMessage iMsg) {
-        return dataSource.withdrawMessage(iMsg, this);
+        return database.withdrawMessage(iMsg, this);
     }
 
     public boolean saveReceipt(InstantMessage iMsg) {
-        return dataSource.saveReceipt(iMsg, this);
+        return database.saveReceipt(iMsg, this);
     }
 }

@@ -107,7 +107,7 @@ public class AccountViewModel extends UserViewModel {
         // ID.seed
         String seed = identifier.name;
         if (seed != null && seed.length() > 0) {
-            info.put("username", seed);
+            info.put("seed", seed);
         }
 
         byte[] data = JSON.encode(info);

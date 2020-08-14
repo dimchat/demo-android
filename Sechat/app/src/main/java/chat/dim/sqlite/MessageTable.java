@@ -109,7 +109,9 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     @Override
     public boolean removeConversation(ID identifier) {
-        return removeMessages(identifier);
+        String[] whereArgs = {identifier.toString()};
+        delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
+        return delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
     }
 
     //-------- messages
@@ -156,7 +158,6 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
     }
 
-    @Override
     public List<InstantMessage> messagesInConversation(ID entity) {
         if (entity.equals(cachedMessagesID) && cachedMessages != null) {
             return cachedMessages;
@@ -237,6 +238,46 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         values.put("read", 1);
         String[] whereArgs = {entity.toString()};
         return update(MessageDatabase.T_MESSAGES, values, "cid=?", whereArgs) >= 0;
+    }
+
+    @Override
+    public InstantMessage lastMessage(ID entity) {
+        if (entity.equals(cachedMessagesID) && cachedMessages != null) {
+            int count = cachedMessages.size();
+            if (count > 0) {
+                return cachedMessages.get(count - 1);
+            }
+            return null;
+        }
+        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
+        String[] selectionArgs = {entity.toString()};
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
+            String sender;
+            String receiver;
+            long time;
+            String sn;
+            String content;
+            String signature;
+            InstantMessage iMsg;
+            List<Map> array;
+            if (cursor.moveToNext()) {
+                sender = cursor.getString(0);
+                receiver = cursor.getString(1);
+                time = cursor.getLong(2);
+                sn = cursor.getString(3);
+                content = cursor.getString(4);
+                signature = cursor.getString(5);
+                iMsg = MessageDatabase.getInstanceMessage(sender, receiver, time, content);
+                if (iMsg != null) {
+                    // signature
+                    if (signature != null && signature.length() > 0) {
+                        iMsg.put("signature", signature);
+                    }
+                    return iMsg;
+                }
+            }
+            return null;
+        }
     }
 
     @Override
@@ -338,13 +379,6 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean removeMessages(ID entity) {
-        String[] whereArgs = {entity.toString()};
-        delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
-        return delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
     }
 
     private static boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {
