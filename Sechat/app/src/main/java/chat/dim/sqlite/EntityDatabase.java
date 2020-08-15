@@ -50,7 +50,7 @@ public class EntityDatabase extends Database {
     private static final int DB_VERSION = 1;
 
     static final String T_GROUP = "t_group";
-    static final String T_MEMBERS = "t_members";
+    static final String T_MEMBER = "t_member";
 
     //
     //  SQLiteOpenHelper
@@ -59,7 +59,7 @@ public class EntityDatabase extends Database {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + T_GROUP + "(gid VARCHAR(64), name VARCHAR(32), founder VARCHAR(64), owner VARCHAR(64))");
-        db.execSQL("CREATE TABLE " + T_MEMBERS + "(gid VARCHAR(64), member VARCHAR(64))");
+        db.execSQL("CREATE TABLE " + T_MEMBER + "(gid VARCHAR(64), member VARCHAR(64))");
     }
 
     @Override

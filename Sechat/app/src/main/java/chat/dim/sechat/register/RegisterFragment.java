@@ -79,6 +79,12 @@ public class RegisterFragment extends Fragment {
         checkUser();
     }
 
+    @Override
+    public void onDestroy() {
+        mViewModel = null;
+        super.onDestroy();
+    }
+
     private void checkUser() {
         RegisterActivity activity = (RegisterActivity) getActivity();
         assert activity != null : "failed to get register activity";

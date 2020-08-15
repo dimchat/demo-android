@@ -69,6 +69,13 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
     }
 
     @Override
+    public void onDestroy() {
+        adapter = null;
+        dummyList = null;
+        super.onDestroy();
+    }
+
+    @Override
     public void onReceiveNotification(Notification notification) {
         reloadData();
     }

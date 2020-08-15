@@ -10,6 +10,7 @@ import chat.dim.InstantMessage;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
+import chat.dim.protocol.Command;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -93,7 +94,14 @@ public class ConversationList extends DummyList<ConversationList.Item> {
             String text = "(no message)";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
             if (iMsg != null) {
-                text = msgDB.getContentText(iMsg.getContent());
+                chat.dim.Content content = iMsg.getContent();
+                if (content instanceof Command) {
+                    Command cmd = (Command) content;
+                    ID sender = (ID) iMsg.envelope.getSender();
+                    text = msgDB.getCommandText(cmd, sender);
+                } else {
+                    text = msgDB.getContentText(iMsg.getContent());
+                }
             }
             return text;
         }

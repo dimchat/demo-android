@@ -71,7 +71,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             return conversations;
         }
         String[] columns = {"cid"};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, null, null, "cid", null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, null, null, "cid", null, null)) {
             // get conversation IDs
             List<ID> array = new ArrayList<>();
             ID identifier;
@@ -136,8 +136,8 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     public boolean removeConversation(ID identifier) {
         conversations = null;
         String[] whereArgs = {identifier.toString()};
-        delete(MessageDatabase.T_TRACES, "cid=?", whereArgs);
-        return delete(MessageDatabase.T_MESSAGES, "cid=?", whereArgs) >= 0;
+        delete(MessageDatabase.T_TRACE, "cid=?", whereArgs);
+        return delete(MessageDatabase.T_MESSAGE, "cid=?", whereArgs) >= 0;
     }
 
     //-------- messages
@@ -154,7 +154,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
         String[] columns = {"sender, sn, trace"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_TRACES, columns, "cid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_TRACE, columns, "cid=?", selectionArgs, null, null, null)) {
             Map<String, List<Map>> traces = new HashMap<>();
             List<Map> array;
             String sender;
@@ -194,7 +194,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
         String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, null)) {
             List<InstantMessage> messages = new ArrayList<>();
             String sender;
             String receiver;
@@ -238,7 +238,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 return cursor.getInt(0);
             }
@@ -250,7 +250,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     public int numberOfUnreadMessages(ID entity) {
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=? AND read != 1", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND read != 1", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 return cursor.getInt(0);
             }
@@ -263,7 +263,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         ContentValues values = new ContentValues();
         values.put("read", 1);
         String[] whereArgs = {entity.toString()};
-        return update(MessageDatabase.T_MESSAGES, values, "cid=?", whereArgs) >= 0;
+        return update(MessageDatabase.T_MESSAGE, values, "cid=? AND read != 1", whereArgs) >= 0;
     }
 
     @Override
@@ -277,7 +277,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
         String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
             String sender;
             String receiver;
             long time;
@@ -331,7 +331,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         // check for duplicated
         String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
         String[] selectionArgs = {cid, sender, ""+sn};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGES, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 // record exists
                 Log.info("drop duplicated msg: " + iMsg);
@@ -351,7 +351,18 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         byte[] data = JSON.encode(content);
         String text = new String(data, Charset.forName("UTF-8"));
         values.put("content", text);
-        if (insert(MessageDatabase.T_MESSAGES, null, values) < 0) {
+        // extra
+        String signature = (String) iMsg.get("signature");
+        if (signature != null && signature.length() > 0) {
+            values.put("signature", signature);
+        }
+        Object read = iMsg.get("read");
+        if (read == null) {
+            values.put("read", 0);
+        } else {
+            values.put("read", 1);
+        }
+        if (insert(MessageDatabase.T_MESSAGE, null, values) < 0) {
             return false;
         }
         // clear for reload
@@ -366,8 +377,8 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         Object sender = iMsg.envelope.getSender();
         long sn = iMsg.getContent().serialNumber;
         String[] whereArgs = {entity.toString(), sender.toString(), "" + sn};
-        delete(MessageDatabase.T_TRACES, "cid=? AND sender=? AND sn=?", whereArgs);
-        if (delete(MessageDatabase.T_MESSAGES, "cid=? AND sender=? AND sn=?", whereArgs) < 0) {
+        delete(MessageDatabase.T_TRACE, "cid=? AND sender=? AND sn=?", whereArgs);
+        if (delete(MessageDatabase.T_MESSAGE, "cid=? AND sender=? AND sn=?", whereArgs) < 0) {
             return false;
         }
         // clear for reload
@@ -400,7 +411,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         values.put("sender", sender.toString());
         values.put("sn", "" + sn);
         values.put("trace", json);
-        if (insert(MessageDatabase.T_TRACES, null, values) < 0) {
+        if (insert(MessageDatabase.T_TRACE, null, values) < 0) {
             return false;
         }
 

@@ -118,6 +118,13 @@ public class ChatManageFragment extends Fragment {
         numberTextView.setText(EntityViewModel.getNumberString(identifier));
     }
 
+    @Override
+    public void onDestroy() {
+        adapter = null;
+        mViewModel = null;
+        super.onDestroy();
+    }
+
     private void showMembers() {
         Intent intent = new Intent();
         intent.setClass(getContext(), MembersActivity.class);

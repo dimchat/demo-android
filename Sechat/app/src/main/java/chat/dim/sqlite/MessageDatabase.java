@@ -58,8 +58,8 @@ public class MessageDatabase extends Database {
     private static final String DB_NAME = "dkd.sqlite";
     private static final int DB_VERSION = 1;
 
-    static final String T_MESSAGES = "t_messages";
-    static final String T_TRACES = "t_traces";
+    static final String T_MESSAGE = "t_message";
+    static final String T_TRACE = "t_trace";
 
     //
     //  SQLiteOpenHelper
@@ -68,13 +68,13 @@ public class MessageDatabase extends Database {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // t_messages
-        db.execSQL("CREATE TABLE " + T_MESSAGES + "(cid VARCHAR(64), sender VARCHAR(64), receiver VARCHAR(64), time INTEGER," +
+        db.execSQL("CREATE TABLE " + T_MESSAGE + "(cid VARCHAR(64), sender VARCHAR(64), receiver VARCHAR(64), time INTEGER," +
                 // content
                 " sn VARCHAR(20), type INTEGER, content TEXT," +
                 // extra
                 " signature VARCHAR(172), read BIT)");
         // t_traces
-        db.execSQL("CREATE TABLE " + T_TRACES + "(cid VARCHAR(64), sender VARCHAR(64), sn VARCHAR(20)," +
+        db.execSQL("CREATE TABLE " + T_TRACE + "(cid VARCHAR(64), sender VARCHAR(64), sn VARCHAR(20)," +
                 " trace TEXT)");
     }
 

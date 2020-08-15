@@ -122,4 +122,12 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         groupName.setText(mViewModel.getName());
         groupOwner.setText(mViewModel.getOwnerName());
     }
+
+    @Override
+    public void onDestroy() {
+        adapter = null;
+        dummyList = null;
+        mViewModel = null;
+        super.onDestroy();
+    }
 }

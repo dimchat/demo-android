@@ -87,7 +87,7 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
     public List<ID> getMembers(ID group) {
         String[] columns = {"member"};
         String[] selectionArgs = {group.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_MEMBERS, columns, "gid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(EntityDatabase.T_MEMBER, columns, "gid=?", selectionArgs, null, null, null)) {
             List<ID> members = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
@@ -105,27 +105,37 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
         ContentValues values = new ContentValues();
         values.put("gid", group.toString());
         values.put("member", member.toString());
-        return insert(EntityDatabase.T_MEMBERS, null, values) >= 0;
+        return insert(EntityDatabase.T_MEMBER, null, values) >= 0;
     }
 
     @Override
     public boolean removeMember(ID member, ID group) {
         String[] whereArgs = {group.toString(), member.toString()};
-        return delete(EntityDatabase.T_MEMBERS, "gid=? AND member=?", whereArgs) > 0;
+        return delete(EntityDatabase.T_MEMBER, "gid=? AND member=?", whereArgs) > 0;
     }
 
     @Override
-    public boolean saveMembers(List<ID> members, ID group) {
-        // remove all members
-        String[] whereArgs = {group.toString()};
-        delete(EntityDatabase.T_MEMBERS, "gid=?", whereArgs);
-        // add members one by one
-        ContentValues values = new ContentValues();
-        values.put("gid", group.toString());
-        for (ID member : members) {
-            values.put("member", member.toString());
-            insert(EntityDatabase.T_MEMBERS, null, values);
+    public boolean saveMembers(List<ID> newMembers, ID group) {
+        int count = 0;
+        // remove expelled member(s)
+        List<ID> oldMembers = getMembers(group);
+        for (ID item : oldMembers) {
+            if (newMembers.contains(item)) {
+                continue;
+            }
+            if (removeMember(item, group)) {
+                ++count;
+            }
         }
-        return true;
+        // insert new member(s)
+        for (ID item : newMembers) {
+            if (oldMembers.contains(item)) {
+                continue;
+            }
+            if (addMember(item, group)) {
+                ++count;
+            }
+        }
+        return count > 0;
     }
 }

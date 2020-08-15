@@ -74,6 +74,12 @@ public class AccountFragment extends Fragment {
         aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
     }
 
+    @Override
+    public void onDestroy() {
+        mViewModel = null;
+        super.onDestroy();
+    }
+
     private void showDetail() {
         Context context = getContext();
         assert context != null : "failed to get context";

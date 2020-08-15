@@ -128,4 +128,12 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         groupName.setText(mViewModel.getName());
         groupOwner.setText(mViewModel.getOwnerName());
     }
+
+    @Override
+    public void onDestroy() {
+        adapter = null;
+        dummyList = null;
+        mViewModel = null;
+        super.onDestroy();
+    }
 }

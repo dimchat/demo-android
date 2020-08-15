@@ -94,4 +94,10 @@ public class MembersFragment extends Fragment {
         participantsView.setAdapter(adapter);
     }
 
+    @Override
+    public void onDestroy() {
+        adapter = null;
+        mViewModel = null;
+        super.onDestroy();
+    }
 }

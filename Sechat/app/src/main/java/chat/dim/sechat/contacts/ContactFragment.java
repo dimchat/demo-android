@@ -70,6 +70,13 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
     }
 
     @Override
+    public void onDestroy() {
+        adapter = null;
+        dummyList = null;
+        super.onDestroy();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.right_top_menu, menu);

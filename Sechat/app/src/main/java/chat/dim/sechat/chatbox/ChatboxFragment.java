@@ -271,6 +271,9 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     public void onDestroy() {
         // destroy audio player
         adapter.setAudioPlayer(null);
+        adapter = null;
+        dummyList = null;
+        mViewModel = null;
         super.onDestroy();
     }
 

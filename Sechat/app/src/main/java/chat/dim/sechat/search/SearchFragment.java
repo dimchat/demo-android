@@ -99,4 +99,11 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         return view;
     }
+
+    @Override
+    public void onDestroy() {
+        adapter = null;
+        dummyList = null;
+        super.onDestroy();
+    }
 }
