@@ -54,6 +54,13 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
     }
 
     @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.SearchUpdated);
+        super.onDestroy();
+    }
+
+    @Override
     public void onReceiveNotification(Notification notification) {
         Map userInfo = notification.userInfo;
         if (userInfo instanceof SearchCommand) {
@@ -98,12 +105,5 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
         search(SearchCommand.ONLINE_USERS);
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        adapter = null;
-        dummyList = null;
-        super.onDestroy();
     }
 }

@@ -47,6 +47,13 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
     }
 
     @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MessageUpdated);
+        super.onDestroy();
+    }
+
+    @Override
     public void reloadData() {
         // reload data in background
         BackgroundThreads.rush(super::reloadData);
@@ -66,13 +73,6 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         activity.setTitle(R.string.app_name);
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        adapter = null;
-        dummyList = null;
-        super.onDestroy();
     }
 
     @Override

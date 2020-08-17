@@ -59,12 +59,6 @@ public class ImportFragment extends Fragment {
         importButton.setOnClickListener(v -> checkImport());
     }
 
-    @Override
-    public void onDestroy() {
-        mViewModel = null;
-        super.onDestroy();
-    }
-
     private void checkImport() {
         RegisterActivity activity = (RegisterActivity) getActivity();
         assert activity != null : "failed to get register activity";

@@ -100,12 +100,6 @@ public class UpdateAccountFragment extends Fragment {
         exportButton.setOnClickListener(v -> activity.exportAccount(mViewModel));
     }
 
-    @Override
-    public void onDestroy() {
-        mViewModel = null;
-        super.onDestroy();
-    }
-
     public void setAvatarImage(Bitmap bitmap) {
         avatarImage = bitmap;
         if (bitmap != null) {

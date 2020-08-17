@@ -65,6 +65,15 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         nc.addObserver(this, NotificationNames.MessageUpdated);
     }
 
+    @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MessageUpdated);
+        // destroy audio player
+        adapter.setAudioPlayer(null);
+        super.onDestroy();
+    }
+
     public static ChatboxFragment newInstance(Conversation chatBox) {
         ChatboxFragment fragment = new ChatboxFragment();
         fragment.setConversation(chatBox);
@@ -265,16 +274,6 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         // create audio player
         adapter.setAudioPlayer(new AudioPlayer(getActivity()));
-    }
-
-    @Override
-    public void onDestroy() {
-        // destroy audio player
-        adapter.setAudioPlayer(null);
-        adapter = null;
-        dummyList = null;
-        mViewModel = null;
-        super.onDestroy();
     }
 
     private AudioRecorder recorder = null;

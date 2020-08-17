@@ -108,10 +108,4 @@ public class ProfileFragment extends Fragment {
             messageButton.setVisibility(View.GONE);
         }
     }
-
-    @Override
-    public void onDestroy() {
-        mViewModel = null;
-        super.onDestroy();
-    }
 }

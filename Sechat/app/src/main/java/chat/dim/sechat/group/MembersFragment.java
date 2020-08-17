@@ -93,11 +93,4 @@ public class MembersFragment extends Fragment {
         adapter = new ParticipantsAdapter(getContext(), R.layout.participants_grid_item, participants, identifier);
         participantsView.setAdapter(adapter);
     }
-
-    @Override
-    public void onDestroy() {
-        adapter = null;
-        mViewModel = null;
-        super.onDestroy();
-    }
 }

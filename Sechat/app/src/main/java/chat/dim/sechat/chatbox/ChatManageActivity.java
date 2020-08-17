@@ -27,6 +27,13 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
     }
 
     @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MembersUpdated);
+        super.onDestroy();
+    }
+
+    @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
         if (name == null || !name.equals(NotificationNames.MembersUpdated)) {

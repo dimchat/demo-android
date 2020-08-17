@@ -40,6 +40,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.ServerStateChanged);
+        super.onDestroy();
+    }
+
+    @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
         Map info = notification.userInfo;

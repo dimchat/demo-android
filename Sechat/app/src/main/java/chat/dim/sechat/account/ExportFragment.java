@@ -59,12 +59,6 @@ public class ExportFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onDestroy() {
-        mViewModel = null;
-        super.onDestroy();
-    }
-
     private void close() {
         FragmentActivity activity = getActivity();
         assert activity != null : "should not happen";
