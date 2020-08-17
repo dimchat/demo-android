@@ -11,8 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import chat.dim.ID;
@@ -84,6 +87,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.speakerView = view.findViewById(R.id.sent_speaker);
             holder.msgView = view.findViewById(R.id.sent_text);
             holder.imgView = view.findViewById(R.id.sent_image);
+
+            holder.failedIndicator = view.findViewById(R.id.failedIndicator);
+            holder.sendingIndicator = view.findViewById(R.id.sendingIndicator);
         } else if (MsgType.RECEIVED == type) {
             holder.leftLayout.setVisibility(View.VISIBLE);
             holder.centerLayout.setVisibility(View.GONE);
@@ -109,6 +115,23 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.imgView = null;
         }
         showMessage(iMsg, holder);
+
+        if (MsgType.SENT == type) {
+            List traces = (List) iMsg.get("traces");
+            if (traces == null || traces.size() == 0) {
+                Date time = iMsg.envelope.getTime();
+                if (time == null || time.getTime() < (System.currentTimeMillis() - 120 * 1000)) {
+                    holder.failedIndicator.setVisibility(View.VISIBLE);
+                    holder.sendingIndicator.setVisibility(View.GONE);
+                } else {
+                    holder.failedIndicator.setVisibility(View.GONE);
+                    holder.sendingIndicator.setVisibility(View.VISIBLE);
+                }
+            } else {
+                holder.failedIndicator.setVisibility(View.GONE);
+                holder.sendingIndicator.setVisibility(View.GONE);
+            }
+        }
 
         if (MsgType.RECEIVED == type) {
             holder.avatarView.setOnClickListener(v -> {
@@ -279,6 +302,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         ImageView speakerView = null;
         TextView msgView = null;
         ImageView imgView = null;
+
+        ImageView failedIndicator = null;
+        ProgressBar sendingIndicator = null;
 
         ViewHolder(View view) {
             super(view);

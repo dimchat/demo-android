@@ -40,6 +40,7 @@ import java.util.Map;
 import chat.dim.Content;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Log;
@@ -143,40 +144,48 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     //-------- messages
 
     private ID cachedMessagesID = null;
-    private List<InstantMessage> cachedMessages = null;
+    private List<InstantMessage<ID, SymmetricKey>> cachedMessages = null;
 
     private ID cachedTracesID = null;
-    private Map<String, List<Map>> cachedTraces = null;
+    private Map<String, List<String>> cachedTraces = null;
 
-    private Map<String, List<Map>> tracesInConversation(ID entity) {
+    private Map<String, List<String>> tracesInConversation(ID entity) {
         if (entity.equals(cachedTracesID) && cachedTraces != null) {
             return cachedTraces;
         }
-        String[] columns = {"sender, sn, trace"};
+        String[] columns = {"sn, signature, trace"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_TRACE, columns, "cid=?", selectionArgs, null, null, null)) {
-            Map<String, List<Map>> traces = new HashMap<>();
-            List<Map> array;
-            String sender;
-            String sn;
-            String key;
+            Map<String, List<String>> traces = new HashMap<>();
+            List<String> array;
+            int sn;
+            String signature;
             String value;
-            Map receipt;
             while (cursor.moveToNext()) {
-                sender = cursor.getString(0);
-                sn = cursor.getString(1);
-                key = sender + "," + sn;
+                sn = cursor.getInt(0);
+                signature = cursor.getString(1);
                 value = cursor.getString(2);
                 if (value == null) {
-                    throw new NullPointerException("trace info empty: " + sender + ", " + sn);
+                    throw new NullPointerException("trace info empty: " + entity + ", sn=" + sn + ", signature=" + signature);
                 }
-                receipt = (Map) JSON.decode(value.getBytes(Charset.forName("UTF-8")));
-                array = traces.get(key);
-                if (array == null) {
-                    array = new ArrayList<>();
-                    traces.put(key, array);
+                // traces by sn
+                if (sn > 0) {
+                    array = traces.get("" + sn);
+                    if (array == null) {
+                        array = new ArrayList<>();
+                        traces.put("" + sn, array);
+                    }
+                    array.add(value);
                 }
-                array.add(receipt);
+                // traces by signature
+                if (signature != null && signature.length() > 0) {
+                    array = traces.get(signature);
+                    if (array == null) {
+                        array = new ArrayList<>();
+                        traces.put(signature, array);
+                    }
+                    array.add(value);
+                }
             }
             cachedTraces = traces;
             cachedTracesID = entity;
@@ -184,32 +193,55 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
     }
 
-    public List<InstantMessage> messagesInConversation(ID entity) {
+    private List<String> getTraces(Map<String, List<String>> traces, int sn, String signature) {
+        List<String> array1 = null, array2 = null;
+        if (sn > 0) {
+            array1 = traces.get("" + sn);
+        }
+        if (signature != null && signature.length() > 0) {
+            array2 = traces.get(signature);
+        }
+        if (array1 == null || array1.size() == 0) {
+            return array2;
+        } else if (array2 == null || array2.size() == 0) {
+            return array1;
+        }
+        List<String> array = new ArrayList<>(array1);
+        for (String item: array2) {
+            if (array.contains(item)) {
+                continue;
+            }
+            array.add(item);
+        }
+        return array;
+    }
+
+    private List<InstantMessage<ID, SymmetricKey>> messagesInConversation(ID entity) {
         if (entity.equals(cachedMessagesID) && cachedMessages != null) {
             return cachedMessages;
         }
-        Map<String, List<Map>> traces = tracesInConversation(entity);
+        Map<String, List<String>> traces = tracesInConversation(entity);
         if (traces == null) {
             traces = new HashMap<>();
         }
-        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
+        String[] columns = {"sender", "receiver", "time", "content", "sn", "signature"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, null)) {
-            List<InstantMessage> messages = new ArrayList<>();
+            List<InstantMessage<ID, SymmetricKey>> messages = new ArrayList<>();
             String sender;
             String receiver;
             long time;
-            String sn;
             String content;
+            int sn;
             String signature;
-            InstantMessage iMsg;
-            List<Map> array;
+            InstantMessage<ID, SymmetricKey> iMsg;
+            List<String> array;
             while (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 receiver = cursor.getString(1);
                 time = cursor.getLong(2);
-                sn = cursor.getString(3);
-                content = cursor.getString(4);
+                content = cursor.getString(3);
+                sn = cursor.getInt(4);
                 signature = cursor.getString(5);
                 iMsg = MessageDatabase.getInstanceMessage(sender, receiver, time, content);
                 if (iMsg != null) {
@@ -218,7 +250,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                         iMsg.put("signature", signature);
                     }
                     // traces
-                    array = traces.get(sender + "," + sn);
+                    array = getTraces(traces, sn, signature);
                     if (array != null && array.size() > 0) {
                         iMsg.put("traces", array);
                     }
@@ -275,24 +307,21 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             }
             return null;
         }
-        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
+        String[] columns = {"sender", "receiver", "time", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
             String sender;
             String receiver;
             long time;
-            String sn;
             String content;
             String signature;
-            InstantMessage iMsg;
-            List<Map> array;
+            InstantMessage<ID, SymmetricKey> iMsg;
             if (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 receiver = cursor.getString(1);
                 time = cursor.getLong(2);
-                sn = cursor.getString(3);
-                content = cursor.getString(4);
-                signature = cursor.getString(5);
+                content = cursor.getString(3);
+                signature = cursor.getString(4);
                 iMsg = MessageDatabase.getInstanceMessage(sender, receiver, time, content);
                 if (iMsg != null) {
                     // signature
@@ -308,7 +337,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     @Override
     public InstantMessage messageAtIndex(int index, ID entity) {
-        List<InstantMessage> messages = messagesInConversation(entity);
+        List<InstantMessage<ID, SymmetricKey>> messages = messagesInConversation(entity);
         if (messages == null || messages.size() <= index) {
             return null;
         }
@@ -325,13 +354,19 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         String sender = iMsg.envelope.getSender().toString();
         String receiver = iMsg.envelope.getReceiver().toString();
         Date time = iMsg.envelope.getTime();
-        long sn = content.serialNumber;
         int type = content.type;
+        long sn = content.serialNumber;
+        String signature = (String) iMsg.get("signature");
+        if (signature == null) {
+            signature = "";
+        } else if (signature.length() > 8) {
+            signature = signature.substring(0, 8);
+        }
 
         // check for duplicated
-        String[] columns = {"sender", "receiver", "time", "sn", "content", "signature"};
-        String[] selectionArgs = {cid, sender, ""+sn};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
+        String[] columns = {"sender", "receiver", "time", "content", "sn", "signature"};
+        String[] selectionArgs = {cid, sender, (sn > 0 ? ""+sn : "9527"), (signature.length() > 0 ? signature : "MOKY")};
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND (sn=? OR signature=?)", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 // record exists
                 Log.info("drop duplicated msg: " + iMsg);
@@ -346,14 +381,13 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         values.put("receiver", receiver);
         values.put("time", time.getTime() / 1000);
         // content
-        values.put("sn", sn);
-        values.put("type", type);
         byte[] data = JSON.encode(content);
         String text = new String(data, Charset.forName("UTF-8"));
         values.put("content", text);
+        values.put("type", type);
+        values.put("sn", sn);
         // extra
-        String signature = (String) iMsg.get("signature");
-        if (signature != null && signature.length() > 0) {
+        if (signature.length() > 0) {
             values.put("signature", signature);
         }
         Object read = iMsg.get("read");
@@ -376,9 +410,13 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     public boolean removeMessage(InstantMessage iMsg, ID entity) {
         Object sender = iMsg.envelope.getSender();
         long sn = iMsg.getContent().serialNumber;
-        String[] whereArgs = {entity.toString(), sender.toString(), "" + sn};
-        delete(MessageDatabase.T_TRACE, "cid=? AND sender=? AND sn=?", whereArgs);
-        if (delete(MessageDatabase.T_MESSAGE, "cid=? AND sender=? AND sn=?", whereArgs) < 0) {
+        String signature = (String) iMsg.get("signature");
+        if (signature == null) {
+            signature = "";
+        }
+        String[] whereArgs = {entity.toString(), sender.toString(), (sn > 0 ? ""+sn : "9527"), (signature.length() > 0 ? signature : "MOKY")};
+        delete(MessageDatabase.T_TRACE, "cid=? AND sender=? AND (sn=? OR signature=?)", whereArgs);
+        if (delete(MessageDatabase.T_MESSAGE, "cid=? AND sender=? AND (sn=? OR signature=?)", whereArgs) < 0) {
             return false;
         }
         // clear for reload
@@ -399,25 +437,40 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         if (!(iMsg.getContent() instanceof ReceiptCommand)) {
             return false;
         }
-
+        // FIXME: check for origin conversation
         Object sender = iMsg.envelope.getSender();
+        Object receiver = iMsg.envelope.getReceiver();
         ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
+        if (entity.isUser()) {
+            if (receiver.equals(receipt.get("sender"))) {
+                receiver = receipt.get("receiver");
+                if (receiver != null) {
+                    entity = EntityDatabase.getID(receiver);
+                }
+            }
+        }
+
         long sn = receipt.serialNumber;
-        byte[] data = JSON.encode(receipt);
-        String json = new String(data, Charset.forName("UTF-8"));
+        String signature = (String) receipt.get("signature");
+        if (signature == null) {
+            // only save receipt for normal content
+            return false;
+        } else if (signature.length() > 8) {
+            signature = signature.substring(0, 8);
+        }
 
         ContentValues values = new ContentValues();
         values.put("cid", entity.toString());
-        values.put("sender", sender.toString());
-        values.put("sn", "" + sn);
-        values.put("trace", json);
+        values.put("sn", sn);
+        values.put("signature", signature);
+        values.put("trace", sender.toString());
         if (insert(MessageDatabase.T_TRACE, null, values) < 0) {
             return false;
         }
 
         // update message already loaded into memory cache
         if (entity.equals(cachedMessagesID) && cachedMessages != null) {
-            InstantMessage item;
+            InstantMessage<ID, SymmetricKey> item;
             int index = cachedMessages.size() - 1;
             for (; index >= 0; --index) {
                 item = cachedMessages.get(index);
@@ -425,18 +478,18 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                     continue;
                 }
                 //noinspection unchecked
-                List<Object> traces = (List) item.get("traces");
+                List<String> traces = (List) item.get("traces");
                 if (traces == null) {
                     traces = new ArrayList<>();
                     item.put("traces", traces);
                 }
                 // DISCUSS: what about the other fields 'sender', 'receiver', 'signature'
                 //          in this receipt command?
-                traces.add(receipt);
+                traces.add(sender.toString());
                 break;
             }
         }
-        return false;
+        return true;
     }
 
     private static boolean isMatch(InstantMessage iMsg, ReceiptCommand receipt) {

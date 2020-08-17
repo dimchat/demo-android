@@ -70,7 +70,7 @@ public class EntityDatabase extends Database {
     //  MingKeMing
     //
 
-    static ID getID(String identifier) {
+    static ID getID(Object identifier) {
         Facebook facebook = Facebook.getInstance();
         return facebook.getID(identifier);
     }
