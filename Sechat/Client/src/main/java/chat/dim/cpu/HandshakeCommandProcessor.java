@@ -41,16 +41,16 @@ public class HandshakeCommandProcessor extends CommandProcessor {
 
     private Content success() {
         Log.info("handshake success!");
-        String sessionKey = (String) getContext("session_key");
         Server server = (Server) getContext("server");
-        server.handshakeAccepted(sessionKey, true);
+        server.handshakeAccepted();
         return null;
     }
 
     private Content restart(String sessionKey) {
         Log.info("handshake again, session key: " + sessionKey);
-        setContext("session_key", sessionKey);
-        return new HandshakeCommand(sessionKey);
+        Server server = (Server) getContext("server");
+        server.handshakeAgain(sessionKey);
+        return null;
     }
 
     @Override

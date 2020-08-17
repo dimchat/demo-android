@@ -55,7 +55,7 @@ public class MessageDatabase extends Database {
         return ourInstance;
     }
 
-    private static final String DB_NAME = "dkd.sqlite";
+    private static final String DB_NAME = "dkd.db";
     private static final int DB_VERSION = 1;
 
     static final String T_MESSAGE = "t_message";

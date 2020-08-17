@@ -229,7 +229,7 @@ public class Terminal implements StationDelegate {
             response = null;
         }
         if (response != null && response.length > 0) {
-            currentServer.send(response);
+            currentServer.sendPackage(response, null);
         }
     }
 

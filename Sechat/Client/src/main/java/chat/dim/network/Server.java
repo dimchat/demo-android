@@ -41,6 +41,7 @@ import chat.dim.MessengerDelegate;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.User;
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
@@ -61,16 +62,16 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     private User currentUser = null;
     public String session = null;
 
-    final StateMachine fsm;
+    private final StateMachine fsm;
 
     private Star star = null;
     final private ReadWriteLock starLock = new ReentrantReadWriteLock();
 
     private Map<String, Object> startOptions = null;
 
-    public StationDelegate delegate;
+    StationDelegate delegate;
 
-    public Server(ID identifier, String host, int port) {
+    Server(ID identifier, String host, int port) {
         super(identifier, host, port);
         // connection state machine
         fsm = new StateMachine();
@@ -107,7 +108,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
                 status = star.getStatus();
             }
         } finally {
-            readLock.unlock();;
+            readLock.unlock();
         }
         return status;
     }
@@ -126,12 +127,13 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             // FIXME: sometimes the connection will be lost while handshaking
             return;
         }
+        session = newSession;
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
-        InstantMessage iMsg = new InstantMessage(cmd, currentUser.identifier, identifier);
+        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
         Messenger messenger = Messenger.getInstance();
-        SecureMessage sMsg = messenger.encryptMessage(iMsg);
-        ReliableMessage rMsg = messenger.signMessage(sMsg);
+        SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
+        ReliableMessage<ID, SymmetricKey> rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
             throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
         }
@@ -145,26 +147,33 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         send(data);
     }
 
-    public void handshakeAccepted(String sessionKey, boolean success) {
+    public void handshakeAccepted() {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
         if (!state.name.equals(StateMachine.handshakingState)) {
             // FIXME: sometimes the connection state will be reset
+            Log.error("server state error: " + state.name);
         }
-        if (success) {
-            Log.info("handshake accepted for user: " + currentUser);
-            session = sessionKey;
-            // call client
-            delegate.onHandshakeAccepted(sessionKey, this);
-        } else {
-            // new session key from station
-            Log.info("handshake again with session: " + sessionKey);
+        Log.info("handshake accepted for user: " + currentUser);
+        // call client
+        delegate.onHandshakeAccepted(session, this);
+    }
+
+    public void handshakeAgain(String sessionKey) {
+        // check FSM state == 'Handshaking'
+        ServerState state = getCurrentState();
+        if (!state.name.equals(StateMachine.handshakingState)) {
+            // FIXME: sometimes the connection state will be reset
+            Log.error("server state error: " + state.name);
         }
+        // new session key from station
+        Log.info("handshake again with session: " + sessionKey);
+        handshake(sessionKey);
     }
 
     //--------
 
-    public void start(Map<String, Object> options) {
+    void start(Map<String, Object> options) {
 
         Messenger messenger = Messenger.getInstance();
         messenger.setDelegate(this);
@@ -202,7 +211,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         // TODO: let the subclass to create StarGate
     }
 
-    public void end() {
+    void end() {
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -216,7 +225,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         fsm.stop();
     }
 
-    public void pause() {
+    void pause() {
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -230,7 +239,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         fsm.pause();
     }
 
-    public void resume() {
+    void resume() {
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -244,7 +253,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         fsm.resume();
     }
 
-    public void send(byte[] payload) {
+    private void send(byte[] payload) {
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -325,11 +334,14 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     private void sendAllWaiting() {
         RequestWrapper wrapper;
-        while (waitingList.size() > 0) {
-            if (StarStatus.Connected.equals(star.getStatus())) {
-                wrapper = waitingList.remove(0);
-                send(wrapper);
+        ServerState state;
+        while (waitingList.size() > 0 && getStatus() == StarStatus.Connected) {
+            state = getCurrentState();
+            if (state == null || !state.name.equals(StateMachine.runningState)) {
+                break;
             }
+            wrapper = waitingList.remove(0);
+            send(wrapper);
         }
     }
 
@@ -393,17 +405,24 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ServerStateChanged, this, info);
 
-        if (serverState.name.equals(StateMachine.handshakingState)) {
-            // start handshake
-            String session = this.session;
-            this.session = null;
-            handshake(session);
-        } else if (serverState.name.equals(StateMachine.runningState)) {
-            // send all packages waiting
-            sendAllWaiting();
-        } else if (serverState.name.equals(StateMachine.errorState)) {
-            // reconnect
-            restart();
+        switch (serverState.name) {
+            case StateMachine.handshakingState: {
+                // start handshake
+                String session = this.session;
+                this.session = null;
+                handshake(session);
+                break;
+            }
+            case StateMachine.runningState: {
+                // send all packages waiting
+                sendAllWaiting();
+                break;
+            }
+            case StateMachine.errorState: {
+                // reconnect
+                restart();
+                break;
+            }
         }
     }
 

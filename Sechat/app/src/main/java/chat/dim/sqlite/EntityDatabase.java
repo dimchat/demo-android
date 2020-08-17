@@ -46,7 +46,7 @@ public class EntityDatabase extends Database {
         return ourInstance;
     }
 
-    private static final String DB_NAME = "mkm.sqlite";
+    private static final String DB_NAME = "mkm.db";
     private static final int DB_VERSION = 1;
 
     static final String T_GROUP = "t_group";
