@@ -364,9 +364,9 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
 
         // check for duplicated
-        String[] columns = {"sender", "receiver", "time", "content", "sn", "signature"};
-        String[] selectionArgs = {cid, sender, (sn > 0 ? ""+sn : "9527"), (signature.length() > 0 ? signature : "MOKY")};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND (sn=? OR signature=?)", selectionArgs, null, null, null)) {
+        String[] columns = {"time"};
+        String[] selectionArgs = {cid, sender, ""+sn};
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 // record exists
                 Log.info("drop duplicated msg: " + iMsg);
@@ -402,6 +402,8 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         // clear for reload
         cachedMessages = null;
         cachedMessagesID = null;
+        cachedTraces = null;
+        cachedTracesID = null;
         conversations = null;
         return true;
     }
@@ -422,6 +424,8 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         // clear for reload
         cachedMessages = null;
         cachedMessagesID = null;
+        cachedTraces = null;
+        cachedTracesID = null;
         conversations = null;
         return true;
     }
