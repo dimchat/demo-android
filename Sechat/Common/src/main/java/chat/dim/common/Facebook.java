@@ -80,7 +80,7 @@ public class Facebook extends chat.dim.Facebook {
 
     private UserTable userTable = new UserTable();
     public GroupTable groupTable = null;
-    private ContactTable contactTable = new ContactTable();
+    public ContactTable contactTable = null;
 
     private List<User> users = null;
 

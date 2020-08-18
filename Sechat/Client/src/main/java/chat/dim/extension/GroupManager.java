@@ -249,8 +249,8 @@ public class GroupManager {
         List<ID> assistants = facebook.getAssistants(group);
         assert assistants != null : "failed to get assistants for group: " + group;
 
-        Command cmd = new QueryCommand(group);
-        return sendGroupCommand(cmd, assistants);
+        Messenger messenger = Messenger.getInstance();
+        return messenger.queryGroupInfo(group, assistants);
     }
 
     //-------- local storage

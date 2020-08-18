@@ -31,6 +31,7 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
+import chat.dim.extension.GroupManager;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 
@@ -89,6 +90,20 @@ public class Facebook extends chat.dim.common.Facebook {
             messenger.queryProfile(identifier);
         }
         return profile;
+    }
+
+    //-------- GroupDataSource
+
+    @Override
+    public List<ID> getMembers(ID group) {
+        List<ID> members = super.getMembers(group);
+        if (members == null || members.size() == 0) {
+            // query from group assistants
+            System.out.println("querying members: " + group);
+            GroupManager gm = new GroupManager(group);
+            gm.query();
+        }
+        return members;
     }
 
     @Override
