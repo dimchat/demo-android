@@ -41,7 +41,7 @@ public class Storage {
         }
         File dir = new File(tempDir);
         if (!dir.exists() && !dir.mkdirs()) {
-            return null;
+            throw new IOException("failed to create directory: " + tempDir);
         }
         return File.createTempFile(prefix, suffix, dir);
     }

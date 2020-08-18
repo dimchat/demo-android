@@ -179,7 +179,13 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        String path = Database.getEntityFilePath(group, "logo.png");
+        String path;
+        try {
+            path = Database.getEntityFilePath(group, "logo.png");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
         BackgroundThreads.wait(() -> {
             try {
                 Bitmap bitmap = drawLogo(group);

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,6 +92,12 @@ public class SechatApp extends Application {
         };
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        ExternalStorage.setRoot(path + File.separator + "chat.dim.sechat");
+        path += File.separator + "chat.dim.sechat";
+        try {
+            ExternalStorage.mkdirs(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ExternalStorage.setRoot(path);
     }
 }

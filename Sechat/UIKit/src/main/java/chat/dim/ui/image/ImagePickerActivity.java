@@ -54,7 +54,7 @@ public abstract class ImagePickerActivity extends AppCompatActivity {
         }
     }
 
-    protected abstract String getTemporaryDirectory();
+    protected abstract String getTemporaryDirectory() throws IOException;
 
     protected abstract void fetchImage(Bitmap bitmap);
 

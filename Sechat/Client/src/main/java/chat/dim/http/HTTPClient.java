@@ -55,7 +55,7 @@ public class HTTPClient extends Thread {
     private boolean running = false;
 
     // "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
-    public static String getCachePath(String url) {
+    public static String getCachePath(String url) throws IOException {
         String filename = Paths.getFilename(url);
         int pos = filename.indexOf(".");
         if (pos != 32) {
@@ -78,7 +78,13 @@ public class HTTPClient extends Thread {
     private final ReadWriteLock downloadingLock = new ReentrantReadWriteLock();
 
     public String download(String url) {
-        String path = getCachePath(url);
+        String path;
+        try {
+            path = getCachePath(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
         if (ExternalStorage.exists(path)) {
             // already downloaded
             return path;

@@ -38,7 +38,7 @@ public class AddressNameTable extends Database {
     private Map<String, ID> ansTable = loadRecords();
 
     // "/sdcard/chat.dim.sechat/dim/ans.txt"
-    private static String getAnsFilePath() {
+    private static String getAnsFilePath() throws IOException {
         return getCommonFilePath("ans.txt");
     }
 
@@ -52,10 +52,10 @@ public class AddressNameTable extends Database {
 
     private Map<String, ID> loadRecords() {
         Map<String, ID> dictionary = new HashMap<>();
-        String path = getAnsFilePath();
-        // loading ANS records
         String text;
         try {
+            // loading ANS records
+            String path = getAnsFilePath();
             text = loadText(path);
         } catch (IOException e) {
             //e.printStackTrace();
@@ -95,9 +95,9 @@ public class AddressNameTable extends Database {
             text.append(identifier.toString());
             text.append("\n");
         }
-        // saving ANS records
-        String path = getAnsFilePath();
         try {
+            // saving ANS records
+            String path = getAnsFilePath();
             return saveText(text.toString(), path);
         } catch (IOException e) {
             e.printStackTrace();

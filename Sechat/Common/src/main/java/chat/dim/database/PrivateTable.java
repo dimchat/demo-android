@@ -41,14 +41,14 @@ public class PrivateTable extends Database {
     private Map<Address, PrivateKey> keys = new HashMap<>();
 
     // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
-    private String getKeyFilePath(Address address) {
+    private String getKeyFilePath(Address address) throws IOException {
         return getUserPrivateFilePath(address, "secret.js");
     }
 
     private PrivateKey loadKey(Address address) {
-        // load from JsON file
-        String path = getKeyFilePath(address);
         try {
+            // load from JsON file
+            String path = getKeyFilePath(address);
             Object dict = loadJSON(path);
             return PrivateKey.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
@@ -59,8 +59,8 @@ public class PrivateTable extends Database {
 
     private boolean savePrivateKey(PrivateKey key, Address address) {
         keys.put(address, key);
-        String path = getKeyFilePath(address);
         try {
+            String path = getKeyFilePath(address);
             return saveJSON(key, path);
         } catch (IOException e) {
             e.printStackTrace();

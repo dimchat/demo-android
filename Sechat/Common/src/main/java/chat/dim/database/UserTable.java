@@ -36,15 +36,15 @@ public class UserTable extends Database {
     private List<ID> userList = null;
 
     // "/sdcard/chat.dim.sechat/dim/users.js"
-    private static String getUsersFilePath() {
+    private static String getUsersFilePath() throws IOException {
         return getCommonFilePath("users.js");
     }
 
     private boolean saveUsers() {
         assert userList != null : "users list empty";
-        // save into storage
-        String path = getUsersFilePath();
         try {
+            // save into storage
+            String path = getUsersFilePath();
             return saveJSON(userList, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,10 +55,10 @@ public class UserTable extends Database {
     private boolean loadUsers() {
         assert userList == null : "users list already loaded";
         userList = new ArrayList<>();
-        // loading from storage
-        String path = getUsersFilePath();
         List list;
         try {
+            // loading from storage
+            String path = getUsersFilePath();
             list = (List) loadJSON(path);
         } catch (IOException e) {
             //e.printStackTrace();

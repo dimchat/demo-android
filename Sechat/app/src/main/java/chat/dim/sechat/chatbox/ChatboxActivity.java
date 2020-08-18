@@ -9,6 +9,8 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.IOException;
+
 import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.model.Amanuensis;
@@ -96,7 +98,7 @@ public class ChatboxActivity extends ImagePickerActivity {
     //
 
     @Override
-    protected String getTemporaryDirectory() {
+    protected String getTemporaryDirectory() throws IOException {
         return Database.getTemporaryDirectory();
     }
 

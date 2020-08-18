@@ -26,43 +26,42 @@
 package chat.dim.database;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.model.Configuration;
 
 public class ProviderTable extends Database {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
-    private String getConfigFilePath(ID sp) {
+    private String getConfigFilePath(ID sp) throws IOException {
         return getProviderFilePath(sp, "config.js");
     }
 
     // "/sdcard/chat.dim.sechat/dim/service_providers.js"
-    private String getListFilePath() {
+    private String getListFilePath() throws IOException {
         return getCommonFilePath("service_providers.js");
     }
 
     public Map<String, Object> getProviderConfig(ID sp) {
-        String path = getConfigFilePath(sp);
         Map<String, Object> config = null;
         try {
+            String path = getConfigFilePath(sp);
             //noinspection unchecked
             config = (Map) loadJSON(path);
         } catch (IOException e) {
             //e.printStackTrace();
         }
         if (config == null) {
-            config = new HashMap<>();
-            config.put("ID", sp);
+            config = Configuration.getInstance().getProviderConfig();
         }
         return config;
     }
 
     public List<String> allProviders() {
-        String path = getListFilePath();
         try {
+            String path = getListFilePath();
             //noinspection unchecked
             return (List) loadJSON(path);
         } catch (IOException e) {
@@ -72,8 +71,8 @@ public class ProviderTable extends Database {
     }
 
     public boolean saveProviders(List<String> providers) {
-        String path = getListFilePath();
         try {
+            String path = getListFilePath();
             return saveJSON(providers, path);
         } catch (IOException e) {
             e.printStackTrace();

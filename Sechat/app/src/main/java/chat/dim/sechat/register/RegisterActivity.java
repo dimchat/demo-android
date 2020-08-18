@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import java.io.IOException;
+
 import chat.dim.database.Database;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
@@ -65,7 +67,7 @@ public class RegisterActivity extends ImagePickerActivity {
     //
 
     @Override
-    protected String getTemporaryDirectory() {
+    protected String getTemporaryDirectory() throws IOException {
         return Database.getTemporaryDirectory();
     }
 

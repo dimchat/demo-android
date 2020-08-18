@@ -46,14 +46,14 @@ public class MetaTable extends Database {
     }
 
     // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/meta.js"
-    private static String getMetaFilePath(ID entity) {
+    private static String getMetaFilePath(ID entity) throws IOException {
         return getEntityFilePath(entity, "meta.js");
     }
 
     private Meta loadMeta(ID entity) {
-        // load from JsON file
-        String path = getMetaFilePath(entity);
         try {
+            // load from JsON file
+            String path = getMetaFilePath(entity);
             Object dict = loadJSON(path);
             return Meta.getInstance(dict);
         } catch (IOException | ClassNotFoundException e) {
@@ -66,9 +66,9 @@ public class MetaTable extends Database {
         if (!cache(meta, entity)) {
             return false;
         }
-        // save into JsON file
-        String path = getMetaFilePath(entity);
         try {
+            // save into JsON file
+            String path = getMetaFilePath(entity);
             if (exists(path)) {
                 return true;
             }

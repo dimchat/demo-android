@@ -35,13 +35,13 @@ public class StationTable extends Database {
 
     // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/stations.js"
 
-    private static String getStationsFilePath(ID sp) {
+    private static String getStationsFilePath(ID sp) throws IOException {
         return getProviderFilePath(sp, "stations.js");
     }
 
     public boolean saveStations(List<Map<String, Object>> stations, ID sp) {
-        String path = getStationsFilePath(sp);
         try {
+            String path = getStationsFilePath(sp);
             return saveJSON(stations, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,8 +50,8 @@ public class StationTable extends Database {
     }
 
     public List<Map<String, Object>> allStations(ID sp) {
-        String path = getStationsFilePath(sp);
         try {
+            String path = getStationsFilePath(sp);
             //noinspection unchecked
             return (List) loadJSON(path);
         } catch (IOException e) {

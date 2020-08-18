@@ -46,7 +46,7 @@ public class KeyStore extends KeyCache {
     }
 
     // '/tmp/.dim/protected/keystore.js'
-    private String getPath() {
+    private String getPath() throws IOException {
         return Database.getProtectedFilePath("keystore.js");
     }
 

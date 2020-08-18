@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -164,7 +165,13 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             if (filename == null) {
                 return;
             }
-            String path = Database.getCacheFilePath(filename);
+            String path;
+            try {
+                path = Database.getCacheFilePath(filename);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
             if (Database.exists(path)) {
                 System.out.println("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
@@ -180,7 +187,13 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     }
 
     private void showImage(String filename, String sender, Context context) {
-        String path = HTTPClient.getCachePath(filename);
+        String path;
+        try {
+            path = HTTPClient.getCachePath(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         if (!ExternalStorage.exists(path)) {
             return;
         }

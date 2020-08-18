@@ -47,7 +47,9 @@
                 android:hint="@string/import_hint"
                 android:inputType="textMultiLine"
                 android:padding="8dp"
-                android:textColor="#041269" />
+                android:selectAllOnFocus="true"
+                android:textColor="#041269"
+                android:textIsSelectable="true" />
 
             <Button
                 android:id="@+id/importButton"

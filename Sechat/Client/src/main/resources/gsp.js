@@ -6,8 +6,8 @@
     "CA": {},
     "home": "https://dim.chat/",
     "stations": [
-        {"desc": "dimchat-gz", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW"},
-        {"desc": "localhost",  "ID": "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC"}
+        {"desc": "dimchat-gz", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "134.175.87.98", "port": 9394},
+        {"desc": "localhost",  "ID": "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC", "host": "127.0.0.1", "port": 9394}
     ],
 
     "APIs": {

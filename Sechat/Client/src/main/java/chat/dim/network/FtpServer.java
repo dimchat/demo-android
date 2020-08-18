@@ -69,9 +69,9 @@ public class FtpServer {
         assert download != null : "download API error";
         download = download.replaceAll("\\{ID\\}", identifier.address.toString()).replaceAll("\\{filename\\}", filename);
 
-        // store in user's directory
-        String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
         try {
+            // store in user's directory
+            String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
             ExternalStorage.saveData(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,9 +94,13 @@ public class FtpServer {
             }
         }
 
-        path = Database.getEntityFilePath(identifier, "avatar.jpeg");
-        if (ExternalStorage.exists(path)) {
-            return path;
+        try {
+            path = Database.getEntityFilePath(identifier, "avatar.jpeg");
+            if (ExternalStorage.exists(path)) {
+                return path;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -106,9 +110,9 @@ public class FtpServer {
     //
 
     public boolean saveImage(byte[] imageData, String filename) {
-        // save a copy to cache directory
-        String path = Database.getCacheFilePath(filename);
         try {
+            // save a copy to cache directory
+            String path = Database.getCacheFilePath(filename);
             return ExternalStorage.saveData(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -145,7 +149,7 @@ public class FtpServer {
         return httpClient.download(url);
     }
 
-    public String getFilePath(FileContent content) {
+    public String getFilePath(FileContent content) throws IOException {
         // check decrypted file
         String filename = content.getFilename();
         String path1 = Database.getCacheFilePath(filename);

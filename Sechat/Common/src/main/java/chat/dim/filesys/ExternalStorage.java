@@ -60,11 +60,10 @@ public class ExternalStorage {
         }
     }
 
-    protected static String mkdirs(String path) {
+    public static String mkdirs(String path) throws IOException {
         File dir = new File(path);
         if (!dir.exists() && !dir.mkdirs()) {
-            //throw new IOException("failed to create directory: " + dir);
-            return null;
+            throw new IOException("failed to create directory: " + path);
         }
         return path;
     }

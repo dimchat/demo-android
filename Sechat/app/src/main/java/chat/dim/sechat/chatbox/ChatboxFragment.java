@@ -277,7 +277,16 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     }
 
     private AudioRecorder recorder = null;
-    private final String mp4FilePath = Database.getTemporaryFilePath("audio.mp4");
+    private final String mp4FilePath = getTemporaryFilePath();
+
+    private static String getTemporaryFilePath() {
+        try {
+            return Database.getTemporaryFilePath("audio.mp4");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     private void startRecord() {
         String path = mp4FilePath;
@@ -315,13 +324,11 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
-        String path = Database.getCacheFilePath(filename);
-        if (!Database.exists(path)) {
-            try {
-                Database.saveData(mp4, path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            String path = Database.getCacheFilePath(filename);
+            Database.saveData(mp4, path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         AudioContent content = new AudioContent(mp4, filename);

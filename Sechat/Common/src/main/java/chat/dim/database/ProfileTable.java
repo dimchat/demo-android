@@ -47,13 +47,13 @@ public class ProfileTable extends Database {
     }
 
     // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/profile.js"
-    private static String getProfilePath(ID entity) {
+    private static String getProfilePath(ID entity) throws IOException {
         return getEntityFilePath(entity, "profile.js");
     }
 
     private Profile loadProfile(ID entity) {
-        String path = getProfilePath(entity);
         try {
+            String path = getProfilePath(entity);
             Object dict = loadJSON(path);
             return Profile.getInstance(dict);
         } catch (IOException e) {
@@ -68,8 +68,8 @@ public class ProfileTable extends Database {
         }
         // write into JsON file
         ID identifier = ID.getInstance(profile.getIdentifier());
-        String path = getProfilePath(identifier);
         try {
+            String path = getProfilePath(identifier);
             return saveJSON(profile, path);
         } catch (IOException e) {
             e.printStackTrace();

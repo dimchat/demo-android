@@ -39,6 +39,8 @@ public class Configuration {
         loadConfig();
     }
 
+    private Map<String, Object> info = null;
+
     private String apiUpload = null;
     private String apiDownload = null;
     private String apiAvatar = null;
@@ -50,7 +52,7 @@ public class Configuration {
         Map<String, String> apis = null;
         try {
             //noinspection unchecked
-            Map<String, Object> info = (Map) Resources.loadJSON("gsp.js");
+            info = (Map) Resources.loadJSON("gsp.js");
             if (info != null) {
                 //noinspection unchecked
                 apis = (Map) info.get("APIs");
@@ -83,6 +85,13 @@ public class Configuration {
         if (about != null) {
             apiAbout = about;
         }
+    }
+
+    public Map<String, Object> getProviderConfig() {
+        if (info == null) {
+            loadConfig();
+        }
+        return info;
     }
 
     // "https://sechat.dim.chat/{ID}}/upload"

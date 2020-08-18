@@ -25,6 +25,8 @@
  */
 package chat.dim.database;
 
+import java.io.IOException;
+
 import chat.dim.Address;
 import chat.dim.ID;
 import chat.dim.filesys.ExternalStorage;
@@ -47,17 +49,17 @@ public class Database extends ExternalStorage {
      * @param filename - cache file name
      * @return cache file path
      */
-    public static String getCacheFilePath(String filename) {
+    public static String getCacheFilePath(String filename) throws IOException {
         return getCacheDirectory(filename) + separator + filename;
     }
 
-    public static String getCacheDirectory(String filename) {
+    public static String getCacheDirectory(String filename) throws IOException {
         assert filename.length() > 2 : "filename too short " + filename;
         String dir = getCachesDirectory() + separator + filename.substring(0, 2);
         return mkdirs(dir);
     }
 
-    public static String getCachesDirectory() {
+    public static String getCachesDirectory() throws IOException {
         String dir = root + separator + "caches";
         return mkdirs(dir);
     }
@@ -68,11 +70,11 @@ public class Database extends ExternalStorage {
      * @param filename - temporary file name
      * @return temporary file path
      */
-    public static String getTemporaryFilePath(String filename) {
+    public static String getTemporaryFilePath(String filename) throws IOException {
         return getTemporaryDirectory() + separator + filename;
     }
 
-    public static String getTemporaryDirectory() {
+    public static String getTemporaryDirectory() throws IOException {
         String dir = root + separator + "tmp";
         return mkdirs(dir);
     }
@@ -83,11 +85,11 @@ public class Database extends ExternalStorage {
      * @param filename - common file name
      * @return common file path
      */
-    public static String getCommonFilePath(String filename) {
+    public static String getCommonFilePath(String filename) throws IOException {
         return getCommonDirectory() + separator + filename;
     }
 
-    public static String getCommonDirectory() {
+    public static String getCommonDirectory() throws IOException {
         String dir = root + separator + "dim";
         return mkdirs(dir);
     }
@@ -99,15 +101,15 @@ public class Database extends ExternalStorage {
      * @param filename - sp file name
      * @return sp file path
      */
-    public static String getProviderFilePath(ID sp, String filename) {
+    public static String getProviderFilePath(ID sp, String filename) throws IOException {
         return getProviderDirectory(sp.address) + separator + filename;
     }
 
-    public static String getProviderDirectory(ID sp) {
+    public static String getProviderDirectory(ID sp) throws IOException {
         return getProviderDirectory(sp.address);
     }
 
-    public static String getProviderDirectory(Address address) {
+    public static String getProviderDirectory(Address address) throws IOException {
         String dir = getCommonDirectory() + separator + address.toString();
         return mkdirs(dir);
     }
@@ -118,20 +120,20 @@ public class Database extends ExternalStorage {
      * @param conversation - conversation ID
      * @return message file path
      */
-    public static String getMessageFilePath(ID conversation) {
+    public static String getMessageFilePath(ID conversation) throws IOException {
         return getMessageDirectory(conversation.address) + separator + "messages.js";
     }
 
-    public static String getMessageDirectory(ID conversation) {
+    public static String getMessageDirectory(ID conversation) throws IOException {
         return getMessageDirectory(conversation.address);
     }
 
-    public static String getMessageDirectory(Address address) {
+    public static String getMessageDirectory(Address address) throws IOException {
         String dir = getMessageDirectory() + separator + address.toString();
         return mkdirs(dir);
     }
 
-    public static String getMessageDirectory() {
+    public static String getMessageDirectory() throws IOException {
         String dir = root + separator + "dkd";
         return mkdirs(dir);
     }
@@ -143,15 +145,15 @@ public class Database extends ExternalStorage {
      * @param filename - entity file name
      * @return entity file path
      */
-    public static String getEntityFilePath(ID entity, String filename) {
+    public static String getEntityFilePath(ID entity, String filename) throws IOException {
         return getEntityDirectory(entity.address) + separator + filename;
     }
 
-    public static String getEntityDirectory(ID entity) {
+    public static String getEntityDirectory(ID entity) throws IOException {
         return getEntityDirectory(entity.address);
     }
 
-    public static String getEntityDirectory(Address address) {
+    public static String getEntityDirectory(Address address) throws IOException {
         String string = address.toString();
         String dir = root + separator + "mkm" + separator
                 + string.substring(0, 2) + separator
@@ -166,34 +168,34 @@ public class Database extends ExternalStorage {
      * @param filename - private file name
      * @return private file path
      */
-    public static String getUserPrivateFilePath(ID user, String filename) {
+    public static String getUserPrivateFilePath(ID user, String filename) throws IOException {
         return getUserPrivateFilePath(user.address, filename);
     }
 
-    public static String getUserPrivateFilePath(Address address, String filename) {
+    public static String getUserPrivateFilePath(Address address, String filename) throws IOException {
         return getUserPrivateDirectory(address) + separator + filename;
     }
 
-    public static String getUserPrivateDirectory(ID user) {
+    public static String getUserPrivateDirectory(ID user) throws IOException {
         return getUserPrivateDirectory(user.address);
     }
 
-    public static String getUserPrivateDirectory(Address address) {
+    public static String getUserPrivateDirectory(Address address) throws IOException {
         String dir = getPrivateDirectory() + separator + address.toString();
         return mkdirs(dir);
     }
 
-    public static String getPrivateDirectory() {
+    public static String getPrivateDirectory() throws IOException {
         String dir = root + separator + ".private";
         return mkdirs(dir);
     }
 
-    public static String getProtectedDirectory() {
+    public static String getProtectedDirectory() throws IOException {
         String dir = root + separator + ".protected";
         return mkdirs(dir);
     }
 
-    public static String getProtectedFilePath(String filename) {
+    public static String getProtectedFilePath(String filename) throws IOException {
         return getProtectedDirectory() + separator + filename;
     }
 }
