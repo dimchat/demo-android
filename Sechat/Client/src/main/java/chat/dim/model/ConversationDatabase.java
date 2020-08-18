@@ -37,6 +37,7 @@ import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
 public class ConversationDatabase {
@@ -155,7 +156,19 @@ public class ConversationDatabase {
     public boolean saveReceipt(InstantMessage iMsg, Conversation chatBox) {
         boolean OK = messageTable.saveReceipt(iMsg, chatBox.identifier);
         if (OK) {
-            postMessageUpdatedNotification(iMsg, chatBox.identifier);
+            ID entity = chatBox.identifier;
+            // FIXME: check for origin conversation
+            if (entity.isUser()) {
+                Object receiver = iMsg.envelope.getReceiver();
+                ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
+                if (receiver.equals(receipt.get("sender"))) {
+                    receiver = receipt.get("receiver");
+                    if (receiver != null) {
+                        entity = Facebook.getInstance().getID(receiver);
+                    }
+                }
+            }
+            postMessageUpdatedNotification(iMsg, entity);
         }
         return OK;
     }
