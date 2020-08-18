@@ -27,14 +27,12 @@ package chat.dim.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
-import chat.dim.database.StationTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
 
@@ -45,44 +43,34 @@ public class NetworkDatabase {
         super();
     }
 
-    private ProviderTable providerTable = new ProviderTable();
-    private StationTable stationTable = new StationTable();
+    public ProviderTable providerTable = null;
 
     /**
      *  Get all service providers
      *
-     * @return provider ID list
+     * @return provider info list
      */
-    public List<String> allProviders() {
-        return providerTable.allProviders();
-    }
-
-    /**
-     *  Get provider config with ID
-     *
-     * @param sp - sp ID
-     * @return config
-     */
-    public Map<String, Object> getProviderConfig(ID sp) {
-        Map<String, Object> config = providerTable.getProviderConfig(sp);
-        Object stations = config.get("stations");
-        if (stations == null) {
-            stations = allStations(sp);
-            if (stations != null) {
-                config.put("stations", stations);
-            }
+    public List<ProviderTable.ProviderInfo> allProviders() {
+        // check providers
+        List<ProviderTable.ProviderInfo> providers = providerTable.getProviders();
+        if (providers != null && providers.size() > 0) {
+            return providers;
         }
-        return config;
+        providers = new ArrayList<>();
+        providers.add(defaultProviderInfo());
+        return providers;
     }
 
     /**
-     *  Save provider list
+     *  Save provider
      *
-     * @param providers - provider ID list
+     * @param identifier - provider ID
+     * @param name - provider name
+     * @param url - config URL
      * @return true on success
      */
-    public boolean saveProviders(List<String> providers) {
-        return providerTable.saveProviders(providers);
+    public boolean addProvider(ID identifier, String name, String url, int chosen) {
+        return providerTable.addProvider(identifier, name, url, chosen);
     }
 
     //-------- Station
@@ -91,21 +79,24 @@ public class NetworkDatabase {
      *  Get all stations under the service provider
      *
      * @param sp - sp ID
-     * @return station config list
+     * @return station info list
      */
-    public List<Map<String, Object>> allStations(ID sp) {
-        return stationTable.allStations(sp);
+    public List<ProviderTable.StationInfo> allStations(ID sp) {
+        return providerTable.getStations(sp);
     }
 
     /**
-     *  Save station config list for the service provider
+     *  Save station info for the service provider
      *
-     * @param stations - station config list
      * @param sp - sp ID
+     * @param station - station ID
+     * @param host - station host
+     * @param port - station port
+     * @param name - station name
      * @return true on success
      */
-    public boolean saveStations(List<Map<String, Object>> stations, ID sp) {
-        return stationTable.saveStations(stations, sp);
+    public boolean addStation(ID sp, ID station, String host, int port, String name, int chosen) {
+        return providerTable.addStation(sp, station, host, port, name, chosen);
     }
 
     private static Meta loadMeta(ID identifier) {
@@ -119,46 +110,39 @@ public class NetworkDatabase {
         }
     }
 
-    static {
+    private ProviderTable.ProviderInfo defaultProviderInfo() {
 
-        NetworkDatabase database = NetworkDatabase.getInstance();
-
-        // FIXME: test SP
-
-        // sp ID
-        ID spID = ID.ANYONE;
-
-        List<String> providers = new ArrayList<>();
-        providers.add(spID.toString());
-        database.saveProviders(providers);
-
-        // FIXME: test station(s)
-
-        // station IP
-//        String host = "127.0.0.1";
-//        String host = "192.168.3.121";
-        String host = "134.175.87.98";
-
-        // station Port
-        int port = 9394;
-
-        // station ID
-//        ID stationID = ID.getInstance("gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC");
-        ID stationID = ID.getInstance("gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW");
-
-        Meta meta = loadMeta(stationID);
         Facebook facebook = Facebook.getInstance();
-        facebook.saveMeta(meta, stationID);
+        Map<String, Object> spConfig = Configuration.getInstance().getDefaultProvider();
 
-        // station config
-        Map<String, Object> srvConfig = new HashMap<>();
-        srvConfig.put("ID", stationID);
-        srvConfig.put("host", host);
-        srvConfig.put("port", port);
+        ID sp = facebook.getID(spConfig.get("ID"));
+        String name = (String) spConfig.get("name");
+        String url = (String) spConfig.get("URL");
+        addProvider(sp, name, url, 1);
 
-        // station list
-        List<Map<String, Object>> stations = new ArrayList<>();
-        stations.add(srvConfig);
-        database.saveStations(stations, spID);
+        //noinspection unchecked
+        List<Map> stations = (List<Map>) spConfig.get("stations");
+        ID sid;
+        String host;
+        int port;
+        Meta meta;
+
+        int chosen = 1;
+
+        for (Map item : stations) {
+            sid = facebook.getID(item.get("ID"));
+            host = (String) item.get("host");
+            port = (int) item.get("port");
+            name = (String) item.get("name");
+            addStation(sp, sid, host, port, name, chosen);
+            chosen = 0;
+
+            meta = loadMeta(sid);
+            if (meta != null) {
+                facebook.saveMeta(meta, sid);
+            }
+        }
+
+        return new ProviderTable.ProviderInfo(sp, name, url, 1);
     }
 }

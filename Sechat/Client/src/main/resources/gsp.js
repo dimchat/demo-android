@@ -1,13 +1,15 @@
 {
-    "desc": "Genesis Service Provider",
     "ID": "gsp@pZG9dRgqerAS26J6CoxBnAf4wwvMj9brpC",
+    "name": "Genesis Service Provider",
+    "URL": "https://dim.chat/",
+
     "founder": "moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ",
     "owner": "moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ",
     "CA": {},
-    "home": "https://dim.chat/",
+
     "stations": [
-        {"desc": "dimchat-gz", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "134.175.87.98", "port": 9394},
-        {"desc": "localhost",  "ID": "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC", "host": "127.0.0.1", "port": 9394}
+        {"name": "dimchat-gz", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "134.175.87.98", "port": 9394},
+        {"name": "localhost",  "ID": "gsp-s001@x5Zh9ixt8ECr59XLye1y5WWfaX4fcoaaSC", "host": "127.0.0.1", "port": 9394}
     ],
 
     "APIs": {

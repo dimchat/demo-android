@@ -59,6 +59,8 @@ import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
 
+    public final String name;
+
     private User currentUser = null;
     public String session = null;
 
@@ -71,8 +73,9 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     StationDelegate delegate;
 
-    Server(ID identifier, String host, int port) {
+    Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
+        name = title;
         // connection state machine
         fsm = new StateMachine();
         fsm.server = this;

@@ -16,11 +16,14 @@ import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
+import chat.dim.model.NetworkDatabase;
 import chat.dim.sqlite.ContactTable;
 import chat.dim.sqlite.EntityDatabase;
 import chat.dim.sqlite.GroupTable;
 import chat.dim.sqlite.MessageDatabase;
 import chat.dim.sqlite.MessageTable;
+import chat.dim.sqlite.ProviderDatabase;
+import chat.dim.sqlite.ProviderTable;
 import chat.dim.ui.Application;
 
 public class SechatApp extends Application {
@@ -30,8 +33,17 @@ public class SechatApp extends Application {
     public SechatApp() {
         super();
         ourInstance = this;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
         // databases
+        ProviderDatabase.setContext(this);
+        NetworkDatabase netDB = NetworkDatabase.getInstance();
+        netDB.providerTable = ProviderTable.getInstance();
+
         EntityDatabase.setContext(this);
         Facebook facebook = Facebook.getInstance();
         facebook.groupTable = GroupTable.getInstance();

@@ -40,7 +40,6 @@ import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 
 /**

@@ -25,58 +25,79 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.model.Configuration;
 
-public class ProviderTable extends Database {
+public interface ProviderTable {
 
-    // "/sdcard/chat.dim.sechat/dim/{SP_ADDRESS}/config.js"
-    private String getConfigFilePath(ID sp) throws IOException {
-        return getProviderFilePath(sp, "config.js");
-    }
+    class ProviderInfo {
+        public ID identifier;
+        public String name;
+        public String url;
+        public int chosen;
 
-    // "/sdcard/chat.dim.sechat/dim/service_providers.js"
-    private String getListFilePath() throws IOException {
-        return getCommonFilePath("service_providers.js");
-    }
-
-    public Map<String, Object> getProviderConfig(ID sp) {
-        Map<String, Object> config = null;
-        try {
-            String path = getConfigFilePath(sp);
-            //noinspection unchecked
-            config = (Map) loadJSON(path);
-        } catch (IOException e) {
-            //e.printStackTrace();
-        }
-        if (config == null) {
-            config = Configuration.getInstance().getProviderConfig();
-        }
-        return config;
-    }
-
-    public List<String> allProviders() {
-        try {
-            String path = getListFilePath();
-            //noinspection unchecked
-            return (List) loadJSON(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        public ProviderInfo(ID identifier, String name, String url, int chosen) {
+            this.identifier = identifier;
+            this.name = name;
+            this.url = url;
+            this.chosen = chosen;
         }
     }
 
-    public boolean saveProviders(List<String> providers) {
-        try {
-            String path = getListFilePath();
-            return saveJSON(providers, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+    List<ProviderInfo> getProviders();
+
+    boolean addProvider(ID identifier, String name, String url, int chosen);
+
+    boolean updateProvider(ID identifier, String name, String url, int chosen);
+
+    boolean removeProvider(ID identifier);
+
+    //
+    //  Stations
+    //
+
+    class StationInfo {
+        public ID identifier;
+        public String name;
+        public String host;
+        public int port;
+        public int chosen;
+
+        public StationInfo(ID identifier, String name, String host, int port, int chosen) {
+            this.identifier = identifier;
+            this.name = name;
+            this.host = host;
+            this.port = port;
+            this.chosen = chosen;
         }
     }
+
+    List<StationInfo> getStations(ID sp);
+
+    boolean addStation(ID sp, ID station, String host, int port, String name, int chosen);
+
+    boolean updateStation(ID sp, ID station, String host, int port, String name, int chosen);
+
+    boolean removeStation(ID sp, ID station);
+
+    boolean removeStations(ID sp);
+
+    //
+    //  APIs
+    //
+
+    class ApiInfo {
+        public String upload;
+        public String download;
+        public String avatar;
+
+        public ApiInfo(String upload, String download, String avatar) {
+            this.upload = upload;
+            this.download = download;
+            this.avatar = avatar;
+        }
+    }
+
+    ApiInfo getAPI(ID sp, ID station);
 }

@@ -87,7 +87,7 @@ public class Configuration {
         }
     }
 
-    public Map<String, Object> getProviderConfig() {
+    public Map<String, Object> getDefaultProvider() {
         if (info == null) {
             loadConfig();
         }

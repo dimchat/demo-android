@@ -33,6 +33,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.User;
+import chat.dim.database.ProviderTable;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
@@ -91,58 +92,42 @@ public class Terminal implements StationDelegate {
 
     //--------
 
-    private void startServer(Map<String, Object> station, ServiceProvider sp) {
+    private void startServer(ProviderTable.StationInfo stationInfo) {
+        ID identifier = stationInfo.identifier;
+        String name = stationInfo.name;
+        String host = stationInfo.host;
+        int port = stationInfo.port;
 
-        ID identifier = ID.getInstance(station.get("ID"));
-        String host = (String) station.get("host");
-        int port = (int) station.get("port");
+        Map<String, Object> options = new HashMap<>();
+        options.put("ID", identifier);
+        options.put("host", host);
+        options.put("port", port);
 
-        // prepare for launch star
         if (host != null) {
-            station.put("LongLinkAddress", "dim.chat");
+            options.put("LongLinkAddress", "dim.chat");
             List<String> list = new ArrayList<>();
-            list.add(host);
+            list.add(stationInfo.host);
             Map<String, Object> ipTable = new HashMap<>();
             ipTable.put("dim.chat", list);
-            station.put("NewDNS", ipTable);
+            options.put("NewDNS", ipTable);
         }
         if (port != 0) {
-            station.put("LongLinkPort", port);
+            options.put("LongLinkPort", stationInfo.port);
         }
 
         // TODO: config FTP server
 
         // connect server
         Server server = getCurrentServer();
-        if (server == null || (server.getPort() != port && !server.getHost().equals(host))) {
-            server = new Server(identifier, host, port);
+        if (server == null || server.getPort() != port || !server.getHost().equals(host)) {
+            server = new Server(identifier, host, port, name);
             server.delegate = this;
-            server.start(station);
+            server.start(options);
             setCurrentServer(server);
         }
 
         // get user from database and login
         messenger.login(null);
-    }
-
-    private void launchServiceProvider(Map<String, Object> spConfig) {
-        Facebook facebook = Facebook.getInstance();
-        ID spID = facebook.getID(spConfig.get("ID"));
-        ServiceProvider sp = new ServiceProvider(spID);
-
-        //noinspection unchecked
-        List<Map<String, Object>> stations = (List) spConfig.get("stations");
-        if (stations == null) {
-            stations = NetworkDatabase.getInstance().allStations(spID);
-        }
-        if (stations == null || stations.size() == 0) {
-            // TODO: waiting for permission.READ_EXTERNAL_STORAGE
-            throw new NullPointerException("failed to get stations");
-        } else {
-            // choose the fast station
-            Map<String, Object> neighbor = new HashMap<>(stations.get(0));
-            startServer(neighbor, sp);
-        }
     }
 
     //-------- AppDelegate
@@ -153,12 +138,18 @@ public class Terminal implements StationDelegate {
         // launch server
         //
 
-        //noinspection unchecked
-        Map<String, Object> spConfig = (Map) options.get("SP");
-        if (spConfig == null) {
-            spConfig = NetworkDatabase.getInstance().getProviderConfig(ID.ANYONE);
+        NetworkDatabase database = NetworkDatabase.getInstance();
+        List<ProviderTable.ProviderInfo> providers = database.allProviders();
+        if (providers != null && providers.size() > 0) {
+            // choose the default sp
+            ProviderTable.ProviderInfo sp = providers.get(0);
+            List<ProviderTable.StationInfo> stations = database.allStations(sp.identifier);
+            if (stations != null && stations.size() > 0) {
+                // choose the default station
+                ProviderTable.StationInfo srv = stations.get(0);
+                startServer(srv);
+            }
         }
-        launchServiceProvider(spConfig);
 
         // TODO: notice("ProfileUpdated")
 
