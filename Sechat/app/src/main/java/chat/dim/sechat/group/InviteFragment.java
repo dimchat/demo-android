@@ -19,7 +19,11 @@ import java.util.Map;
 import java.util.Set;
 
 import chat.dim.ID;
+import chat.dim.Profile;
+import chat.dim.User;
+import chat.dim.crypto.SignKey;
 import chat.dim.extension.GroupManager;
+import chat.dim.model.Facebook;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.sechat.R;
@@ -54,6 +58,9 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
 
         dummyList = new CandidateList(group);
         Listener listener = (Listener<CandidateViewAdapter.ViewHolder>) viewHolder -> {
+            if (!viewHolder.checkBox.isEnabled()) {
+                return;
+            }
             boolean checked = viewHolder.checkBox.isChecked();
             if (checked) {
                 viewHolder.checkBox.setChecked(false);
@@ -64,6 +71,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
             }
         };
         adapter = new CandidateViewAdapter(dummyList, listener);
+        adapter.group = group;
 
         reloadData();
     }
@@ -75,6 +83,24 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
             return;
         }
 
+        // save group name
+        Facebook facebook = Facebook.getInstance();
+        String oldName = facebook.getGroupName(identifier);
+        String newName = groupName.getText().toString();
+        if (oldName == null || !oldName.equals(newName)) {
+            if (newName.length() > 0) {
+                User user = facebook.getCurrentUser();
+                assert user != null : "failed to get current user";
+                SignKey key = facebook.getPrivateKeyForSignature(user.identifier);
+                assert key != null : "failed to get private key: " + user.identifier;
+                Profile profile = new Profile(identifier);
+                profile.setName(newName);
+                profile.sign(key);
+                facebook.saveProfile(profile);
+            }
+        }
+
+        // invite group member(s)
         GroupManager gm = new GroupManager(identifier);
         //noinspection unchecked
         if (gm.invite(new ArrayList(selected))) {

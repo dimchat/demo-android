@@ -40,6 +40,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MembersUpdated);
         nc.addObserver(this, NotificationNames.GroupCreated);
+        nc.addObserver(this, NotificationNames.GroupRemoved);
     }
 
     @Override
@@ -49,6 +50,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.MembersUpdated);
         nc.removeObserver(this, NotificationNames.GroupCreated);
+        nc.removeObserver(this, NotificationNames.GroupRemoved);
         super.onDestroy();
     }
 
@@ -65,6 +67,11 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
         } else if (name.equals(NotificationNames.GroupCreated)) {
             ID from = (ID) info.get("from");
             if (identifier.equals(from)) {
+                finish();
+            }
+        } else if (name.equals(NotificationNames.GroupRemoved)) {
+            ID group = (ID) info.get("group");
+            if (identifier.equals(group)) {
                 finish();
             }
         }

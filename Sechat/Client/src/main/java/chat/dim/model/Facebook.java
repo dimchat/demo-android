@@ -129,6 +129,7 @@ public class Facebook extends chat.dim.common.Facebook {
 
     //-------- Relationship
 
+    @Override
     public boolean addMember(ID member, ID group) {
         if (!super.addMember(member, group)) {
             return false;
@@ -143,6 +144,7 @@ public class Facebook extends chat.dim.common.Facebook {
         return true;
     }
 
+    @Override
     public boolean removeMember(ID member, ID group) {
         if (!super.removeMember(member, group)) {
             return false;
@@ -168,6 +170,19 @@ public class Facebook extends chat.dim.common.Facebook {
         info.put("group", group);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.MembersUpdated, this, info);
+        return true;
+    }
+
+    @Override
+    public boolean removeGroup(ID group) {
+        if (!super.removeGroup(group)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("group", group);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.GroupRemoved, this, info);
         return true;
     }
 
@@ -226,6 +241,18 @@ public class Facebook extends chat.dim.common.Facebook {
             gm.query();
         }
         return members;
+    }
+
+    @Override
+    public boolean existsMember(ID member, ID group) {
+        assert member.isUser() : "member ID error: " + member;
+        assert group.isGroup() : "group ID error: " + group;
+        List<ID> members = getMembers(group);
+        if (members != null && members.contains(member)) {
+            return true;
+        }
+        ID owner = getOwner(group);
+        return owner != null && owner.equals(member);
     }
 
     @Override

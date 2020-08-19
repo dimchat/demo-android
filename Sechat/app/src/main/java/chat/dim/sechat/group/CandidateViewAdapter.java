@@ -10,6 +10,9 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.ID;
+import chat.dim.User;
+import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
@@ -21,6 +24,8 @@ import chat.dim.ui.list.RecyclerViewHolder;
  * TODO: Replace the implementation with code for your data type.
  */
 public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapter.ViewHolder, CandidateList> {
+
+    ID group = null;
 
     public CandidateViewAdapter(CandidateList list, Listener listener) {
         super(list, listener);
@@ -45,7 +50,23 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
 
         holder.checkBox.setChecked(false);
 
+        ID identifier = item.getIdentifier();
+        if (isForbidden(identifier)) {
+            holder.checkBox.setEnabled(false);
+        }
+
         super.onBindViewHolder(holder, position);
+    }
+
+    private static Facebook facebook = Facebook.getInstance();
+
+    private boolean isForbidden(ID identifier) {
+        if (facebook.isOwner(identifier, group)) {
+            return true;
+        }
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
+        return identifier.equals(user.identifier);
     }
 
     public static class ViewHolder extends RecyclerViewHolder<CandidateList.Item> {

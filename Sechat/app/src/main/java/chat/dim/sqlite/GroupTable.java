@@ -138,4 +138,12 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
         }
         return count > 0;
     }
+
+    @Override
+    public boolean removeGroup(ID group) {
+        String[] whereArgs = {group.toString()};
+        boolean ok1 = delete(EntityDatabase.T_MEMBER, "gid=?", whereArgs) > 0;
+        boolean ok2 = delete(EntityDatabase.T_GROUP, "gid=?", whereArgs) > 0;
+        return ok1 || ok2;
+    }
 }

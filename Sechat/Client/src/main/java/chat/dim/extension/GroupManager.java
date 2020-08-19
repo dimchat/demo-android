@@ -149,14 +149,14 @@ public class GroupManager {
         }
 
         // 2. update local storage
-        addMembers(newMembers);
+        if (!addMembers(newMembers)) {
+            return false;
+        }
 
         // 3. send 'invite' with all members command to new members
         members = facebook.getMembers(group);
         cmd = new InviteCommand(group, members);
-        sendGroupCommand(cmd, newMembers);
-
-        return true;
+        return sendGroupCommand(cmd, newMembers);
     }
 
     /**
@@ -240,7 +240,7 @@ public class GroupManager {
         }
 
         // 2. update local storage
-        return removeMember(me);
+        return facebook.removeGroup(group);
     }
 
     public boolean query() {
@@ -254,7 +254,7 @@ public class GroupManager {
 
     //-------- local storage
 
-    public boolean addMembers(List<ID> newMembers) {
+    private boolean addMembers(List<ID> newMembers) {
         Facebook facebook = Facebook.getInstance();
         List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
@@ -271,7 +271,7 @@ public class GroupManager {
         }
         return facebook.saveMembers(members, group);
     }
-    public boolean removeMembers(List<ID> outMembers) {
+    private boolean removeMembers(List<ID> outMembers) {
         Facebook facebook = Facebook.getInstance();
         List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
@@ -287,15 +287,6 @@ public class GroupManager {
             return false;
         }
         return facebook.saveMembers(members, group);
-    }
-
-    public boolean addMember(ID member) {
-        Facebook facebook = Facebook.getInstance();
-        return facebook.addMember(member, group);
-    }
-    public boolean removeMember(ID member) {
-        Facebook facebook = Facebook.getInstance();
-        return facebook.removeMember(member, group);
     }
 
     /**

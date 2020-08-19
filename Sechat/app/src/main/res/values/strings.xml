@@ -40,8 +40,8 @@
     <string name="account_saved">Account saved</string>
     <string name="choose_avatar">Choose</string>
     <string name="clear_history_ok">Chat history cleared</string>
-    <string name="participants_invite">Invite Participants</string>
-    <string name="participants_expel">Expel Participants</string>
+    <string name="group_invite">Invite Participants</string>
+    <string name="group_expel">Expel Participants</string>
     <string name="group_owner">Owner</string>
     <string name="group_members_updated">Members updated</string>
     <string name="group_members_error">Members error</string>
@@ -53,4 +53,6 @@
     <string name="import_hint">Import existing account</string>
     <string name="register_account_error">Account info error</string>
     <string name="contact_remove">Remove contact</string>
+    <string name="group_quit">Clear chat history and quit group</string>
+    <string name="group_quit_ok">You have quit from this group</string>
 </resources>

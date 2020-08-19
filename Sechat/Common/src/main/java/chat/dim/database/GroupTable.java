@@ -42,4 +42,6 @@ public interface GroupTable {
     boolean removeMember(ID member, ID group);
 
     boolean saveMembers(List<ID> members, ID group);
+
+    boolean removeGroup(ID group);
 }

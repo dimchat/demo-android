@@ -1,6 +1,7 @@
 package chat.dim.sechat.chatbox;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.User;
+import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
@@ -34,6 +37,7 @@ public class ChatManageFragment extends Fragment {
 
     private Button showMembersButton;
     private Button clearHistoryButton;
+    private Button quitGroupButton;
 
     private TextView nameTextView;
     private TextView addressTextView;
@@ -96,6 +100,13 @@ public class ChatManageFragment extends Fragment {
         clearHistoryButton = view.findViewById(R.id.clearHistory);
         clearHistoryButton.setOnClickListener(v -> clearHistory());
 
+        quitGroupButton = view.findViewById(R.id.quitGroup);
+        if (canQuit()) {
+            quitGroupButton.setOnClickListener(v -> quitGroup());
+        } else {
+            quitGroupButton.setVisibility(View.GONE);
+        }
+
         nameTextView = view.findViewById(R.id.nameView);
         addressTextView = view.findViewById(R.id.addressView);
         numberTextView = view.findViewById(R.id.numberView);
@@ -120,8 +131,10 @@ public class ChatManageFragment extends Fragment {
     }
 
     private void showMembers() {
+        Context context = getContext();
+        assert context != null : "failed to get fragment context";
         Intent intent = new Intent();
-        intent.setClass(getContext(), MembersActivity.class);
+        intent.setClass(context, MembersActivity.class);
         intent.putExtra("ID", identifier.toString());
         getContext().startActivity(intent);
     }
@@ -129,6 +142,26 @@ public class ChatManageFragment extends Fragment {
     private void clearHistory() {
         if (mViewModel.clearHistory(identifier)) {
             Alert.tips(getActivity(), R.string.clear_history_ok);
+            close();
+        }
+    }
+
+    private boolean canQuit() {
+        if (!identifier.isGroup()) {
+            return false;
+        }
+        Facebook facebook = Facebook.getInstance();
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
+        boolean isMember = facebook.existsMember(user.identifier, identifier);
+        boolean isOwner = facebook.isOwner(user.identifier, identifier);
+        // TODO: isAdmin? isAssistant?
+        return isMember && !isOwner;
+    }
+
+    private void quitGroup() {
+        if (mViewModel.quitGroup(identifier)) {
+            Alert.tips(getActivity(), R.string.group_quit_ok);
             close();
         }
     }

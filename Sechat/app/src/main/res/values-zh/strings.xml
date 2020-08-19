@@ -39,8 +39,8 @@
     <string name="account_saved">账号保存成功</string>
     <string name="choose_avatar">选择头像</string>
     <string name="clear_history_ok">聊天记录已删除</string>
-    <string name="participants_invite">邀请与会者</string>
-    <string name="participants_expel">移除与会者</string>
+    <string name="group_invite">邀请与会者</string>
+    <string name="group_expel">移除与会者</string>
     <string name="group_owner">群主</string>
     <string name="group_members_updated">群成员列表已更新</string>
     <string name="group_members_error">群成员列表错误</string>
@@ -52,4 +52,6 @@
     <string name="import_hint">导入已有账号</string>
     <string name="register_account_error">账号信息错误</string>
     <string name="contact_remove">删除好友</string>
+    <string name="group_quit">清除聊天记录并退出群聊</string>
+    <string name="group_quit_ok">您已退出群聊</string>
 </resources>

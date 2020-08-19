@@ -17,7 +17,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import chat.dim.ID;
+import chat.dim.Profile;
+import chat.dim.User;
+import chat.dim.crypto.SignKey;
 import chat.dim.extension.GroupManager;
+import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
@@ -45,6 +49,9 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
 
         dummyList = new MemberList(group);
         Listener listener = (Listener<CandidateViewAdapter.ViewHolder>) viewHolder -> {
+            if (!viewHolder.checkBox.isEnabled()) {
+                return;
+            }
             boolean checked = viewHolder.checkBox.isChecked();
             if (checked) {
                 viewHolder.checkBox.setChecked(false);
@@ -55,6 +62,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
             }
         };
         adapter = new CandidateViewAdapter(dummyList, listener);
+        adapter.group = group;
 
         reloadData();
     }
@@ -66,6 +74,24 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
             return;
         }
 
+        // save group name
+        Facebook facebook = Facebook.getInstance();
+        String oldName = facebook.getGroupName(identifier);
+        String newName = groupName.getText().toString();
+        if (oldName == null || !oldName.equals(newName)) {
+            if (newName.length() > 0) {
+                User user = facebook.getCurrentUser();
+                assert user != null : "failed to get current user";
+                SignKey key = facebook.getPrivateKeyForSignature(user.identifier);
+                assert key != null : "failed to get private key: " + user.identifier;
+                Profile profile = new Profile(identifier);
+                profile.setName(newName);
+                profile.sign(key);
+                facebook.saveProfile(profile);
+            }
+        }
+
+        // expel group member(s)
         GroupManager gm = new GroupManager(identifier);
         //noinspection unchecked
         if (gm.expel(new ArrayList(selected))) {

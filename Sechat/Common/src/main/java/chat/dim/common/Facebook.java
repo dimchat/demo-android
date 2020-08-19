@@ -191,6 +191,10 @@ public class Facebook extends chat.dim.Facebook {
         return groupTable.saveMembers(members, group);
     }
 
+    public boolean removeGroup(ID group) {
+        return groupTable.removeGroup(group);
+    }
+
     //--------
 
     public String getUsername(Object string) {
@@ -220,6 +224,9 @@ public class Facebook extends chat.dim.Facebook {
         assert identifier.isUser() : "ID error: " + identifier;
         Profile profile = getProfile(identifier);
         return profile == null ? null : profile.getName();
+    }
+    public String getGroupName(ID identifier) {
+        return getNickname(identifier);
     }
 
     public String getNumberString(ID identifier) {

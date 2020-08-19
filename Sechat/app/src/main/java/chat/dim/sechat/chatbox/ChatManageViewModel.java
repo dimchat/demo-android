@@ -5,6 +5,7 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.extension.GroupManager;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
@@ -65,5 +66,14 @@ public class ChatManageViewModel extends EntityViewModel {
     boolean clearHistory(ID identifier) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         return msgDB.clearConversation(identifier);
+    }
+
+    boolean quitGroup(ID group) {
+        clearHistory(group);
+
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
+        GroupManager gm = new GroupManager(group);
+        return gm.quit(user.identifier);
     }
 }

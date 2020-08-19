@@ -126,6 +126,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/clear_history" />
 
+            <Button
+                android:id="@+id/quitGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/group_quit"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold|italic" />
+
         </LinearLayout>
     </ScrollView>
 
