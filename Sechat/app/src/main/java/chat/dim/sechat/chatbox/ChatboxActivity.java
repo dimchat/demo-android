@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -35,6 +36,11 @@ public class ChatboxActivity extends ImagePickerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatbox_activity);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         Facebook facebook = Facebook.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();
@@ -84,11 +90,18 @@ public class ChatboxActivity extends ImagePickerActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.more) {
-            Intent intent = new Intent();
-            intent.setClass(getApplicationContext(), ChatManageActivity.class);
-            intent.putExtra("ID", identifier.toString());
-            startActivity(intent);
+        switch (item.getItemId()) {
+            case R.id.more: {
+                Intent intent = new Intent();
+                intent.setClass(getApplicationContext(), ChatManageActivity.class);
+                intent.putExtra("ID", identifier.toString());
+                startActivity(intent);
+                break;
+            }
+            case android.R.id.home: {
+                finish();
+                break;
+            }
         }
         return true;
     }

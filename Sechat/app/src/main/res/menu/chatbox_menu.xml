@@ -4,6 +4,7 @@
 
     <item
         android:id="@+id/more"
+        android:icon="@drawable/ic_more_horiz_black_24dp"
         android:title="@string/more"
         app:showAsAction="always" />
 </menu>

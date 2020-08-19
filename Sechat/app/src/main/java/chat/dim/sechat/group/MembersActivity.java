@@ -1,7 +1,9 @@
 package chat.dim.sechat.group;
 
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import java.util.Map;
 
@@ -59,6 +61,11 @@ public class MembersActivity extends AppCompatActivity implements Observer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.members_activity);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         Facebook facebook = Facebook.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();
         // get extra info
@@ -74,5 +81,13 @@ public class MembersActivity extends AppCompatActivity implements Observer {
                     .replace(R.id.container, fragment)
                     .commitNow();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
     }
 }

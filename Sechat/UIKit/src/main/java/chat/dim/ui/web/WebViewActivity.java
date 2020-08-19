@@ -28,7 +28,9 @@ package chat.dim.ui.web;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import chat.dim.ui.R;
 
@@ -40,6 +42,11 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.webview_activity);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -57,6 +64,14 @@ public class WebViewActivity extends AppCompatActivity {
         if (url != null) {
             fragment.open(url);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
     }
 
     public static void open(Activity activity, String title, String url) {

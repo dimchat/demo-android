@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.view.MenuItem;
 
 import java.io.IOException;
 
@@ -25,12 +27,25 @@ public class UpdateAccountActivity extends ImagePickerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.update_account_activity);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         if (savedInstanceState == null) {
             fragment = UpdateAccountFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, fragment)
                     .commitNow();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
     }
 
     void exportAccount(AccountViewModel viewModel) {

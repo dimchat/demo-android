@@ -1,6 +1,7 @@
 package chat.dim.sechat.group;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,6 +19,11 @@ public class ExpelActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.expel_activity);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         Facebook facebook = Facebook.getInstance();
         Intent intent = getIntent();
@@ -40,8 +46,15 @@ public class ExpelActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.save) {
-            fragment.updateMembers();
+        switch (item.getItemId()) {
+            case R.id.save: {
+                fragment.updateMembers();
+                break;
+            }
+            case android.R.id.home: {
+                finish();
+                break;
+            }
         }
         return true;
     }
