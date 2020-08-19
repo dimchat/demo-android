@@ -12,8 +12,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Map;
+
 import chat.dim.ID;
 import chat.dim.network.StateMachine;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
@@ -23,7 +29,7 @@ import chat.dim.ui.Alert;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class ContactFragment extends ListFragment<ContactViewAdapter, ContactList> {
+public class ContactFragment extends ListFragment<ContactViewAdapter, ContactList> implements Observer {
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -31,6 +37,8 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
      */
     public ContactFragment() {
         super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.ContactsUpdated);
 
         dummyList = new ContactList();
         Listener listener = (Listener<ContactViewAdapter.ViewHolder>) viewHolder -> {
@@ -44,6 +52,23 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
         adapter = new ContactViewAdapter(dummyList, listener);
 
         reloadData();
+    }
+
+    @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.ContactsUpdated);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.ContactsUpdated)) {
+            reloadData();
+        }
     }
 
     @Override

@@ -203,6 +203,17 @@ public class Facebook extends chat.dim.common.Facebook {
         return profile;
     }
 
+    //-------- UserDataSource
+
+    @Override
+    public List<ID> getContacts(ID user) {
+        List<ID> contacts = super.getContacts(user);
+        if (contacts == null || contacts.size() == 0) {
+            contacts = Configuration.getInstance().getDefaultContacts();
+        }
+        return contacts;
+    }
+
     //-------- GroupDataSource
 
     @Override

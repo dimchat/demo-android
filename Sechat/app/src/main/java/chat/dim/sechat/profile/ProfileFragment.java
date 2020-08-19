@@ -16,12 +16,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Map;
+
 import chat.dim.ID;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.image.ImageViewerActivity;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements Observer {
 
     private ProfileViewModel mViewModel;
 
@@ -35,6 +41,32 @@ public class ProfileFragment extends Fragment {
     private Button messageButton;
     private Button removeButton;
     private Button addButton;
+
+    public ProfileFragment() {
+        super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.ContactsUpdated);
+    }
+
+    @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.ContactsUpdated);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.ContactsUpdated)) {
+            ID contact = (ID) info.get("ID");
+            if (identifier.equals(contact)) {
+                refresh();
+            }
+        }
+    }
 
     public static ProfileFragment newInstance(ID identifier) {
         // refresh user profile
@@ -66,6 +98,25 @@ public class ProfileFragment extends Fragment {
         addButton.setOnClickListener(v -> addContact());
 
         return view;
+    }
+
+    private void refresh() {
+        Bitmap avatar = mViewModel.getAvatar();
+        imageView.setImageBitmap(avatar);
+
+        nameView.setText(mViewModel.getNickname());
+        addressView.setText(mViewModel.getAddressString());
+        numberView.setText(mViewModel.getNumberString());
+
+        if (mViewModel.existsContact(identifier)) {
+            messageButton.setVisibility(View.VISIBLE);
+            removeButton.setVisibility(View.VISIBLE);
+            addButton.setVisibility(View.GONE);
+        } else {
+            messageButton.setVisibility(View.GONE);
+            removeButton.setVisibility(View.GONE);
+            addButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showAvatar() {
@@ -110,22 +161,6 @@ public class ProfileFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         mViewModel.setIdentifier(identifier);
         // TODO: Use the ViewModel
-
-        Bitmap avatar = mViewModel.getAvatar();
-        imageView.setImageBitmap(avatar);
-
-        nameView.setText(mViewModel.getNickname());
-        addressView.setText(mViewModel.getAddressString());
-        numberView.setText(mViewModel.getNumberString());
-
-        if (mViewModel.existsContact(identifier)) {
-            messageButton.setVisibility(View.VISIBLE);
-            removeButton.setVisibility(View.VISIBLE);
-            addButton.setVisibility(View.GONE);
-        } else {
-            messageButton.setVisibility(View.GONE);
-            removeButton.setVisibility(View.GONE);
-            addButton.setVisibility(View.VISIBLE);
-        }
+        refresh();
     }
 }

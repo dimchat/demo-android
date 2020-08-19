@@ -19,5 +19,9 @@
 
         "terms": "https://wallet.dim.chat/dimchat/sechat/privacy.html",
         "about": "https://sechat.dim.chat/support"
-    }
+    },
+
+    "contacts": [
+        "moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ"
+    ]
 }

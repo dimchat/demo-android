@@ -26,8 +26,11 @@
 package chat.dim.model;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import chat.dim.ID;
 import chat.dim.filesys.Resources;
 
 public class Configuration {
@@ -92,6 +95,30 @@ public class Configuration {
             loadConfig();
         }
         return info;
+    }
+
+    public List<ID> getDefaultContacts() {
+        if (info == null) {
+            loadConfig();
+            if (info == null) {
+                return null;
+            }
+        }
+        List array = (List) info.get("contacts");
+        if (array == null) {
+            return null;
+        }
+        Facebook facebook = Facebook.getInstance();
+        ID identifier;
+        List<ID> contacts = new ArrayList<>();
+        for (Object item : array) {
+            identifier = facebook.getID(item);
+            if (identifier == null) {
+                continue;
+            }
+            contacts.add(identifier);
+        }
+        return contacts;
     }
 
     // "https://sechat.dim.chat/{ID}}/upload"
