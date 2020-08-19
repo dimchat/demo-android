@@ -30,6 +30,8 @@ public class NotificationNames {
 
     public static final String ServerStateChanged = "ServerStateChanged";
 
+    public static final String StartChat = "StartChat";
+
     public static final String MetaSaved = "MetaSaved";
 
     public static final String ProfileUpdated = "ProfileUpdated";

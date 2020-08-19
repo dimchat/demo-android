@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.util.Map;
 
+import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
@@ -24,6 +25,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.account.AccountFragment;
+import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.register.RegisterActivity;
@@ -37,12 +39,16 @@ public class MainActivity extends AppCompatActivity implements Observer {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.ServerStateChanged);
+        nc.addObserver(this, NotificationNames.GroupCreated);
+        nc.addObserver(this, NotificationNames.StartChat);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.ServerStateChanged);
+        nc.removeObserver(this, NotificationNames.GroupCreated);
+        nc.removeObserver(this, NotificationNames.StartChat);
         super.onDestroy();
     }
 
@@ -50,11 +56,35 @@ public class MainActivity extends AppCompatActivity implements Observer {
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
         Map info = notification.userInfo;
-        if (name.equals(NotificationNames.ServerStateChanged)) {
-            serverState = (String) info.get("state");
-            Message msg = new Message();
-            msgHandler.sendMessage(msg);
+        switch (name) {
+            case NotificationNames.ServerStateChanged: {
+                serverState = (String) info.get("state");
+                Message msg = new Message();
+                msgHandler.sendMessage(msg);
+                break;
+            }
+            case NotificationNames.GroupCreated: {
+                ID entity = (ID) info.get("ID");
+                if (entity != null) {
+                    startChat(entity);
+                }
+                break;
+            }
+            case NotificationNames.StartChat: {
+                ID entity = (ID) info.get("ID");
+                if (entity != null) {
+                    startChat(entity);
+                }
+                break;
+            }
         }
+    }
+
+    private void startChat(ID entity) {
+        Intent intent = new Intent();
+        intent.setClass(this, ChatboxActivity.class);
+        intent.putExtra("ID", entity.toString());
+        startActivity(intent);
     }
 
     @SuppressLint("HandlerLeak")

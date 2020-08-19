@@ -1,6 +1,5 @@
 package chat.dim.sechat.history;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -14,8 +13,8 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
@@ -32,11 +31,7 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         dummyList = new ConversationList();
         Listener listener = (Listener<ConversationViewAdapter.ViewHolder>) viewHolder -> {
             ID identifier = viewHolder.item.getIdentifier();
-            assert getContext() != null : "fragment context error";
-            Intent intent = new Intent();
-            intent.setClass(getContext(), ChatboxActivity.class);
-            intent.putExtra("ID", identifier.toString());
-            startActivity(intent);
+            Client.getInstance().startChat(identifier);
         };
         adapter = new ConversationViewAdapter(dummyList, listener);
 

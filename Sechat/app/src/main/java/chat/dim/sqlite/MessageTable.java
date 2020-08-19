@@ -135,7 +135,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     @Override
     public boolean removeConversation(ID identifier) {
-        conversations = null;
+        clearCaches(identifier);
         String[] whereArgs = {identifier.toString()};
         delete(MessageDatabase.T_TRACE, "cid=?", whereArgs);
         return delete(MessageDatabase.T_MESSAGE, "cid=?", whereArgs) >= 0;
@@ -148,6 +148,18 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
 
     private ID cachedTracesID = null;
     private Map<String, List<String>> cachedTraces = null;
+
+    private void clearCaches(ID entity) {
+        if (entity.equals(cachedMessagesID)) {
+            cachedMessagesID = null;
+            cachedMessages = null;
+        }
+        if (entity.equals(cachedTracesID)) {
+            cachedTracesID = null;
+            cachedTraces = null;
+        }
+        conversations = null;
+    }
 
     private Map<String, List<String>> tracesInConversation(ID entity) {
         if (entity.equals(cachedTracesID) && cachedTraces != null) {
@@ -400,11 +412,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             return false;
         }
         // clear for reload
-        cachedMessages = null;
-        cachedMessagesID = null;
-        cachedTraces = null;
-        cachedTracesID = null;
-        conversations = null;
+        clearCaches(entity);
         return true;
     }
 
@@ -422,11 +430,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             return false;
         }
         // clear for reload
-        cachedMessages = null;
-        cachedMessagesID = null;
-        cachedTraces = null;
-        cachedTracesID = null;
-        conversations = null;
+        clearCaches(entity);
         return true;
     }
 
