@@ -62,11 +62,15 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
     @Override
     public void onReceiveNotification(Notification notification) {
-        Map userInfo = notification.userInfo;
-        if (userInfo instanceof SearchCommand) {
-            dummyList.response = (SearchCommand) userInfo;
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.SearchUpdated)) {
+            if (info instanceof SearchCommand) {
+                dummyList.response = (SearchCommand) info;
+            }
+            reloadData();
         }
-        reloadData();
     }
 
     private boolean search(String keywords) {

@@ -74,6 +74,19 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         super.onDestroy();
     }
 
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MessageUpdated)) {
+            ID entity = (ID) info.get("ID");
+            if (chatBox.identifier.equals(entity)) {
+                reloadData();
+            }
+        }
+    }
+
     public static ChatboxFragment newInstance(Conversation chatBox) {
         ChatboxFragment fragment = new ChatboxFragment();
         fragment.setConversation(chatBox);
@@ -100,20 +113,6 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     protected synchronized void onReloaded() {
         super.onReloaded();
         scrollToBottom();
-    }
-
-    @Override
-    public void onReceiveNotification(Notification notification) {
-        Map userInfo = notification.userInfo;
-        if (userInfo == null) {
-            return;
-        }
-        ID identifier = (ID) userInfo.get("ID");
-        if (identifier == null || !identifier.equals(chatBox.identifier)) {
-            return;
-        }
-        // OK
-        reloadData();
     }
 
     //

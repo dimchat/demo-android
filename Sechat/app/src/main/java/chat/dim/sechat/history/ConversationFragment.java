@@ -54,6 +54,15 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
     }
 
     @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        assert name != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MessageUpdated)) {
+            reloadData();
+        }
+    }
+
+    @Override
     public void reloadData() {
         // reload data in background
         BackgroundThreads.rush(super::reloadData);
@@ -73,10 +82,5 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         activity.setTitle(R.string.app_name);
 
         return view;
-    }
-
-    @Override
-    public void onReceiveNotification(Notification notification) {
-        reloadData();
     }
 }
