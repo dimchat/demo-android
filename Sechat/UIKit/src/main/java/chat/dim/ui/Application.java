@@ -89,10 +89,35 @@ public abstract class Application extends android.app.Application {
     //  Keyboard
     //
 
+    public void showKeyboard(View view) {
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (manager != null) {
+            manager.showSoftInput(view, 0);
+        }
+    }
+
     public void hideKeyboard(View view) {
         InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (manager != null) {
             manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
+
+    public void setKeyboardListener(Activity activity, OnKeyboardListener listener) {
+        if (keyboardListener == null) {
+            keyboardListener = new SoftKeyboardListener();
+        }
+        keyboardListener.setRootView(activity.getWindow().getDecorView());
+        keyboardListener.setListener(listener);
+    }
+
+    public void clearKeyboardListeners() {
+        if (keyboardListener == null) {
+            return;
+        }
+        keyboardListener.setRootView(null);
+        keyboardListener.setListener(null);
+    }
+
+    private SoftKeyboardListener keyboardListener = null;
 }
