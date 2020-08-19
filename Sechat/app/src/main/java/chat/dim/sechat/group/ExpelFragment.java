@@ -13,16 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import chat.dim.ID;
 import chat.dim.extension.GroupManager;
-import chat.dim.notification.NotificationCenter;
-import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
@@ -74,15 +69,8 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         GroupManager gm = new GroupManager(identifier);
         //noinspection unchecked
         if (gm.expel(new ArrayList(selected))) {
-            Map<String, Object> info = new HashMap<>();
-            info.put("ID", identifier);
-            info.put("command", GroupCommand.EXPEL);
-            info.put("members", selected);
-            NotificationCenter nc = NotificationCenter.getInstance();
-            nc.postNotification(NotificationNames.MembersUpdated, this, info);
-
             Alert.tips(getContext(), R.string.group_members_updated);
-            getActivity().finish();
+            close();
         } else {
             Alert.tips(getContext(), R.string.group_members_error);
         }

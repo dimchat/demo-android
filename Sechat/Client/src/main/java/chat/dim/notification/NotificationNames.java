@@ -25,17 +25,23 @@
  */
 package chat.dim.notification;
 
+// Constants
 public class NotificationNames {
 
-    // constants
     public static final String ServerStateChanged = "ServerStateChanged";
 
-    public static final String SearchUpdated = "SearchUpdated";
+    public static final String MetaSaved = "MetaSaved";
 
+    public static final String ProfileUpdated = "ProfileUpdated";
+
+    public static final String ContactsUpdated = "ContactsUpdated";
+
+    public static final String GroupCreated = "GroupCreated";
     public static final String MembersUpdated = "MembersUpdated";
 
     public static final String MessageUpdated = "MessageUpdated";
-    public static final String MessageCleaned = "MessageCleaned";
+
+    public static final String SearchUpdated = "SearchUpdated";
 
     public static final String FileDownloadSuccess = "FileDownloadSuccess";
     public static final String FileDownloadFailure = "FileDownloadFailure";

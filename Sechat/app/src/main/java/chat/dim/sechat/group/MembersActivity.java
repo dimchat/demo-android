@@ -38,23 +38,18 @@ public class MembersActivity extends AppCompatActivity implements Observer {
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        if (name == null || !name.equals(NotificationNames.MembersUpdated)) {
-            return;
-        }
         Map info = notification.userInfo;
-        ID from = (ID) info.get("from");
-        if (from == null) {
-            from = (ID) info.get("ID");
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MembersUpdated)) {
+            ID group = (ID) info.get("group");
+            if (fragment.identifier.equals(group)) {
+                GroupViewModel.refreshLogo(fragment.identifier);
+                Amanuensis clerk = Amanuensis.getInstance();
+                Conversation chatBox = clerk.getConversation(fragment.identifier);
+                setTitle(chatBox.getTitle());
+                fragment.reloadData();
+            }
         }
-        if (from == null || !from.equals(fragment.identifier)) {
-            return;
-        }
-        GroupViewModel.refreshLogo(fragment.identifier);
-
-        Amanuensis clerk = Amanuensis.getInstance();
-        Conversation chatBox = clerk.getConversation(fragment.identifier);
-        setTitle(chatBox.getTitle());
-        fragment.reloadData();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {

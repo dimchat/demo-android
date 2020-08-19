@@ -1,5 +1,8 @@
 package chat.dim.sechat.chatbox;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,12 +28,14 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
     public ChatManageActivity() {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.GroupCreated);
         nc.addObserver(this, NotificationNames.MembersUpdated);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.GroupCreated);
         nc.removeObserver(this, NotificationNames.MembersUpdated);
         super.onDestroy();
     }
@@ -38,28 +43,37 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        if (name == null || !name.equals(NotificationNames.MembersUpdated)) {
-            return;
-        }
         Map info = notification.userInfo;
-        ID from = (ID) info.get("from");
-        if (from == null) {
-            from = (ID) info.get("ID");
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MembersUpdated)) {
+            ID group = (ID) info.get("group");
+            if (fragment.identifier.equals(group)) {
+                GroupViewModel.refreshLogo(fragment.identifier);
+                refresh();
+            }
+        } else if (name.equals(NotificationNames.GroupCreated)) {
+            ID from = (ID) info.get("from");
+            if (fragment.identifier.equals(from)) {
+                finish();
+            }
         }
-        if (from == null || !from.equals(fragment.identifier)) {
-            return;
-        }
-        if (from.isUser()) {
-            finish();
-        } else {
-            GroupViewModel.refreshLogo(fragment.identifier);
+    }
 
+    private void refresh() {
+        Message msg = new Message();
+        msgHandler.sendMessage(msg);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
             Amanuensis clerk = Amanuensis.getInstance();
             Conversation chatBox = clerk.getConversation(fragment.identifier);
             setTitle(chatBox.getTitle());
             fragment.reloadData();
         }
-    }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

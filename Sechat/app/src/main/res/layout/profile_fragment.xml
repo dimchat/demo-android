@@ -107,15 +107,21 @@
     </TableLayout>
 
     <Button
-        android:id="@+id/addContact"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/add_contact" />
-
-    <Button
         android:id="@+id/sendMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/send_message" />
+
+    <Button
+        android:id="@+id/removeContact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/contact_remove" />
+
+    <Button
+        android:id="@+id/addContact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/contact_add" />
 
 </LinearLayout>

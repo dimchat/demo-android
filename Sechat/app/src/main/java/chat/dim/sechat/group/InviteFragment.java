@@ -22,7 +22,6 @@ import chat.dim.ID;
 import chat.dim.extension.GroupManager;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
@@ -79,16 +78,17 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         GroupManager gm = new GroupManager(identifier);
         //noinspection unchecked
         if (gm.invite(new ArrayList(selected))) {
-            Map<String, Object> info = new HashMap<>();
-            info.put("ID", identifier);
-            info.put("from", from);
-            info.put("command", GroupCommand.INVITE);
-            info.put("members", selected);
-            NotificationCenter nc = NotificationCenter.getInstance();
-            nc.postNotification(NotificationNames.MembersUpdated, this, info);
+            if (from.isUser()) {
+                Map<String, Object> info = new HashMap<>();
+                info.put("ID", identifier);
+                info.put("from", from);
+                info.put("members", selected);
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(NotificationNames.GroupCreated, this, info);
+            }
 
             Alert.tips(getContext(), R.string.group_members_updated);
-            getActivity().finish();
+            close();
         } else {
             Alert.tips(getContext(), R.string.group_members_error);
         }

@@ -11,17 +11,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.io.IOException;
+import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.database.Database;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.Facebook;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.image.ImagePickerActivity;
 
-public class ChatboxActivity extends ImagePickerActivity {
+public class ChatboxActivity extends ImagePickerActivity implements Observer {
 
     private ID identifier = null;
 
@@ -30,6 +35,28 @@ public class ChatboxActivity extends ImagePickerActivity {
     public ChatboxActivity() {
         super();
         setCrop(false);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.MembersUpdated);
+    }
+
+    @Override
+    public void onDestroy() {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MembersUpdated);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MembersUpdated)) {
+            ID group = (ID) info.get("group");
+            if (identifier.equals(group)) {
+                refresh();
+            }
+        }
     }
 
     @Override
@@ -60,15 +87,14 @@ public class ChatboxActivity extends ImagePickerActivity {
         if (identifier.isGroup()) {
             setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
-            BackgroundThreads.rush(() -> refreshTitle(chatBox));
+            BackgroundThreads.rush(this::refresh);
         } else {
             setTitle(chatBox.getName());
         }
     }
 
-    private void refreshTitle(Conversation chatBox) {
+    private void refresh() {
         Message msg = new Message();
-        msg.obj = chatBox.getTitle();
         msgHandler.sendMessage(msg);
     }
 
@@ -76,9 +102,9 @@ public class ChatboxActivity extends ImagePickerActivity {
     private final Handler msgHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.obj instanceof CharSequence) {
-                setTitle((CharSequence) msg.obj);
-            }
+            Amanuensis clerk = Amanuensis.getInstance();
+            Conversation chatBox = clerk.getConversation(identifier);
+            setTitle(chatBox.getTitle());
         }
     };
 

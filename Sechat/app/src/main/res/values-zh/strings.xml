@@ -13,7 +13,7 @@
     <string name="welcome">欢迎来到 DIM 的世界！</string>
     <string name="chat_input">输入信息</string>
     <string name="chat_send">发送</string>
-    <string name="add_contact">添加好友</string>
+    <string name="contact_add">添加好友</string>
     <string name="id_address">地址</string>
     <string name="id_number">搜索号</string>
     <string name="id_seed">Seed</string>
@@ -51,4 +51,5 @@
     <string name="export_hint">复制并小心保管您的私密信息</string>
     <string name="import_hint">导入已有账号</string>
     <string name="register_account_error">账号信息错误</string>
+    <string name="contact_remove">删除好友</string>
 </resources>

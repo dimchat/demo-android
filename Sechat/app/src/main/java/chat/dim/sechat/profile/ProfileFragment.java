@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +32,9 @@ public class ProfileFragment extends Fragment {
     private TextView addressView;
     private TextView numberView;
 
-    private Button addButton;
     private Button messageButton;
+    private Button removeButton;
+    private Button addButton;
 
     public static ProfileFragment newInstance(ID identifier) {
         // refresh user profile
@@ -53,13 +55,15 @@ public class ProfileFragment extends Fragment {
         addressView = view.findViewById(R.id.addressView);
         numberView = view.findViewById(R.id.numberView);
 
-        addButton = view.findViewById(R.id.addContact);
         messageButton = view.findViewById(R.id.sendMessage);
+        removeButton = view.findViewById(R.id.removeContact);
+        addButton = view.findViewById(R.id.addContact);
 
         imageView.setOnClickListener(v -> showAvatar());
 
-        addButton.setOnClickListener(v -> addContact());
         messageButton.setOnClickListener(v -> startChat());
+        removeButton.setOnClickListener(v -> removeContact());
+        addButton.setOnClickListener(v -> addContact());
 
         return view;
     }
@@ -78,12 +82,26 @@ public class ProfileFragment extends Fragment {
         startChat();
     }
 
+    private void removeContact() {
+        mViewModel.removeContact(identifier);
+        close();
+    }
+
     private void startChat() {
         assert getContext() != null : "fragment context error";
         Intent intent = new Intent();
         intent.setClass(getContext(), ChatboxActivity.class);
         intent.putExtra("ID", identifier.toString());
         startActivity(intent);
+    }
+
+    private void close() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            // should not happen
+            return;
+        }
+        activity.finish();
     }
 
     @Override
@@ -101,11 +119,13 @@ public class ProfileFragment extends Fragment {
         numberView.setText(mViewModel.getNumberString());
 
         if (mViewModel.existsContact(identifier)) {
-            addButton.setVisibility(View.GONE);
             messageButton.setVisibility(View.VISIBLE);
+            removeButton.setVisibility(View.VISIBLE);
+            addButton.setVisibility(View.GONE);
         } else {
-            addButton.setVisibility(View.VISIBLE);
             messageButton.setVisibility(View.GONE);
+            removeButton.setVisibility(View.GONE);
+            addButton.setVisibility(View.VISIBLE);
         }
     }
 }

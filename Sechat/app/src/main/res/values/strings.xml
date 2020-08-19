@@ -17,7 +17,7 @@
     <string name="id_seed">Seed</string>
     <string name="id_address">Address</string>
     <string name="id_number">Number</string>
-    <string name="add_contact">Add contact</string>
+    <string name="contact_add">Add contact</string>
     <string name="send_message">Send message</string>
     <string name="register">Register</string>
     <string name="contacts">Contacts</string>
@@ -52,4 +52,5 @@
     <string name="export_hint">Copy and save your private info carefully.</string>
     <string name="import_hint">Import existing account</string>
     <string name="register_account_error">Account info error</string>
+    <string name="contact_remove">Remove contact</string>
 </resources>

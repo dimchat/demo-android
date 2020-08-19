@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -71,6 +72,15 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
         if (getArguments() != null) {
             columns = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+    }
+
+    protected void close() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            // should not happen
+            return;
+        }
+        activity.finish();
     }
 
     protected void bindRecyclerView(RecyclerView view) {

@@ -125,4 +125,12 @@ public class UserViewModel extends EntityViewModel {
         }
         return facebook.addContact(contact, user.identifier);
     }
+
+    public boolean removeContact(ID contact) {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("current user not set");
+        }
+        return facebook.removeContact(contact, user.identifier);
+    }
 }

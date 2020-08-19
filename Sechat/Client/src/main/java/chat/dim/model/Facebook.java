@@ -26,7 +26,9 @@
 package chat.dim.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.Meta;
@@ -34,6 +36,8 @@ import chat.dim.Profile;
 import chat.dim.extension.GroupManager;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 
 public class Facebook extends chat.dim.common.Facebook {
 
@@ -58,6 +62,113 @@ public class Facebook extends chat.dim.common.Facebook {
         }
         FtpServer ftp = FtpServer.getInstance();
         return ftp.downloadAvatar(url, identifier);
+    }
+
+    //-------- Meta
+
+    @Override
+    public boolean saveMeta(Meta meta, ID entity) {
+        if (!super.saveMeta(meta, entity)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("ID", entity);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.MetaSaved, this, info);
+        return true;
+    }
+
+    //-------- Profile
+
+    @Override
+    public boolean saveProfile(Profile profile) {
+        if (!super.saveProfile(profile)) {
+            return false;
+        }
+        ID entity = getID(profile.getIdentifier());
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("ID", entity);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ProfileUpdated, this, info);
+        return true;
+    }
+
+    //-------- Contacts
+
+    @Override
+    public boolean addContact(ID contact, ID user) {
+        if (!super.addContact(contact, user)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("action", "add");
+        info.put("ID", contact);
+        info.put("user", user);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ContactsUpdated, this, info);
+        return true;
+    }
+
+    @Override
+    public boolean removeContact(ID contact, ID user) {
+        if (!super.removeContact(contact, user)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("action", "remove");
+        info.put("ID", contact);
+        info.put("user", user);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ContactsUpdated, this, info);
+        return true;
+    }
+
+    //-------- Relationship
+
+    public boolean addMember(ID member, ID group) {
+        if (!super.addMember(member, group)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("action", "add");
+        info.put("ID", member);
+        info.put("group", group);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.MembersUpdated, this, info);
+        return true;
+    }
+
+    public boolean removeMember(ID member, ID group) {
+        if (!super.removeMember(member, group)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("action", "remove");
+        info.put("ID", member);
+        info.put("group", group);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.MembersUpdated, this, info);
+        return true;
+    }
+
+    @Override
+    public boolean saveMembers(List<ID> members, ID group) {
+        if (!super.saveMembers(members, group)) {
+            return false;
+        }
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("members", members);
+        info.put("group", group);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.MembersUpdated, this, info);
+        return true;
     }
 
     //-------- EntityDataSource
