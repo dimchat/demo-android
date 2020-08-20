@@ -54,7 +54,7 @@ public class AccountFragment extends Fragment {
 
         FragmentActivity activity = getActivity();
         assert activity != null : "should not happen";
-        activity.setTitle(R.string.me);
+        activity.setTitle(R.string.main_me);
 
         return view;
     }

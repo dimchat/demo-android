@@ -138,7 +138,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         clearCaches(identifier);
         String[] whereArgs = {identifier.toString()};
         delete(MessageDatabase.T_TRACE, "cid=?", whereArgs);
-        return delete(MessageDatabase.T_MESSAGE, "cid=?", whereArgs) >= 0;
+        return delete(MessageDatabase.T_MESSAGE, "cid=?", whereArgs) > 0;
     }
 
     //-------- messages
@@ -307,7 +307,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         ContentValues values = new ContentValues();
         values.put("read", 1);
         String[] whereArgs = {entity.toString()};
-        return update(MessageDatabase.T_MESSAGE, values, "cid=? AND read != 1", whereArgs) >= 0;
+        return update(MessageDatabase.T_MESSAGE, values, "cid=? AND read != 1", whereArgs) > 0;
     }
 
     @Override
@@ -426,7 +426,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         }
         String[] whereArgs = {entity.toString(), sender.toString(), (sn > 0 ? ""+sn : "9527"), (signature.length() > 0 ? signature : "MOKY")};
         delete(MessageDatabase.T_TRACE, "cid=? AND sender=? AND (sn=? OR signature=?)", whereArgs);
-        if (delete(MessageDatabase.T_MESSAGE, "cid=? AND sender=? AND (sn=? OR signature=?)", whereArgs) < 0) {
+        if (delete(MessageDatabase.T_MESSAGE, "cid=? AND sender=? AND (sn=? OR signature=?)", whereArgs) <= 0) {
             return false;
         }
         // clear for reload

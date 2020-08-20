@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="@dimen/text_margin"
-                android:text="@string/contacts"
+                android:text="@string/main_contacts"
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />

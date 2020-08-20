@@ -17,6 +17,8 @@ import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
@@ -41,7 +43,11 @@ public class ChatboxViewModel extends ViewModel {
 
     List<InstantMessage> getAllMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
-        msgDB.clearUnreadMessages(chatBox);
+        if (msgDB.clearUnreadMessages(chatBox)) {
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.postNotification(NotificationNames.HistoryUpdated, this, null);
+        }
+
         List<InstantMessage> messages = new ArrayList<>();
         InstantMessage iMsg;
         int count = msgDB.numberOfMessages(chatBox);

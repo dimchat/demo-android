@@ -20,10 +20,10 @@
     <string name="contact_add">Add contact</string>
     <string name="send_message">Send message</string>
     <string name="register">Register</string>
-    <string name="contacts">Contacts</string>
-    <string name="history">History</string>
+    <string name="main_contacts">Contacts</string>
+    <string name="main_chat">SeChat</string>
     <string name="more">More</string>
-    <string name="me">Me</string>
+    <string name="main_me">Me</string>
     <string name="name">Name</string>
     <string name="report">Report</string>
     <string name="clear_history">Clear chat history</string>

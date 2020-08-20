@@ -1,5 +1,6 @@
 package chat.dim.sechat.chatbox;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -38,6 +39,8 @@ import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
+import chat.dim.sechat.SechatApp;
+import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.media.AudioPlayer;
@@ -97,11 +100,16 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         dummyList = new MessageList(chatBox);
         adapter = new MessageViewAdapter(dummyList, null);
-
-        //reloadData();
     }
 
-    void scrollToBottom() {
+    private void prepareForScrollToBottom() {
+        int count = adapter.getItemCount();
+        if (count > 32) {
+            msgListView.scrollToPosition(count - 32);
+        }
+    }
+
+    private void scrollToBottom() {
         int count = adapter.getItemCount();
         if (count > 0) {
             msgListView.smoothScrollToPosition(count - 1);
@@ -206,6 +214,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         return view;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -215,6 +224,19 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         dummyList.setViewModel(mViewModel);
         reloadData();
+        prepareForScrollToBottom();
+        scrollToBottom();
+
+        SechatApp.getInstance().setKeyboardListener(getActivity(), new OnKeyboardListener() {
+            @Override
+            public void onKeyboardShown() {
+                scrollToBottom();
+            }
+
+            @Override
+            public void onKeyboardHidden() {
+            }
+        });
 
         switchButton.setOnClickListener(v -> {
             if (v.isActivated()) {
@@ -239,7 +261,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
                 case MotionEvent.ACTION_UP: {
                     stopRecord();
                     btn.setText(R.string.voice_record_start);
-                    v.performClick();
+                    btn.performClick();
                     break;
                 }
                 default: {

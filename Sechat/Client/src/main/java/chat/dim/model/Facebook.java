@@ -225,6 +225,12 @@ public class Facebook extends chat.dim.common.Facebook {
         List<ID> contacts = super.getContacts(user);
         if (contacts == null || contacts.size() == 0) {
             contacts = Configuration.getInstance().getDefaultContacts();
+            if (contacts != null) {
+                // save default contacts
+                for (ID item : contacts) {
+                    addContact(item, user);
+                }
+            }
         }
         return contacts;
     }

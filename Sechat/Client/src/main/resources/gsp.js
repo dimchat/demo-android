@@ -22,6 +22,7 @@
     },
 
     "contacts": [
-        "moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ"
+        "moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ",
+        "baloo@4LA5FNbpxP38UresZVpfWroC2GVomDDZ7q"
     ]
 }

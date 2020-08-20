@@ -88,7 +88,7 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
 
         FragmentActivity activity = getActivity();
         assert activity != null : "should not happen";
-        activity.setTitle(R.string.contacts);
+        activity.setTitle(R.string.main_contacts);
 
         setHasOptionsMenu(true);
         return view;

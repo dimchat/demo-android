@@ -18,11 +18,11 @@
     <string name="id_number">搜索号</string>
     <string name="id_seed">Seed</string>
     <string name="send_message">发送信息</string>
-    <string name="contacts">联系人</string>
-    <string name="history">聊天记录</string>
+    <string name="main_contacts">联系人</string>
+    <string name="main_chat">密聊</string>
     <string name="more">更多</string>
     <string name="register">注册</string>
-    <string name="me">我</string>
+    <string name="main_me">我</string>
     <string name="name">名称</string>
     <string name="report">举报</string>
     <string name="clear_history">清除聊天记录</string>

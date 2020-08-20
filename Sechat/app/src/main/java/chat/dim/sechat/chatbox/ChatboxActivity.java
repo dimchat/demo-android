@@ -25,7 +25,6 @@ import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
-import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.ImagePickerActivity;
 
 public class ChatboxActivity extends ImagePickerActivity implements Observer {
@@ -81,17 +80,6 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatbox_activity);
-
-        SechatApp.getInstance().setKeyboardListener(this, new OnKeyboardListener() {
-            @Override
-            public void onKeyboardShown() {
-                chatboxFragment.scrollToBottom();
-            }
-
-            @Override
-            public void onKeyboardHidden() {
-            }
-        });
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {

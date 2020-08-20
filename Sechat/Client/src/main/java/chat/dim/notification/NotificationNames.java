@@ -42,6 +42,7 @@ public class NotificationNames {
     public static final String GroupRemoved = "GroupRemoved";
     public static final String MembersUpdated = "MembersUpdated";
 
+    public static final String HistoryUpdated = "HistoryUpdated";
     public static final String MessageUpdated = "MessageUpdated";
 
     public static final String SearchUpdated = "SearchUpdated";

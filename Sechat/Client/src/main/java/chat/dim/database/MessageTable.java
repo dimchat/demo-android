@@ -51,7 +51,7 @@ public interface MessageTable {
      *  Remove one chat box
      *
      * @param index - chat box index
-     * @return false on error
+     * @return true on row(s) affected
      */
     boolean removeConversationAtIndex(int index);
 
@@ -59,7 +59,7 @@ public interface MessageTable {
      *  Remove the chat box
      *
      * @param entity - conversation ID
-     * @return false on error
+     * @return true on row(s) affected
      */
     boolean removeConversation(ID entity);
 
@@ -85,7 +85,7 @@ public interface MessageTable {
      *  Clear unread flag in this conversation for an entity
      *
      * @param entity - conversation ID
-     * @return false on failed
+     * @return true on row(s) affected
      */
     boolean clearUnreadMessages(ID entity);
 
@@ -120,7 +120,7 @@ public interface MessageTable {
      *
      * @param iMsg - instant message
      * @param entity - conversation ID
-     * @return true on success
+     * @return true on row(s) affected
      */
     boolean removeMessage(InstantMessage iMsg, ID entity);
 
