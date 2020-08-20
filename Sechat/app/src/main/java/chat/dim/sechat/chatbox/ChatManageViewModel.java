@@ -70,10 +70,7 @@ public class ChatManageViewModel extends EntityViewModel {
 
     boolean quitGroup(ID group) {
         clearHistory(group);
-
-        User user = facebook.getCurrentUser();
-        assert user != null : "failed to get current user";
         GroupManager gm = new GroupManager(group);
-        return gm.quit(user.identifier);
+        return gm.quit();
     }
 }

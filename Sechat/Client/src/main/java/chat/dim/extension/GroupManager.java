@@ -25,19 +25,17 @@
  */
 package chat.dim.extension;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
+import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ProfileCommand;
-import chat.dim.protocol.TextContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QuitCommand;
@@ -47,59 +45,13 @@ import chat.dim.protocol.group.QuitCommand;
  */
 public class GroupManager {
 
+    private static Facebook facebook = Facebook.getInstance();
+    private static Messenger messenger = Messenger.getInstance();
+
     private final ID group;
 
     public GroupManager(ID group) {
         this.group = group;
-    }
-
-    /**
-     *  Send message content to this group
-     *  (only existed member can do this)
-     *
-     * @param content - message content
-     * @return true on success
-     */
-    public boolean send(chat.dim.protocol.Content content) {
-        Messenger messenger = Messenger.getInstance();
-        Facebook facebook = Facebook.getInstance();
-        // check group ID
-        Object gid = content.getGroup();
-        if (gid == null) {
-            content.setGroup(group);
-        } else {
-            assert group.equals(gid) : "group ID not match: " + group + ", " + content;
-        }
-        // check members
-        List<ID> members = facebook.getMembers(group);
-        if (members == null || members.size() == 0) {
-            // get group assistant
-            List<ID> assistants = facebook.getAssistants(group);
-            assert assistants != null : "failed to get assistants for group: " + group;
-            if (assistants.size() == 0) {
-                throw new NullPointerException("group assistant not found: " + group);
-            }
-            // querying assistants for group info
-            messenger.queryGroupInfo(group, assistants);
-            return false;
-        }
-        // let group assistant to split and deliver this message to all members
-        return messenger.sendContent(content, group, null);
-    }
-
-    private boolean sendGroupCommand(Command cmd, List<ID> members) {
-        Messenger messenger = Messenger.getInstance();
-        boolean ok = true;
-        for (ID receiver : members) {
-            if (!messenger.sendContent(cmd, receiver, null)) {
-                ok = false;
-            }
-        }
-        return ok;
-    }
-    private boolean sendGroupCommand(Command cmd, ID receiver) {
-        Messenger messenger = Messenger.getInstance();
-        return messenger.sendContent(cmd, receiver, null);
     }
 
     /**
@@ -110,53 +62,35 @@ public class GroupManager {
      * @return true on success
      */
     public boolean invite(List<ID> newMembers) {
-        Facebook facebook = Facebook.getInstance();
-
         Command cmd;
-        // 0. send 'meta/profile' command to new members
+        // 1. send group info to all
         Meta meta = facebook.getMeta(group);
         assert meta != null : "failed to get meta for group: " + group;
         Profile profile = facebook.getProfile(group);
-        if (profile != null) {
-            Set<String> names = profile.propertyNames();
-            if (names == null || names.size() == 0) {
-                // empty profile
-                profile = null;
-            }
-        }
-        if (profile == null) {
+        if (facebook.isEmpty(profile)) {
+            // empty profile
             cmd = new MetaCommand(group, meta);
         } else {
             cmd = new ProfileCommand(group, meta, profile);
         }
-        sendGroupCommand(cmd, newMembers);
+        messenger.sendCommand(cmd);         // to current station
+        broadcastGroupCommand(cmd, group);  // to existed relationship
+        sendGroupCommand(cmd, newMembers);  // to new members
 
-        ID owner = facebook.getOwner(group);
-        List<ID> assistants = facebook.getAssistants(group);
-        List<ID> members;
-        assert assistants != null : "failed to get assistants for group: " + group;
-
-        // 1. send 'invite' command with new members to existed members
+        // 2. send 'INVITE' command with new members to existed relationship
         cmd = new InviteCommand(group, newMembers);
-        // 1.1. send to existed members
-        members = facebook.getMembers(group);
-        sendGroupCommand(cmd, members);
-        // 1.2. send to assistants
-        sendGroupCommand(cmd, assistants);
-        // 1.3. send to owner
-        if (owner != null && !members.contains(owner)) {
-            sendGroupCommand(cmd, owner);
-        }
+        broadcastGroupCommand(cmd, group);
 
-        // 2. update local storage
-        if (!addMembers(newMembers)) {
+        // 3. update local storage
+        if (!addMembers(newMembers, group)) {
             return false;
         }
+        List<ID> members = facebook.getMembers(group);
 
-        // 3. send 'invite' with all members command to new members
-        members = facebook.getMembers(group);
+        // 4. send 'INVITE' command with all members to new members
         cmd = new InviteCommand(group, members);
-        return sendGroupCommand(cmd, newMembers);
+        sendGroupCommand(cmd, newMembers);
+        return true;
     }
 
     /**
@@ -167,8 +101,6 @@ public class GroupManager {
      * @return true on success
      */
     public boolean expel(List<ID> outMembers) {
-        Facebook facebook = Facebook.getInstance();
-
         ID owner = facebook.getOwner(group);
         List<ID> assistants = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
@@ -186,76 +118,56 @@ public class GroupManager {
             throw new RuntimeException("Cannot expel group owner: " + owner);
         }
 
-        // 1. send 'expel' command to all members
-        Command cmd = new ExpelCommand(group, outMembers);
-        // 1.1. send to existed members
-        sendGroupCommand(cmd, members);
-        // 1.2. send to assistants
-        sendGroupCommand(cmd, assistants);
-        // 1.3. send to owner
-        if (!members.contains(owner)) {
-            sendGroupCommand(cmd, owner);
+        // 1. update local storage
+        if (!removeMembers(outMembers, group)) {
+            return false;
         }
 
-        // 2. update local storage
-        return removeMembers(outMembers);
+        // 2. send 'EXPEL' command to existed relationship
+        Command cmd = new ExpelCommand(group, outMembers);
+        broadcastGroupCommand(cmd, group);
+        return true;
     }
 
     /**
      *  Quit from this group
      *  (only group member can do this)
      *
-     * @param me - my ID
      * @return true on success
      */
-    public boolean quit(ID me) {
-        Facebook facebook = Facebook.getInstance();
-
-        ID owner = facebook.getOwner(group);
-        List<ID> assistants = facebook.getAssistants(group);
-        List<ID> members = facebook.getMembers(group);
-        assert owner != null : "failed to get owner of group: " + group;
-        assert assistants != null : "failed to get assistants for group: " + group;
-        assert members != null : "failed to get members of group: " + group;
-
-        // 0. check members list
-        for (ID ass : assistants) {
-            if (me.equals(ass)) {
-                throw new RuntimeException("Group assistant cannot quit: " + ass);
-            }
+    public boolean quit() {
+        User user = facebook.getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("failed to get current user");
         }
-        if (me.equals(owner)) {
+        // 0. check members list
+        ID owner = facebook.getOwner(group);
+        if (user.identifier.equals(owner)) {
             throw new RuntimeException("Group owner cannot quit: " + owner);
         }
 
         // 1. send 'quit' command to all members
         Command cmd = new QuitCommand(group);
-        // 1.1. send to existed members
-        sendGroupCommand(cmd, members);
-        // 1.2. send to assistants
-        sendGroupCommand(cmd, assistants);
-        // 1.3. send to owner
-        if (!members.contains(owner)) {
-            sendGroupCommand(cmd, owner);
-        }
+        broadcastGroupCommand(cmd, group);
 
         // 2. update local storage
         return facebook.removeGroup(group);
     }
 
+    /**
+     *  Query group info
+     *
+     * @return false on error
+     */
     public boolean query() {
-        Facebook facebook = Facebook.getInstance();
         List<ID> assistants = facebook.getAssistants(group);
         assert assistants != null : "failed to get assistants for group: " + group;
-
-        Messenger messenger = Messenger.getInstance();
         return messenger.queryGroupInfo(group, assistants);
     }
 
     //-------- local storage
 
-    private boolean addMembers(List<ID> newMembers) {
-        Facebook facebook = Facebook.getInstance();
+    private static boolean addMembers(List<ID> newMembers, ID group) {
         List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
@@ -271,8 +183,7 @@ public class GroupManager {
         }
         return facebook.saveMembers(members, group);
     }
-    private boolean removeMembers(List<ID> outMembers) {
-        Facebook facebook = Facebook.getInstance();
+    private static boolean removeMembers(List<ID> outMembers, ID group) {
         List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
@@ -289,28 +200,24 @@ public class GroupManager {
         return facebook.saveMembers(members, group);
     }
 
-    /**
-     *  Test case
-     *
-     * @param args - command arguments
-     */
-    public static void main(String[] args) {
-        Facebook facebook = Facebook.getInstance();
-
-        ID group = facebook.getID("Group-Naruto@7ThVZeDuQAdG3eSDF6NeFjMDPjKN5SbrnM");
-        ID hulk = facebook.getID("hulk@4YeVEN3aUnvC1DNUufCq1bs9zoBSJTzVEj");
-        ID moki = facebook.getID("moki@4WDfe3zZ4T7opFSi3iDAKiuTnUHjxmXekk");
-
-        GroupManager gm = new GroupManager(group);
-
-        // invite members
-        List<ID> members = new ArrayList<>();
-        members.add(hulk);
-        members.add(moki);
-        gm.invite(members);
-
-        // send message content
-        chat.dim.protocol.Content content = new TextContent("Hello world!");
-        gm.send(content);
+    private static void broadcastGroupCommand(Command cmd, ID group) {
+        // broadcast to assistants
+        List<ID> assistants = facebook.getAssistants(group);
+        sendGroupCommand(cmd, assistants);
+        // broadcast to all members
+        List<ID> members = facebook.getMembers(group);
+        sendGroupCommand(cmd, members);
+        // send to owner if not in member list
+        ID owner = facebook.getOwner(group);
+        if (owner != null && !members.contains(owner)) {
+            messenger.sendContent(cmd, owner, null);
+        }
+    }
+    private static void sendGroupCommand(Command cmd, List<ID> members) {
+        if (members != null) {
+            for (ID receiver : members) {
+                messenger.sendContent(cmd, receiver, null);
+            }
+        }
     }
 }

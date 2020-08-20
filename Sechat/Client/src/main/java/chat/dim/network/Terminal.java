@@ -238,16 +238,13 @@ public class Terminal implements StationDelegate {
     public void onHandshakeAccepted(String session, Station server) {
         User user = getCurrentUser();
         assert user != null : "current user not found";
+
         // post current profile to station
         Profile profile = user.getProfile();
         if (profile != null) {
             messenger.postProfile(profile);
         }
-        // post contacts(encrypted) to station
-        List<ID> contacts = user.getContacts();
-        if (contacts != null && contacts.size() > 0) {
-            messenger.postContacts(contacts);
-        }
+
         // broadcast login command
         LoginCommand login = new LoginCommand(user.identifier);
         login.setAgent(getUserAgent());

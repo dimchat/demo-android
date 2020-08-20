@@ -356,6 +356,29 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         return messages.get(index);
     }
 
+    private boolean insertTrace(ID cid, long sn, String signature, Object trace) {
+        String[] columns = {"signature"};
+        String[] selectionArgs = {cid.toString(), ""+sn, trace.toString()};
+        try (Cursor cursor = query(MessageDatabase.T_TRACE, columns, "cid=? AND sn=? AND trace=?", selectionArgs, null, null, null)) {
+            if (cursor.moveToNext()) {
+                // record exists
+                Log.info("drop duplicated trace: " + cid + "(" + sn + ") " + trace);
+                return false;
+            }
+        }
+        ContentValues values = new ContentValues();
+        values.put("cid", cid.toString());
+        values.put("sn", sn);
+        values.put("signature", signature);
+        values.put("trace", trace.toString());
+        if (insert(MessageDatabase.T_TRACE, null, values) < 0) {
+            return false;
+        }
+        // clear for reload
+        clearCaches(cid);
+        return true;
+    }
+
     @Override
     public boolean insertMessage(InstantMessage iMsg, ID entity) {
         Content content = iMsg.getContent();
@@ -373,6 +396,14 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             signature = "";
         } else if (signature.length() > 8) {
             signature = signature.substring(0, 8);
+        }
+
+        // check traces
+        List traces = (List) iMsg.get("traces");
+        if (traces != null && traces.size() > 0) {
+            for (Object item : traces) {
+                insertTrace(entity, sn, signature, item);
+            }
         }
 
         // check for duplicated
@@ -467,12 +498,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             signature = signature.substring(0, 8);
         }
 
-        ContentValues values = new ContentValues();
-        values.put("cid", entity.toString());
-        values.put("sn", sn);
-        values.put("signature", signature);
-        values.put("trace", sender.toString());
-        if (insert(MessageDatabase.T_TRACE, null, values) < 0) {
+        if (!insertTrace(entity, sn, signature, sender)) {
             return false;
         }
 
