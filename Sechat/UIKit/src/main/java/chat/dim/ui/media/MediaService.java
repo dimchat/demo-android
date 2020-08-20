@@ -27,6 +27,7 @@ package chat.dim.ui.media;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -117,6 +118,7 @@ public class MediaService extends Service {
             } catch (Exception e) {
                 Alert.tips(getApplicationContext(), e.toString());
             }
+            recorder.reset();
             recorder.release();
             recorder = null;
             recordStop = System.currentTimeMillis();
@@ -136,6 +138,7 @@ public class MediaService extends Service {
         stopAll();
 
         player = new MediaPlayer();
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
         player.setOnPreparedListener(MediaPlayer::start);
         try {
             player.setDataSource(getApplicationContext(), inputUri);
@@ -148,6 +151,7 @@ public class MediaService extends Service {
     private void stopPlaying() {
         if (player != null) {
             player.stop();
+            player.reset();
             player.release();
             player = null;
         }

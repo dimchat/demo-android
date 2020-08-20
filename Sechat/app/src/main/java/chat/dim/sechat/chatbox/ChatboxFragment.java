@@ -102,22 +102,16 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         adapter = new MessageViewAdapter(dummyList, null);
     }
 
-    private void prepareForScrollToBottom() {
-        int count = adapter.getItemCount();
-        if (count > 32) {
-            msgListView.scrollToPosition(count - 32);
-        }
-    }
-
     private void scrollToBottom() {
         int count = adapter.getItemCount();
         if (count > 0) {
-            msgListView.smoothScrollToPosition(count - 1);
+            //msgListView.smoothScrollToPosition(count - 1);
+            msgListView.scrollToPosition(count - 1);
         }
     }
 
     @Override
-    protected synchronized void onReloaded() {
+    protected void onReloaded() {
         super.onReloaded();
         scrollToBottom();
     }
@@ -224,8 +218,6 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         dummyList.setViewModel(mViewModel);
         reloadData();
-        prepareForScrollToBottom();
-        scrollToBottom();
 
         SechatApp.getInstance().setKeyboardListener(getActivity(), new OnKeyboardListener() {
             @Override

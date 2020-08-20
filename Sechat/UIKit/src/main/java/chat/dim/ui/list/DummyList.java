@@ -47,8 +47,12 @@ public abstract class DummyList<E extends DummyItem> {
         return items;
     }
 
-    public E getItem(int index) {
-        return items.get(index);
+    public synchronized E getItem(int index) {
+        if (index < items.size()) {
+            return items.get(index);
+        } else {
+            return null;
+        }
     }
 
     protected void addItem(E item) {
