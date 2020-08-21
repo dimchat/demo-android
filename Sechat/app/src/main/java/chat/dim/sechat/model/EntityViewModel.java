@@ -25,7 +25,7 @@
  */
 package chat.dim.sechat.model;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 import chat.dim.ID;
 import chat.dim.Profile;

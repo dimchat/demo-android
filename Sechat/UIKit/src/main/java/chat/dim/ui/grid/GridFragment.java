@@ -28,7 +28,7 @@ package chat.dim.ui.grid;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.widget.GridView;
 
 import java.util.concurrent.locks.Lock;

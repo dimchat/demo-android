@@ -25,8 +25,8 @@
  */
 package chat.dim.ui.list;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L extends DummyList> extends RecyclerView.Adapter<VH> {
 

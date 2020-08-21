@@ -25,7 +25,7 @@
  */
 package chat.dim.ui.list;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 
 public class RecyclerViewHolder<E extends DummyItem> extends RecyclerView.ViewHolder {
