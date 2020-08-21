@@ -83,21 +83,24 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                 }
             }
             // sort by last message time
-            Comparator<ID> comparator = (cid1, cid2) -> {
-                Date time1, time2;
-                InstantMessage msg1 = lastMessage(cid1);
-                if (msg1 == null) {
-                    time1 = new Date();
-                } else {
-                    time1 = msg1.envelope.getTime();
+            Comparator<ID> comparator = new Comparator<ID>() {
+                @Override
+                public int compare(ID cid1, ID cid2) {
+                    Date time1, time2;
+                    InstantMessage msg1 = MessageTable.this.lastMessage(cid1);
+                    if (msg1 == null) {
+                        time1 = new Date();
+                    } else {
+                        time1 = msg1.envelope.getTime();
+                    }
+                    InstantMessage msg2 = MessageTable.this.lastMessage(cid2);
+                    if (msg2 == null) {
+                        time2 = new Date();
+                    } else {
+                        time2 = msg2.envelope.getTime();
+                    }
+                    return time2.compareTo(time1);
                 }
-                InstantMessage msg2 = lastMessage(cid2);
-                if (msg2 == null) {
-                    time2 = new Date();
-                } else {
-                    time2 = msg2.envelope.getTime();
-                }
-                return time2.compareTo(time1);
             };
             Collections.sort(array, comparator);
 

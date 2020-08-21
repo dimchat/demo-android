@@ -8,7 +8,7 @@ android {
     }
     defaultConfig {
         applicationId "chat.dim.client"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 29
         vectorDrawables {
             useSupportLibrary true
@@ -31,10 +31,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation project(':UIKit')
+    implementation project(':DB')
+
     implementation project(':Client')
     implementation project(':Common')
-
-    implementation project(':UIKit')
 
     implementation group: 'chat.dim', name: 'SDK', version: '0.4.6'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.1.3'
