@@ -27,6 +27,7 @@ package chat.dim.network;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
+import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -118,6 +120,18 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     //---- urgent command for connection
 
+    private static void setLastReceivedMessageTime(HandshakeCommand cmd) {
+        ConversationDatabase db = ConversationDatabase.getInstance();
+        InstantMessage iMsg = db.lastReceivedMessage();
+        if (iMsg != null) {
+            Date lastTime = iMsg.envelope.getTime();
+            if (lastTime != null) {
+                long timestamp = lastTime.getTime() / 1000;
+                cmd.put("last_time", timestamp);
+            }
+        }
+    }
+
     public void handshake(String newSession) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
@@ -133,6 +147,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         session = newSession;
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
+        setLastReceivedMessageTime(cmd);
         InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
         Messenger messenger = Messenger.getInstance();
         SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);

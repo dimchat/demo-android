@@ -294,7 +294,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     public int numberOfUnreadMessages(ID entity) {
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND read != 1", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND read!=1", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 return cursor.getInt(0);
             }
@@ -348,6 +348,36 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     }
 
     @Override
+    public InstantMessage lastReceivedMessage(ID user) {
+        String[] columns = {"sender", "receiver", "time", "content", "signature"};
+        String[] selectionArgs = {user.toString()};
+        try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "sender!=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
+            String sender;
+            String receiver;
+            long time;
+            String content;
+            String signature;
+            InstantMessage<ID, SymmetricKey> iMsg;
+            if (cursor.moveToNext()) {
+                sender = cursor.getString(0);
+                receiver = cursor.getString(1);
+                time = cursor.getLong(2);
+                content = cursor.getString(3);
+                signature = cursor.getString(4);
+                iMsg = MessageDatabase.getInstanceMessage(sender, receiver, time, content);
+                if (iMsg != null) {
+                    // signature
+                    if (signature != null && signature.length() > 0) {
+                        iMsg.put("signature", signature);
+                    }
+                    return iMsg;
+                }
+            }
+            return null;
+        }
+    }
+
+    @Override
     public InstantMessage messageAtIndex(int index, ID entity) {
         List<InstantMessage<ID, SymmetricKey>> messages = messagesInConversation(entity);
         if (messages == null || messages.size() <= index) {
@@ -357,8 +387,18 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
     }
 
     private boolean insertTrace(ID cid, long sn, String signature, Object trace) {
+        String tid;
+        if (trace instanceof Map) {
+            tid = (String) ((Map) trace).get("ID");
+        } else if (trace instanceof ID) {
+            tid = trace.toString();
+        } else {
+            assert trace instanceof String : "trace error: " + trace;
+            // TODO: JsON string?
+            tid = (String) trace;
+        }
         String[] columns = {"signature"};
-        String[] selectionArgs = {cid.toString(), ""+sn, trace.toString()};
+        String[] selectionArgs = {cid.toString(), ""+sn, tid};
         try (Cursor cursor = query(MessageDatabase.T_TRACE, columns, "cid=? AND sn=? AND trace=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 // record exists
@@ -370,7 +410,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         values.put("cid", cid.toString());
         values.put("sn", sn);
         values.put("signature", signature);
-        values.put("trace", trace.toString());
+        values.put("trace", tid);
         if (insert(MessageDatabase.T_TRACE, null, values) < 0) {
             return false;
         }

@@ -98,6 +98,14 @@ public interface MessageTable {
     InstantMessage lastMessage(ID entity);
 
     /**
+     *  Get last received message from all conversations
+     *
+     * @param user - current user ID
+     * @return instant message
+     */
+    InstantMessage lastReceivedMessage(ID user);
+
+    /**
      *  Get message at index of this conversation
      *
      * @param index - start from 0, latest first

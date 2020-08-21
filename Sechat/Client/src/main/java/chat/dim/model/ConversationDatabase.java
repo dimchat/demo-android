@@ -32,6 +32,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Message;
+import chat.dim.User;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
@@ -115,6 +116,14 @@ public class ConversationDatabase {
 
     public InstantMessage lastMessage(Conversation chatBox) {
         return messageTable.lastMessage(chatBox.identifier);
+    }
+
+    public InstantMessage lastReceivedMessage() {
+        User user = Facebook.getInstance().getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        return messageTable.lastReceivedMessage(user.identifier);
     }
 
     public InstantMessage messageAtIndex(int index, Conversation chatBox) {
