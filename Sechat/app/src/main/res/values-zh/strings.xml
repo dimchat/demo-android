@@ -54,4 +54,5 @@
     <string name="contact_remove">删除好友</string>
     <string name="group_quit">清除聊天记录并退出群聊</string>
     <string name="group_quit_ok">您已退出群聊</string>
+    <string name="download_audio_failed">下载音频失败</string>
 </resources>

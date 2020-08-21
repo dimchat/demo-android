@@ -55,4 +55,5 @@
     <string name="contact_remove">Remove contact</string>
     <string name="group_quit">Clear chat history and quit group</string>
     <string name="group_quit_ok">You have quit from this group</string>
+    <string name="download_audio_failed">Download audio failed</string>
 </resources>

@@ -35,6 +35,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import chat.dim.database.Database;
+import chat.dim.utils.Log;
 
 class Request {
 
@@ -73,8 +74,8 @@ class Request {
         int code = connection.getResponseCode();
         if (code == 200) {
             try (InputStream inputStream = connection.getInputStream()) {
-                filepath = prepareFilePath(urlString);
-                File file = new File(filepath);
+                String path = prepareFilePath(urlString);
+                File file = new File(path);
                 try (FileOutputStream outputStream = new FileOutputStream(file)) {
                     byte[] buffer = new byte[1024];
                     int len;
@@ -82,11 +83,13 @@ class Request {
                         outputStream.write(buffer, 0, len);
                     }
                     outputStream.flush();
+                    filepath = path;
                 }
             }
         }
         //connection.disconnect();
 
+        Log.info("HTTP GET: " + urlString + " -> " + filepath);
         return filepath;
     }
 

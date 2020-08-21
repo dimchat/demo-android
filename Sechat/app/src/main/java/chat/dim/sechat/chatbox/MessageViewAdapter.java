@@ -1,9 +1,12 @@
 package chat.dim.sechat.chatbox;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
@@ -25,8 +29,13 @@ import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.ConversationDatabase;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
@@ -38,6 +47,7 @@ import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
 import chat.dim.ui.list.RecyclerViewHolder;
 import chat.dim.ui.media.AudioPlayer;
+import chat.dim.utils.Log;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link ContactList.Item} and makes a call to the
@@ -103,6 +113,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.speakerView = view.findViewById(R.id.recv_speaker);
             holder.msgView = view.findViewById(R.id.recv_text);
             holder.imgView = view.findViewById(R.id.recv_image);
+            holder.failureMask = view.findViewById(R.id.fail_mask);
         } else if (MsgType.COMMAND == type) {
             holder.leftLayout.setVisibility(View.GONE);
             holder.centerLayout.setVisibility(View.VISIBLE);
@@ -142,6 +153,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
                 intent.putExtra("ID", sender.toString());
                 context.startActivity(intent);
             });
+            holder.failureMask.setVisibility(View.GONE);
         }
 
         if (holder.frameLayout != null) {
@@ -275,6 +287,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             } else {
                 holder.imgView.setImageBitmap(bitmap);
             }
+            holder.setFileContent(content);
         } else {
             holder.imgView.setImageURI(uri);
         }
@@ -288,6 +301,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         Uri uri = ChatboxViewModel.getAudioUri(content);
         if (uri == null) {
             holder.msgView.setText(R.string.downloading);
+            holder.setFileContent(content);
         } else {
             Object duration = content.get("duration");
             if (duration == null) {
@@ -301,7 +315,10 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
     }
 
-    public static class ViewHolder extends RecyclerViewHolder<ContactList.Item> {
+    public static class ViewHolder extends RecyclerViewHolder<ContactList.Item> implements Observer {
+
+        private FileContent fileContent = null;
+        private String downloadingURL = null;
 
         LinearLayout leftLayout;
         LinearLayout rightLayout;
@@ -315,6 +332,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         ImageView speakerView = null;
         TextView msgView = null;
         ImageView imgView = null;
+        View failureMask = null;
 
         ImageView failedIndicator = null;
         ProgressBar sendingIndicator = null;
@@ -325,5 +343,83 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             centerLayout = view.findViewById(R.id.cmd_msg);
             rightLayout = view.findViewById(R.id.sent_msg);
         }
+
+        @Override
+        public void finalize() throws Throwable {
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
+            nc.removeObserver(this, NotificationNames.FileDownloadFailure);
+            super.finalize();
+        }
+
+        void setFileContent(FileContent content) {
+            fileContent = content;
+            downloadingURL = content.getURL();
+            Log.info("waiting for downloading: " + downloadingURL);
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.addObserver(this, NotificationNames.FileDownloadSuccess);
+            nc.addObserver(this, NotificationNames.FileDownloadFailure);
+        }
+
+        void onDownloadSuccess() {
+            Log.info("success to download: " + downloadingURL);
+            Uri uri = ChatboxViewModel.getFileUri(fileContent);
+            if (uri == null) {
+                throw new NullPointerException("failed to get image URL: " + fileContent);
+            }
+            if (fileContent instanceof ImageContent) {
+                assert imgView != null : "should not happen";
+                imgView.setImageURI(uri);
+            } else if (fileContent instanceof AudioContent) {
+                assert msgView != null : "should not happen";
+                Object duration = fileContent.get("duration");
+                if (duration == null) {
+                    msgView.setText(fileContent.getFilename());
+                } else {
+                    int millis = ((Number) duration).intValue();
+                    int seconds = Math.round(millis / 1000.0f);
+                    String msg = String.format(Locale.CHINA, " %d\" ", seconds);
+                    msgView.setText(msg);
+                }
+            }
+        }
+
+        void onDownloadFailure() {
+            Log.info("failed to download: " + downloadingURL);
+            if (fileContent instanceof ImageContent) {
+                failureMask.setVisibility(View.VISIBLE);
+            } else if (fileContent instanceof AudioContent) {
+                msgView.setText(R.string.download_audio_failed);
+            }
+        }
+
+        @Override
+        public void onReceiveNotification(Notification notification) {
+            String name = notification.name;
+            Map info = notification.userInfo;
+            assert name != null && info != null : "notification error: " + notification;
+            String url = (String) info.get("URL");
+            if (url != null && url.equals(downloadingURL)) {
+                Message msg = new Message();
+                if (name.equals(NotificationNames.FileDownloadSuccess)) {
+                    msg.what = 0x9527;
+                } else if (name.equals(NotificationNames.FileDownloadFailure)) {
+                    msg.what = 0x9528;
+                }
+                msgHandler.sendMessage(msg);
+            }
+        }
+
+        @SuppressLint("HandlerLeak")
+        private final Handler msgHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 0x9527) {
+                    onDownloadSuccess();
+                } else if (msg.what == 0x9528) {
+                    onDownloadFailure();
+                }
+            }
+        };
     }
 }

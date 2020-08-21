@@ -80,7 +80,7 @@ public class ChatboxViewModel extends ViewModel {
         return MsgType.RECEIVED;
     }
 
-    private static Uri getFileUri(FileContent content) {
+    static Uri getFileUri(FileContent content) {
         FtpServer ftp = FtpServer.getInstance();
         String path = null;
         try {
