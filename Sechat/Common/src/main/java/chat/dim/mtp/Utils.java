@@ -50,6 +50,7 @@ import chat.dim.tlv.VarIntData;
 
 public class Utils {
 
+    @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
         Map<String, Object> info = new HashMap<>(msg);
         //
@@ -91,7 +92,6 @@ public class Utils {
         // symmetric key, keys
         String key = (String) info.get("key");
         if (key == null) {
-            //noinspection unchecked
             Map<Object, String> keys = (Map) info.get("keys");
             if (keys != null) {
                 Data data = buildKeys(keys);
@@ -107,13 +107,11 @@ public class Utils {
         //  attachments
         //
 
-        //noinspection unchecked
         Map<String, Object> meta = (Map) info.get("meta");
         if (meta != null) {
             // dict to JSON
             info.put("meta", JSON.encode(meta));
         }
-        //noinspection unchecked
         Map<String, Object> profile = (Map) info.get("profile");
         if (profile != null) {
             // dict to JSON

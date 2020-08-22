@@ -50,12 +50,13 @@ public class MetaTable extends Database {
         return getEntityFilePath(entity, "meta.js");
     }
 
+    @SuppressWarnings("unchecked")
     private Meta loadMeta(ID entity) {
         try {
             // load from JsON file
             String path = getMetaFilePath(entity);
             Object dict = loadJSON(path);
-            return Meta.getInstance(dict);
+            return Meta.getInstance((Map<String, Object>) dict);
         } catch (IOException | ClassNotFoundException e) {
             //e.printStackTrace();
             return null;

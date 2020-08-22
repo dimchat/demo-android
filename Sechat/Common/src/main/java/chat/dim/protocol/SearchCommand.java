@@ -64,8 +64,8 @@ public class SearchCommand extends Command {
      *
      * @return ID string list
      */
+    @SuppressWarnings("unchecked")
     public List<String> getUsers() {
-        //noinspection unchecked
         List<String> users = (List) dictionary.get("users");
         if (users == null) {
             return null;
@@ -78,8 +78,8 @@ public class SearchCommand extends Command {
      *
      * @return meta dictionary
      */
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getResults() {
-        //noinspection unchecked
         Map<String, Object> results = (Map) dictionary.get("results");
         if (results == null) {
             return null;

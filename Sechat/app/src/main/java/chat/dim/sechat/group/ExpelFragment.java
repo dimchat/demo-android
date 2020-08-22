@@ -93,8 +93,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
 
         // expel group member(s)
         GroupManager gm = new GroupManager(identifier);
-        //noinspection unchecked
-        if (gm.expel(new ArrayList(selected))) {
+        if (gm.expel(new ArrayList<>(selected))) {
             Alert.tips(getContext(), R.string.group_members_updated);
             close();
         } else {

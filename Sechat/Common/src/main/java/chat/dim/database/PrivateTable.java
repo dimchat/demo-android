@@ -45,12 +45,13 @@ public class PrivateTable extends Database {
         return getUserPrivateFilePath(address, "secret.js");
     }
 
+    @SuppressWarnings("unchecked")
     private PrivateKey loadKey(Address address) {
         try {
             // load from JsON file
             String path = getKeyFilePath(address);
             Object dict = loadJSON(path);
-            return PrivateKey.getInstance(dict);
+            return PrivateKey.getInstance((Map<String, Object>) dict);
         } catch (IOException | ClassNotFoundException e) {
             //e.printStackTrace();
             return null;
@@ -87,9 +88,8 @@ public class PrivateTable extends Database {
         List<DecryptKey> keys = new ArrayList<>();
         // FIXME: get private key matches profile key
         PrivateKey key = getPrivateKeyForSignature(user);
-        if (key != null) {
+        if (key instanceof DecryptKey) {
             // TODO: support profile.key
-            assert key instanceof DecryptKey : "private key error: " + key;
             keys.add((DecryptKey) key);
         }
         return keys;

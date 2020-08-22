@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.Message;
@@ -168,12 +169,12 @@ public class ConversationDatabase {
             ID entity = chatBox.identifier;
             // FIXME: check for origin conversation
             if (entity.isUser()) {
-                Object receiver = iMsg.envelope.getReceiver();
                 ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
-                if (receiver.equals(receipt.get("sender"))) {
-                    receiver = receipt.get("receiver");
-                    if (receiver != null) {
-                        entity = Facebook.getInstance().getID(receiver);
+                Envelope<ID> env = receipt.getEnvelope();
+                if (env != null) {
+                    ID sender = env.getSender();
+                    if (sender != null && sender.equals(iMsg.envelope.getReceiver())) {
+                        entity = env.getReceiver();
                     }
                 }
             }

@@ -513,16 +513,18 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean saveReceipt(InstantMessage iMsg, ID entity) {
         // save receipt of instant message
-        if (!(iMsg.getContent() instanceof ReceiptCommand)) {
+        Object content = iMsg.getContent();
+        if (!(content instanceof ReceiptCommand)) {
             return false;
         }
-        // FIXME: check for origin conversation
+        ReceiptCommand receipt = (ReceiptCommand) content;
         Object sender = iMsg.envelope.getSender();
         Object receiver = iMsg.envelope.getReceiver();
-        ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
+        // FIXME: check for origin conversation
         if (entity.isUser()) {
             if (receiver.equals(receipt.get("sender"))) {
                 receiver = receipt.get("receiver");
@@ -554,7 +556,6 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                 if (!isMatch(item, receipt)) {
                     continue;
                 }
-                //noinspection unchecked
                 List<String> traces = (List) item.get("traces");
                 if (traces == null) {
                     traces = new ArrayList<>();

@@ -26,6 +26,7 @@
 package chat.dim.cpu;
 
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.Facebook;
 import chat.dim.ID;
@@ -60,6 +61,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         return JSON.decode(data);
     }
 
+    @SuppressWarnings("unchecked")
     private Object decryptData(StorageCommand cmd) throws ClassNotFoundException {
         // 1. get encrypt key
         byte[] key = cmd.getKey();
@@ -80,7 +82,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         }
         // 4. decode key
         Object dict = JSON.decode(key);
-        SymmetricKey password = SymmetricKey.getInstance(dict);
+        SymmetricKey password = SymmetricKey.getInstance((Map<String, Object>) dict);
         // 5. decrypt data
         return decryptData(cmd, password);
     }
@@ -93,12 +95,11 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     // decrypt and save contacts for user
+    @SuppressWarnings("unchecked")
     private Content processContacts(StorageCommand cmd) {
-        //noinspection unchecked
         List<String> contacts = (List) cmd.get("contacts");
         if (contacts == null) {
             try {
-                //noinspection unchecked
                 contacts = (List) decryptData(cmd);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -119,13 +120,14 @@ public class StorageCommandProcessor extends CommandProcessor {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private Content processPrivateKey(StorageCommand cmd) {
         String string = "<TODO: input your password>";
         SymmetricKey password = Password.generate(string);
         Object dict = decryptData(cmd, password);
         PrivateKey key = null;
         try {
-            key = PrivateKey.getInstance(dict);
+            key = PrivateKey.getInstance((Map<String, Object>) dict);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

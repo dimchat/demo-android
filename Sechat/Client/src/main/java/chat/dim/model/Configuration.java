@@ -51,13 +51,12 @@ public class Configuration {
     private String apiTerms = null;
     private String apiAbout = null;
 
+    @SuppressWarnings("unchecked")
     private void loadConfig() {
         Map<String, String> apis = null;
         try {
-            //noinspection unchecked
             info = (Map) Resources.loadJSON("gsp.js");
             if (info != null) {
-                //noinspection unchecked
                 apis = (Map) info.get("APIs");
             }
         } catch (IOException e) {

@@ -98,8 +98,8 @@ public class MessageDatabase extends Database {
         return getInstanceMessage(msg);
     }
 
+    @SuppressWarnings("unchecked")
     private static InstantMessage<ID, SymmetricKey> getInstanceMessage(Map msg) {
-        //noinspection unchecked
         InstantMessage<ID, SymmetricKey> iMsg = InstantMessage.getInstance(msg);
         if (iMsg != null) {
             iMsg.setDelegate(Messenger.getInstance());

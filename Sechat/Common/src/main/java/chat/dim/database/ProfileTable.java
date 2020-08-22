@@ -51,11 +51,12 @@ public class ProfileTable extends Database {
         return getEntityFilePath(entity, "profile.js");
     }
 
+    @SuppressWarnings("unchecked")
     private Profile loadProfile(ID entity) {
         try {
             String path = getProfilePath(entity);
             Object dict = loadJSON(path);
-            return Profile.getInstance(dict);
+            return Profile.getInstance((Map<String, Object>) dict);
         } catch (IOException e) {
             //e.printStackTrace();
             return null;

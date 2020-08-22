@@ -43,7 +43,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         super(messenger);
     }
 
-    private Meta getMeta(ID identifier, Object dictionary) {
+    private Meta getMeta(ID identifier, Map<String, Object> dictionary) {
         Meta meta;
         try {
             meta = Meta.getInstance(dictionary);
@@ -57,6 +57,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private void parse(SearchCommand cmd) {
         Map<String, Object> results = cmd.getResults();
         if (results == null) {
@@ -67,7 +68,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         Meta meta;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
             identifier = facebook.getID(entry.getKey());
-            meta = getMeta(identifier, entry.getValue());
+            meta = getMeta(identifier, (Map<String, Object>) entry.getValue());
             if (meta == null) {
                 // TODO: meta error
                 continue;

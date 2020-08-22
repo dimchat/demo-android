@@ -3,8 +3,8 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.4.6'
-    implementation group: 'chat.dim', name: 'Plugins', version: '0.1.3'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.4.7'
+    implementation group: 'chat.dim', name: 'Plugins', version: '0.1.4'
 
     implementation group: 'chat.dim', name: 'DMTP', version: '0.1.0'
 }

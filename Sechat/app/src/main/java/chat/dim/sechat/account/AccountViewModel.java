@@ -114,9 +114,9 @@ public class AccountViewModel extends UserViewModel {
         return new String(data, Charset.forName("UTF-8"));
     }
 
+    @SuppressWarnings("unchecked")
     public ID savePrivateInfo(String json) {
         byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        //noinspection unchecked
         Map<String, Object> info = (Map<String, Object>) JSON.decode(data);
         if (info == null) {
             return null;

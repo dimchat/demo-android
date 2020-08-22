@@ -99,17 +99,19 @@ public class NetworkDatabase {
         return providerTable.addStation(sp, station, host, port, name, chosen);
     }
 
+    @SuppressWarnings("unchecked")
     private static Meta loadMeta(ID identifier) {
         try {
             String path = Paths.appendPathComponent(identifier.address.toString(), "meta.js");
             Object meta = Resources.loadJSON(path);
-            return Meta.getInstance(meta);
+            return Meta.getInstance((Map<String, Object>) meta);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
 
+    @SuppressWarnings("unchecked")
     private ProviderTable.ProviderInfo defaultProviderInfo() {
 
         Facebook facebook = Facebook.getInstance();
@@ -120,7 +122,6 @@ public class NetworkDatabase {
         String url = (String) spConfig.get("URL");
         addProvider(sp, name, url, 1);
 
-        //noinspection unchecked
         List<Map> stations = (List<Map>) spConfig.get("stations");
         ID sid;
         String host;
