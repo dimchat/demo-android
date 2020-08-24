@@ -7,13 +7,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
+import chat.dim.utils.Times;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -78,7 +81,22 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getDesc() {
-            return EntityViewModel.getAddressString(account.identifier);
+            LoginCommand cmd = UserViewModel.getLoginCommand(account.identifier);
+            if (cmd != null) {
+                Map<String, Object> info = cmd.getStation();
+                ID sid = EntityViewModel.getID(info.get("ID"));
+                if (cmd.time != null) {
+                    if (sid != null) {
+                        return "Last login [" + Times.getTimeString(cmd.time) + "]: " + EntityViewModel.getName(sid);
+                    } else {
+                        return "Last login [" + Times.getTimeString(cmd.time) + "]";
+                    }
+                } else if (sid != null) {
+                    return "Last login station: " + EntityViewModel.getName(sid);
+                }
+            }
+            //return EntityViewModel.getAddressString(account.identifier);
+            return null;
         }
     }
 }

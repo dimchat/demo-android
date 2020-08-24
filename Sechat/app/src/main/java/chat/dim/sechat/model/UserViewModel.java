@@ -32,7 +32,9 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.SechatApp;
+import chat.dim.sqlite.LoginTable;
 import chat.dim.ui.image.Images;
 
 public class UserViewModel extends EntityViewModel {
@@ -98,6 +100,17 @@ public class UserViewModel extends EntityViewModel {
     }
     public String getUserTitle() {
         return getUserTitle(getIdentifier());
+    }
+
+    //
+    //  Login
+    //
+    public static LoginCommand getLoginCommand(ID identifier) {
+        if (identifier == null) {
+            throw new NullPointerException("user ID empty");
+        }
+        LoginTable db = LoginTable.getInstance();
+        return db.getLoginCommand(identifier);
     }
 
     //

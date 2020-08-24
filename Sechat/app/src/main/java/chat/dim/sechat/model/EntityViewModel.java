@@ -37,6 +37,12 @@ public class EntityViewModel extends ViewModel {
 
     protected ID identifier = null;
 
+    //
+    //  ID
+    //
+    public static ID getID(Object identifier) {
+        return facebook.getID(identifier);
+    }
     public ID getIdentifier() {
         return identifier;
     }
