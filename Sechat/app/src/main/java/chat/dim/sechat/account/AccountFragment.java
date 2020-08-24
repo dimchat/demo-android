@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import chat.dim.model.Configuration;
 import chat.dim.sechat.R;
+import chat.dim.sechat.settings.SettingsActivity;
 import chat.dim.ui.web.WebViewActivity;
 
 public class AccountFragment extends Fragment {
@@ -29,6 +30,8 @@ public class AccountFragment extends Fragment {
     private TextView descView;
 
     private LinearLayout detail;
+
+    private TableRow settingsButton;
 
     private TableRow termsButton;
     private TableRow aboutButton;
@@ -49,6 +52,9 @@ public class AccountFragment extends Fragment {
         descView = view.findViewById(R.id.descView);
 
         detail = view.findViewById(R.id.detail);
+
+        settingsButton = view.findViewById(R.id.settingsRow);
+
         termsButton = view.findViewById(R.id.termsRow);
         aboutButton = view.findViewById(R.id.aboutRow);
 
@@ -70,6 +76,9 @@ public class AccountFragment extends Fragment {
         avatarView.setImageBitmap(mViewModel.getAvatar());
 
         detail.setOnClickListener(v -> showDetail());
+
+        settingsButton.setOnClickListener(v -> showSettings());
+
         termsButton.setOnClickListener(v -> open(R.string.terms, config.getTermsURL()));
         aboutButton.setOnClickListener(v -> open(R.string.about, config.getAboutURL()));
     }
@@ -79,6 +88,14 @@ public class AccountFragment extends Fragment {
         assert context != null : "failed to get context";
         Intent intent = new Intent();
         intent.setClass(context, UpdateAccountActivity.class);
+        startActivity(intent);
+    }
+
+    private void showSettings() {
+        Context context = getContext();
+        assert context != null : "failed to get context";
+        Intent intent = new Intent();
+        intent.setClass(context, SettingsActivity.class);
         startActivity(intent);
     }
 

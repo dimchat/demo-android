@@ -20,6 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".settings.SettingsActivity" android:label="@string/settings" />
         <activity android:name=".group.MembersActivity" android:label="@string/group_members" />
         <activity android:name=".group.ExpelActivity" android:label="@string/group_expel" />
         <activity android:name=".group.InviteActivity" android:label="@string/group_invite" />
@@ -30,7 +31,7 @@
         <activity android:name=".search.SearchActivity" android:label="@string/search" />
         <activity android:name=".register.RegisterActivity">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
