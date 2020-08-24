@@ -221,6 +221,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
             if (star == null) {
                 star = new Hole(this);
             }
+            Log.info("launching with options: " + options);
 
             // TODO: post notification "StationConnecting"
 

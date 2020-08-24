@@ -28,6 +28,8 @@ package chat.dim.notification;
 // Constants
 public class NotificationNames {
 
+    public static final String ServiceProviderUpdated = "ServiceProviderUpdated";
+
     public static final String ServerStateChanged = "ServerStateChanged";
 
     public static final String StartChat = "StartChat";

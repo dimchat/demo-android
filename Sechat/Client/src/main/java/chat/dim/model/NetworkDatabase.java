@@ -27,6 +27,7 @@ package chat.dim.model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ import chat.dim.Meta;
 import chat.dim.database.ProviderTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 
 public class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
@@ -96,7 +99,45 @@ public class NetworkDatabase {
      * @return true on success
      */
     public boolean addStation(ID sp, ID station, String host, int port, String name, int chosen) {
-        return providerTable.addStation(sp, station, host, port, name, chosen);
+        if (!providerTable.addStation(sp, station, host, port, name, chosen)) {
+            return false;
+        }
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("sp", sp);
+        userInfo.put("action", "add");
+        userInfo.put("station", station);
+        userInfo.put("chosen", chosen);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ServiceProviderUpdated, this, userInfo);
+        return true;
+    }
+
+    public boolean chooseStation(ID sp, ID station) {
+        if (!providerTable.chooseStation(sp, station)) {
+            return false;
+        }
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("sp", sp);
+        userInfo.put("action", "switch");
+        userInfo.put("station", station);
+        userInfo.put("chosen", 1);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ServiceProviderUpdated, this, userInfo);
+        return true;
+    }
+    public boolean removeStation(ID sp, ID station, String host, int port) {
+        if (!providerTable.removeStation(sp, station)) {
+            return false;
+        }
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("sp", sp);
+        userInfo.put("action", "remove");
+        userInfo.put("station", station);
+        userInfo.put("host", host);
+        userInfo.put("port", port);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ServiceProviderUpdated, this, userInfo);
+        return true;
     }
 
     @SuppressWarnings("unchecked")
