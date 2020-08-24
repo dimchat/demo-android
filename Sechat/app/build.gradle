@@ -16,7 +16,26 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            //选择要添加的对应 cpu 类型的 .so 库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
+        }
+
+        manifestPlaceholders = [
+
+                JPUSH_PKGNAME : applicationId,
+                JPUSH_APPKEY : "db6d7573a1643e36cf2451c6", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+        ]
     }
+
+    packagingOptions {
+        doNotStrip '*/mips/*.so'
+        doNotStrip '*/mips64/*.so'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -52,4 +71,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    implementation 'cn.jiguang.sdk:jpush:3.6.6'  // 此处以JPush 3.6.6 版本为例。
+    implementation 'cn.jiguang.sdk:jcore:2.3.8'  // 此处以JCore 2.3.8 版本为例。
 }

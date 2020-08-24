@@ -18,6 +18,7 @@ import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.model.NetworkDatabase;
+import chat.dim.sechat.jpush.JPushManager;
 import chat.dim.sqlite.ContactTable;
 import chat.dim.sqlite.EntityDatabase;
 import chat.dim.sqlite.GroupTable;
@@ -31,7 +32,11 @@ import chat.dim.ui.Application;
 public class SechatApp extends Application {
 
     private static SechatApp ourInstance = null;
-    public static SechatApp getInstance() { return ourInstance; }
+
+    public static SechatApp getInstance() {
+        return ourInstance;
+    }
+
     public SechatApp() {
         super();
         ourInstance = this;
@@ -56,6 +61,9 @@ public class SechatApp extends Application {
         msgDB.messageTable = MessageTable.getInstance();
 
         LoginCommandProcessor.dataHandler = LoginTable.getInstance();
+
+        //初始化极光推送
+        JPushManager.getInstance().init(this, BuildConfig.DEBUG);
     }
 
     @Override
