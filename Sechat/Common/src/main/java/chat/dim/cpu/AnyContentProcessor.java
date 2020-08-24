@@ -178,7 +178,7 @@ class MessageBuilder {
 
     static String getLoginCommandText(LoginCommand cmd, ID commander) {
         assert commander != null : "commander error";
-        Object identifier = cmd.getIdentifier();
+        ID identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
         return String.format("%s login: %s", getUsername(identifier), station);
     }

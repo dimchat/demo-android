@@ -49,6 +49,8 @@ public class EntityDatabase extends Database {
     private static final String DB_NAME = "mkm.db";
     private static final int DB_VERSION = 1;
 
+    static final String T_LOGIN = "t_login";
+
     static final String T_CONTACT = "t_contact";
 
     static final String T_GROUP = "t_group";
@@ -60,6 +62,9 @@ public class EntityDatabase extends Database {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // login info
+        db.execSQL("CREATE TABLE " + T_LOGIN + "(uid VARCHAR(64), time INTEGER, station VARCHAR(64), command TEXT)");
+
         // user contacts
         db.execSQL("CREATE TABLE " + T_CONTACT + "(uid VARCHAR(64), contact VARCHAR(64), alias VARCHAR(32))");
 

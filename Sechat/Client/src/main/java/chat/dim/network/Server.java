@@ -151,9 +151,12 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
         Messenger messenger = Messenger.getInstance();
         SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
+        if (sMsg == null) {
+            throw new NullPointerException("failed to encrypt message: " + iMsg);
+        }
         ReliableMessage<ID, SymmetricKey> rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
-            throw new NullPointerException("failed to encrypt and sign message: " + iMsg);
+            throw new NullPointerException("failed to sign message: " + sMsg);
         }
         // first handshake?
         if (cmd.state == HandshakeCommand.HandshakeState.START) {

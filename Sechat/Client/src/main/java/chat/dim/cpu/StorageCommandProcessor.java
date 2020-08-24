@@ -69,7 +69,7 @@ public class StorageCommandProcessor extends CommandProcessor {
             throw new NullPointerException("key not found: " + cmd);
         }
         // 2. get user ID
-        String identifier = cmd.getIdentifier();
+        ID identifier = cmd.getIdentifier();
         if (identifier == null) {
             throw new NullPointerException("ID not found: " + cmd);
         }

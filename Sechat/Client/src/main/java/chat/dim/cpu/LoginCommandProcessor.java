@@ -46,13 +46,20 @@ public class LoginCommandProcessor extends CommandProcessor {
         assert content instanceof LoginCommand : "login command error: " + content;
         LoginCommand cmd = (LoginCommand) content;
 
-        Object identifier = cmd.getIdentifier();
-        Map<String, Object> station = cmd.getStation();
-        // TODO: update contact's login status
+        // update contact's login status
+        dataHandler.save(cmd);
 
+        ID identifier = cmd.getIdentifier();
+        Map<String, Object> station = cmd.getStation();
         Log.info("[" + Times.getTimeString(cmd.time) + "] user (" + identifier + ") login: " + station);
 
         // no need to response login command
         return null;
+    }
+
+    public static DataHandler dataHandler = null;
+
+    public interface DataHandler {
+        boolean save(LoginCommand command);
     }
 }

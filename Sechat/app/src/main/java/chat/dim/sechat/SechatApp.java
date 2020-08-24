@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
@@ -20,6 +21,7 @@ import chat.dim.model.NetworkDatabase;
 import chat.dim.sqlite.ContactTable;
 import chat.dim.sqlite.EntityDatabase;
 import chat.dim.sqlite.GroupTable;
+import chat.dim.sqlite.LoginTable;
 import chat.dim.sqlite.MessageDatabase;
 import chat.dim.sqlite.MessageTable;
 import chat.dim.sqlite.ProviderDatabase;
@@ -52,6 +54,8 @@ public class SechatApp extends Application {
         MessageDatabase.setContext(this);
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
+
+        LoginCommandProcessor.dataHandler = LoginTable.getInstance();
     }
 
     @Override
