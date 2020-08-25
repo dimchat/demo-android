@@ -1,8 +1,9 @@
-package chat.dim.sechat.jpush.receiver;
+package chat.dim.sechat.push.jpush.receiver;
 
 import android.content.Context;
 import android.util.Log;
 
+import chat.dim.sechat.push.RomUtil;
 import cn.jpush.android.api.CustomMessage;
 import cn.jpush.android.api.JPushMessage;
 import cn.jpush.android.api.NotificationMessage;
@@ -24,8 +25,10 @@ public class JPushMsgReceiver extends JPushMessageReceiver {
 
     @Override
     public void onNotifyMessageArrived(Context context, NotificationMessage notificationMessage) {
+        if (!RomUtil.isMiui()){
+            return;
+        }
         super.onNotifyMessageArrived(context, notificationMessage);
-        Log.i("jpush",notificationMessage.toString());
     }
 
     @Override

@@ -12,7 +12,7 @@ import chat.dim.database.Database;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
-import chat.dim.sechat.jpush.JPushManager;
+import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.ui.image.ImagePickerActivity;
 
 public class RegisterActivity extends ImagePickerActivity {
@@ -29,7 +29,7 @@ public class RegisterActivity extends ImagePickerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity);
-        JPushManager.getInstance().stopPush();  //注册页面停止推送
+        JPushManager.getInstance().setAlias("");  //注册页面停止推送
         setTitle(R.string.register);
 
         tryLaunch();

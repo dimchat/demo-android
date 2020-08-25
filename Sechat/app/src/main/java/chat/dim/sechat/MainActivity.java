@@ -28,7 +28,7 @@ import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
-import chat.dim.sechat.jpush.JPushManager;
+import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sechat.register.RegisterActivity;
 
 public class MainActivity extends AppCompatActivity implements Observer {
@@ -190,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 messenger.postProfile(profile, meta);
             }
             //将用户地址设为别名
-            JPushManager.getInstance().resumePush();
             JPushManager.getInstance().setAlias(user.identifier.address.toString());
         }
     }

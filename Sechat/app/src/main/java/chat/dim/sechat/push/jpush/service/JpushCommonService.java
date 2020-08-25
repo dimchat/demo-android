@@ -1,4 +1,4 @@
-package chat.dim.sechat.jpush.service;
+package chat.dim.sechat.push.jpush.service;
 
 import cn.jpush.android.service.JCommonService;
 

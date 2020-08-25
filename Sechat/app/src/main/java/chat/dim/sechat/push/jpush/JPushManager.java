@@ -1,18 +1,13 @@
-package chat.dim.sechat.jpush;
+package chat.dim.sechat.push.jpush;
 
 import android.app.Application;
-import android.app.TaskInfo;
 import android.content.Context;
-import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
-import chat.dim.sechat.BuildConfig;
 import cn.jpush.android.api.JPushInterface;
-import cn.jpush.android.api.TagAliasCallback;
 
 public class JPushManager {
 
@@ -38,38 +33,31 @@ public class JPushManager {
     }
 
     public void stopPush(){
-        if (context == null) {
-            throw new RuntimeException("pelease init first");
-        }
-      //  JPushInterface.stopPush(context);
+        verifyContext();
+          JPushInterface.stopPush(context);
     }
 
     public void resumePush(){
-        if (context == null) {
-            throw new RuntimeException("pelease init first");
-        }
-      //  JPushInterface.resumePush(context);
+        verifyContext();
+          JPushInterface.resumePush(context);
     }
 
     public void setAlias(String alias) {
-        if (context == null) {
-            throw new RuntimeException("pelease init first");
-        }
+        verifyContext();
         //限制：alias 命名长度限制为 40 字节。（判断长度需采用 UTF-8 编码）
         int c = new Random().nextInt();
         aliasMap.put(alias, c);
-        JPushInterface.setAlias(context, alias, new TagAliasCallback() {
-            @Override
-            public void gotResult(int i, String s, Set<String> set) {
-                Log.i("jpush",i+" "+s);
-            }
-        });
+        JPushInterface.setAlias(context,c,alias);
     }
 
-    public void deleteAlias(String alias) {
+    private void verifyContext() {
         if (context == null) {
             throw new RuntimeException("pelease init first");
         }
+    }
+
+    public void deleteAlias(String alias) {
+        verifyContext();
         Integer integer = aliasMap.get(alias);
         if (integer != null) {
             JPushInterface.deleteAlias(context, integer);

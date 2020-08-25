@@ -18,7 +18,8 @@ import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.model.NetworkDatabase;
-import chat.dim.sechat.jpush.JPushManager;
+import chat.dim.sechat.push.PushManager;
+import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sqlite.ContactTable;
 import chat.dim.sqlite.EntityDatabase;
 import chat.dim.sqlite.GroupTable;
@@ -62,8 +63,8 @@ public class SechatApp extends Application {
 
         LoginCommandProcessor.dataHandler = LoginTable.getInstance();
 
-        //初始化极光推送
-        JPushManager.getInstance().init(this, BuildConfig.DEBUG);
+        //初始化推送
+        PushManager.getInstance().init(this, BuildConfig.DEBUG);
     }
 
     @Override
