@@ -79,6 +79,8 @@ public interface ProviderTable {
 
     boolean updateStation(ID sp, ID station, String host, int port, String name, int chosen);
 
+    boolean chooseStation(ID sp, ID station);
+
     boolean removeStation(ID sp, ID station);
 
     boolean removeStations(ID sp);

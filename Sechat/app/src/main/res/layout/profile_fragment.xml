@@ -116,7 +116,8 @@
         android:id="@+id/removeContact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/contact_remove" />
+        android:text="@string/contact_remove"
+        android:textColor="@color/colorAccent" />
 
     <Button
         android:id="@+id/addContact"

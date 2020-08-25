@@ -89,7 +89,7 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("url", url);
         values.put("chosen", chosen);
         String[] whereArgs = {identifier.toString()};
-        return update(ProviderDatabase.T_PROVIDER, values, "spid=?", whereArgs) >= 0;
+        return update(ProviderDatabase.T_PROVIDER, values, "spid=?", whereArgs) > 0;
     }
 
     @Override
@@ -141,7 +141,19 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("port", port);
         values.put("chosen", chosen);
         String[] whereArgs = {sp.toString(), station.toString()};
-        return update(ProviderDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs) >= 0;
+        return update(ProviderDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs) > 0;
+    }
+
+    @Override
+    public boolean chooseStation(ID sp, ID station) {
+        ContentValues values = new ContentValues();
+        values.put("chosen", 0);
+        String[] whereArgs1 = {sp.toString()};
+        update(ProviderDatabase.T_STATION, values, "spid=? AND chosen=1", whereArgs1);
+
+        values.put("chosen", 1);
+        String[] whereArgs2 = {sp.toString(), station.toString()};
+        return update(ProviderDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs2) > 0;
     }
 
     @Override
