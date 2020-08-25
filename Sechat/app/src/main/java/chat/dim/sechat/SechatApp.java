@@ -19,6 +19,8 @@ import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Facebook;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.sechat.push.jpush.JPushManager;
+import chat.dim.sqlite.ANSDatabase;
+import chat.dim.sqlite.ANSTable;
 import chat.dim.sqlite.ContactTable;
 import chat.dim.sqlite.EntityDatabase;
 import chat.dim.sqlite.GroupTable;
@@ -48,15 +50,18 @@ public class SechatApp extends Application {
 
         // databases
         ProviderDatabase.setContext(this);
+        ANSDatabase.setContext(this);
+        EntityDatabase.setContext(this);
+        MessageDatabase.setContext(this);
+
         NetworkDatabase netDB = NetworkDatabase.getInstance();
         netDB.providerTable = ProviderTable.getInstance();
 
-        EntityDatabase.setContext(this);
         Facebook facebook = Facebook.getInstance();
         facebook.groupTable = GroupTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
+        facebook.ansTable = ANSTable.getInstance();
 
-        MessageDatabase.setContext(this);
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
 

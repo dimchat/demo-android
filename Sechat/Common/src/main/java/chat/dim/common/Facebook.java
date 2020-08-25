@@ -56,12 +56,12 @@ public class Facebook extends chat.dim.Facebook {
         ans = new AddressNameService() {
             @Override
             public ID identifier(String name) {
-                return ansTable.record(name);
+                return ansTable.getIdentifier(name);
             }
 
             @Override
             public boolean save(String name, ID identifier) {
-                return ansTable.saveRecord(name, identifier);
+                return ansTable.addRecord(identifier, name);
             }
         };
     }
@@ -76,7 +76,7 @@ public class Facebook extends chat.dim.Facebook {
     private MetaTable metaTable = new MetaTable();
     private ProfileTable profileTable = new ProfileTable();
 
-    private AddressNameTable ansTable = new AddressNameTable();
+    public AddressNameTable ansTable = null;
 
     private UserTable userTable = new UserTable();
     public GroupTable groupTable = null;
