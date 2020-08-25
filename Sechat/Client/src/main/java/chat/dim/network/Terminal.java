@@ -28,6 +28,7 @@ package chat.dim.network;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.ID;
@@ -52,22 +53,65 @@ public class Terminal implements StationDelegate {
         super();
     }
 
+    public String getLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
+
+    public String getDisplayName() {
+        // TODO: override me
+        return "DIM";
+    }
+
+    public String getVersionName() {
+        // TODO: override me
+        return "1.0.1";
+    }
+
+    public String getSystemVersion() {
+        // TODO: override me
+        return "4.0";
+    }
+
+    public String getSystemModel() {
+        // TODO: override me
+        return "HMS";
+    }
+
+    public String getSystemDevice() {
+        // TODO: override me
+        return "hammerhead";
+    }
+
+    public String getDeviceBrand() {
+        // TODO: override me
+        return "HUAWEI";
+    }
+
+    public String getDeviceBoard() {
+        // TODO: override me
+        return "hammerhead";
+    }
+
+    public String getDeviceManufacturer() {
+        // TODO: override me
+        return "HUAWEI";
+    }
+
     /**
      *  format: "DIMP/1.0 (Linux; U; Android 4.1; zh-CN) DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1"
      */
     public String getUserAgent() {
-        String model = "Android";
-        String sysName = "HMS";
-        String sysVersion = "4.0";
-        String lang = "zh-CN";
+        String model = getSystemModel();
+        String device = getSystemDevice();
+        String sysVersion = getSystemVersion();
+        String lang = getLanguage();
+
+        String appName = getDisplayName();
+        String appVersion = getVersionName();
 
         return String.format("DIMP/1.0 (%s; U; %s %s; %s)" +
-                        " DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1",
-                model, sysName, sysVersion, lang);
-    }
-
-    public String getLanguage() {
-        return "zh-CN";
+                        " DIMCoreKit/1.0 (Terminal, like WeChat) %s-by-MOKY/%s",
+                model, device, sysVersion, lang, appName, appVersion);
     }
 
     protected Server getCurrentServer() {
