@@ -69,13 +69,10 @@ public class RegisterFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
         // TODO: Use the ViewModel
 
-        RegisterActivity activity = (RegisterActivity) getActivity();
-        assert activity != null : "failed to get register activity";
-
-        imageView.setOnClickListener(v -> activity.startImagePicker());
+        imageView.setOnClickListener(v -> showImagePicker());
         terms.setOnClickListener(v -> showTerms());
         okBtn.setOnClickListener(v -> register());
-        importBtn.setOnClickListener(v -> activity.showImportPage());
+        importBtn.setOnClickListener(v -> showImportPage());
 
         checkUser();
     }
@@ -90,6 +87,30 @@ public class RegisterFragment extends Fragment {
             return;
         }
         activity.close();
+    }
+
+    private void showImagePicker() {
+        RegisterActivity activity = (RegisterActivity) getActivity();
+        assert activity != null : "failed to get register activity";
+
+        if (!checkBox.isChecked()) {
+            Alert.tips(activity, R.string.register_agree);
+            return;
+        }
+
+        activity.startImagePicker();
+    }
+
+    private void showImportPage() {
+        RegisterActivity activity = (RegisterActivity) getActivity();
+        assert activity != null : "failed to get register activity";
+
+        if (!checkBox.isChecked()) {
+            Alert.tips(activity, R.string.register_agree);
+            return;
+        }
+
+        activity.showImportPage();
     }
 
     private void showTerms() {
@@ -148,6 +169,7 @@ public class RegisterFragment extends Fragment {
             SignKey sk = facebook.getPrivateKeyForSignature(user.identifier);
             assert sk != null : "failed to get private key: " + user.identifier;
             profile.sign(sk);
+            facebook.saveProfile(profile);
         }
 
         // 3. set current user

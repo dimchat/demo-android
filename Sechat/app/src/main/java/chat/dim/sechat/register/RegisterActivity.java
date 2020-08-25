@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import java.io.IOException;
 
 import chat.dim.database.Database;
+import chat.dim.io.Permissions;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
@@ -54,6 +55,10 @@ public class RegisterActivity extends ImagePickerActivity {
     }
 
     void showImportPage() {
+        if (!Permissions.canWriteExternalStorage(this)) {
+            Permissions.requestExternalStoragePermissions(this);
+            return;
+        }
         if (importFragment == null) {
             importFragment = ImportFragment.newInstance();
         }
