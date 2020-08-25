@@ -29,8 +29,6 @@ android {
                 JPUSH_APPKEY : "db6d7573a1643e36cf2451c6", //JPush 上注册的包名对应的 Appkey.
                 JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
         ]
-        buildConfigField "String", "XIAOMI_PUSH_APPKEY", '"5741862062080"'
-        buildConfigField "String", "XIAOMI_PUSH_APP_ID", '"2882303761518620080"'
     }
 
     packagingOptions {
