@@ -25,113 +25,19 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
 
-public class UserTable extends Database {
+public interface UserTable {
 
-    private List<ID> userList = null;
+    List<ID> allUsers();
 
-    // "/sdcard/chat.dim.sechat/dim/users.js"
-    private static String getUsersFilePath() throws IOException {
-        return getCommonFilePath("users.js");
-    }
+    boolean addUser(ID user);
 
-    private boolean saveUsers() {
-        assert userList != null : "users list empty";
-        try {
-            // save into storage
-            String path = getUsersFilePath();
-            return saveJSON(userList, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    boolean removeUser(ID user);
 
-    private boolean loadUsers() {
-        assert userList == null : "users list already loaded";
-        userList = new ArrayList<>();
-        List list;
-        try {
-            // loading from storage
-            String path = getUsersFilePath();
-            list = (List) loadJSON(path);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            return false;
-        }
-        if (list == null || list.size() == 0) {
-            return false;
-        }
-        ID user;
-        for (Object item : list) {
-            // FIXME: get ID by facebook
-            user = ID.getInstance(item);
-            if (userList.contains(user)) {
-                continue;
-            }
-            userList.add(user);
-        }
-        return true;
-    }
+    void setCurrentUser(ID user);
 
-    public List<ID> allUsers() {
-        if (userList == null && !loadUsers()) {
-            return null;
-        }
-        return userList;
-    }
-
-    public boolean addUser(ID user) {
-        if (userList == null) {
-            loadUsers();
-        }
-        if (userList.contains(user)) {
-            return false;
-        }
-        userList.add(user);
-        return saveUsers();
-    }
-
-    public boolean removeUser(ID user) {
-        if (userList == null) {
-            loadUsers();
-        }
-        if (!userList.contains(user)) {
-            return false;
-        }
-        boolean removed = userList.remove(user);
-        return removed && saveUsers();
-    }
-
-    public void setCurrentUser(ID user) {
-        if (userList == null) {
-            loadUsers();
-        }
-        int index = userList.indexOf(user);
-        if (index == 0) {
-            // already the first user
-            return;
-        }
-        if (index > 0) {
-            // already exists, but not the first user
-            userList.remove(user);
-        }
-        userList.add(0, user);
-        saveUsers();
-    }
-
-    public ID getCurrentUser() {
-        if (userList == null) {
-            loadUsers();
-        }
-        if (userList.size() > 0) {
-            return userList.get(0);
-        }
-        return null;
-    }
+    ID getCurrentUser();
 }

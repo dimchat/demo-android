@@ -29,6 +29,7 @@ import chat.dim.sqlite.MessageDatabase;
 import chat.dim.sqlite.MessageTable;
 import chat.dim.sqlite.ProviderDatabase;
 import chat.dim.sqlite.ProviderTable;
+import chat.dim.sqlite.UserTable;
 import chat.dim.ui.Application;
 
 public class SechatApp extends Application {
@@ -58,8 +59,9 @@ public class SechatApp extends Application {
         netDB.providerTable = ProviderTable.getInstance();
 
         Facebook facebook = Facebook.getInstance();
-        facebook.groupTable = GroupTable.getInstance();
+        facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
+        facebook.groupTable = GroupTable.getInstance();
         facebook.ansTable = ANSTable.getInstance();
 
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
