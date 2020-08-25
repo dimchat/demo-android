@@ -54,6 +54,7 @@ import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
@@ -80,6 +81,11 @@ public class Messenger extends chat.dim.common.Messenger {
         if (content instanceof HandshakeCommand) {
             // handshake command will be processed by CPUs
             // no need to save handshake command here
+            return true;
+        }
+        if (content instanceof ReportCommand) {
+            // report command is sent to station,
+            // no need to save report command here
             return true;
         }
         if (content instanceof LoginCommand) {

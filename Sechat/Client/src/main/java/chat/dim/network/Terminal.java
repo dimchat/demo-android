@@ -39,6 +39,7 @@ import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.ReportCommand;
 
 public class Terminal implements StationDelegate {
 
@@ -175,9 +176,7 @@ public class Terminal implements StationDelegate {
             User user = getCurrentUser();
             if (user != null) {
                 // report client state
-                Command cmd = new Command("broadcast");
-                cmd.put("title", "report");
-                cmd.put("state", "background");
+                Command cmd = new ReportCommand(ReportCommand.OFFLINE);
                 messenger.sendCommand(cmd);
             }
 
@@ -203,9 +202,7 @@ public class Terminal implements StationDelegate {
             User user = getCurrentUser();
             if (user != null) {
                 // report client state
-                Command cmd = new Command("broadcast");
-                cmd.put("title", "report");
-                cmd.put("state", "foreground");
+                Command cmd = new ReportCommand(ReportCommand.ONLINE);
                 messenger.sendCommand(cmd);
             }
         }
