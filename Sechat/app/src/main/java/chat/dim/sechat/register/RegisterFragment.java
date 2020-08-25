@@ -19,6 +19,7 @@ import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
 import chat.dim.User;
+import chat.dim.crypto.SignKey;
 import chat.dim.extension.Register;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Configuration;
@@ -132,22 +133,24 @@ public class RegisterFragment extends Fragment {
         Meta meta = user.getMeta();
         Profile profile = user.getProfile();
 
+        Facebook facebook = Facebook.getInstance();
+
         // 2. upload avatar
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            if (imageData != null) {
-                String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
-                if (profile instanceof UserProfile) {
-                    ((UserProfile) profile).setAvatar(avatarURL);
-                } else {
-                    profile.setProperty("avatar", avatarURL);
-                }
+            String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
+            if (profile instanceof UserProfile) {
+                ((UserProfile) profile).setAvatar(avatarURL);
+            } else {
+                profile.setProperty("avatar", avatarURL);
             }
+            SignKey sk = facebook.getPrivateKeyForSignature(user.identifier);
+            assert sk != null : "failed to get private key: " + user.identifier;
+            profile.sign(sk);
         }
 
         // 3. set current user
-        Facebook facebook = Facebook.getInstance();
         facebook.setCurrentUser(user);
 
         // 4. upload meta & profile to DIM station

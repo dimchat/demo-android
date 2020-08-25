@@ -12,10 +12,14 @@ public class SettingStationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting_station_activity);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, SettingStationFragment.newInstance())
                     .commitNow();
         }
+
+        String spName = StationViewModel.getCurrentProviderName();
+        setTitle("Stations of \"" + spName + "\"");
     }
 }
