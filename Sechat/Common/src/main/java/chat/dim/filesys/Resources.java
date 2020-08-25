@@ -55,6 +55,9 @@ public class Resources {
 
     public static Object loadJSON(String path) throws IOException {
         byte[] data = loadData(path);
+        if (data == null) {
+            throw new NullPointerException("failed to load JSON: " + path);
+        }
         return JSON.decode(data);
     }
 }

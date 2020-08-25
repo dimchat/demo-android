@@ -16,10 +16,16 @@ import android.view.ViewGroup;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.Map;
+
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements Observer {
 
     private SettingsViewModel mViewModel;
 
@@ -31,6 +37,41 @@ public class SettingsFragment extends Fragment {
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
+    }
+
+    public SettingsFragment() {
+        super();
+
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.ServiceProviderUpdated);
+    }
+
+    @Override
+    public void onDestroy() {
+        // TODO: reconnect to new station
+
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.ServiceProviderUpdated);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.ServiceProviderUpdated)) {
+            refreshStation();
+        }
+    }
+
+    private void refreshStation() {
+
+        String spName = mViewModel.getCurrentProviderName();
+        currentProvider.setText(spName);
+
+        String sName = mViewModel.getCurrentStationName();
+        currentStation.setText(sName);
     }
 
     @Nullable
@@ -54,11 +95,7 @@ public class SettingsFragment extends Fragment {
         mViewModel = ViewModelProviders.of(this).get(SettingsViewModel.class);
         // TODO: Use the ViewModel
 
-        String spName = mViewModel.getCurrentProviderName();
-        currentProvider.setText(spName);
-
-        String sName = mViewModel.getCurrentStationName();
-        currentStation.setText(sName);
+        refreshStation();
 
         providerRow.setOnClickListener(v -> selectProvider());
         stationRow.setOnClickListener(v -> selectStation());

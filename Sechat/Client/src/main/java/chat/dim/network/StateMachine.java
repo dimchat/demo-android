@@ -25,6 +25,8 @@
  */
 package chat.dim.network;
 
+import java.util.Date;
+
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
@@ -35,10 +37,12 @@ import chat.dim.utils.Log;
 class ServerState extends State {
 
     public final String name;
+    public final Date time;
 
     ServerState(String name) {
         super();
         this.name = name;
+        this.time = new Date();
     }
 
     @Override
@@ -195,7 +199,8 @@ public class StateMachine extends Machine implements Runnable {
     }
 
     private State getHandshakingState() {
-        State state = new ServerState(handshakingState);
+        final ServerState state = new ServerState(handshakingState);
+        final long expired = state.time.getTime() + 120 * 1000;
 
         // target state: Running
         state.addTransition(new Transition(runningState) {
@@ -205,6 +210,20 @@ public class StateMachine extends Machine implements Runnable {
                 // when current user changed, the server will clear this session, so
                 // if it's set again, it means handshake accepted
                 return server.session != null;
+            }
+        });
+
+        // target state: Connected
+        state.addTransition(new Transition(connectedState) {
+            @Override
+            protected boolean evaluate(Machine machine) {
+                long now = (new Date()).getTime();
+                if (now > expired) {
+                    return false;
+                }
+                assert server != null : "server error";
+                StarStatus status = server.getStatus();
+                return status == StarStatus.Connected;
             }
         });
 

@@ -130,14 +130,7 @@ public class Terminal implements StationDelegate {
         messenger.login(null);
     }
 
-    //-------- AppDelegate
-
-    public void launch(Map<String, Object> options) {
-
-        //
-        // launch server
-        //
-
+    public void startServer() {
         NetworkDatabase database = NetworkDatabase.getInstance();
         List<ProviderTable.ProviderInfo> providers = database.allProviders();
         if (providers != null && providers.size() > 0) {
@@ -150,6 +143,16 @@ public class Terminal implements StationDelegate {
                 startServer(srv);
             }
         }
+    }
+
+    //-------- AppDelegate
+
+    public void launch(Map<String, Object> options) {
+
+        //
+        // launch server
+        //
+        startServer();
 
         // TODO: notice("ProfileUpdated")
 

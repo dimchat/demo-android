@@ -23,6 +23,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.NetworkType;
+import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sqlite.ProviderTable;
@@ -63,7 +64,9 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
 
     @Override
     public void onDestroy() {
-        // TODO: reconnect to new station
+        // reconnect to new station
+        Client client = Client.getInstance();
+        client.startServer();
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.ServiceProviderUpdated);
