@@ -23,22 +23,24 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.ans;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-public class ANSDatabase extends Database {
+import chat.dim.sqlite.Database;
 
-    private ANSDatabase(Context context, String name, int version) {
+public class AddressNameDatabase extends Database {
+
+    private AddressNameDatabase(Context context, String name, int version) {
         super(context, name, version);
     }
 
-    private static ANSDatabase ourInstance = null;
+    private static AddressNameDatabase ourInstance = null;
     public static void setContext(Context context) {
-        ourInstance = new ANSDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        ourInstance = new AddressNameDatabase(context, getFilePath(DB_NAME), DB_VERSION);
     }
-    static ANSDatabase getInstance() {
+    static AddressNameDatabase getInstance() {
         assert ourInstance != null : "database should be initialized with context first";
         return ourInstance;
     }

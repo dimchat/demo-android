@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -36,6 +36,7 @@ import chat.dim.ID;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.format.JSON;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.sqlite.DataTable;
 
 public class LoginTable extends DataTable implements LoginCommandProcessor.DataHandler {
 

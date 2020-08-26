@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -33,6 +33,7 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.protocol.NetworkType;
+import chat.dim.sqlite.DataTable;
 
 public class GroupTable extends DataTable implements chat.dim.database.GroupTable {
 

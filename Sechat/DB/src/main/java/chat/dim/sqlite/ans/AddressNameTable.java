@@ -23,18 +23,18 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.ans;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 
 import chat.dim.ID;
-import chat.dim.database.AddressNameTable;
+import chat.dim.sqlite.DataTable;
 
-public class ANSTable extends DataTable implements AddressNameTable {
+public class AddressNameTable extends DataTable implements chat.dim.database.AddressNameTable {
 
-    private ANSTable() {
-        super(ANSDatabase.getInstance());
+    private AddressNameTable() {
+        super(AddressNameDatabase.getInstance());
         // fixed records
         if (getIdentifier("all") == null) {
             ID moky = ID.getInstance("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
@@ -49,10 +49,10 @@ public class ANSTable extends DataTable implements AddressNameTable {
         }
     }
 
-    private static ANSTable ourInstance;
-    public static ANSTable getInstance() {
+    private static AddressNameTable ourInstance;
+    public static AddressNameTable getInstance() {
         if (ourInstance == null) {
-            ourInstance = new ANSTable();
+            ourInstance = new AddressNameTable();
         }
         return ourInstance;
     }
@@ -67,11 +67,11 @@ public class ANSTable extends DataTable implements AddressNameTable {
         if (getIdentifier(alias) == null) {
             // not exists, add new record
             values.put("alias", alias);
-            return insert(ANSDatabase.T_RECORD, null, values) >= 0;
+            return insert(AddressNameDatabase.T_RECORD, null, values) >= 0;
         } else {
             // update record
             String[] whereArgs = {alias};
-            return update(ANSDatabase.T_RECORD, values, "alias=?", whereArgs) > 0;
+            return update(AddressNameDatabase.T_RECORD, values, "alias=?", whereArgs) > 0;
         }
     }
 
@@ -79,7 +79,7 @@ public class ANSTable extends DataTable implements AddressNameTable {
         ID identifier = null;
         String[] columns = {"did"};
         String[] selectionArgs = {alias};
-        try (Cursor cursor = query(ANSDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(AddressNameDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 identifier = ID.getInstance(cursor.getString(0));
             }

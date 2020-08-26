@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
+import chat.dim.sqlite.DataTable;
 
 public class ContactTable extends DataTable implements chat.dim.database.ContactTable {
 

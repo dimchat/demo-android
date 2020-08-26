@@ -28,8 +28,23 @@ package chat.dim.sqlite;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
+import chat.dim.model.ConversationDatabase;
+import chat.dim.model.Facebook;
+import chat.dim.model.NetworkDatabase;
+import chat.dim.sqlite.ans.AddressNameDatabase;
+import chat.dim.sqlite.ans.AddressNameTable;
+import chat.dim.sqlite.dkd.MessageDatabase;
+import chat.dim.sqlite.dkd.MessageTable;
+import chat.dim.sqlite.mkm.ContactTable;
+import chat.dim.sqlite.mkm.EntityDatabase;
+import chat.dim.sqlite.mkm.GroupTable;
+import chat.dim.sqlite.mkm.LoginTable;
+import chat.dim.sqlite.mkm.UserTable;
+import chat.dim.sqlite.sp.ProviderDatabase;
+import chat.dim.sqlite.sp.ProviderTable;
 
 public abstract class Database extends SQLiteOpenHelper {
 
@@ -37,7 +52,30 @@ public abstract class Database extends SQLiteOpenHelper {
         super(context, name, null, version);
     }
 
-    static String getFilePath(String dbName) {
+    protected static String getFilePath(String dbName) {
         return Paths.appendPathComponent(ExternalStorage.getRoot(), "sqlite", dbName);
+    }
+
+    public static void setContext(Context context) {
+        // databases
+        ProviderDatabase.setContext(context);
+        AddressNameDatabase.setContext(context);
+        EntityDatabase.setContext(context);
+        MessageDatabase.setContext(context);
+
+        // tables
+        NetworkDatabase netDB = NetworkDatabase.getInstance();
+        netDB.providerTable = ProviderTable.getInstance();
+
+        Facebook facebook = Facebook.getInstance();
+        facebook.userTable = UserTable.getInstance();
+        facebook.contactTable = ContactTable.getInstance();
+        facebook.groupTable = GroupTable.getInstance();
+        facebook.ansTable = AddressNameTable.getInstance();
+
+        ConversationDatabase msgDB = ConversationDatabase.getInstance();
+        msgDB.messageTable = MessageTable.getInstance();
+
+        LoginCommandProcessor.dataHandler = LoginTable.getInstance();
     }
 }

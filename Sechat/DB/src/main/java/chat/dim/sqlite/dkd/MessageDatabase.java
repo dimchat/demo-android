@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.dkd;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -37,6 +37,7 @@ import chat.dim.InstantMessage;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.model.Messenger;
+import chat.dim.sqlite.Database;
 
 public class MessageDatabase extends Database {
 

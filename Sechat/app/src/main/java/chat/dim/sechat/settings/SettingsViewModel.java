@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel;
 
 import chat.dim.ID;
 import chat.dim.sechat.model.EntityViewModel;
-import chat.dim.sqlite.ProviderTable;
+import chat.dim.sqlite.sp.ProviderTable;
 
 public class SettingsViewModel extends ViewModel {
 

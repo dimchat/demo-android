@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.sp;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -33,6 +33,8 @@ import java.util.List;
 
 import chat.dim.ID;
 import chat.dim.model.Configuration;
+import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.mkm.EntityDatabase;
 
 public class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
 

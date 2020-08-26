@@ -23,10 +23,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.sp;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+
+import chat.dim.sqlite.Database;
 
 public class ProviderDatabase extends Database {
 

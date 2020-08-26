@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.dkd;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -43,6 +43,8 @@ import chat.dim.InstantMessage;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.utils.Log;
 
 public class MessageTable extends DataTable implements chat.dim.database.MessageTable {

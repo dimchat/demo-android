@@ -9,27 +9,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.BaseCoder;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
-import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
-import chat.dim.model.NetworkDatabase;
 import chat.dim.sechat.push.jpush.JPushManager;
-import chat.dim.sqlite.ANSDatabase;
-import chat.dim.sqlite.ANSTable;
-import chat.dim.sqlite.ContactTable;
-import chat.dim.sqlite.EntityDatabase;
-import chat.dim.sqlite.GroupTable;
-import chat.dim.sqlite.LoginTable;
-import chat.dim.sqlite.MessageDatabase;
-import chat.dim.sqlite.MessageTable;
-import chat.dim.sqlite.ProviderDatabase;
-import chat.dim.sqlite.ProviderTable;
-import chat.dim.sqlite.UserTable;
+import chat.dim.sqlite.Database;
 import chat.dim.ui.Application;
 
 public class SechatApp extends Application {
@@ -50,24 +36,7 @@ public class SechatApp extends Application {
         super.onCreate();
 
         // databases
-        ProviderDatabase.setContext(this);
-        ANSDatabase.setContext(this);
-        EntityDatabase.setContext(this);
-        MessageDatabase.setContext(this);
-
-        NetworkDatabase netDB = NetworkDatabase.getInstance();
-        netDB.providerTable = ProviderTable.getInstance();
-
-        Facebook facebook = Facebook.getInstance();
-        facebook.userTable = UserTable.getInstance();
-        facebook.contactTable = ContactTable.getInstance();
-        facebook.groupTable = GroupTable.getInstance();
-        facebook.ansTable = ANSTable.getInstance();
-
-        ConversationDatabase msgDB = ConversationDatabase.getInstance();
-        msgDB.messageTable = MessageTable.getInstance();
-
-        LoginCommandProcessor.dataHandler = LoginTable.getInstance();
+        Database.setContext(this);
 
         //初始化推送
         JPushManager.getInstance().init(this, BuildConfig.DEBUG);

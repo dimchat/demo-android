@@ -29,11 +29,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-class DataTable {
+public class DataTable {
 
     private final Database database;
 
-    DataTable(Database db) {
+    protected DataTable(Database db) {
         super();
         database = db;
     }
@@ -54,7 +54,7 @@ class DataTable {
      *            column values
      * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
-    long insert(String table, String nullColumnHack, ContentValues values) {
+    protected long insert(String table, String nullColumnHack, ContentValues values) {
         SQLiteDatabase db = database.getWritableDatabase();
         if (db == null) {
             throw new NullPointerException("failed to get writable database");
@@ -75,7 +75,7 @@ class DataTable {
      *         otherwise. To remove all rows and get a count pass "1" as the
      *         whereClause.
      */
-    int delete(String table, String whereClause, String[] whereArgs) {
+    protected int delete(String table, String whereClause, String[] whereArgs) {
         SQLiteDatabase db = database.getWritableDatabase();
         if (db == null) {
             throw new NullPointerException("failed to get writable database");
@@ -96,7 +96,7 @@ class DataTable {
      *            will be bound as Strings.
      * @return the number of rows affected
      */
-    int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+    protected int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         SQLiteDatabase db = database.getWritableDatabase();
         if (db == null) {
             throw new NullPointerException("failed to get writable database");
@@ -132,9 +132,9 @@ class DataTable {
      * {@link Cursor}s are not synchronized, see the documentation for more details.
      * @see Cursor
      */
-    Cursor query(String table, String[] columns, String selection,
-                 String[] selectionArgs, String groupBy, String having,
-                 String orderBy) {
+    protected Cursor query(String table, String[] columns, String selection,
+                           String[] selectionArgs, String groupBy, String having,
+                           String orderBy) {
         SQLiteDatabase db = database.getReadableDatabase();
         if (db == null) {
             throw new NullPointerException("failed to get readable database");

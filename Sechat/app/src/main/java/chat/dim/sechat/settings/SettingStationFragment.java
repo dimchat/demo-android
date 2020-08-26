@@ -26,7 +26,7 @@ import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
-import chat.dim.sqlite.ProviderTable;
+import chat.dim.sqlite.sp.ProviderTable;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.ListFragment;
 

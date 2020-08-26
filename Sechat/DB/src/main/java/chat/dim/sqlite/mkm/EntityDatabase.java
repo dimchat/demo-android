@@ -23,13 +23,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite;
+package chat.dim.sqlite.mkm;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import chat.dim.ID;
 import chat.dim.model.Facebook;
+import chat.dim.sqlite.Database;
 
 public class EntityDatabase extends Database {
 
@@ -85,7 +86,7 @@ public class EntityDatabase extends Database {
     //  MingKeMing
     //
 
-    static ID getID(Object identifier) {
+    public static ID getID(Object identifier) {
         Facebook facebook = Facebook.getInstance();
         return facebook.getID(identifier);
     }
