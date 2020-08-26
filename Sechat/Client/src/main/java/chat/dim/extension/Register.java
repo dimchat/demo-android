@@ -79,7 +79,7 @@ public class Register {
         // 5. save private key, meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
-        facebook.savePrivateKey(key, identifier);
+        facebook.savePrivateKey(key, identifier, "M");
         facebook.saveProfile(profile);
         // 6. create user
         return facebook.getUser(identifier);

@@ -72,7 +72,7 @@ public class Facebook extends chat.dim.Facebook {
     private final AddressNameService ans;
     private Immortals immortals = new Immortals();
 
-    private PrivateTable privateTable = new PrivateTable();
+    public PrivateTable privateTable = null;
     private MetaTable metaTable = new MetaTable();
     private ProfileTable profileTable = new ProfileTable();
 
@@ -149,8 +149,8 @@ public class Facebook extends chat.dim.Facebook {
 
     //-------- Private Key
 
-    public boolean savePrivateKey(PrivateKey privateKey, ID identifier) {
-        return privateTable.savePrivateKey(privateKey, identifier);
+    public boolean savePrivateKey(PrivateKey privateKey, ID identifier, String type) {
+        return privateTable.savePrivateKey(identifier, privateKey, type);
     }
 
     //-------- Meta

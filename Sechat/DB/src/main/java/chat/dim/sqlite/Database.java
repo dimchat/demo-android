@@ -41,6 +41,8 @@ import chat.dim.sqlite.dim.MainDatabase;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.sqlite.dkd.MessageDatabase;
 import chat.dim.sqlite.dkd.MessageTable;
+import chat.dim.sqlite.key.KeyDatabase;
+import chat.dim.sqlite.key.PrivateTable;
 import chat.dim.sqlite.mkm.ContactTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.sqlite.mkm.GroupTable;
@@ -60,6 +62,7 @@ public abstract class Database extends SQLiteOpenHelper {
         // databases
         MainDatabase.setContext(context);
         AddressNameDatabase.setContext(context);
+        KeyDatabase.setContext(context);
         EntityDatabase.setContext(context);
         MessageDatabase.setContext(context);
 
@@ -68,6 +71,7 @@ public abstract class Database extends SQLiteOpenHelper {
         netDB.providerTable = ProviderTable.getInstance();
 
         Facebook facebook = Facebook.getInstance();
+        facebook.privateTable = PrivateTable.getInstance();
         facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
         facebook.groupTable = GroupTable.getInstance();

@@ -207,7 +207,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // save private key with user ID
-        if (!facebook.savePrivateKey(privateKey, identifier)) {
+        if (!facebook.savePrivateKey(privateKey, identifier, "M")) {
             return null;
         }
 

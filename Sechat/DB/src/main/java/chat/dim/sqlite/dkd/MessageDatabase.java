@@ -68,13 +68,13 @@ public class MessageDatabase extends Database {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // t_messages
+        // messages
         db.execSQL("CREATE TABLE " + T_MESSAGE + "(cid VARCHAR(64), sender VARCHAR(64), receiver VARCHAR(64), time INTEGER," +
                 // content info
                 " content TEXT, type INTEGER, sn VARCHAR(20)," +
                 // extra info
                 " signature VARCHAR(8), read BIT)");
-        // t_traces
+        // traces for messages
         db.execSQL("CREATE TABLE " + T_TRACE + "(cid VARCHAR(64), sn VARCHAR(20), signature VARCHAR(8), trace TEXT)");
     }
 

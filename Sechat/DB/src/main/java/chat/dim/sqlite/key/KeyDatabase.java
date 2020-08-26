@@ -23,40 +23,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite.ans;
+package chat.dim.sqlite.key;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import chat.dim.sqlite.Database;
 
-public class AddressNameDatabase extends Database {
+public class KeyDatabase extends Database {
 
-    private AddressNameDatabase(Context context, String name, int version) {
+    private KeyDatabase(Context context, String name, int version) {
         super(context, name, version);
     }
 
-    private static AddressNameDatabase ourInstance = null;
+    private static KeyDatabase ourInstance = null;
     public static void setContext(Context context) {
-        ourInstance = new AddressNameDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        ourInstance = new KeyDatabase(context, getFilePath(DB_NAME), DB_VERSION);
     }
-    static AddressNameDatabase getInstance() {
+    static KeyDatabase getInstance() {
         assert ourInstance != null : "database should be initialized with context first";
         return ourInstance;
     }
 
-    private static final String DB_NAME = "ans.db";
+    private static final String DB_NAME = "key.db";
     private static final int DB_VERSION = 1;
 
-    static final String T_RECORD = "t_record";
+    static final String T_PRIVATE_KEY = "t_private_key";
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // ANS records
-        db.execSQL("CREATE TABLE " + T_RECORD + "(did VARCHAR(64), alias VARCHAR(32))");
+        // private keys
+        db.execSQL("CREATE TABLE " + T_PRIVATE_KEY + "(uid VARCHAR(64), sk TEXT, type CHAR(1), sign BIT, decrypt BIT)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
     }
 }

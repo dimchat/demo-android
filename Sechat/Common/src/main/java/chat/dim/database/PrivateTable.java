@@ -25,73 +25,44 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import chat.dim.Address;
 import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 
-public class PrivateTable extends Database {
+public interface PrivateTable {
 
-    private Map<Address, PrivateKey> keys = new HashMap<>();
+    String META = "M";
+    String PROFILE = "P";
 
-    // "/sdcard/chat.dim.sechat/.private/{address}/secret.js"
-    private String getKeyFilePath(Address address) throws IOException {
-        return getUserPrivateFilePath(address, "secret.js");
-    }
+    /**
+     *  Save private key for user
+     *
+     * @param user - user ID
+     * @param key - private key
+     * @param type - 'M' for matching meta.key; or 'P' for matching profile.key
+     * @param sign - whether use for signature
+     * @param decrypt - whether use for decryption
+     * @return false on error
+     */
+    boolean savePrivateKey(ID user, PrivateKey key, String type, int sign, int decrypt);
 
-    @SuppressWarnings("unchecked")
-    private PrivateKey loadKey(Address address) {
-        try {
-            // load from JsON file
-            String path = getKeyFilePath(address);
-            Object dict = loadJSON(path);
-            return PrivateKey.getInstance((Map<String, Object>) dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
+    boolean savePrivateKey(ID user, PrivateKey key, String type);
 
-    private boolean savePrivateKey(PrivateKey key, Address address) {
-        keys.put(address, key);
-        try {
-            String path = getKeyFilePath(address);
-            return saveJSON(key, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    /**
+     *  Get private key for user
+     *
+     * @param user - user ID
+     * @return first key marked for signature
+     */
+    PrivateKey getPrivateKeyForSignature(ID user);
 
-    public boolean savePrivateKey(PrivateKey key, ID user) {
-        return savePrivateKey(key, user.address);
-    }
-
-    public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = keys.get(user.address);
-        if (key == null) {
-            key = loadKey(user.address);
-            if (key != null) {
-                keys.put(user.address, key);
-            }
-        }
-        return key;
-    }
-
-    public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
-        List<DecryptKey> keys = new ArrayList<>();
-        // FIXME: get private key matches profile key
-        PrivateKey key = getPrivateKeyForSignature(user);
-        if (key instanceof DecryptKey) {
-            // TODO: support profile.key
-            keys.add((DecryptKey) key);
-        }
-        return keys;
-    }
+    /**
+     *  Get private keys for user
+     *
+     * @param user - user ID
+     * @return all keys marked for decryption
+     */
+    List<DecryptKey> getPrivateKeysForDecryption(ID user);
 }
