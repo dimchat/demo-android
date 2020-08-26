@@ -23,33 +23,35 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite.sp;
+package chat.dim.sqlite.dim;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import chat.dim.sqlite.Database;
 
-public class ProviderDatabase extends Database {
+public class MainDatabase extends Database {
 
-    private ProviderDatabase(Context context, String name, int version) {
+    private MainDatabase(Context context, String name, int version) {
         super(context, name, version);
     }
 
-    private static ProviderDatabase ourInstance = null;
+    private static MainDatabase ourInstance = null;
     public static void setContext(Context context) {
-        ourInstance = new ProviderDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        ourInstance = new MainDatabase(context, getFilePath(DB_NAME), DB_VERSION);
     }
-    static ProviderDatabase getInstance() {
+    static MainDatabase getInstance() {
         assert ourInstance != null : "database should be initialized with context first";
         return ourInstance;
     }
 
-    private static final String DB_NAME = "sp.db";
+    private static final String DB_NAME = "dim.db";
     private static final int DB_VERSION = 1;
 
     static final String T_PROVIDER = "t_provider";
     static final String T_STATION = "t_station";
+
+    static final String T_LOGIN = "t_login";
 
     //
     //  SQLiteOpenHelper
@@ -62,6 +64,9 @@ public class ProviderDatabase extends Database {
 
         // stations
         db.execSQL("CREATE TABLE " + T_STATION + "(sid VARCHAR(64), spid VARCHAR(64), name VARCHAR(32), host VARCHAR(32), port INTEGER, chosen BIT)");
+
+        // login info
+        db.execSQL("CREATE TABLE " + T_LOGIN + "(uid VARCHAR(64), time INTEGER, station VARCHAR(64), command TEXT)");
     }
 
     @Override

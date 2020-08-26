@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite.sp;
+package chat.dim.sqlite.dim;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -39,7 +39,7 @@ import chat.dim.sqlite.mkm.EntityDatabase;
 public class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
 
     private ProviderTable() {
-        super(ProviderDatabase.getInstance());
+        super(MainDatabase.getInstance());
     }
 
     private static ProviderTable ourInstance;
@@ -57,7 +57,7 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
     @Override
     public List<ProviderInfo> getProviders() {
         String[] columns = {"spid", "name", "url", "chosen"};
-        try (Cursor cursor = query(ProviderDatabase.T_PROVIDER, columns, null, null, null, null, "chosen DESC")) {
+        try (Cursor cursor = query(MainDatabase.T_PROVIDER, columns, null, null, null, null, "chosen DESC")) {
             List<ProviderInfo> providers = new ArrayList<>();
             ID identifier;
             String name;
@@ -81,7 +81,7 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("name", name);
         values.put("url", url);
         values.put("chosen", chosen);
-        return insert(ProviderDatabase.T_PROVIDER, null, values) >= 0;
+        return insert(MainDatabase.T_PROVIDER, null, values) >= 0;
     }
 
     @Override
@@ -91,20 +91,20 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("url", url);
         values.put("chosen", chosen);
         String[] whereArgs = {identifier.toString()};
-        return update(ProviderDatabase.T_PROVIDER, values, "spid=?", whereArgs) > 0;
+        return update(MainDatabase.T_PROVIDER, values, "spid=?", whereArgs) > 0;
     }
 
     @Override
     public boolean removeProvider(ID identifier) {
         String[] whereArgs = {identifier.toString()};
-        return delete(ProviderDatabase.T_PROVIDER, "spid=?", whereArgs) > 0;
+        return delete(MainDatabase.T_PROVIDER, "spid=?", whereArgs) > 0;
     }
 
     @Override
     public List<StationInfo> getStations(ID sp) {
         String[] columns = {"sid", "name", "host", "port", "chosen"};
         String[] selectionArgs = {sp.toString()};
-        try (Cursor cursor = query(ProviderDatabase.T_STATION, columns, "spid=?", selectionArgs, null, null, "chosen DESC")) {
+        try (Cursor cursor = query(MainDatabase.T_STATION, columns, "spid=?", selectionArgs, null, null, "chosen DESC")) {
             List<StationInfo> stations = new ArrayList<>();
             ID identifier;
             String name;
@@ -132,7 +132,7 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("host", host);
         values.put("port", port);
         values.put("chosen", chosen);
-        return insert(ProviderDatabase.T_STATION, null, values) >= 0;
+        return insert(MainDatabase.T_STATION, null, values) >= 0;
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         values.put("port", port);
         values.put("chosen", chosen);
         String[] whereArgs = {sp.toString(), station.toString()};
-        return update(ProviderDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs) > 0;
+        return update(MainDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs) > 0;
     }
 
     @Override
@@ -151,23 +151,23 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
         ContentValues values = new ContentValues();
         values.put("chosen", 0);
         String[] whereArgs1 = {sp.toString()};
-        update(ProviderDatabase.T_STATION, values, "spid=? AND chosen=1", whereArgs1);
+        update(MainDatabase.T_STATION, values, "spid=? AND chosen=1", whereArgs1);
 
         values.put("chosen", 1);
         String[] whereArgs2 = {sp.toString(), station.toString()};
-        return update(ProviderDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs2) > 0;
+        return update(MainDatabase.T_STATION, values, "spid=? AND sid=?", whereArgs2) > 0;
     }
 
     @Override
     public boolean removeStation(ID sp, ID station) {
         String[] whereArgs = {sp.toString(), station.toString()};
-        return delete(ProviderDatabase.T_STATION, "spid=? AND sid=?", whereArgs) > 0;
+        return delete(MainDatabase.T_STATION, "spid=? AND sid=?", whereArgs) > 0;
     }
 
     @Override
     public boolean removeStations(ID sp) {
         String[] whereArgs = {sp.toString()};
-        return delete(ProviderDatabase.T_STATION, "spid=?", whereArgs) > 0;
+        return delete(MainDatabase.T_STATION, "spid=?", whereArgs) > 0;
     }
 
     @Override

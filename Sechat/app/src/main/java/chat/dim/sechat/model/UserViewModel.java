@@ -34,7 +34,7 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.SechatApp;
-import chat.dim.sqlite.mkm.LoginTable;
+import chat.dim.sqlite.dim.LoginTable;
 import chat.dim.ui.image.Images;
 
 public class UserViewModel extends EntityViewModel {

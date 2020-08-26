@@ -5,7 +5,7 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.sechat.model.UserViewModel;
-import chat.dim.sqlite.sp.ProviderTable;
+import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.utils.Log;
 
 public class StationViewModel extends UserViewModel {

@@ -36,15 +36,15 @@ import chat.dim.model.Facebook;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.sqlite.ans.AddressNameDatabase;
 import chat.dim.sqlite.ans.AddressNameTable;
+import chat.dim.sqlite.dim.LoginTable;
+import chat.dim.sqlite.dim.MainDatabase;
+import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.sqlite.dkd.MessageDatabase;
 import chat.dim.sqlite.dkd.MessageTable;
 import chat.dim.sqlite.mkm.ContactTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.sqlite.mkm.GroupTable;
-import chat.dim.sqlite.mkm.LoginTable;
 import chat.dim.sqlite.mkm.UserTable;
-import chat.dim.sqlite.sp.ProviderDatabase;
-import chat.dim.sqlite.sp.ProviderTable;
 
 public abstract class Database extends SQLiteOpenHelper {
 
@@ -58,7 +58,7 @@ public abstract class Database extends SQLiteOpenHelper {
 
     public static void setContext(Context context) {
         // databases
-        ProviderDatabase.setContext(context);
+        MainDatabase.setContext(context);
         AddressNameDatabase.setContext(context);
         EntityDatabase.setContext(context);
         MessageDatabase.setContext(context);

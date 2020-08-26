@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite.mkm;
+package chat.dim.sqlite.dim;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -41,7 +41,7 @@ import chat.dim.sqlite.DataTable;
 public class LoginTable extends DataTable implements LoginCommandProcessor.DataHandler {
 
     private LoginTable() {
-        super(EntityDatabase.getInstance());
+        super(MainDatabase.getInstance());
     }
 
     private static LoginTable ourInstance;
@@ -60,7 +60,7 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
     public LoginCommand getLoginCommand(ID user) {
         String[] columns = {"command"};
         String[] selectionArgs = {user.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_LOGIN, columns, "uid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MainDatabase.T_LOGIN, columns, "uid=?", selectionArgs, null, null, null)) {
             String text;
             Object info;
             if (cursor.moveToNext()) {
@@ -89,7 +89,7 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
             // not exists, insert new record
             values.put("uid", user.toString());
             values.put("time", command.time.getTime() / 1000);
-            return insert(EntityDatabase.T_LOGIN, null, values) >= 0;
+            return insert(MainDatabase.T_LOGIN, null, values) >= 0;
         } else {
             // update record with user ID
             if (oldTime.after(command.time)) {
@@ -98,14 +98,14 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
                 values.put("time", command.time.getTime() / 1000);
             }
             String[] whereArgs = {user.toString()};
-            return update(EntityDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;
+            return update(MainDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;
         }
     }
 
     public Date getLoginTime(ID user) {
         String[] columns = {"time"};
         String[] selectionArgs = {user.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_LOGIN, columns, "uid=?", selectionArgs, null, null, null)) {
+        try (Cursor cursor = query(MainDatabase.T_LOGIN, columns, "uid=?", selectionArgs, null, null, null)) {
             long time;
             if (cursor.moveToNext()) {
                 time = cursor.getLong(0);
@@ -123,13 +123,13 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
         if (oldTime == null) {
             // not exists, insert new record
             values.put("uid", user.toString());
-            return insert(EntityDatabase.T_LOGIN, null, values) >= 0;
+            return insert(MainDatabase.T_LOGIN, null, values) >= 0;
         } else if (oldTime.after(time)) {
             // error
             return false;
         } else {
             String[] whereArgs = {user.toString()};
-            return update(EntityDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;
+            return update(MainDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;
         }
     }
 }
