@@ -28,108 +28,105 @@ package chat.dim.sqlite.mkm;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.crypto.PublicKey;
+import chat.dim.Profile;
 import chat.dim.format.Base64;
-import chat.dim.format.JSON;
-import chat.dim.protocol.MetaType;
 import chat.dim.sqlite.DataTable;
 
-public class MetaTable extends DataTable implements chat.dim.database.MetaTable {
+public class ProfileTable extends DataTable implements chat.dim.database.ProfileTable {
 
-    private MetaTable() {
+    private ProfileTable() {
         super(EntityDatabase.getInstance());
     }
 
-    private static MetaTable ourInstance;
-    public static MetaTable getInstance() {
+    private static ProfileTable ourInstance;
+    public static ProfileTable getInstance() {
         if (ourInstance == null) {
-            ourInstance = new MetaTable();
+            ourInstance = new ProfileTable();
         }
         return ourInstance;
     }
 
     // memory caches
-    private Map<ID, Meta> metaTable = new HashMap<>();
+    private Map<String, Profile> profileTable = new HashMap<>();
 
     //
     //  chat.dim.database.UserTable
     //
 
     @Override
-    public boolean saveMeta(Meta meta, ID entity) {
+    public boolean saveProfile(Profile profile) {
+        Object identifier = profile.getIdentifier();
+        String entity;
+        if (identifier instanceof String) {
+            entity = (String) identifier;
+        } else {
+            entity = identifier.toString();
+        }
         // 0. clear duplicate record
-        String[] whereArgs = {entity.toString()};
-        delete(EntityDatabase.T_META, "did=?", whereArgs);
+        String[] whereArgs = {entity};
+        delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
 
-        PublicKey key = meta.getKey();
-        byte[] data = JSON.encode(key);
+        String data = (String) profile.get("data");
+        String base64 = (String) profile.get("signature");
+        byte[] signature;
+        if (base64 != null) {
+            signature = Base64.decode(base64);
+        } else {
+            signature = null;
+        }
 
         // 1. save into database
         ContentValues values = new ContentValues();
-        values.put("did", entity.toString());
-        values.put("version", meta.getVersion());
-        values.put("pk", data);
-        values.put("seed", meta.getSeed());
-        values.put("fingerprint", meta.getFingerprint());
-        if (insert(EntityDatabase.T_META, null, values) < 0) {
+        values.put("did", entity);
+        values.put("data", data);
+        values.put("signature", signature);
+        if (insert(EntityDatabase.T_PROFILE, null, values) < 0) {
             return false;
         }
 
         // 2. store into memory cache
-        metaTable.put(entity, meta);
+        profileTable.put(entity, profile);
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Meta getMeta(ID entity) {
+    public Profile getProfile(ID entity) {
         // 1. try from memory cache
-        Meta meta = metaTable.get(entity);
-        if (meta != null) {
-            return meta;
+        Profile profile = profileTable.get(entity.toString());
+        if (profile != null) {
+            return profile;
         }
 
         // 2. try from database
-        String[] columns = {"version", "pk", "seed", "fingerprint"};
+        String[] columns = {"data", "signature"};
         String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
-            int version;
-            String pk;
-            Map<String, Object> key;
-            String seed;
-            byte[] fp;
+        try (Cursor cursor = query(EntityDatabase.T_PROFILE, columns, "did=?", selectionArgs, null, null, null)) {
+            String data;
+            byte[] signature;
             Map<String, Object> info;
             if (cursor.moveToNext()) {
-                version = cursor.getInt(0);
-                pk = cursor.getString(1);
-                key = (Map<String, Object>) JSON.decode(pk.getBytes(Charset.forName("UTF-8")));
+                data = cursor.getString(0);
+                signature = cursor.getBlob(1);
 
                 info = new HashMap<>();
-                info.put("version", version);
-                info.put("key", PublicKey.getInstance(key));
-                if (MetaType.hasSeed(version)) {
-                    seed = cursor.getString(2);
-                    fp = cursor.getBlob(3);
-                    info.put("seed", seed);
-                    info.put("fingerprint", Base64.encode(fp));
-                }
-                meta = Meta.getInstance(info);
+                info.put("ID", entity);
+                info.put("data", data);
+                info.put("signature", Base64.encode(signature));
+
+                profile = Profile.getInstance(info);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
-        if (meta == null) {
-            return null;
+        if (profile == null) {
+            // 2.1. place an empty profile for cache
+            profile = new Profile(entity);
         }
 
         // 3. store into memory cache
-        metaTable.put(entity, meta);
-        return meta;
+        profileTable.put(entity.toString(), profile);
+        return profile;
     }
 }

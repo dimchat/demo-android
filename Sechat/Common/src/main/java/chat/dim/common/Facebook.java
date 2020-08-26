@@ -74,7 +74,7 @@ public class Facebook extends chat.dim.Facebook {
 
     public PrivateKeyTable privateTable = null;
     public MetaTable metaTable = null;
-    private ProfileTable profileTable = new ProfileTable();
+    public ProfileTable profileTable = null;
 
     public AddressNameTable ansTable = null;
 

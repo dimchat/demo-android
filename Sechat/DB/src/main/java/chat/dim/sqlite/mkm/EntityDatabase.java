@@ -66,9 +66,10 @@ public class EntityDatabase extends Database {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // metas
-        db.execSQL("CREATE TABLE " + T_META + "(uid VARCHAR(64), version INTEGER, pk TEXT, seed VARCHAR(20), fingerprint BLOB)");
+        db.execSQL("CREATE TABLE " + T_META + "(did VARCHAR(64), version INTEGER, pk TEXT, seed VARCHAR(20), fingerprint BLOB)");
 
         // profiles
+        db.execSQL("CREATE TABLE " + T_PROFILE + "(did VARCHAR(64), data TEXT, signature BLOB)");
 
         // local users
         db.execSQL("CREATE TABLE " + T_USER + "(uid VARCHAR(64), chosen BIT)");

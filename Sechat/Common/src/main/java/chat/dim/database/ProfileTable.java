@@ -25,72 +25,12 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import chat.dim.ID;
 import chat.dim.Profile;
 
-public class ProfileTable extends Database {
+public interface ProfileTable {
 
-    // profile cache
-    private Map<ID, Profile> profileTable = new HashMap<>();
+    boolean saveProfile(Profile profile);
 
-    private boolean cache(Profile profile) {
-        ID identifier = ID.getInstance(profile.getIdentifier());
-        if (profile.isValid()) {
-            profileTable.put(identifier, profile);
-            return true;
-        }
-        return false;
-    }
-
-    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/profile.js"
-    private static String getProfilePath(ID entity) throws IOException {
-        return getEntityFilePath(entity, "profile.js");
-    }
-
-    @SuppressWarnings("unchecked")
-    private Profile loadProfile(ID entity) {
-        try {
-            String path = getProfilePath(entity);
-            Object dict = loadJSON(path);
-            return Profile.getInstance((Map<String, Object>) dict);
-        } catch (IOException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
-    public boolean saveProfile(Profile profile) {
-        if (!cache(profile)) {
-            return false;
-        }
-        // write into JsON file
-        ID identifier = ID.getInstance(profile.getIdentifier());
-        try {
-            String path = getProfilePath(identifier);
-            return saveJSON(profile, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public Profile getProfile(ID entity) {
-        // 1. try from profile cache
-        Profile profile = profileTable.get(entity);
-        if (profile == null) {
-            // 2. load from JsON file
-            profile = loadProfile(entity);
-            if (profile == null) {
-                // 3. place an empty profile for cache
-                profile = new Profile(entity);
-            }
-            // no need to verify profile from local storage
-            profileTable.put(entity, profile);
-        }
-        return profile;
-    }
+    Profile getProfile(ID entity);
 }
