@@ -37,6 +37,7 @@ import chat.dim.Meta;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.core.CipherKeyDelegate;
+import chat.dim.core.KeyStore;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;

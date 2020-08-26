@@ -1,9 +1,4 @@
 /* license: https://mit-license.org
- *
- *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
- *
- *                                Written in 2019 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -28,47 +23,46 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.database;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
-import chat.dim.core.KeyCache;
-import chat.dim.database.Database;
-import chat.dim.filesys.ExternalStorage;
+import chat.dim.ID;
+import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.PrivateKey;
 
-public class KeyStore extends KeyCache {
+public interface PrivateKeyTable {
 
-    private static final KeyStore ourInstance = new KeyStore();
-    public static KeyStore getInstance() { return ourInstance; }
-    private KeyStore() {
-        super();
-    }
+    String META = "M";
+    String PROFILE = "P";
 
-    // '/tmp/.dim/protected/keystore.js'
-    private String getPath() throws IOException {
-        return Database.getProtectedFilePath("keystore.js");
-    }
+    /**
+     *  Save private key for user
+     *
+     * @param user - user ID
+     * @param key - private key
+     * @param type - 'M' for matching meta.key; or 'P' for matching profile.key
+     * @param sign - whether use for signature
+     * @param decrypt - whether use for decryption
+     * @return false on error
+     */
+    boolean savePrivateKey(ID user, PrivateKey key, String type, int sign, int decrypt);
 
-    @Override
-    public boolean saveKeys(Map keyMap) {
-        try {
-            String path = getPath();
-            return ExternalStorage.saveJSON(keyMap, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+    boolean savePrivateKey(ID user, PrivateKey key, String type);
 
-    @Override
-    public Map loadKeys() {
-        try {
-            String path = getPath();
-            return (Map) ExternalStorage.loadJSON(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    /**
+     *  Get private key for user
+     *
+     * @param user - user ID
+     * @return first key marked for signature
+     */
+    PrivateKey getPrivateKeyForSignature(ID user);
+
+    /**
+     *  Get private keys for user
+     *
+     * @param user - user ID
+     * @return all keys marked for decryption
+     */
+    List<DecryptKey> getPrivateKeysForDecryption(ID user);
 }

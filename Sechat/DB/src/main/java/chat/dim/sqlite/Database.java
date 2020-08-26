@@ -28,6 +28,7 @@ package chat.dim.sqlite;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import chat.dim.core.KeyStore;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
@@ -42,7 +43,8 @@ import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.sqlite.dkd.MessageDatabase;
 import chat.dim.sqlite.dkd.MessageTable;
 import chat.dim.sqlite.key.KeyDatabase;
-import chat.dim.sqlite.key.PrivateTable;
+import chat.dim.sqlite.key.MsgKeyTable;
+import chat.dim.sqlite.key.PrivateKeyTable;
 import chat.dim.sqlite.mkm.ContactTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.sqlite.mkm.GroupTable;
@@ -71,7 +73,7 @@ public abstract class Database extends SQLiteOpenHelper {
         netDB.providerTable = ProviderTable.getInstance();
 
         Facebook facebook = Facebook.getInstance();
-        facebook.privateTable = PrivateTable.getInstance();
+        facebook.privateTable = PrivateKeyTable.getInstance();
         facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
         facebook.groupTable = GroupTable.getInstance();
@@ -79,6 +81,9 @@ public abstract class Database extends SQLiteOpenHelper {
 
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
+
+        KeyStore keyStore = KeyStore.getInstance();
+        keyStore.keyTable = MsgKeyTable.getInstance();
 
         LoginCommandProcessor.dataHandler = LoginTable.getInstance();
     }

@@ -43,7 +43,7 @@ import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
 import chat.dim.database.GroupTable;
 import chat.dim.database.MetaTable;
-import chat.dim.database.PrivateTable;
+import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
 import chat.dim.protocol.NetworkType;
@@ -72,7 +72,7 @@ public class Facebook extends chat.dim.Facebook {
     private final AddressNameService ans;
     private Immortals immortals = new Immortals();
 
-    public PrivateTable privateTable = null;
+    public PrivateKeyTable privateTable = null;
     private MetaTable metaTable = new MetaTable();
     private ProfileTable profileTable = new ProfileTable();
 

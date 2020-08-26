@@ -23,46 +23,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.sqlite.key;
+package chat.dim.database;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import chat.dim.ID;
+import chat.dim.crypto.SymmetricKey;
 
-import chat.dim.sqlite.Database;
+public interface MsgKeyTable {
 
-public class KeyDatabase extends Database {
+    SymmetricKey getKey(ID from, ID to);
 
-    private KeyDatabase(Context context, String name, int version) {
-        super(context, name, version);
-    }
-
-    private static KeyDatabase ourInstance = null;
-    public static void setContext(Context context) {
-        ourInstance = new KeyDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
-    static KeyDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
-        return ourInstance;
-    }
-
-    private static final String DB_NAME = "key.db";
-    private static final int DB_VERSION = 1;
-
-    static final String T_PRIVATE_KEY = "t_private_key";
-
-    static final String T_MESSAGE_KEY = "t_message_key";
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        // private keys
-        db.execSQL("CREATE TABLE " + T_PRIVATE_KEY + "(uid VARCHAR(64), sk TEXT, type CHAR(1), sign BIT, decrypt BIT)");
-
-        // msg (symmetric) key
-        db.execSQL("CREATE TABLE " + T_MESSAGE_KEY + "(sender VARCHAR(64), receiver VARCHAR(64), pwd TEXT)");
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-    }
+    boolean addKey(ID from, ID to, SymmetricKey key);
 }
