@@ -25,74 +25,12 @@
  */
 package chat.dim.database;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import chat.dim.ID;
 import chat.dim.Meta;
 
-public class MetaTable extends Database {
+public interface MetaTable {
 
-    // profile cache
-    private Map<ID, Meta> metaTable = new HashMap<>();
+    boolean saveMeta(Meta meta, ID entity);
 
-    private boolean cache(Meta meta, ID identifier) {
-        if (meta.matches(identifier)) {
-            metaTable.put(identifier, meta);
-            return true;
-        }
-        return false;
-    }
-
-    // "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/meta.js"
-    private static String getMetaFilePath(ID entity) throws IOException {
-        return getEntityFilePath(entity, "meta.js");
-    }
-
-    @SuppressWarnings("unchecked")
-    private Meta loadMeta(ID entity) {
-        try {
-            // load from JsON file
-            String path = getMetaFilePath(entity);
-            Object dict = loadJSON(path);
-            return Meta.getInstance((Map<String, Object>) dict);
-        } catch (IOException | ClassNotFoundException e) {
-            //e.printStackTrace();
-            return null;
-        }
-    }
-
-    public boolean saveMeta(Meta meta, ID entity) {
-        if (!cache(meta, entity)) {
-            return false;
-        }
-        try {
-            // save into JsON file
-            String path = getMetaFilePath(entity);
-            if (exists(path)) {
-                return true;
-            }
-            return saveJSON(meta, path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public Meta getMeta(ID entity) {
-        // 1. try from meta cache
-        Meta meta = metaTable.get(entity);
-        if (meta == null) {
-            // 2. load from JsON file
-            meta = loadMeta(entity);
-            if (meta == null) {
-                // TODO: 3. place an empty meta for cache
-                return null;
-            }
-            // no need to verify meta from local storage
-            metaTable.put(entity, meta);
-        }
-        return meta;
-    }
+    Meta getMeta(ID entity);
 }

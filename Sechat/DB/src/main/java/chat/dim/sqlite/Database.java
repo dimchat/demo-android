@@ -48,6 +48,7 @@ import chat.dim.sqlite.key.PrivateKeyTable;
 import chat.dim.sqlite.mkm.ContactTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.sqlite.mkm.GroupTable;
+import chat.dim.sqlite.mkm.MetaTable;
 import chat.dim.sqlite.mkm.UserTable;
 
 public abstract class Database extends SQLiteOpenHelper {
@@ -74,6 +75,7 @@ public abstract class Database extends SQLiteOpenHelper {
 
         Facebook facebook = Facebook.getInstance();
         facebook.privateTable = PrivateKeyTable.getInstance();
+        facebook.metaTable = MetaTable.getInstance();
         facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
         facebook.groupTable = GroupTable.getInstance();

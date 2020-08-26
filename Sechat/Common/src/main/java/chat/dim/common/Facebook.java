@@ -73,7 +73,7 @@ public class Facebook extends chat.dim.Facebook {
     private Immortals immortals = new Immortals();
 
     public PrivateKeyTable privateTable = null;
-    private MetaTable metaTable = new MetaTable();
+    public MetaTable metaTable = null;
     private ProfileTable profileTable = new ProfileTable();
 
     public AddressNameTable ansTable = null;

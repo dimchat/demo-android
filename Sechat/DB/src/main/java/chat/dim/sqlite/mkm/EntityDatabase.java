@@ -50,6 +50,9 @@ public class EntityDatabase extends Database {
     private static final String DB_NAME = "mkm.db";
     private static final int DB_VERSION = 1;
 
+    static final String T_META = "t_meta";
+    static final String T_PROFILE = "t_profile";
+
     static final String T_USER = "t_user";
     static final String T_CONTACT = "t_contact";
 
@@ -62,6 +65,11 @@ public class EntityDatabase extends Database {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // metas
+        db.execSQL("CREATE TABLE " + T_META + "(uid VARCHAR(64), version INTEGER, pk TEXT, seed VARCHAR(20), fingerprint BLOB)");
+
+        // profiles
+
         // local users
         db.execSQL("CREATE TABLE " + T_USER + "(uid VARCHAR(64), chosen BIT)");
 
