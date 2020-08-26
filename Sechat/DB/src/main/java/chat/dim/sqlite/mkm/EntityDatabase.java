@@ -32,7 +32,7 @@ import chat.dim.ID;
 import chat.dim.model.Facebook;
 import chat.dim.sqlite.Database;
 
-public class EntityDatabase extends Database {
+public final class EntityDatabase extends Database {
 
     private EntityDatabase(Context context, String name, int version) {
         super(context, name, version);

@@ -32,7 +32,7 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import chat.dim.ID;
 import chat.dim.sqlite.DataTable;
 
-public class AddressNameTable extends DataTable implements chat.dim.database.AddressNameTable {
+public final class AddressNameTable extends DataTable implements chat.dim.database.AddressNameTable {
 
     private AddressNameTable() {
         super(AddressNameDatabase.getInstance());

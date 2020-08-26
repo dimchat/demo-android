@@ -39,7 +39,7 @@ import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 
-public class Facebook extends chat.dim.common.Facebook {
+public final class Facebook extends chat.dim.common.Facebook {
 
     private static final Facebook ourInstance = new Facebook();
     public static Facebook getInstance() { return ourInstance; }

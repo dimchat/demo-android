@@ -12,7 +12,7 @@ import chat.dim.network.Terminal;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 
-public class Client extends Terminal {
+public final class Client extends Terminal {
 
     private static final Client ourInstance = new Client();
     public static Client getInstance() { return ourInstance; }

@@ -48,7 +48,7 @@ import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.utils.Log;
 
-public class MessageTable extends DataTable implements chat.dim.database.MessageTable {
+public final class MessageTable extends DataTable implements chat.dim.database.MessageTable {
 
     private MessageTable() {
         super(MessageDatabase.getInstance());

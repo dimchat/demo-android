@@ -26,6 +26,7 @@ import chat.dim.ui.list.RecyclerViewHolder;
 public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapter.ViewHolder, CandidateList> {
 
     ID group = null;
+    ID from = null;
 
     public CandidateViewAdapter(CandidateList list, Listener listener) {
         super(list, listener);
@@ -48,7 +49,11 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
 
         holder.titleView.setText(item.getTitle());
 
-        holder.checkBox.setChecked(false);
+        if (from != null && from.equals(item.getIdentifier())) {
+            holder.checkBox.setChecked(true);
+        } else {
+            holder.checkBox.setChecked(false);
+        }
 
         ID identifier = item.getIdentifier();
         if (isForbidden(identifier)) {

@@ -37,7 +37,7 @@ import chat.dim.Profile;
 import chat.dim.format.Base64;
 import chat.dim.sqlite.DataTable;
 
-public class ProfileTable extends DataTable implements chat.dim.database.ProfileTable {
+public final class ProfileTable extends DataTable implements chat.dim.database.ProfileTable {
 
     private ProfileTable() {
         super(EntityDatabase.getInstance());

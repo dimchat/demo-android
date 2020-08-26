@@ -37,7 +37,6 @@ import chat.dim.Meta;
 import chat.dim.ReliableMessage;
 import chat.dim.SecureMessage;
 import chat.dim.core.CipherKeyDelegate;
-import chat.dim.core.KeyStore;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
@@ -249,6 +248,8 @@ public abstract class Messenger extends chat.dim.Messenger {
     protected Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
+            ID group = content.getGroup();
+            rMsg.put("waiting", group);
             suspendMessage(rMsg);
             return null;
         }

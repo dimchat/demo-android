@@ -30,7 +30,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import chat.dim.sqlite.Database;
 
-public class MainDatabase extends Database {
+public final class MainDatabase extends Database {
 
     private MainDatabase(Context context, String name, int version) {
         super(context, name, version);

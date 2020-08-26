@@ -36,7 +36,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.sqlite.DataTable;
 
-public class MsgKeyTable extends DataTable implements chat.dim.database.MsgKeyTable {
+public final class MsgKeyTable extends DataTable implements chat.dim.database.MsgKeyTable {
 
     private MsgKeyTable() {
         super(KeyDatabase.getInstance());

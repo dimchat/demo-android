@@ -38,7 +38,7 @@ import chat.dim.http.HTTPClient;
 import chat.dim.model.Configuration;
 import chat.dim.protocol.FileContent;
 
-public class FtpServer {
+public final class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
     public static FtpServer getInstance() { return ourInstance; }
     private FtpServer() {

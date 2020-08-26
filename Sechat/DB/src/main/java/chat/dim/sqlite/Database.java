@@ -28,7 +28,7 @@ package chat.dim.sqlite;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import chat.dim.core.KeyStore;
+import chat.dim.common.KeyStore;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;

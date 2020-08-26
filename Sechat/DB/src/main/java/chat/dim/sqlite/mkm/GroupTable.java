@@ -36,7 +36,7 @@ import chat.dim.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sqlite.DataTable;
 
-public class GroupTable extends DataTable implements chat.dim.database.GroupTable {
+public final class GroupTable extends DataTable implements chat.dim.database.GroupTable {
 
     private GroupTable() {
         super(EntityDatabase.getInstance());

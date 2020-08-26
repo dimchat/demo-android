@@ -39,7 +39,7 @@ import chat.dim.filesys.Resources;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 
-public class NetworkDatabase {
+public final class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
     public static NetworkDatabase getInstance() { return ourInstance; }
     private NetworkDatabase() {

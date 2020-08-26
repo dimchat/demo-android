@@ -25,10 +25,14 @@
  */
 package chat.dim.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
@@ -44,6 +48,10 @@ import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.network.Server;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -60,15 +68,91 @@ import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 
-public class Messenger extends chat.dim.common.Messenger {
+public final class Messenger extends chat.dim.common.Messenger implements Observer {
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
     private Messenger()  {
         super();
         setEntityDelegate(Facebook.getInstance());
+
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.MetaSaved);
     }
 
     public Server server = null;
+
+    private final Map<ID, List<ReliableMessage>> incomingMessages = new HashMap<>();
+    private final ReadWriteLock incomingMessageLock = new ReentrantReadWriteLock();
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MetaSaved)) {
+            ID entity = (ID) info.get("ID");
+            // purge incoming messages waiting for this ID's meta
+            ReliableMessage<ID, SymmetricKey> rMsg;
+            byte[] response;
+            //noinspection unchecked
+            while ((rMsg = getIncomingMessage(entity)) != null) {
+                rMsg = process(rMsg);
+                if (rMsg == null) {
+                    continue;
+                }
+                response = serializeMessage(rMsg);
+                if (response != null && response.length > 0) {
+                    getDelegate().sendPackage(response, null);
+                }
+            }
+        }
+    }
+
+    private void addIncomingMessage(ReliableMessage rMsg, ID waiting) {
+        Lock writeLock = incomingMessageLock.writeLock();
+        writeLock.lock();
+        try {
+            List<ReliableMessage> messages = incomingMessages.get(waiting);
+            if (messages == null) {
+                messages = new ArrayList<>();
+                incomingMessages.put(waiting, messages);
+            }
+            messages.add(rMsg);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    private ReliableMessage getIncomingMessage(ID waiting) {
+        ReliableMessage rMsg = null;
+        Lock writeLock = incomingMessageLock.writeLock();
+        writeLock.lock();
+        try {
+            List<ReliableMessage> messages = incomingMessages.get(waiting);
+            if (messages != null && messages.size() > 0) {
+                rMsg = messages.remove(0);
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        return rMsg;
+    }
+
+    @Override
+    public void suspendMessage(ReliableMessage<ID, SymmetricKey> msg) {
+        // save this message in a queue waiting sender's meta response
+        ID waiting = (ID) msg.get("waiting");
+        if (waiting == null) {
+            waiting = msg.envelope.getSender();
+        } else {
+            msg.remove("waiting");
+        }
+        addIncomingMessage(msg, waiting);
+    }
+
+    @Override
+    public void suspendMessage(InstantMessage<ID, SymmetricKey> msg) {
+        // TODO: save this message in a queue waiting receiver's meta response
+    }
 
     @Override
     public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
@@ -136,16 +220,6 @@ public class Messenger extends chat.dim.common.Messenger {
         } else {
             return clerk.saveMessage(iMsg);
         }
-    }
-
-    @Override
-    public void suspendMessage(ReliableMessage msg) {
-        // TODO: save this message in a queue waiting sender's meta response
-    }
-
-    @Override
-    public void suspendMessage(InstantMessage msg) {
-        // TODO: save this message in a queue waiting receiver's meta response
     }
 
     @Override

@@ -42,7 +42,7 @@ import chat.dim.format.Hex;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 
-public class HTTPClient extends Thread {
+public final class HTTPClient extends Thread {
 
     private static final HTTPClient ourInstance = new HTTPClient();
     public static HTTPClient getInstance() { return ourInstance; }

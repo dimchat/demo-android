@@ -18,7 +18,7 @@ import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sqlite.Database;
 import chat.dim.ui.Application;
 
-public class SechatApp extends Application {
+public final class SechatApp extends Application {
 
     private static SechatApp ourInstance = null;
 

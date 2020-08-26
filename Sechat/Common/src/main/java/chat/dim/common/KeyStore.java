@@ -28,16 +28,18 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.core;
+package chat.dim.common;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.ID;
+import chat.dim.core.CipherKeyDelegate;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.crypto.plugins.PlainKey;
 import chat.dim.database.MsgKeyTable;
 
-public class KeyStore implements CipherKeyDelegate {
+public final class KeyStore implements CipherKeyDelegate {
 
     private static final KeyStore ourInstance = new KeyStore();
     public static KeyStore getInstance() { return ourInstance; }

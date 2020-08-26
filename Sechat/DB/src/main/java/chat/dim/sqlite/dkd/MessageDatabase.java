@@ -39,7 +39,7 @@ import chat.dim.format.JSON;
 import chat.dim.model.Messenger;
 import chat.dim.sqlite.Database;
 
-public class MessageDatabase extends Database {
+public final class MessageDatabase extends Database {
 
     private MessageDatabase(Context context, String name, int version) {
         super(context, name, version);

@@ -39,7 +39,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
 import chat.dim.sqlite.DataTable;
 
-public class PrivateKeyTable extends DataTable implements chat.dim.database.PrivateKeyTable {
+public final class PrivateKeyTable extends DataTable implements chat.dim.database.PrivateKeyTable {
 
     private PrivateKeyTable() {
         super(KeyDatabase.getInstance());

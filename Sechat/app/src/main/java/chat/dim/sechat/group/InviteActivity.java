@@ -33,7 +33,7 @@ public class InviteActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             fragment = InviteFragment.newInstance(identifier);
-            fragment.from = from;
+            fragment.setFrom(from);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, fragment)
                     .commitNow();

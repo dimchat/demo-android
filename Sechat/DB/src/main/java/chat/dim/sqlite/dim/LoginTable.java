@@ -39,7 +39,7 @@ import chat.dim.format.JSON;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
 
-public class LoginTable extends DataTable implements LoginCommandProcessor.DataHandler {
+public final class LoginTable extends DataTable implements LoginCommandProcessor.DataHandler {
 
     private LoginTable() {
         super(MainDatabase.getInstance());

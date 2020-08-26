@@ -30,7 +30,7 @@ import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
 
-public class Amanuensis {
+public final class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
     public static Amanuensis getInstance() { return ourInstance; }
     private Amanuensis() {

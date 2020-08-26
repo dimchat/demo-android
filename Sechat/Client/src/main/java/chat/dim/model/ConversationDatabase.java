@@ -42,7 +42,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
-public class ConversationDatabase {
+public final class ConversationDatabase {
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
     public static ConversationDatabase getInstance() { return ourInstance; }
     private ConversationDatabase() {

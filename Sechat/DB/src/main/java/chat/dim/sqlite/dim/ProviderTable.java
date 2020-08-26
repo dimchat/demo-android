@@ -37,7 +37,7 @@ import chat.dim.model.Configuration;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 
-public class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
+public final class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
 
     private ProviderTable() {
         super(MainDatabase.getInstance());

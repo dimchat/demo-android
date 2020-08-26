@@ -33,7 +33,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.filesys.Resources;
 
-public class Configuration {
+public final class Configuration {
 
     private static final Configuration ourInstance = new Configuration();
     public static Configuration getInstance() { return ourInstance; }

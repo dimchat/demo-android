@@ -133,7 +133,6 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             assert identifier.isUser() : "user ID error: " + identifier;
             Register register = new Register();
             group = register.createGroup(user.identifier, "Sophon Shield");
-            GroupViewModel.addMember(identifier, group.identifier);
         }
 
         // open Invite activity

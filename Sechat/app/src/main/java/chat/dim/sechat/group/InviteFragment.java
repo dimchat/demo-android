@@ -35,9 +35,9 @@ import chat.dim.ui.list.Listener;
 
 public class InviteFragment extends ListFragment<CandidateViewAdapter, CandidateList> {
 
-    private GroupViewModel mViewModel;
-    private ID identifier;
-    ID from;
+    private GroupViewModel mViewModel = null;
+    private ID identifier = null;
+    private ID from = null;
 
     private ImageView groupLogo;
     private EditText groupName;
@@ -74,6 +74,12 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         adapter.group = group;
 
         reloadData();
+    }
+
+    void setFrom(ID identifier) {
+        from = identifier;
+        adapter.from = identifier;
+        selected.add(identifier);
     }
 
     private final Set<ID> selected = new HashSet<>();

@@ -40,7 +40,7 @@ import chat.dim.format.JSON;
 import chat.dim.protocol.MetaType;
 import chat.dim.sqlite.DataTable;
 
-public class MetaTable extends DataTable implements chat.dim.database.MetaTable {
+public final class MetaTable extends DataTable implements chat.dim.database.MetaTable {
 
     private MetaTable() {
         super(EntityDatabase.getInstance());

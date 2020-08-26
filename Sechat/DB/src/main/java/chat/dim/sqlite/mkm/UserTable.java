@@ -35,7 +35,7 @@ import java.util.List;
 import chat.dim.ID;
 import chat.dim.sqlite.DataTable;
 
-public class UserTable extends DataTable implements chat.dim.database.UserTable {
+public final class UserTable extends DataTable implements chat.dim.database.UserTable {
 
     private UserTable() {
         super(EntityDatabase.getInstance());
