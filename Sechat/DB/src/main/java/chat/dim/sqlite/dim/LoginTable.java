@@ -27,6 +27,7 @@ package chat.dim.sqlite.dim;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -70,6 +71,8 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
                     return new LoginCommand((Map<String, Object>) info);
                 }
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -111,6 +114,8 @@ public class LoginTable extends DataTable implements LoginCommandProcessor.DataH
                 time = cursor.getLong(0);
                 return new Date(time * 1000);
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         return null;
     }

@@ -27,6 +27,7 @@ package chat.dim.sqlite.dkd;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -107,8 +108,10 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             Collections.sort(array, comparator);
 
             conversations = array;
-            return conversations;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return conversations;
     }
 
     @Override
@@ -206,8 +209,10 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             }
             cachedTraces = traces;
             cachedTracesID = entity;
-            return traces;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return cachedTraces;
     }
 
     private List<String> getTraces(Map<String, List<String>> traces, int sn, String signature) {
@@ -276,8 +281,10 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             }
             cachedMessages = messages;
             cachedMessagesID = entity;
-            return messages;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return cachedMessages;
     }
 
     @Override
@@ -285,14 +292,17 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
         if (entity.equals(cachedMessagesID) &&  cachedMessages != null) {
             return cachedMessages.size();
         }
+        int count = 0;
         String[] columns = {"COUNT(*)"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                return cursor.getInt(0);
+                count = cursor.getInt(0);
             }
-            return 0;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return count;
     }
 
     @Override
@@ -324,6 +334,7 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             }
             return null;
         }
+        InstantMessage<ID, SymmetricKey> iMsg = null;
         String[] columns = {"sender", "receiver", "time", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
@@ -332,7 +343,6 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
             long time;
             String content;
             String signature;
-            InstantMessage<ID, SymmetricKey> iMsg;
             if (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 receiver = cursor.getString(1);
@@ -345,11 +355,12 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                     if (signature != null && signature.length() > 0) {
                         iMsg.put("signature", signature);
                     }
-                    return iMsg;
                 }
             }
-            return null;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return iMsg;
     }
 
     @Override
@@ -410,6 +421,9 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                 Log.info("drop duplicated trace: " + cid + "(" + sn + ") " + trace);
                 return false;
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
+            return false;
         }
         ContentValues values = new ContentValues();
         values.put("cid", cid.toString());
@@ -460,6 +474,9 @@ public class MessageTable extends DataTable implements chat.dim.database.Message
                 Log.info("drop duplicated msg: " + iMsg);
                 return false;
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
+            return false;
         }
 
         ContentValues values = new ContentValues();

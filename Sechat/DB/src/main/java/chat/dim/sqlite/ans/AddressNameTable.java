@@ -27,6 +27,7 @@ package chat.dim.sqlite.ans;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import chat.dim.ID;
 import chat.dim.sqlite.DataTable;
@@ -35,18 +36,6 @@ public class AddressNameTable extends DataTable implements chat.dim.database.Add
 
     private AddressNameTable() {
         super(AddressNameDatabase.getInstance());
-        // fixed records
-        if (getIdentifier("all") == null) {
-            ID moky = ID.getInstance("moky@4DnqXWdTV8wuZgfqSCX9GjE2kNq7HJrUgQ");
-            addRecord(moky, "founder");
-            addRecord(ID.ANYONE, "owner");
-
-            addRecord(ID.ANYONE, "anyone");
-            addRecord(ID.ANYONE, ID.ANYONE.toString());
-            addRecord(ID.EVERYONE, "everyone");
-            addRecord(ID.EVERYONE, ID.EVERYONE.toString());
-            addRecord(ID.EVERYONE, "all");
-        }
     }
 
     private static AddressNameTable ourInstance;
@@ -61,6 +50,22 @@ public class AddressNameTable extends DataTable implements chat.dim.database.Add
     //  chat.dim.database.AddressNameTable
     //
 
+    @Override
+    public ID getIdentifier(String alias) {
+        ID identifier = null;
+        String[] columns = {"did"};
+        String[] selectionArgs = {alias};
+        try (Cursor cursor = query(AddressNameDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
+            if (cursor.moveToNext()) {
+                identifier = ID.getInstance(cursor.getString(0));
+            }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
+        }
+        return identifier;
+    }
+
+    @Override
     public boolean addRecord(ID identifier, String alias) {
         ContentValues values = new ContentValues();
         values.put("did", identifier.toString());
@@ -75,15 +80,9 @@ public class AddressNameTable extends DataTable implements chat.dim.database.Add
         }
     }
 
-    public ID getIdentifier(String alias) {
-        ID identifier = null;
-        String[] columns = {"did"};
-        String[] selectionArgs = {alias};
-        try (Cursor cursor = query(AddressNameDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
-            if (cursor.moveToNext()) {
-                identifier = ID.getInstance(cursor.getString(0));
-            }
-        }
-        return identifier;
+    @Override
+    public boolean removeRecord(String alias) {
+        String[] whereArgs = {alias};
+        return delete(AddressNameDatabase.T_RECORD, "alias=?", whereArgs) > 0;
     }
 }

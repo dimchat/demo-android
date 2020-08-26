@@ -27,6 +27,7 @@ package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -119,6 +120,8 @@ public class ProfileTable extends DataTable implements chat.dim.database.Profile
 
                 profile = Profile.getInstance(info);
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         if (profile == null) {
             // 2.1. place an empty profile for cache

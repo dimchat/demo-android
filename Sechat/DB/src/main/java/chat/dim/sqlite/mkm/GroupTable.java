@@ -27,6 +27,7 @@ package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,8 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
             if (cursor.moveToNext()) {
                 founder = EntityDatabase.getID(cursor.getString(0));
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         // TODO: check founder within members
         return founder;
@@ -80,16 +83,18 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
                     owner = EntityDatabase.getID(cursor.getString(1));
                 }
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         return owner;
     }
 
     @Override
     public List<ID> getMembers(ID group) {
+        List<ID> members = new ArrayList<>();
         String[] columns = {"member"};
         String[] selectionArgs = {group.toString()};
         try (Cursor cursor = query(EntityDatabase.T_MEMBER, columns, "gid=?", selectionArgs, null, null, null)) {
-            List<ID> members = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
                 identifier = EntityDatabase.getID(cursor.getString(0));
@@ -97,8 +102,10 @@ public class GroupTable extends DataTable implements chat.dim.database.GroupTabl
                     members.add(identifier);
                 }
             }
-            return members;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return members;
     }
 
     @Override

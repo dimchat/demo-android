@@ -56,12 +56,28 @@ public class Facebook extends chat.dim.Facebook {
         ans = new AddressNameService() {
             @Override
             public ID identifier(String name) {
-                return ansTable.getIdentifier(name);
+                ID identifier = super.identifier(name);
+                if (identifier != null) {
+                    return identifier;
+                }
+                identifier = ansTable.getIdentifier(name);
+                if (identifier != null) {
+                    // FIXME: is reserved name?
+                    cache(name, identifier);
+                }
+                return identifier;
             }
 
             @Override
             public boolean save(String name, ID identifier) {
-                return ansTable.addRecord(identifier, name);
+                if (!cache(name, identifier)) {
+                    return false;
+                }
+                if (identifier == null) {
+                    return ansTable.removeRecord(name);
+                } else {
+                    return ansTable.addRecord(identifier, name);
+                }
             }
         };
     }

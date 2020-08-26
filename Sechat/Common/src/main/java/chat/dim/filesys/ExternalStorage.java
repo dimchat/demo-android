@@ -189,7 +189,7 @@ public class ExternalStorage {
     }
 
     /**
-     *  Get cache file path: "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
+     *  Get cache file path: "/sdcard/chat.dim.sechat/caches/{XX}/{YY}/{filename}"
      *
      * @param filename - cache file name
      * @return cache file path
@@ -199,8 +199,10 @@ public class ExternalStorage {
     }
 
     public static String getCacheDirectory(String filename) throws IOException {
-        assert filename.length() > 2 : "filename too short " + filename;
-        String dir = getCachesDirectory() + separator + filename.substring(0, 2);
+        assert filename.length() > 4 : "filename too short " + filename;
+        String dir = getCachesDirectory() + separator
+                + filename.substring(0, 2) + separator
+                + filename.substring(2, 4);
         return mkdirs(dir);
     }
 
@@ -225,7 +227,7 @@ public class ExternalStorage {
     }
 
     /**
-     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/{filename}"
+     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{YY}/{address}/{filename}"
      *
      * @param entity   - user or group ID
      * @param filename - entity file name
@@ -239,6 +241,7 @@ public class ExternalStorage {
         String string = address.toString();
         String dir = root + separator + "mkm" + separator
                 + string.substring(0, 2) + separator
+                + string.substring(2, 4) + separator
                 + string;
         return mkdirs(dir);
     }

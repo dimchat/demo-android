@@ -27,6 +27,7 @@ package chat.dim.sqlite.dim;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +57,9 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
 
     @Override
     public List<ProviderInfo> getProviders() {
+        List<ProviderInfo> providers = new ArrayList<>();
         String[] columns = {"spid", "name", "url", "chosen"};
         try (Cursor cursor = query(MainDatabase.T_PROVIDER, columns, null, null, null, null, "chosen DESC")) {
-            List<ProviderInfo> providers = new ArrayList<>();
             ID identifier;
             String name;
             String url;
@@ -70,8 +71,10 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
                 chosen = cursor.getInt(3);
                 providers.add(new ProviderInfo(identifier, name, url, chosen));
             }
-            return providers;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return providers;
     }
 
     @Override
@@ -102,10 +105,10 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
 
     @Override
     public List<StationInfo> getStations(ID sp) {
+        List<StationInfo> stations = new ArrayList<>();
         String[] columns = {"sid", "name", "host", "port", "chosen"};
         String[] selectionArgs = {sp.toString()};
         try (Cursor cursor = query(MainDatabase.T_STATION, columns, "spid=?", selectionArgs, null, null, "chosen DESC")) {
-            List<StationInfo> stations = new ArrayList<>();
             ID identifier;
             String name;
             String host;
@@ -119,8 +122,10 @@ public class ProviderTable extends DataTable implements chat.dim.database.Provid
                 chosen = cursor.getInt(4);
                 stations.add(new StationInfo(identifier, name, host, port, chosen));
             }
-            return stations;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return stations;
     }
 
     @Override

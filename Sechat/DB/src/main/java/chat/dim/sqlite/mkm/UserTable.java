@@ -27,6 +27,7 @@ package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,10 @@ public class UserTable extends DataTable implements chat.dim.database.UserTable 
                     users.add(identifier);
                 }
             }
-            return users;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return users;
     }
 
     private boolean isUserExists(ID user) {
@@ -86,6 +89,8 @@ public class UserTable extends DataTable implements chat.dim.database.UserTable 
                 // already exists
                 exists = true;
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         return exists;
     }
@@ -150,6 +155,8 @@ public class UserTable extends DataTable implements chat.dim.database.UserTable 
             while (cursor.moveToNext()) {
                 current = EntityDatabase.getID(cursor.getString(0));
             }
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
         return current;
     }

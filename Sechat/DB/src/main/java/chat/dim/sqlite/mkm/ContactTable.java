@@ -27,6 +27,7 @@ package chat.dim.sqlite.mkm;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,10 +55,10 @@ public class ContactTable extends DataTable implements chat.dim.database.Contact
 
     @Override
     public List<ID> getContacts(ID user) {
+        List<ID> contacts = new ArrayList<>();
         String[] columns = {"contact"};
         String[] selectionArgs = {user.toString()};
         try (Cursor cursor = query(EntityDatabase.T_CONTACT, columns, "uid=?", selectionArgs, null, null, null)) {
-            List<ID> contacts = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
                 identifier = EntityDatabase.getID(cursor.getString(0));
@@ -65,8 +66,10 @@ public class ContactTable extends DataTable implements chat.dim.database.Contact
                     contacts.add(identifier);
                 }
             }
-            return contacts;
+        } catch (SQLiteCantOpenDatabaseException e) {
+            e.printStackTrace();
         }
+        return contacts;
     }
 
     @Override

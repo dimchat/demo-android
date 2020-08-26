@@ -30,6 +30,14 @@ import chat.dim.ID;
 public interface AddressNameTable {
 
     /**
+     *  Get ID by short name
+     *
+     * @param alias - short name
+     * @return user ID
+     */
+    ID getIdentifier(String alias);
+
+    /**
      *  Save ANS record
      *
      * @param identifier - user ID
@@ -39,10 +47,10 @@ public interface AddressNameTable {
     boolean addRecord(ID identifier, String alias);
 
     /**
-     *  Get ID by short name
+     *  Remove ANS record
      *
      * @param alias - short name
-     * @return user ID
+     * @return true on success
      */
-    ID getIdentifier(String alias);
+    boolean removeRecord(String alias);
 }
