@@ -33,6 +33,8 @@ package chat.dim.filesys;
 import java.io.File;
 import java.io.IOException;
 
+import chat.dim.Address;
+import chat.dim.ID;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 
@@ -170,5 +172,74 @@ public class ExternalStorage {
     public static boolean delete(String pathname) throws IOException {
         Storage file = new Storage();
         return file.remove(pathname);
+    }
+
+    //
+    //  Directories
+    //
+
+    public static String getParentDirectory(String path) {
+        int pos = path.lastIndexOf(separator);
+        if (pos < 0) {
+            return null;
+        } else if (pos == 0) {
+            return separator;  // root dir: "/"
+        }
+        return path.substring(0, pos);
+    }
+
+    /**
+     *  Get cache file path: "/sdcard/chat.dim.sechat/caches/{XX}/{filename}"
+     *
+     * @param filename - cache file name
+     * @return cache file path
+     */
+    public static String getCacheFilePath(String filename) throws IOException {
+        return getCacheDirectory(filename) + separator + filename;
+    }
+
+    public static String getCacheDirectory(String filename) throws IOException {
+        assert filename.length() > 2 : "filename too short " + filename;
+        String dir = getCachesDirectory() + separator + filename.substring(0, 2);
+        return mkdirs(dir);
+    }
+
+    public static String getCachesDirectory() throws IOException {
+        String dir = root + separator + "caches";
+        return mkdirs(dir);
+    }
+
+    /**
+     *  Get temporary file path: "/sdcard/chat.dim.sechat/tmp/{filename}"
+     *
+     * @param filename - temporary file name
+     * @return temporary file path
+     */
+    public static String getTemporaryFilePath(String filename) throws IOException {
+        return getTemporaryDirectory() + separator + filename;
+    }
+
+    public static String getTemporaryDirectory() throws IOException {
+        String dir = root + separator + "tmp";
+        return mkdirs(dir);
+    }
+
+    /**
+     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{address}/{filename}"
+     *
+     * @param entity   - user or group ID
+     * @param filename - entity file name
+     * @return entity file path
+     */
+    public static String getEntityFilePath(ID entity, String filename) throws IOException {
+        return getEntityDirectory(entity.address) + separator + filename;
+    }
+
+    public static String getEntityDirectory(Address address) throws IOException {
+        String string = address.toString();
+        String dir = root + separator + "mkm" + separator
+                + string.substring(0, 2) + separator
+                + string;
+        return mkdirs(dir);
     }
 }

@@ -37,7 +37,6 @@ import java.util.Map;
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.User;
-import chat.dim.database.Database;
 import chat.dim.extension.GroupManager;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.SechatApp;
@@ -181,7 +180,7 @@ public class GroupViewModel extends EntityViewModel {
         }
         String path;
         try {
-            path = Database.getEntityFilePath(group, "logo.png");
+            path = ExternalStorage.getEntityFilePath(group, "logo.png");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

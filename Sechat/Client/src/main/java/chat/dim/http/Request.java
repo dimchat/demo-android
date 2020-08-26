@@ -34,7 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import chat.dim.database.Database;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.utils.Log;
 
 class Request {
@@ -45,7 +45,7 @@ class Request {
 
     private static String prepareFilePath(String url) throws IOException {
         String path = HTTPClient.getCachePath(url);
-        String dir = Database.getParentDirectory(path);
+        String dir = ExternalStorage.getParentDirectory(path);
         assert dir != null : "should not happen";
         File file = new File(dir);
         if (!file.exists() && !file.mkdirs()) {

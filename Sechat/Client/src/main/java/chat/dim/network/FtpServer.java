@@ -30,7 +30,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
@@ -71,7 +70,7 @@ public class FtpServer {
 
         try {
             // store in user's directory
-            String path = Database.getEntityFilePath(identifier, "avatar.jpeg");
+            String path = ExternalStorage.getEntityFilePath(identifier, "avatar.jpeg");
             ExternalStorage.saveData(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,7 +94,7 @@ public class FtpServer {
         }
 
         try {
-            path = Database.getEntityFilePath(identifier, "avatar.jpeg");
+            path = ExternalStorage.getEntityFilePath(identifier, "avatar.jpeg");
             if (ExternalStorage.exists(path)) {
                 return path;
             }
@@ -112,7 +111,7 @@ public class FtpServer {
     public boolean saveImage(byte[] imageData, String filename) {
         try {
             // save a copy to cache directory
-            String path = Database.getCacheFilePath(filename);
+            String path = ExternalStorage.getCacheFilePath(filename);
             return ExternalStorage.saveData(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
@@ -152,7 +151,7 @@ public class FtpServer {
     public String getFilePath(FileContent content) throws IOException {
         // check decrypted file
         String filename = content.getFilename();
-        String path1 = Database.getCacheFilePath(filename);
+        String path1 = ExternalStorage.getCacheFilePath(filename);
         if (ExternalStorage.exists(path1)) {
             return path1;
         }

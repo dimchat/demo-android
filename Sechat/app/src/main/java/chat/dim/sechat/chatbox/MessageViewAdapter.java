@@ -25,7 +25,6 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
-import chat.dim.database.Database;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.ConversationDatabase;
@@ -179,12 +178,12 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             }
             String path;
             try {
-                path = Database.getCacheFilePath(filename);
+                path = ExternalStorage.getCacheFilePath(filename);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
-            if (Database.exists(path)) {
+            if (ExternalStorage.exists(path)) {
                 System.out.println("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
             }

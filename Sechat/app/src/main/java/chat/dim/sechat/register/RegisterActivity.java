@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.io.IOException;
 
-import chat.dim.database.Database;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.io.Permissions;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
@@ -74,7 +74,7 @@ public class RegisterActivity extends ImagePickerActivity {
 
     @Override
     protected String getTemporaryDirectory() throws IOException {
-        return Database.getTemporaryDirectory();
+        return ExternalStorage.getTemporaryDirectory();
     }
 
     @Override

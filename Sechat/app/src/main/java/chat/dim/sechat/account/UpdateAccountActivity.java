@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 import java.io.IOException;
 
-import chat.dim.database.Database;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.R;
 import chat.dim.ui.image.ImagePickerActivity;
 
@@ -62,7 +62,7 @@ public class UpdateAccountActivity extends ImagePickerActivity {
 
     @Override
     protected String getTemporaryDirectory() throws IOException {
-        return Database.getTemporaryDirectory();
+        return ExternalStorage.getTemporaryDirectory();
     }
 
     @Override

@@ -35,7 +35,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.database.Database;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
@@ -68,7 +67,7 @@ public class HTTPClient extends Thread {
             filename = Hex.encode(MD5.digest(data)) + "." + ext;
 
         }
-        return Database.getCacheFilePath(filename);
+        return ExternalStorage.getCacheFilePath(filename);
     }
 
     //

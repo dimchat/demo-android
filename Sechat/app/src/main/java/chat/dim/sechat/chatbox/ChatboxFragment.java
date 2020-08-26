@@ -24,8 +24,8 @@ import chat.dim.Callback;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.User;
-import chat.dim.database.Database;
 import chat.dim.digest.MD5;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
 import chat.dim.model.Messenger;
@@ -293,7 +293,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private static String getTemporaryFilePath() {
         try {
-            return Database.getTemporaryFilePath("audio.mp4");
+            return ExternalStorage.getTemporaryFilePath("audio.mp4");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -302,9 +302,9 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private void startRecord() {
         String path = mp4FilePath;
-        if (Database.exists(path)) {
+        if (ExternalStorage.exists(path)) {
             try {
-                Database.delete(path);
+                ExternalStorage.delete(path);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -320,9 +320,9 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         String path = recorder.stopRecord();
-        if (path != null && Database.exists(path)) {
+        if (path != null && ExternalStorage.exists(path)) {
             try {
-                byte[] mp4 = Database.loadData(path);
+                byte[] mp4 = ExternalStorage.loadData(path);
                 sendVoice(mp4, recorder.getDuration());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -337,8 +337,8 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         }
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
         try {
-            String path = Database.getCacheFilePath(filename);
-            Database.saveData(mp4, path);
+            String path = ExternalStorage.getCacheFilePath(filename);
+            ExternalStorage.saveData(mp4, path);
         } catch (IOException e) {
             e.printStackTrace();
         }

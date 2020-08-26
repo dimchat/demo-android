@@ -69,12 +69,13 @@ public class MetaTable extends DataTable implements chat.dim.database.MetaTable 
 
         PublicKey key = meta.getKey();
         byte[] data = JSON.encode(key);
+        String pk = new String(data, Charset.forName("UTF-8"));
 
         // 1. save into database
         ContentValues values = new ContentValues();
         values.put("did", entity.toString());
         values.put("version", meta.getVersion());
-        values.put("pk", data);
+        values.put("pk", pk);
         values.put("seed", meta.getSeed());
         values.put("fingerprint", meta.getFingerprint());
         if (insert(EntityDatabase.T_META, null, values) < 0) {
@@ -101,6 +102,7 @@ public class MetaTable extends DataTable implements chat.dim.database.MetaTable 
         try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
             int version;
             String pk;
+            byte[] data;
             Map<String, Object> key;
             String seed;
             byte[] fp;
@@ -108,7 +110,8 @@ public class MetaTable extends DataTable implements chat.dim.database.MetaTable 
             if (cursor.moveToNext()) {
                 version = cursor.getInt(0);
                 pk = cursor.getString(1);
-                key = (Map<String, Object>) JSON.decode(pk.getBytes(Charset.forName("UTF-8")));
+                data = pk.getBytes(Charset.forName("UTF-8"));
+                key = (Map<String, Object>) JSON.decode(data);
 
                 info = new HashMap<>();
                 info.put("version", version);
