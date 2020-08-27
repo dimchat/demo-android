@@ -78,8 +78,10 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
 
     void setFrom(ID identifier) {
         from = identifier;
-        adapter.from = identifier;
-        selected.add(identifier);
+        if (identifier.isUser()) {
+            adapter.from = identifier;
+            selected.add(identifier);
+        }
     }
 
     private final Set<ID> selected = new HashSet<>();

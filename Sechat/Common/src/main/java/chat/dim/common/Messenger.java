@@ -253,7 +253,22 @@ public abstract class Messenger extends chat.dim.Messenger {
             suspendMessage(rMsg);
             return null;
         }
-        return super.process(content, sender, rMsg);
+        try {
+            return super.process(content, sender, rMsg);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            String text = e.getMessage();
+            if (text.contains("failed to get meta for ")) {
+                int pos = text.indexOf(": ");
+                if (pos > 0) {
+                    ID waiting = getEntityDelegate().getID(text.substring(pos + 2));
+                    assert waiting != null : "failed to get ID: " + text;
+                    rMsg.put("waiting", waiting);
+                    suspendMessage(rMsg);
+                }
+            }
+            return null;
+        }
     }
 
     //-------- Send

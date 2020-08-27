@@ -16,7 +16,6 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
-import chat.dim.sechat.model.GroupViewModel;
 
 public class MembersActivity extends AppCompatActivity implements Observer {
 
@@ -43,7 +42,6 @@ public class MembersActivity extends AppCompatActivity implements Observer {
         if (name.equals(NotificationNames.MembersUpdated)) {
             ID group = (ID) info.get("group");
             if (fragment.identifier.equals(group)) {
-                GroupViewModel.refreshLogo(fragment.identifier);
                 Amanuensis clerk = Amanuensis.getInstance();
                 Conversation chatBox = clerk.getConversation(fragment.identifier);
                 setTitle(chatBox.getTitle());

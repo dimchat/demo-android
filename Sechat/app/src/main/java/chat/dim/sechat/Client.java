@@ -9,15 +9,31 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.network.Terminal;
+import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
+import chat.dim.sechat.model.GroupViewModel;
 
-public final class Client extends Terminal {
+public final class Client extends Terminal implements Observer {
 
     private static final Client ourInstance = new Client();
     public static Client getInstance() { return ourInstance; }
     private Client() {
         super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.MembersUpdated);
+    }
+
+    @Override
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map info = notification.userInfo;
+        assert name != null && info != null : "notification error: " + notification;
+        if (name.equals(NotificationNames.MembersUpdated)) {
+            ID group = (ID) info.get("group");
+            GroupViewModel.refreshLogo(group);
+        }
     }
 
     private PackageInfo getPackageInfo(ContextWrapper app) {

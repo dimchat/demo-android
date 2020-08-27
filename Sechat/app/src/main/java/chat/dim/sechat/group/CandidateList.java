@@ -32,6 +32,9 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         List<ID> contacts = UserViewModel.getContacts(user.identifier);
         if (contacts != null) {
             for (ID member : contacts) {
+                if (!member.isUser()) {
+                    continue;
+                }
                 if (GroupViewModel.existsMember(member, group)) {
                     // already exists
                     continue;
@@ -46,27 +49,27 @@ public class CandidateList extends DummyList<CandidateList.Item> {
      */
     public static class Item implements DummyItem {
 
-        private final User account;
+        private final ID identifier;
 
-        Item(Object id) {
+        Item(ID id) {
             super();
-            account = UserViewModel.getUser(id);
+            identifier = id;
         }
 
         ID getIdentifier() {
-            return account.identifier;
+            return identifier;
         }
 
         Bitmap getAvatar() {
-            return UserViewModel.getAvatar(account.identifier);
+            return UserViewModel.getAvatar(identifier);
         }
 
         String getTitle() {
-            return UserViewModel.getUserTitle(account.identifier);
+            return UserViewModel.getUserTitle(identifier);
         }
 
         String getDesc() {
-            return EntityViewModel.getAddressString(account.identifier);
+            return EntityViewModel.getAddressString(identifier);
         }
     }
 }

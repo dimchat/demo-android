@@ -13,6 +13,7 @@ import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
@@ -50,6 +51,10 @@ public class ContactList extends DummyList<ContactList.Item> {
                 };
                 Collections.sort(contacts, comparator);
                 for (ID identifier : contacts) {
+                    if (identifier.isGroup()) {
+                        // FIXME: where to show groups?
+                        continue;
+                    }
                     addItem(new Item(identifier));
                 }
             }
@@ -61,27 +66,37 @@ public class ContactList extends DummyList<ContactList.Item> {
      */
     public static class Item implements DummyItem {
 
-        private final User account;
+        private final ID identifier;
 
-        Item(Object id) {
+        Item(ID id) {
             super();
-            account = UserViewModel.getUser(id);
+            identifier = id;
         }
 
         ID getIdentifier() {
-            return account.identifier;
+            return identifier;
         }
 
         Bitmap getAvatar() {
-            return UserViewModel.getAvatar(account.identifier);
+            if (identifier.isGroup()) {
+                return GroupViewModel.getLogo(identifier);
+            }
+            return UserViewModel.getAvatar(identifier);
         }
 
         String getTitle() {
-            return UserViewModel.getUserTitle(account.identifier);
+            if (identifier.isGroup()) {
+                // TODO: show group title with format "group name (members count)"
+                return EntityViewModel.getName(identifier);
+            }
+            return UserViewModel.getUserTitle(identifier);
         }
 
         String getDesc() {
-            LoginCommand cmd = UserViewModel.getLoginCommand(account.identifier);
+            if (identifier.isGroup()) {
+                return null;
+            }
+            LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
             if (cmd != null) {
                 Map<String, Object> info = cmd.getStation();
                 ID sid = EntityViewModel.getID(info.get("ID"));

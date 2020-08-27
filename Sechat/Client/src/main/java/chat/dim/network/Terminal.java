@@ -26,6 +26,7 @@
 package chat.dim.network;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -214,13 +215,17 @@ public class Terminal implements StationDelegate {
 
     private boolean isServerPaused = false;
 
+    private Date offlineTime = null;
+
     public void enterBackground() {
+        offlineTime = new Date();
         Server server = getCurrentServer();
         if (server != null) {
             User user = getCurrentUser();
             if (user != null) {
                 // report client state
                 Command cmd = new ReportCommand(ReportCommand.OFFLINE);
+                cmd.put("time", offlineTime.getTime() / 1000);
                 messenger.sendCommand(cmd);
             }
 
@@ -247,6 +252,11 @@ public class Terminal implements StationDelegate {
             if (user != null) {
                 // report client state
                 Command cmd = new ReportCommand(ReportCommand.ONLINE);
+                Date now = new Date();
+                cmd.put("time", now.getTime() / 1000);
+                if (offlineTime != null) {
+                    cmd.put("last_time", offlineTime.getTime() / 1000);
+                }
                 messenger.sendCommand(cmd);
             }
         }
