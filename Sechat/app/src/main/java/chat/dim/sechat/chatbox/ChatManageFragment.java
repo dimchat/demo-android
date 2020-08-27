@@ -61,7 +61,7 @@ public class ChatManageFragment extends Fragment {
     private List<ID> getParticipants() {
 
         int maxItemCount = mViewModel.getMaxItemCount();
-        participants = mViewModel.getParticipants(maxItemCount);
+        List<ID> participants = mViewModel.getParticipants(maxItemCount);
 
         // "show members"
         if (participants.size() < maxItemCount) {
@@ -95,17 +95,8 @@ public class ChatManageFragment extends Fragment {
         participantsView = view.findViewById(R.id.participants);
 
         showMembersButton = view.findViewById(R.id.showMembers);
-        showMembersButton.setOnClickListener(v -> showMembers());
-
         clearHistoryButton = view.findViewById(R.id.clearHistory);
-        clearHistoryButton.setOnClickListener(v -> clearHistory());
-
         quitGroupButton = view.findViewById(R.id.quitGroup);
-        if (canQuit()) {
-            quitGroupButton.setOnClickListener(v -> quitGroup());
-        } else {
-            quitGroupButton.setVisibility(View.GONE);
-        }
 
         nameTextView = view.findViewById(R.id.nameView);
         addressTextView = view.findViewById(R.id.addressView);
@@ -124,6 +115,14 @@ public class ChatManageFragment extends Fragment {
         participants = getParticipants();
         adapter = new ParticipantsAdapter(getContext(), R.layout.participants_grid_item, participants, identifier);
         participantsView.setAdapter(adapter);
+
+        showMembersButton.setOnClickListener(v -> showMembers());
+        clearHistoryButton.setOnClickListener(v -> clearHistory());
+        if (canQuit()) {
+            quitGroupButton.setOnClickListener(v -> quitGroup());
+        } else {
+            quitGroupButton.setVisibility(View.GONE);
+        }
 
         nameTextView.setText(EntityViewModel.getName(identifier));
         addressTextView.setText(identifier.address.toString());

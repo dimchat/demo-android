@@ -52,7 +52,7 @@ public class MembersFragment extends Fragment {
     private List<ID> getParticipants() {
 
         List<ID> members = mViewModel.getMembers();
-        participants = new ArrayList<>(members);
+        List<ID> participants = new ArrayList<>(members);
 
         // "invite member"
         participants.add(ParticipantsAdapter.INVITE_BTN_ID);

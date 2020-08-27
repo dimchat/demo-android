@@ -51,12 +51,16 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.SearchUpdated);
+        nc.addObserver(this, NotificationNames.ProfileUpdated);
+        nc.addObserver(this, NotificationNames.FileDownloadSuccess);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.SearchUpdated);
+        nc.removeObserver(this, NotificationNames.ProfileUpdated);
+        nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
         super.onDestroy();
     }
 
@@ -69,6 +73,12 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
             if (info instanceof SearchCommand) {
                 dummyList.response = (SearchCommand) info;
             }
+            reloadData();
+        } else if (name.equals(NotificationNames.ProfileUpdated)) {
+            // TODO: filter for dummy list
+            reloadData();
+        } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
+            // TODO: filter for dummy list
             reloadData();
         }
     }

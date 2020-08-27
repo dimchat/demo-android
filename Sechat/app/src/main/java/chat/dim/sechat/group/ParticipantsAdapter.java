@@ -1,9 +1,13 @@
 package chat.dim.sechat.group;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import androidx.cardview.widget.CardView;
+
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +17,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.extension.Register;
+import chat.dim.model.Facebook;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -59,60 +69,9 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
-        showParticipant(identifier, viewHolder);
+        viewHolder.showParticipant(identifier);
 
         return view;
-    }
-
-    private void showParticipant(ID identifier, ViewHolder viewHolder) {
-
-        if (INVITE_BTN_ID.equals(identifier)) {
-            // invite
-            viewHolder.cardView.setVisibility(View.GONE);
-            viewHolder.avatarView.setVisibility(View.GONE);
-            viewHolder.nameView.setVisibility(View.GONE);
-            viewHolder.inviteButton.setVisibility(View.VISIBLE);
-            viewHolder.inviteButton.setOnClickListener(v -> invite());
-            viewHolder.expelButton.setVisibility(View.GONE);
-            return;
-        }
-        if (EXPEL_BTN_ID.equals(identifier)) {
-            // expel
-            viewHolder.cardView.setVisibility(View.GONE);
-            viewHolder.avatarView.setVisibility(View.GONE);
-            viewHolder.nameView.setVisibility(View.GONE);
-            viewHolder.inviteButton.setVisibility(View.GONE);
-            viewHolder.expelButton.setVisibility(View.VISIBLE);
-            viewHolder.expelButton.setOnClickListener(v -> expel());
-            return;
-        }
-
-        viewHolder.cardView.setVisibility(View.VISIBLE);
-        viewHolder.cardView.setOnClickListener(v -> showParticipant(identifier));
-
-        // avatar
-        if (viewHolder.avatarView != null) {
-            viewHolder.avatarView.setVisibility(View.VISIBLE);
-
-            Bitmap avatar = UserViewModel.getAvatar(identifier);
-            viewHolder.avatarView.setImageBitmap(avatar);
-        }
-
-        // name
-        if (viewHolder.nameView != null) {
-            viewHolder.nameView.setVisibility(View.VISIBLE);
-
-            String name = UserViewModel.getNickname(identifier);
-            viewHolder.nameView.setText(name);
-        }
-
-        if (viewHolder.inviteButton != null) {
-            viewHolder.inviteButton.setVisibility(View.GONE);
-        }
-
-        if (viewHolder.expelButton != null) {
-            viewHolder.expelButton.setVisibility(View.GONE);
-        }
     }
 
     private void invite() {
@@ -164,14 +123,14 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         context.startActivity(intent);
     }
 
-    private void showParticipant(ID identifier) {
+    private void showProfile(ID identifier) {
         Intent intent = new Intent();
         intent.setClass(getContext(), ProfileActivity.class);
         intent.putExtra("ID", identifier.toString());
         getContext().startActivity(intent);
     }
 
-    static class ViewHolder {
+    class ViewHolder implements Observer {
 
         CardView cardView = null;
 
@@ -179,5 +138,95 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         TextView nameView = null;
         ImageButton inviteButton = null;
         ImageButton expelButton = null;
+
+        private ID identifier = null;
+
+        ViewHolder() {
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.addObserver(this, NotificationNames.ProfileUpdated);
+            nc.addObserver(this, NotificationNames.FileDownloadSuccess);
+        }
+
+        @Override
+        public void finalize() throws Throwable {
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.removeObserver(this, NotificationNames.ProfileUpdated);
+            nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
+            super.finalize();
+        }
+
+        @Override
+        public void onReceiveNotification(Notification notification) {
+            String name = notification.name;
+            Map info = notification.userInfo;
+            assert name != null && info != null : "notification error: " + notification;
+            if (name.equals(NotificationNames.ProfileUpdated)) {
+                ID user = (ID) info.get("ID");
+                if (identifier.equals(user)) {
+                    Message msg = new Message();
+                    msgHandler.sendMessage(msg);
+                }
+            } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
+                Facebook facebook = Facebook.getInstance();
+                String avatar = facebook.getAvatar(identifier);
+                String path = (String) info.get("path");
+                if (avatar != null && avatar.equals(path)) {
+                    Message msg = new Message();
+                    msgHandler.sendMessage(msg);
+                }
+            }
+        }
+
+        @SuppressLint("HandlerLeak")
+        private final Handler msgHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                refresh();
+            }
+        };
+
+        private void refresh() {
+            String nickname = UserViewModel.getNickname(identifier);
+            nameView.setText(nickname);
+
+            Bitmap avatar = UserViewModel.getAvatar(identifier);
+            avatarView.setImageBitmap(avatar);
+        }
+
+        private void showParticipant(ID id) {
+            identifier = id;
+
+            if (INVITE_BTN_ID.equals(identifier)) {
+                // invite
+                cardView.setVisibility(View.GONE);
+                avatarView.setVisibility(View.GONE);
+                nameView.setVisibility(View.GONE);
+                inviteButton.setVisibility(View.VISIBLE);
+                inviteButton.setOnClickListener(v -> invite());
+                expelButton.setVisibility(View.GONE);
+                return;
+            }
+            if (EXPEL_BTN_ID.equals(identifier)) {
+                // expel
+                cardView.setVisibility(View.GONE);
+                avatarView.setVisibility(View.GONE);
+                nameView.setVisibility(View.GONE);
+                inviteButton.setVisibility(View.GONE);
+                expelButton.setVisibility(View.VISIBLE);
+                expelButton.setOnClickListener(v -> expel());
+                return;
+            }
+
+            cardView.setVisibility(View.VISIBLE);
+            cardView.setOnClickListener(v -> showProfile(identifier));
+
+            avatarView.setVisibility(View.VISIBLE);
+            nameView.setVisibility(View.VISIBLE);
+
+            inviteButton.setVisibility(View.GONE);
+            expelButton.setVisibility(View.GONE);
+
+            refresh();
+        }
     }
 }

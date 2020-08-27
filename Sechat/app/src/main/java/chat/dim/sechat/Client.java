@@ -26,6 +26,13 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
+    public void finalize() throws Throwable {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MembersUpdated);
+        super.finalize();
+    }
+
+    @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
         Map info = notification.userInfo;

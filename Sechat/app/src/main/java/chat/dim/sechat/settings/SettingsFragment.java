@@ -23,7 +23,6 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
-import chat.dim.ui.Alert;
 
 public class SettingsFragment extends Fragment implements Observer {
 
@@ -102,7 +101,7 @@ public class SettingsFragment extends Fragment implements Observer {
     }
 
     private void selectProvider() {
-        Alert.tips(getContext(), "Not implement yet!");
+        //Alert.tips(getContext(), "Not implement yet!");
     }
 
     private void selectStation() {

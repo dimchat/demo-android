@@ -3,7 +3,6 @@ package chat.dim.sechat.settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -60,8 +59,8 @@ public class StationViewAdapter extends RecyclerViewAdapter<StationViewAdapter.V
         final TextView portView;
         final TextView nameView;
 
-        final Button chooseButton;
-        final Button deleteButton;
+        final View chooseButton;
+        final View deleteButton;
 
         public ViewHolder(View view) {
             super(view);

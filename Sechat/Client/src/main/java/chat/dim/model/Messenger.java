@@ -79,6 +79,13 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         nc.addObserver(this, NotificationNames.MetaSaved);
     }
 
+    @Override
+    public void finalize() throws Throwable {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.MetaSaved);
+        super.finalize();
+    }
+
     public Server server = null;
 
     private final Map<ID, List<ReliableMessage>> incomingMessages = new HashMap<>();
@@ -129,6 +136,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         try {
             List<ReliableMessage> messages = incomingMessages.get(waiting);
             if (messages != null && messages.size() > 0) {
+                System.out.println("==== processing incoming message(s): " + messages.size() + ", " + waiting);
                 rMsg = messages.remove(0);
             }
         } finally {
