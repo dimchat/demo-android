@@ -10,7 +10,7 @@ dependencies {
     implementation group: 'chat.dim', name: 'StarGate', version: '0.1.4'
 
     implementation group: 'chat.dim', name: 'DMTP', version: '0.1.0'
-    implementation group: 'chat.dim', name: 'FSM', version: '0.1.0'
+    implementation group: 'chat.dim', name: 'FSM', version: '0.1.1'
 }
 
 sourceCompatibility = "7"

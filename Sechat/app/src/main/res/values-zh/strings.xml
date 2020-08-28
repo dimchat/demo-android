@@ -34,7 +34,6 @@
     <string name="server_connecting">连接中</string>
     <string name="server_error">网络错误</string>
     <string name="server_handshaking">登录中</string>
-    <string name="server_stopped">终止</string>
     <string name="server_default">等待中</string>
     <string name="account_saved">账号保存成功</string>
     <string name="choose_avatar">选择头像</string>

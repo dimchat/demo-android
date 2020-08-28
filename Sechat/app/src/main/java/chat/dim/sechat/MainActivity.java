@@ -19,7 +19,7 @@ import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
-import chat.dim.network.StateMachine;
+import chat.dim.network.ServerState;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -100,19 +100,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
         CharSequence status;
         if (serverState == null) {
             status = null;
-        } else if (serverState.equals(StateMachine.defaultState)) {
+        } else if (serverState.equals(ServerState.DEFAULT)) {
             status = getText(R.string.server_default);
-        } else if (serverState.equals(StateMachine.connectingState)) {
+        } else if (serverState.equals(ServerState.CONNECTING)) {
             status = getText(R.string.server_connecting);
-        } else if (serverState.equals(StateMachine.connectedState)) {
+        } else if (serverState.equals(ServerState.CONNECTED)) {
             status = getText(R.string.server_connected);
-        } else if (serverState.equals(StateMachine.handshakingState)) {
+        } else if (serverState.equals(ServerState.HANDSHAKING)) {
             status = getText(R.string.server_handshaking);
-        } else if (serverState.equals(StateMachine.errorState)) {
+        } else if (serverState.equals(ServerState.ERROR)) {
             status = getText(R.string.server_error);
-        } else if (serverState.equals(StateMachine.stoppedState)) {
-            status = getText(R.string.server_stopped);
-        } else if (serverState.equals(StateMachine.runningState)) {
+        } else if (serverState.equals(ServerState.RUNNING)) {
             status = null;
         } else {
             status = null;

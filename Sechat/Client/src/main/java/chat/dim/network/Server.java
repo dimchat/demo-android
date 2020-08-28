@@ -59,7 +59,7 @@ import chat.dim.stargate.StarStatus;
 import chat.dim.stargate.wormhole.Hole;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate {
+public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate<ServerState> {
 
     public final String name;
 
@@ -81,9 +81,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         super(identifier, host, port);
         name = title;
         // connection state machine
-        fsm = new StateMachine();
-        fsm.server = this;
-        fsm.delegate = this;
+        fsm = new StateMachine(this);
         fsm.start();
     }
 
@@ -175,7 +173,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void handshakeAccepted() {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.name.equals(StateMachine.handshakingState)) {
+        if (!state.name.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
             Log.error("server state error: " + state.name);
         }
@@ -187,7 +185,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void handshakeAgain(String sessionKey) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.name.equals(StateMachine.handshakingState)) {
+        if (!state.name.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
             Log.error("server state error: " + state.name);
         }
@@ -256,8 +254,6 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         setStar(null);
 
         fsm.stop();
-        fsm.server = null;
-        fsm.delegate = null;
     }
 
     void pause() {
@@ -379,7 +375,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         ServerState state;
         while (waitingList.size() > 0 && getStatus() == StarStatus.Connected) {
             state = getCurrentState();
-            if (state == null || !state.name.equals(StateMachine.runningState)) {
+            if (state == null || !state.name.equals(ServerState.RUNNING)) {
                 break;
             }
             wrapper = waitingList.remove(0);
@@ -401,7 +397,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         RequestWrapper wrapper = new RequestWrapper(data, handler);
 
         ServerState state = getCurrentState();
-        if (!state.name.equals(StateMachine.runningState)) {
+        if (state == null || !state.name.equals(ServerState.RUNNING)) {
             waitingList.add(wrapper);
             return true;
         }
@@ -448,17 +444,17 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         nc.postNotification(NotificationNames.ServerStateChanged, this, info);
 
         switch (serverState.name) {
-            case StateMachine.handshakingState: {
+            case ServerState.HANDSHAKING: {
                 // start handshake
                 handshake(null);
                 break;
             }
-            case StateMachine.runningState: {
+            case ServerState.RUNNING: {
                 // send all packages waiting
                 sendAllWaiting();
                 break;
             }
-            case StateMachine.errorState: {
+            case ServerState.ERROR: {
                 // reconnect
                 restart();
                 break;
