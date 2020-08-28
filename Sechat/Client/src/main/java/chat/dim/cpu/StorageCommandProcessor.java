@@ -75,7 +75,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         }
         // 3. decrypt key
         Facebook facebook = getFacebook();
-        User user = facebook.getUser(facebook.getID(identifier));
+        User user = facebook.getUser(identifier);
         key = user.decrypt(key);
         if (key == null) {
             throw new NullPointerException("failed to decrypt key: " + cmd);
@@ -108,8 +108,7 @@ public class StorageCommandProcessor extends CommandProcessor {
                 throw new NullPointerException("failed to decrypt contacts: " + cmd);
             }
         }
-        Facebook facebook = getFacebook();
-        ID identifier = facebook.getID(cmd.getIdentifier());
+        ID identifier = cmd.getIdentifier();
         return saveContacts(contacts, identifier);
     }
 
@@ -134,8 +133,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         if (key == null) {
             throw new NullPointerException("failed to decrypt private key: " + cmd);
         }
-        Facebook facebook = getFacebook();
-        ID identifier = facebook.getID(cmd.getIdentifier());
+        ID identifier = cmd.getIdentifier();
         return savePrivateKey(key, identifier);
     }
 

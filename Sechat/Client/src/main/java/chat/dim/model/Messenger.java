@@ -61,6 +61,7 @@ import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReportCommand;
@@ -68,6 +69,7 @@ import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
+import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger implements Observer {
     private static final Messenger ourInstance = new Messenger();
@@ -137,7 +139,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         try {
             List<ReliableMessage> messages = incomingMessages.get(waiting);
             if (messages != null && messages.size() > 0) {
-                System.out.println("==== processing incoming message(s): " + messages.size() + ", " + waiting);
+                Log.info("==== processing incoming message(s): " + messages.size() + ", " + waiting);
                 rMsg = messages.remove(0);
             }
         } finally {
@@ -242,15 +244,14 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             // urgent command
             return res;
         }
-        /*
+
         if (res instanceof ReceiptCommand) {
-            ID receiver = getFacebook().getID(rMsg.envelope.receiver);
+            ID receiver = rMsg.envelope.getReceiver();
             if (NetworkType.Station.equals(receiver.getType())) {
                 // no need to respond receipt to station
                 return null;
             }
         }
-         */
 
         if (content instanceof QueryCommand) {
             if (res instanceof GroupCommand) {

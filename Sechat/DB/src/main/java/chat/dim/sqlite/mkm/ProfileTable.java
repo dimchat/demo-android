@@ -36,6 +36,7 @@ import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.format.Base64;
 import chat.dim.sqlite.DataTable;
+import chat.dim.utils.Log;
 
 public final class ProfileTable extends DataTable implements chat.dim.database.ProfileTable {
 
@@ -88,6 +89,7 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
         if (insert(EntityDatabase.T_PROFILE, null, values) < 0) {
             return false;
         }
+        Log.info("-------- profile updated: " + entity);
 
         // 2. store into memory cache
         profileTable.put(entity, profile);

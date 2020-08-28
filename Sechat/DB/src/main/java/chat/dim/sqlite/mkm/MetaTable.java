@@ -39,6 +39,7 @@ import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.protocol.MetaType;
 import chat.dim.sqlite.DataTable;
+import chat.dim.utils.Log;
 
 public final class MetaTable extends DataTable implements chat.dim.database.MetaTable {
 
@@ -81,6 +82,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
         if (insert(EntityDatabase.T_META, null, values) < 0) {
             return false;
         }
+        Log.info("-------- meta saved: " + entity);
 
         // 2. store into memory cache
         metaTable.put(entity, meta);

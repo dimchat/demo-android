@@ -38,6 +38,7 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.utils.Log;
 
 public final class Facebook extends chat.dim.common.Facebook {
 
@@ -198,7 +199,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
             // query from DIM network
-            System.out.println("querying meta: " + identifier);
+            Log.info("querying meta: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryMeta(identifier);
         }
@@ -211,7 +212,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         Profile profile = super.getProfile(identifier);
         if (isEmpty(profile)) {
             // query from DIM network
-            System.out.println("querying profile: " + identifier);
+            Log.info("querying profile: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryProfile(identifier);
         }
@@ -242,7 +243,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         List<ID> members = super.getMembers(group);
         if (members == null || members.size() == 0) {
             // query from group assistants
-            System.out.println("querying members: " + group);
+            Log.info("querying members: " + group);
             GroupManager gm = new GroupManager(group);
             gm.query();
         }

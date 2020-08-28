@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Content;
+import chat.dim.Envelope;
 import chat.dim.ID;
 import chat.dim.InstantMessage;
 import chat.dim.crypto.SymmetricKey;
@@ -541,14 +542,15 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             return false;
         }
         ReceiptCommand receipt = (ReceiptCommand) content;
-        Object sender = iMsg.envelope.getSender();
-        Object receiver = iMsg.envelope.getReceiver();
+        ID sender = (ID) iMsg.envelope.getSender();
+        ID receiver = (ID) iMsg.envelope.getReceiver();
         // FIXME: check for origin conversation
         if (entity.isUser()) {
-            if (receiver.equals(receipt.get("sender"))) {
-                receiver = receipt.get("receiver");
+            Envelope<ID> env = receipt.getEnvelope();
+            if (env != null && receiver.equals(env.getSender())) {
+                receiver = env.getSender();
                 if (receiver != null) {
-                    entity = EntityDatabase.getID(receiver);
+                    entity = receiver;
                 }
             }
         }

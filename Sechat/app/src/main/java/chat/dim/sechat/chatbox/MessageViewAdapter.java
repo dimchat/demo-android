@@ -184,7 +184,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
                 return;
             }
             if (ExternalStorage.exists(path)) {
-                System.out.println("playing " + path);
+                Log.info("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
             }
         }
@@ -384,7 +384,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         void onDownloadFailure() {
-            Log.info("failed to download: " + downloadingURL);
+            Log.error("failed to download: " + downloadingURL);
             if (fileContent instanceof ImageContent) {
                 failureMask.setVisibility(View.VISIBLE);
             } else if (fileContent instanceof AudioContent) {
