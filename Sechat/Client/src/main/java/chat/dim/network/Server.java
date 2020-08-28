@@ -73,7 +73,9 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     private Map<String, Object> startOptions = null;
 
-    StationDelegate delegate;
+    StationDelegate delegate = null;
+
+    private boolean paused = false;
 
     Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
@@ -135,16 +137,18 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     public void handshake(String newSession) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!StateMachine.handshakingState.equals(state.name)) {
-            // FIXME: sometimes the connection state will be reset
-            return;
-        }
+//        if (!StateMachine.handshakingState.equals(state.name)) {
+//            // FIXME: sometimes the connection state will be reset
+//            return;
+//        }
         // check connection status == 'Connected'
         if (getStatus() != StarStatus.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
             return;
         }
-        session = newSession;
+        if (newSession != null) {
+            session = newSession;
+        }
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         setLastReceivedMessageTime(cmd);
@@ -219,13 +223,12 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         writeLock.lock();
         try {
             if (star == null) {
-                star = new Hole(this);
+                setStar(new Hole(this));
             }
             Log.info("launching with options: " + options);
+            star.launch(options);
 
             // TODO: post notification "StationConnecting"
-
-            star.launch(options);
         } finally {
             writeLock.unlock();
         }
@@ -233,21 +236,35 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         // TODO: let the subclass to create StarGate
     }
 
-    void end() {
-        Lock readLock = starLock.readLock();
-        readLock.lock();
+    private void setStar(Star newStar) {
+        Lock writeLock = starLock.writeLock();
+        writeLock.lock();
         try {
             if (star != null) {
+                if (star instanceof Hole) {
+                    ((Hole) star).disconnect();
+                }
                 star.terminate();
             }
+            star = newStar;
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
+    }
+
+    void end() {
+        setStar(null);
 
         fsm.stop();
+        fsm.server = null;
+        fsm.delegate = null;
     }
 
     void pause() {
+        if (paused) {
+            return;
+        }
+
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -259,9 +276,16 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
 
         fsm.pause();
+
+        paused = true;
     }
 
     void resume() {
+        if (!paused) {
+            return;
+        }
+        paused = false;
+
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -273,6 +297,10 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
 
         fsm.resume();
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     private void send(byte[] payload) {
@@ -291,19 +319,11 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         if (startOptions == null) {
             return;
         }
+        setStar(new Hole(this));
+        Log.info("restart with options: " + startOptions);
+        star.launch(startOptions);
 
-        Lock writeLock = starLock.writeLock();
-        writeLock.lock();
-        try {
-            if (star instanceof Hole) {
-                ((Hole) star).disconnect();
-                ((Hole) star).close();
-            }
-            star = new Hole(this);
-            star.launch(startOptions);
-        } finally {
-            writeLock.unlock();
-        }
+        // TODO: post notification "StationConnecting"
     }
 
     //-------- StarDelegate
@@ -430,9 +450,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         switch (serverState.name) {
             case StateMachine.handshakingState: {
                 // start handshake
-                String session = this.session;
-                this.session = null;
-                handshake(session);
+                handshake(null);
                 break;
             }
             case StateMachine.runningState: {

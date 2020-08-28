@@ -167,6 +167,7 @@ public class Terminal implements StationDelegate {
         Server server = getCurrentServer();
         if (server == null || server.getPort() != port || !server.getHost().equals(host)) {
             server = new Server(identifier, host, port, name);
+            server.setDataSource(Facebook.getInstance());
             server.delegate = this;
             server.start(options);
             setCurrentServer(server);
@@ -213,27 +214,37 @@ public class Terminal implements StationDelegate {
         }
     }
 
-    private boolean isServerPaused = false;
-
     private Date offlineTime = null;
+
+    private void reportOnline() {
+        Command cmd = new ReportCommand(ReportCommand.ONLINE);
+        Date now = new Date();
+        cmd.put("time", now.getTime() / 1000);
+        if (offlineTime != null) {
+            cmd.put("last_time", offlineTime.getTime() / 1000);
+        }
+        messenger.sendCommand(cmd);
+    }
+    private void reportOffline() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        // report client state
+        Command cmd = new ReportCommand(ReportCommand.OFFLINE);
+        cmd.put("time", offlineTime.getTime() / 1000);
+        messenger.sendCommand(cmd);
+    }
 
     public void enterBackground() {
         offlineTime = new Date();
         Server server = getCurrentServer();
         if (server != null) {
-            User user = getCurrentUser();
-            if (user != null) {
-                // report client state
-                Command cmd = new ReportCommand(ReportCommand.OFFLINE);
-                cmd.put("time", offlineTime.getTime() / 1000);
-                messenger.sendCommand(cmd);
-            }
+            // report client state
+            reportOffline();
 
             // pause the server
-            if (!isServerPaused) {
-                server.pause();
-                isServerPaused = true;
-            }
+            server.pause();
         }
     }
 
@@ -241,24 +252,12 @@ public class Terminal implements StationDelegate {
         Server server = getCurrentServer();
         if (server != null) {
             // resume the server
-            if (isServerPaused) {
-                server.resume();
-                isServerPaused = false;
-            }
+            server.resume();
 
             // clear icon badge
 
-            User user = getCurrentUser();
-            if (user != null) {
-                // report client state
-                Command cmd = new ReportCommand(ReportCommand.ONLINE);
-                Date now = new Date();
-                cmd.put("time", now.getTime() / 1000);
-                if (offlineTime != null) {
-                    cmd.put("last_time", offlineTime.getTime() / 1000);
-                }
-                messenger.sendCommand(cmd);
-            }
+            // try to activate the connection
+            server.handshake(null);
         }
     }
 
@@ -298,6 +297,9 @@ public class Terminal implements StationDelegate {
         if (profile != null) {
             messenger.postProfile(profile);
         }
+
+        // report client state
+        reportOnline();
 
         // broadcast login command
         LoginCommand login = new LoginCommand(user.identifier);
