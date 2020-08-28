@@ -56,6 +56,7 @@ import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ForwardContent;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.MetaCommand;
@@ -251,6 +252,17 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
          */
 
+        if (content instanceof QueryCommand) {
+            if (res instanceof GroupCommand) {
+                Facebook facebook = (Facebook) getFacebook();
+                String name = facebook.getNickname(sender);
+                if (name == null || name.length() == 0) {
+                    name = sender.toString();
+                }
+                res.put("text", name + " is querying group info, responded.");
+            }
+        }
+
         // check receiver
         ID receiver = rMsg.envelope.getReceiver();
         User user = select(receiver);
@@ -370,7 +382,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
-            // broadcast ID has not meta
+            // broadcast ID has no meta
             return false;
         }
 
@@ -388,6 +400,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     public boolean queryProfile(ID identifier) {
+        if (identifier.isBroadcast()) {
+            // broadcast ID has no profile
+            return false;
+        }
+
         // check for duplicated querying
         Date now = new Date();
         Date lastTime = profileQueryTime.get(identifier);
@@ -402,6 +419,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     public boolean queryGroupInfo(ID group, List<ID> members) {
+        if (group.equals(ID.EVERYONE)) {
+            // this group contains all users
+            return false;
+        }
+
         // check for duplicated querying
         Date now = new Date();
         Date lastTime = groupQueryTime.get(group);
