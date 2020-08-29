@@ -49,14 +49,17 @@ import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
+import chat.dim.mtp.protocol.Package;
+import chat.dim.mtp.protocol.TransactionID;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
-import chat.dim.stargate.Star;
+import chat.dim.sg.Star;
+import chat.dim.sg.StarStatus;
+import chat.dim.stargate.Gate;
+import chat.dim.stargate.Passenger;
 import chat.dim.stargate.StarDelegate;
-import chat.dim.stargate.StarStatus;
-import chat.dim.stargate.wormhole.Hole;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate<ServerState> {
@@ -68,7 +71,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     private final StateMachine fsm;
 
-    private Star star = null;
+    private Gate star = null;
     final private ReadWriteLock starLock = new ReentrantReadWriteLock();
 
     private Map<String, Object> startOptions = null;
@@ -134,7 +137,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     public void handshake(String newSession) {
         // check FSM state == 'Handshaking'
-        ServerState state = getCurrentState();
+//        ServerState state = getCurrentState();
 //        if (!StateMachine.handshakingState.equals(state.name)) {
 //            // FIXME: sometimes the connection state will be reset
 //            return;
@@ -167,7 +170,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
         // send out directly
         byte[] data = messenger.serializeMessage(rMsg);
-        send(data);
+        send(data, Passenger.URGENT);
     }
 
     public void handshakeAccepted() {
@@ -221,7 +224,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         writeLock.lock();
         try {
             if (star == null) {
-                setStar(new Hole(this));
+                setStar(new Gate(this));
             }
             Log.info("launching with options: " + options);
             star.launch(options);
@@ -234,14 +237,12 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         // TODO: let the subclass to create StarGate
     }
 
-    private void setStar(Star newStar) {
+    private void setStar(Gate newStar) {
         Lock writeLock = starLock.writeLock();
         writeLock.lock();
         try {
             if (star != null) {
-                if (star instanceof Hole) {
-                    ((Hole) star).disconnect();
-                }
+                star.disconnect();
                 star.terminate();
             }
             star = newStar;
@@ -299,12 +300,13 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         return paused;
     }
 
-    private void send(byte[] payload) {
+    private void send(byte[] payload, int priority) {
+        Passenger passenger = new Passenger(payload, priority);
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
             if (star != null) {
-                star.send(payload);
+                star.send(passenger, this);
             }
         } finally {
             readLock.unlock();
@@ -315,7 +317,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         if (startOptions == null) {
             return;
         }
-        setStar(new Hole(this));
+        setStar(new Gate(this));
         Log.info("restart with options: " + startOptions);
         star.launch(startOptions);
 
@@ -325,22 +327,23 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     //-------- StarDelegate
 
     @Override
-    public void onReceive(byte[] responseData, Star star) {
-        Log.info("received " + responseData.length + " bytes");
-        delegate.onReceivePackage(responseData, this);
+    public void onReceived(Star<TransactionID, Package> star, Package response) {
+        Log.info("received " + response.getLength() + " bytes");
+        delegate.onReceivePackage(response.body.getBytes(), this);
     }
 
     @Override
-    public void onStatusChanged(StarStatus status, Star star) {
-        Log.info("status changed: " + status);
+    public void onStatusChanged(Star<TransactionID, Package> star, StarStatus oldStatus, StarStatus newStatus) {
+        Log.info("status changed: " + oldStatus + " -> " + newStatus);
         fsm.tick();
     }
 
     @Override
-    public void onFinishSend(byte[] requestData, Error error, Star star) {
-        Log.info("sent " + requestData.length + " bytes");
+    public void onSent(Star<TransactionID, Package> star, Package request, Error error) {
+        Log.info("sent " + request.getLength() + " bytes");
         CompletionHandler handler = null;
 
+        byte[] requestData = request.body.getBytes();
         String key = RequestWrapper.getKey(requestData);
         RequestWrapper wrapper = sendingTable.get(key);
         if (wrapper != null) {
@@ -384,7 +387,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     private void send(RequestWrapper wrapper) {
-        send(wrapper.data);
+        send(wrapper.data, wrapper.priority);
 
         if (wrapper.handler != null) {
             String key = RequestWrapper.getKey(wrapper.data);
@@ -394,7 +397,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        RequestWrapper wrapper = new RequestWrapper(data, handler);
+        RequestWrapper wrapper = new RequestWrapper(Passenger.SLOWER, data, handler);
 
         ServerState state = getCurrentState();
         if (state == null || !state.name.equals(ServerState.RUNNING)) {

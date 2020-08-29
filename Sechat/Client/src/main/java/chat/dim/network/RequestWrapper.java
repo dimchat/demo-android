@@ -31,13 +31,15 @@ import chat.dim.format.Base64;
 
 class RequestWrapper {
 
+    final int priority;
     final byte[] data;
     final CompletionHandler handler;
 
-    RequestWrapper(byte[] payload, CompletionHandler callback) {
+    RequestWrapper(int priority, byte[] payload, CompletionHandler callback) {
         super();
-        data = payload;
-        handler = callback;
+        this.priority = priority;
+        this.data = payload;
+        this.handler = callback;
     }
 
     static String getKey(byte[] payload) {

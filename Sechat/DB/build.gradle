@@ -31,7 +31,7 @@ dependencies {
 
     implementation group: 'chat.dim', name: 'SDK', version: '0.4.10'
     implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
-    implementation group: 'chat.dim', name: 'StarGate', version: '0.1.4'
+    implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
 

@@ -31,7 +31,7 @@ import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.State;
 import chat.dim.fsm.Transition;
-import chat.dim.stargate.StarStatus;
+import chat.dim.sg.StarStatus;
 import chat.dim.utils.Log;
 
 public class ServerState extends State<ServerState> {
