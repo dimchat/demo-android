@@ -64,10 +64,12 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        // 0. clear duplicate record
-        String[] whereArgs = {entity.toString()};
-        delete(EntityDatabase.T_META, "did=?", whereArgs);
-
+        // 0. check duplicate record
+        if (getMeta(entity) != null) {
+            // meta won't change, no need to update
+            Log.info("meta exists: " + entity);
+            return true;
+        }
         PublicKey key = meta.getKey();
         byte[] data = JSON.encode(key);
         String pk = new String(data, Charset.forName("UTF-8"));

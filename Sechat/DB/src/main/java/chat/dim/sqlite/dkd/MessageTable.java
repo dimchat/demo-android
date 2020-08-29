@@ -548,7 +548,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         if (entity.isUser()) {
             Envelope<ID> env = receipt.getEnvelope();
             if (env != null && receiver.equals(env.getSender())) {
-                receiver = env.getSender();
+                receiver = env.getReceiver();
                 if (receiver != null) {
                     entity = receiver;
                 }
