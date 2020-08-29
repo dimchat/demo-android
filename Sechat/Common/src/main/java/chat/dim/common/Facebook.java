@@ -262,28 +262,25 @@ public class Facebook extends chat.dim.Facebook {
         }
         // try from database
         Meta meta = metaTable.getMeta(identifier);
-        if (meta != null) {
-            // is empty?
-            if (meta.getKey() != null) {
-                return meta;
+        if (meta == null || meta.getKey() == null) {
+            // try from immortals
+            if (identifier.getType() == NetworkType.Main.value) {
+                meta = immortals.getMeta(identifier);
+                if (meta != null) {
+                    metaTable.saveMeta(meta, identifier);
+                    return meta;
+                }
             }
+            meta = null;
         }
-        // try from immortals
-        if (identifier.getType() == NetworkType.Main.value) {
-            meta = immortals.getMeta(identifier);
-            if (meta != null) {
-                metaTable.saveMeta(meta, identifier);
-                return meta;
-            }
-        }
-        return null;
+        return meta;
     }
 
     @Override
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = profileTable.getProfile(identifier);
-        if (profile == null) {
+        if (isEmpty(profile)) {
             // try from immortals
             if (identifier.getType() == NetworkType.Main.value) {
                 Profile tai = immortals.getProfile(identifier);
@@ -292,15 +289,17 @@ public class Facebook extends chat.dim.Facebook {
                     return tai;
                 }
             }
-        } else {
-            // check expired time
-            Number expires = (Number) profile.get(EXPIRES_KEY);
-            if (expires == null) {
-                // set expired time
-                Date now = new Date();
-                long timestamp = now.getTime() / 1000;
-                profile.put(EXPIRES_KEY, timestamp + EXPIRES);
+            if (profile == null) {
+                throw new NullPointerException("profile not found: " + identifier);
             }
+        }
+        // check expired time
+        Number expires = (Number) profile.get(EXPIRES_KEY);
+        if (expires == null) {
+            // set expired time
+            Date now = new Date();
+            long timestamp = now.getTime() / 1000;
+            profile.put(EXPIRES_KEY, timestamp + EXPIRES);
         }
         return profile;
     }
@@ -325,7 +324,7 @@ public class Facebook extends chat.dim.Facebook {
         Date now = new Date();
         long timestamp = now.getTime() / 1000;
         Number expires = (Number) profile.get(EXPIRES_KEY);
-        return expires != null && expires.longValue() > timestamp;
+        return expires != null && expires.longValue() < timestamp;
     }
 
     //-------- UserDataSource

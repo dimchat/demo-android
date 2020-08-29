@@ -210,7 +210,7 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = super.getProfile(identifier);
-        if (isEmpty(profile)) {
+        if (isExpired(profile)) {
             // query from DIM network
             Log.info("querying profile: " + identifier);
             Messenger messenger = Messenger.getInstance();
