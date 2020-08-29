@@ -50,19 +50,18 @@ import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
 import chat.dim.mtp.protocol.Package;
-import chat.dim.mtp.protocol.TransactionID;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.sg.Star;
+import chat.dim.sg.StarDelegate;
 import chat.dim.sg.StarStatus;
 import chat.dim.stargate.Gate;
-import chat.dim.stargate.Passenger;
-import chat.dim.stargate.StarDelegate;
+import chat.dim.stargate.Ship;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements MessengerDelegate, StarDelegate, StateDelegate<ServerState> {
+public class Server extends Station implements MessengerDelegate, StarDelegate<Package>, StateDelegate<ServerState> {
 
     public final String name;
 
@@ -170,7 +169,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
         }
         // send out directly
         byte[] data = messenger.serializeMessage(rMsg);
-        send(data, Passenger.URGENT);
+        send(data, Ship.URGENT);
     }
 
     public void handshakeAccepted() {
@@ -301,12 +300,12 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     }
 
     private void send(byte[] payload, int priority) {
-        Passenger passenger = new Passenger(payload, priority);
+        Ship ship = new Ship(priority, payload, this);
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
             if (star != null) {
-                star.send(passenger, this);
+                star.send(ship);
             }
         } finally {
             readLock.unlock();
@@ -327,19 +326,19 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
     //-------- StarDelegate
 
     @Override
-    public void onReceived(Star<TransactionID, Package> star, Package response) {
+    public void onReceived(Star star, Package response) {
         Log.info("received " + response.getLength() + " bytes");
         delegate.onReceivePackage(response.body.getBytes(), this);
     }
 
     @Override
-    public void onStatusChanged(Star<TransactionID, Package> star, StarStatus oldStatus, StarStatus newStatus) {
+    public void onStatusChanged(Star star, StarStatus oldStatus, StarStatus newStatus) {
         Log.info("status changed: " + oldStatus + " -> " + newStatus);
         fsm.tick();
     }
 
     @Override
-    public void onSent(Star<TransactionID, Package> star, Package request, Error error) {
+    public void onSent(Star star, Package request, Error error) {
         Log.info("sent " + request.getLength() + " bytes");
         CompletionHandler handler = null;
 
@@ -397,7 +396,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate, 
 
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        RequestWrapper wrapper = new RequestWrapper(Passenger.SLOWER, data, handler);
+        RequestWrapper wrapper = new RequestWrapper(Ship.SLOWER, data, handler);
 
         ServerState state = getCurrentState();
         if (state == null || !state.name.equals(ServerState.RUNNING)) {
