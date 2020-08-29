@@ -25,7 +25,6 @@ import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
-import chat.dim.sechat.profile.ProfileViewModel;
 import chat.dim.ui.Alert;
 
 public class ChatManageFragment extends Fragment {
@@ -49,8 +48,6 @@ public class ChatManageFragment extends Fragment {
     public static ChatManageFragment newInstance(ID identifier) {
         if (identifier.isGroup()) {
             GroupViewModel.checkMembers(identifier);
-            // refresh group profile
-            ProfileViewModel.updateProfile(identifier);
         }
 
         ChatManageFragment fragment = new ChatManageFragment();

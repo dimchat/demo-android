@@ -119,7 +119,7 @@ class StateMachine extends AutoMachine<ServerState> {
         return state;
     }
 
-    private State<ServerState> getConnectingState() {
+    private ServerState getConnectingState() {
         ServerState state = new ServerState(ServerState.CONNECTING);
 
         // target state: Connected

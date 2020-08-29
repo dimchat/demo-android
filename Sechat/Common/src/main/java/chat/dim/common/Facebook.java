@@ -82,7 +82,7 @@ public class Facebook extends chat.dim.Facebook {
         };
     }
 
-    public static long EXPIRES = 3600;  // profile expires (1 hour)
+    public static long EXPIRES = 1800;  // profile expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
 
     private final AddressNameService ans;
@@ -239,7 +239,8 @@ public class Facebook extends chat.dim.Facebook {
     public String getNickname(ID identifier) {
         assert identifier.isUser() : "ID error: " + identifier;
         Profile profile = getProfile(identifier);
-        return profile == null ? null : profile.getName();
+        assert profile != null : "profile object should not be null: " + identifier;
+        return profile.getName();
     }
     public String getGroupName(ID identifier) {
         return getNickname(identifier);
@@ -289,18 +290,9 @@ public class Facebook extends chat.dim.Facebook {
                     return tai;
                 }
             }
-            if (profile == null) {
-                throw new NullPointerException("profile not found: " + identifier);
-            }
+            assert profile != null : "profile object should not be null: " + identifier;
         }
-        // check expired time
-        Number expires = (Number) profile.get(EXPIRES_KEY);
-        if (expires == null) {
-            // set expired time
-            Date now = new Date();
-            long timestamp = now.getTime() / 1000;
-            profile.put(EXPIRES_KEY, timestamp + EXPIRES);
-        }
+        isExpired(profile);
         return profile;
     }
 
@@ -321,10 +313,14 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public boolean isExpired(Profile profile) {
-        Date now = new Date();
-        long timestamp = now.getTime() / 1000;
+        long now = (new Date()).getTime() / 1000;
         Number expires = (Number) profile.get(EXPIRES_KEY);
-        return expires != null && expires.longValue() < timestamp;
+        if (expires == null) {
+            // set expired time
+            profile.put(EXPIRES_KEY, now + EXPIRES);
+            return false;
+        }
+        return now > expires.longValue();
     }
 
     //-------- UserDataSource

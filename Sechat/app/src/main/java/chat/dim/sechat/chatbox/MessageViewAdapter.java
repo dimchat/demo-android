@@ -39,6 +39,7 @@ import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.ContactList;
+import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.ui.image.ImageViewerActivity;
@@ -234,7 +235,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         // name
         if (viewHolder.nameView != null) {
-            String name = UserViewModel.getNickname(sender);
+            String name = EntityViewModel.getName(sender);
             viewHolder.nameView.setText(name);
         }
 

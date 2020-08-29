@@ -113,21 +113,17 @@ public class UpdateAccountFragment extends Fragment {
             throw new NullPointerException("current user ID empty");
         }
         Profile profile = mViewModel.getProfile();
-        if (profile == null) {
-            profile = new UserProfile(identifier);
-        }
+        assert profile != null : "profile object should not be null: " + identifier;
 
         // upload avatar
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            if (imageData != null) {
-                String avatarURL = ftp.uploadAvatar(imageData, identifier);
-                if (profile instanceof UserProfile) {
-                    ((UserProfile) profile).setAvatar(avatarURL);
-                } else {
-                    profile.setProperty("avatar", avatarURL);
-                }
+            String avatarURL = ftp.uploadAvatar(imageData, identifier);
+            if (profile instanceof UserProfile) {
+                ((UserProfile) profile).setAvatar(avatarURL);
+            } else {
+                profile.setProperty("avatar", avatarURL);
             }
         }
 

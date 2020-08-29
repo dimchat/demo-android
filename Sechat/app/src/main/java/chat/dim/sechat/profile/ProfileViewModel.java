@@ -5,26 +5,10 @@ import android.net.Uri;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.Profile;
 import chat.dim.User;
-import chat.dim.model.Messenger;
 import chat.dim.sechat.model.UserViewModel;
-import chat.dim.threading.BackgroundThreads;
 
 public class ProfileViewModel extends UserViewModel {
-
-    public static void updateProfile(ID identifier) {
-        if (identifier == null) {
-            return;
-        }
-        BackgroundThreads.wait(() -> {
-            Messenger messenger = Messenger.getInstance();
-            Profile profile = facebook.getProfile(identifier);
-            if (profile == null || facebook.isExpired(profile)) {
-                messenger.queryProfile(identifier);
-            }
-        });
-    }
 
     Uri getAvatarUri() {
         ID identifier = getIdentifier();

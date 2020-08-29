@@ -68,9 +68,12 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
         } else {
             entity = identifier.toString();
         }
-        // 0. clear duplicate record
-        String[] whereArgs = {entity};
-        delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
+        // 0. check duplicate record
+        if (getProfile(ID.getInstance(identifier)) != null) {
+            Log.info("profile exists, update it: " + entity);
+            String[] whereArgs = {entity};
+            delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
+        }
 
         String data = (String) profile.get("data");
         String base64 = (String) profile.get("signature");

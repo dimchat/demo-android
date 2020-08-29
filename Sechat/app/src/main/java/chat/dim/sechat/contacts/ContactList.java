@@ -39,11 +39,11 @@ public class ContactList extends DummyList<ContactList.Item> {
             if (contacts != null) {
                 // sort by nickname
                 Comparator<ID> comparator = (uid1, uid2) -> {
-                    String name1 = UserViewModel.getNickname(uid1);
+                    String name1 = EntityViewModel.getName(uid1);
                     if (name1 == null) {
                         name1 = "";
                     }
-                    String name2 = UserViewModel.getNickname(uid2);
+                    String name2 = EntityViewModel.getName(uid2);
                     if (name2 == null) {
                         name2 = "";
                     }

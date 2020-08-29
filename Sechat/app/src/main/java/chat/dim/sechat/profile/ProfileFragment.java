@@ -69,9 +69,6 @@ public class ProfileFragment extends Fragment implements Observer {
     }
 
     public static ProfileFragment newInstance(ID identifier) {
-        // refresh user profile
-        ProfileViewModel.updateProfile(identifier);
-
         ProfileFragment fragment = new ProfileFragment();
         fragment.identifier = identifier;
         return fragment;
@@ -104,7 +101,7 @@ public class ProfileFragment extends Fragment implements Observer {
         Bitmap avatar = mViewModel.getAvatar();
         imageView.setImageBitmap(avatar);
 
-        nameView.setText(mViewModel.getNickname());
+        nameView.setText(mViewModel.getName());
         addressView.setText(mViewModel.getAddressString());
         numberView.setText(mViewModel.getNumberString());
 
@@ -159,8 +156,10 @@ public class ProfileFragment extends Fragment implements Observer {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
         mViewModel.setIdentifier(identifier);
-        // TODO: Use the ViewModel
+        mViewModel.refreshProfile();
+
         refresh();
     }
 }

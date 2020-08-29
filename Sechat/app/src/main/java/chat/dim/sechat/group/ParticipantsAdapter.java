@@ -186,7 +186,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         };
 
         private void refresh() {
-            String nickname = UserViewModel.getNickname(identifier);
+            String nickname = UserViewModel.getName(identifier);
             nameView.setText(nickname);
 
             Bitmap avatar = UserViewModel.getAvatar(identifier);

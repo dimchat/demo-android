@@ -30,6 +30,8 @@ import androidx.lifecycle.ViewModel;
 import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.model.Facebook;
+import chat.dim.model.Messenger;
+import chat.dim.threading.BackgroundThreads;
 
 public class EntityViewModel extends ViewModel {
 
@@ -79,14 +81,10 @@ public class EntityViewModel extends ViewModel {
     //
     //  Name string
     //
-    public static String getName(ID identifier) {
-        String name;
-        Profile profile = facebook.getProfile(identifier);
-        if (profile != null) {
-            name = profile.getName();
-            if (name != null) {
-                return name;
-            }
+    private static String getName(ID identifier, Profile profile) {
+        String name = profile.getName();
+        if (name != null) {
+            return name;
         }
         name = identifier.name;
         if (name != null) {
@@ -94,8 +92,13 @@ public class EntityViewModel extends ViewModel {
         }
         return identifier.toString();
     }
+
+
+    public static String getName(ID identifier) {
+        return getName(identifier, getProfile(identifier));
+    }
     public String getName() {
-        return getName(getIdentifier());
+        return getName(identifier, getProfile());
     }
 
     //
@@ -109,5 +112,15 @@ public class EntityViewModel extends ViewModel {
     }
     public Profile getProfile() {
         return getProfile(getIdentifier());
+    }
+
+    public void refreshProfile() {
+        BackgroundThreads.wait(() -> {
+            Profile profile = getProfile();
+            if (facebook.isEmpty(profile) || facebook.isExpired(profile)) {
+                Messenger messenger = Messenger.getInstance();
+                messenger.queryProfile(identifier);
+            }
+        });
     }
 }

@@ -18,7 +18,6 @@ import chat.dim.User;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
-import chat.dim.sechat.profile.ProfileViewModel;
 
 public class MembersFragment extends Fragment {
 
@@ -33,8 +32,6 @@ public class MembersFragment extends Fragment {
     public static MembersFragment newInstance(ID identifier) {
         if (identifier.isGroup()) {
             GroupViewModel.checkMembers(identifier);
-            // refresh group profile
-            ProfileViewModel.updateProfile(identifier);
         }
 
         MembersFragment fragment = new MembersFragment();

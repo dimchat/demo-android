@@ -1,6 +1,5 @@
 package chat.dim.sechat.chatbox;
 
-import androidx.lifecycle.ViewModel;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -24,6 +23,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ImageContent;
 import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.ui.image.Images;
 
 enum MsgType {
@@ -39,7 +39,7 @@ enum MsgType {
     }
 }
 
-public class ChatboxViewModel extends ViewModel {
+public class ChatboxViewModel extends EntityViewModel {
 
     List<InstantMessage> getAllMessages(Conversation chatBox) {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();

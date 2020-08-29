@@ -214,7 +214,8 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
 
-        // TODO: Use the ViewModel
+        mViewModel.setIdentifier(chatBox.identifier);
+        mViewModel.refreshProfile();
 
         dummyList.setViewModel(mViewModel);
         reloadData();

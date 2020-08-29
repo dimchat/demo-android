@@ -26,6 +26,7 @@
 package chat.dim.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public final class Facebook extends chat.dim.common.Facebook {
     public String getAvatar(ID identifier) {
         String url = null;
         Profile profile = getProfile(identifier);
-        if (profile != null) {
+        if (!isEmpty(profile)) {
             if (profile instanceof UserProfile) {
                 url = ((UserProfile) profile).getAvatar();
             } else {
@@ -199,7 +200,6 @@ public final class Facebook extends chat.dim.common.Facebook {
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
             // query from DIM network
-            Log.info("querying meta: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryMeta(identifier);
         }
@@ -210,9 +210,11 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Profile getProfile(ID identifier) {
         // try from database
         Profile profile = super.getProfile(identifier);
-        if (isExpired(profile)) {
+        if (isEmpty(profile)/* && isExpired(profile)*/) {
+            // update EXPIRES value
+            long now = (new Date()).getTime() / 1000;
+            profile.put(EXPIRES_KEY, now + EXPIRES);
             // query from DIM network
-            Log.info("querying profile: " + identifier);
             Messenger messenger = Messenger.getInstance();
             messenger.queryProfile(identifier);
         }

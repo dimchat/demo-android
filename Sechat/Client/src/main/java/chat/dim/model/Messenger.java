@@ -69,6 +69,7 @@ import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
+import chat.dim.stargate.Ship;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger implements Observer {
@@ -94,6 +95,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     private final Map<ID, List<ReliableMessage>> incomingMessages = new HashMap<>();
     private final ReadWriteLock incomingMessageLock = new ReentrantReadWriteLock();
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
@@ -104,7 +106,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             // purge incoming messages waiting for this ID's meta
             ReliableMessage<ID, SymmetricKey> rMsg;
             byte[] response;
-            //noinspection unchecked
             while ((rMsg = getIncomingMessage(entity)) != null) {
                 rMsg = process(rMsg);
                 if (rMsg == null) {
@@ -112,7 +113,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
                 }
                 response = serializeMessage(rMsg);
                 if (response != null && response.length > 0) {
-                    getDelegate().sendPackage(response, null);
+                    Server server = (Server) getDelegate();
+                    server.sendPackage(Ship.SLOWER, response, null);
                 }
             }
         }
@@ -246,11 +248,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         if (res instanceof ReceiptCommand) {
-            ID receiver = rMsg.envelope.getReceiver();
-            if (NetworkType.Station.equals(receiver.getType())) {
+            if (NetworkType.Station.equals(sender.getType())) {
                 // no need to respond receipt to station
                 return null;
             }
+            Log.info("receipt to sender: " + sender);
         }
 
         if (content instanceof QueryCommand) {
@@ -375,11 +377,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         return sendCommand(cmd);
     }
 
-    private final Map<ID, Date> metaQueryTime = new HashMap<>();
-    private final Map<ID, Date> profileQueryTime = new HashMap<>();
-    private final Map<ID, Date> groupQueryTime = new HashMap<>();
+    private final Map<ID, Long> metaQueryTime = new HashMap<>();
+    private final Map<ID, Long> profileQueryTime = new HashMap<>();
+    private final Map<ID, Long> groupQueryTime = new HashMap<>();
 
-    private static final int EXPIRES = 30 * 1000;  // 30 seconds
+    private static final int EXPIRES = 120;  // query expires (2 minutes)
 
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
@@ -388,16 +390,19 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        Date now = new Date();
-        Date lastTime = metaQueryTime.get(identifier);
-        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
+        long now = (new Date()).getTime() / 1000;
+        Number lastTime = metaQueryTime.get(identifier);
+        if (lastTime != null && now > lastTime.longValue()) {
             return false;
         }
-        metaQueryTime.put(identifier, now);
+        metaQueryTime.put(identifier, now + EXPIRES);
+        Log.info("querying meta: " + identifier);
 
         // query from DIM network
         Command cmd = new MetaCommand(identifier);
-        return sendCommand(cmd);
+        Server server = (Server) getDelegate();
+        server.sendSlowlyCommand(cmd);
+        return true;
     }
 
     public boolean queryProfile(ID identifier) {
@@ -407,16 +412,19 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        Date now = new Date();
-        Date lastTime = profileQueryTime.get(identifier);
-        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
+        long now = (new Date()).getTime() / 1000;
+        Number lastTime = profileQueryTime.get(identifier);
+        if (lastTime != null && now > lastTime.longValue()) {
             return false;
         }
-        profileQueryTime.put(identifier, now);
+        profileQueryTime.put(identifier, now + EXPIRES);
+        Log.info("querying profile: " + identifier);
 
         // query from DIM network
         Command cmd = new ProfileCommand(identifier);
-        return sendCommand(cmd);
+        Server server = (Server) getDelegate();
+        server.sendSlowlyCommand(cmd);
+        return true;
     }
 
     public boolean queryGroupInfo(ID group, List<ID> members) {
@@ -426,12 +434,12 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        Date now = new Date();
-        Date lastTime = groupQueryTime.get(group);
-        if (lastTime != null && (now.getTime() - lastTime.getTime()) < EXPIRES) {
+        long now = (new Date()).getTime() / 1000;
+        Number lastTime = groupQueryTime.get(group);
+        if (lastTime != null && now > lastTime.longValue()) {
             return false;
         }
-        groupQueryTime.put(group, now);
+        groupQueryTime.put(group, now + EXPIRES);
 
         // query from members
         Command cmd = new QueryCommand(group);

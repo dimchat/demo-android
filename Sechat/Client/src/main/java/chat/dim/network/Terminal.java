@@ -42,6 +42,7 @@ import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.ReportCommand;
+import chat.dim.stargate.Ship;
 
 public class Terminal implements StationDelegate {
 
@@ -273,7 +274,7 @@ public class Terminal implements StationDelegate {
             response = null;
         }
         if (response != null && response.length > 0) {
-            currentServer.sendPackage(response, null);
+            currentServer.sendPackage(Ship.SLOWER, response, null);
         }
     }
 
@@ -294,7 +295,7 @@ public class Terminal implements StationDelegate {
 
         // post current profile to station
         Profile profile = user.getProfile();
-        if (profile != null) {
+        if (!facebook.isEmpty(profile)) {
             messenger.postProfile(profile);
         }
 

@@ -52,6 +52,7 @@ import chat.dim.model.Messenger;
 import chat.dim.mtp.protocol.Package;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.sg.Star;
@@ -59,6 +60,7 @@ import chat.dim.sg.StarDelegate;
 import chat.dim.sg.StarStatus;
 import chat.dim.stargate.Gate;
 import chat.dim.stargate.Ship;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarDelegate<Package>, StateDelegate<ServerState> {
@@ -120,7 +122,54 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         return status;
     }
 
+    //---- slowly command for meta/profile
+
+    private ReliableMessage<ID, SymmetricKey> packCommand(Command cmd) {
+        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
+        Messenger messenger = Messenger.getInstance();
+        SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
+        if (sMsg == null) {
+            throw new NullPointerException("failed to encrypt message: " + iMsg);
+        }
+        ReliableMessage<ID, SymmetricKey> rMsg = messenger.signMessage(sMsg);
+        if (rMsg == null) {
+            throw new NullPointerException("failed to sign message: " + sMsg);
+        }
+        return rMsg;
+    }
+
+    public void sendSlowlyCommand(final Command cmd) {
+        BackgroundThreads.wait(new Runnable() {
+            @Override
+            public void run() {
+                ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
+                // send out directly
+                Messenger messenger = Messenger.getInstance();
+                byte[] data = messenger.serializeMessage(rMsg);
+                send(data, Ship.SLOWER);
+            }
+        });
+    }
+
     //---- urgent command for connection
+
+    private void sendUrgentCommand(final HandshakeCommand cmd) {
+        BackgroundThreads.rush(new Runnable() {
+            @Override
+            public void run() {
+                ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
+                // first handshake?
+                if (cmd.state == HandshakeCommand.HandshakeState.START) {
+                    // [Meta protocol]
+                    rMsg.setMeta(currentUser.getMeta());
+                }
+                // send out directly
+                Messenger messenger = Messenger.getInstance();
+                byte[] data = messenger.serializeMessage(rMsg);
+                send(data, Ship.URGENT);
+            }
+        });
+    }
 
     private static void setLastReceivedMessageTime(HandshakeCommand cmd) {
         ConversationDatabase db = ConversationDatabase.getInstance();
@@ -152,24 +201,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         setLastReceivedMessageTime(cmd);
-        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
-        Messenger messenger = Messenger.getInstance();
-        SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
-        if (sMsg == null) {
-            throw new NullPointerException("failed to encrypt message: " + iMsg);
-        }
-        ReliableMessage<ID, SymmetricKey> rMsg = messenger.signMessage(sMsg);
-        if (rMsg == null) {
-            throw new NullPointerException("failed to sign message: " + sMsg);
-        }
-        // first handshake?
-        if (cmd.state == HandshakeCommand.HandshakeState.START) {
-            // [Meta protocol]
-            rMsg.setMeta(currentUser.getMeta());
-        }
-        // send out directly
-        byte[] data = messenger.serializeMessage(rMsg);
-        send(data, Ship.URGENT);
+        sendUrgentCommand(cmd);
     }
 
     public void handshakeAccepted() {
@@ -396,7 +428,11 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
 
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        RequestWrapper wrapper = new RequestWrapper(Ship.SLOWER, data, handler);
+        return sendPackage(Ship.NORMAL, data, handler);
+    }
+
+    public boolean sendPackage(int priority, byte[] data, CompletionHandler handler) {
+        RequestWrapper wrapper = new RequestWrapper(priority, data, handler);
 
         ServerState state = getCurrentState();
         if (state == null || !state.name.equals(ServerState.RUNNING)) {

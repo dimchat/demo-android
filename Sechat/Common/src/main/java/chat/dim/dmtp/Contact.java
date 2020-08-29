@@ -51,7 +51,7 @@ import chat.dim.udp.Connection;
 
 public class Contact {
 
-    public static long EXPIRES = 24 * 3600 * 1000; // 24 hours (milliseconds)
+    public static long EXPIRES = 24 * 3600;  // 24 hours
 
     public final String identifier;
 
@@ -328,7 +328,7 @@ public class Contact {
         if (timestamp <= 0) {
             return true;
         }
-        long now = (new Date()).getTime();
-        return now > (timestamp * 1000 + EXPIRES);
+        long now = (new Date()).getTime() / 1000;
+        return now > (timestamp + EXPIRES);
     }
 }
