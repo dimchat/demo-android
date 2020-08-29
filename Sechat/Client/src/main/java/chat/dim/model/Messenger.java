@@ -381,7 +381,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     private final Map<ID, Long> profileQueryTime = new HashMap<>();
     private final Map<ID, Long> groupQueryTime = new HashMap<>();
 
-    private static final int EXPIRES = 120;  // query expires (2 minutes)
+    private static final int EXPIRES = 120 * 1000;  // query expires (2 minutes)
 
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
@@ -390,7 +390,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        long now = (new Date()).getTime() / 1000;
+        long now = (new Date()).getTime();
         Number lastTime = metaQueryTime.get(identifier);
         if (lastTime != null && now > lastTime.longValue()) {
             return false;
@@ -412,7 +412,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        long now = (new Date()).getTime() / 1000;
+        long now = (new Date()).getTime();
         Number lastTime = profileQueryTime.get(identifier);
         if (lastTime != null && now > lastTime.longValue()) {
             return false;
@@ -434,7 +434,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check for duplicated querying
-        long now = (new Date()).getTime() / 1000;
+        long now = (new Date()).getTime();
         Number lastTime = groupQueryTime.get(group);
         if (lastTime != null && now > lastTime.longValue()) {
             return false;

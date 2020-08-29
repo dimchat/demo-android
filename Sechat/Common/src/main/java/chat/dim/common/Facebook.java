@@ -82,7 +82,7 @@ public class Facebook extends chat.dim.Facebook {
         };
     }
 
-    public static long EXPIRES = 1800;  // profile expires (30 minutes)
+    public static long EXPIRES = 30 * 60 * 1000;  // profile expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
 
     private final AddressNameService ans;
@@ -313,7 +313,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public boolean isExpired(Profile profile) {
-        long now = (new Date()).getTime() / 1000;
+        long now = (new Date()).getTime();
         Number expires = (Number) profile.get(EXPIRES_KEY);
         if (expires == null) {
             // set expired time

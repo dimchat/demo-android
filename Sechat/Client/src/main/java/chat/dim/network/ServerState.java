@@ -44,18 +44,19 @@ public class ServerState extends State<ServerState> {
     public static final String ERROR       = "error";
 
     public final String name;
-    public final Date time;
+    public Date time;
 
     ServerState(String name) {
         super();
         this.name = name;
-        this.time = new Date();
+        this.time = null;
     }
 
     @Override
     protected void onEnter(Machine machine) {
         // do nothing
         Log.info("onEnter: " + name + " state");
+        this.time = new Date();
     }
 
     @Override
@@ -161,8 +162,7 @@ class StateMachine extends AutoMachine<ServerState> {
     }
 
     private ServerState getHandshakingState() {
-        final ServerState state = new ServerState(ServerState.HANDSHAKING);
-        final long expired = state.time.getTime() + 120 * 1000;
+        ServerState state = new ServerState(ServerState.HANDSHAKING);
 
         // target state: Running
         state.addTransition(new Transition<ServerState>(ServerState.RUNNING) {
@@ -179,8 +179,10 @@ class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition<ServerState>(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
+                ServerState state = (ServerState) machine.getCurrentState();
+                long expired = state.time.getTime() + 120 * 1000;
                 long now = (new Date()).getTime();
-                if (now > expired) {
+                if (now < expired) {
                     return false;
                 }
                 assert server != null : "server error";

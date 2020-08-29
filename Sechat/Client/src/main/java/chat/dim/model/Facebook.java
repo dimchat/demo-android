@@ -212,7 +212,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         Profile profile = super.getProfile(identifier);
         if (isEmpty(profile)/* && isExpired(profile)*/) {
             // update EXPIRES value
-            long now = (new Date()).getTime() / 1000;
+            long now = (new Date()).getTime();
             profile.put(EXPIRES_KEY, now + EXPIRES);
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
