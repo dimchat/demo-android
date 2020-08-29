@@ -45,7 +45,6 @@ import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
-import chat.dim.fsm.State;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.Messenger;
@@ -103,7 +102,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     }
 
     private ServerState getCurrentState() {
-        return (ServerState) fsm.getCurrentState();
+        return fsm.getCurrentState();
     }
 
     StarStatus getStatus() {
@@ -473,15 +472,13 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     //-------- StateDelegate
 
     @Override
-    public void enterState(State state, Machine machine) {
-        ServerState serverState = (ServerState) state;
-
+    public void enterState(ServerState state, Machine machine) {
         Map<String, Object> info = new HashMap<>();
-        info.put("state", serverState.name);
+        info.put("state", state.name);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ServerStateChanged, this, info);
 
-        switch (serverState.name) {
+        switch (state.name) {
             case ServerState.HANDSHAKING: {
                 // start handshake
                 handshake(null);
@@ -501,17 +498,16 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     }
 
     @Override
-    public void exitState(State state, Machine machine) {
+    public void exitState(ServerState state, Machine machine) {
+    }
+
+    @Override
+    public void pauseState(ServerState state, Machine machine) {
 
     }
 
     @Override
-    public void pauseState(State state, Machine machine) {
-
-    }
-
-    @Override
-    public void resumeState(State state, Machine machine) {
+    public void resumeState(ServerState state, Machine machine) {
 
     }
 }

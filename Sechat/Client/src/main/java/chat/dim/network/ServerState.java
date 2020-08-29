@@ -34,7 +34,7 @@ import chat.dim.fsm.Transition;
 import chat.dim.sg.StarStatus;
 import chat.dim.utils.Log;
 
-public class ServerState extends State<ServerState> {
+public class ServerState extends State {
 
     public static final String DEFAULT     = "default";
     public static final String CONNECTING  = "connecting";
@@ -106,7 +106,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.DEFAULT);
 
         // target state: Connecting
-        state.addTransition(new Transition<ServerState>(ServerState.CONNECTING) {
+        state.addTransition(new Transition(ServerState.CONNECTING) {
             @Override
             protected boolean evaluate(Machine machine) {
                 if (server == null || server.getCurrentUser() == null) {
@@ -124,7 +124,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.CONNECTING);
 
         // target state: Connected
-        state.addTransition(new Transition<ServerState>(ServerState.CONNECTED) {
+        state.addTransition(new Transition(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null && server.getCurrentUser() != null : "server/user error";
@@ -134,7 +134,7 @@ class StateMachine extends AutoMachine<ServerState> {
         });
 
         // target state: Error
-        state.addTransition(new Transition<ServerState>(ServerState.ERROR) {
+        state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -150,7 +150,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.CONNECTED);
 
         // target state: Handshaking
-        state.addTransition(new Transition<ServerState>(ServerState.HANDSHAKING) {
+        state.addTransition(new Transition(ServerState.HANDSHAKING) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -165,7 +165,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.HANDSHAKING);
 
         // target state: Running
-        state.addTransition(new Transition<ServerState>(ServerState.RUNNING) {
+        state.addTransition(new Transition(ServerState.RUNNING) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -176,7 +176,7 @@ class StateMachine extends AutoMachine<ServerState> {
         });
 
         // target state: Connected
-        state.addTransition(new Transition<ServerState>(ServerState.CONNECTED) {
+        state.addTransition(new Transition(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
                 ServerState state = (ServerState) machine.getCurrentState();
@@ -192,7 +192,7 @@ class StateMachine extends AutoMachine<ServerState> {
         });
 
         // target state: Error
-        state.addTransition(new Transition<ServerState>(ServerState.ERROR) {
+        state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -208,7 +208,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.RUNNING);
 
         // target state: Error
-        state.addTransition(new Transition<ServerState>(ServerState.ERROR) {
+        state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -218,7 +218,7 @@ class StateMachine extends AutoMachine<ServerState> {
         });
 
         // target state: Default
-        state.addTransition(new Transition<ServerState>(ServerState.DEFAULT) {
+        state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
@@ -234,7 +234,7 @@ class StateMachine extends AutoMachine<ServerState> {
         ServerState state = new ServerState(ServerState.ERROR);
 
         // target state: Default
-        state.addTransition(new Transition<ServerState>(ServerState.DEFAULT) {
+        state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {
                 assert server != null : "server error";
