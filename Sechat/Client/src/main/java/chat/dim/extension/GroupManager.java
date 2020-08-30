@@ -39,6 +39,7 @@ import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QuitCommand;
+import chat.dim.stargate.StarShip;
 
 /**
  *  This is for sending group message, or managing group members
@@ -73,7 +74,7 @@ public class GroupManager {
         } else {
             cmd = new ProfileCommand(group, meta, profile);
         }
-        messenger.sendCommand(cmd);         // to current station
+        messenger.sendCommand(cmd, StarShip.NORMAL);         // to current station
         broadcastGroupCommand(cmd, group);  // to existed relationship
         sendGroupCommand(cmd, newMembers);  // to new members
 
@@ -210,13 +211,13 @@ public class GroupManager {
         // send to owner if not in member list
         ID owner = facebook.getOwner(group);
         if (owner != null && !members.contains(owner)) {
-            messenger.sendContent(cmd, owner, null);
+            messenger.sendContent(cmd, owner, null, StarShip.NORMAL);
         }
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members != null) {
             for (ID receiver : members) {
-                messenger.sendContent(cmd, receiver, null);
+                messenger.sendContent(cmd, receiver, null, StarShip.NORMAL);
             }
         }
     }

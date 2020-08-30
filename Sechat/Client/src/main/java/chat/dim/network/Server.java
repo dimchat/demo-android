@@ -56,7 +56,6 @@ import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
-import chat.dim.threading.BackgroundThreads;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements MessengerDelegate, StarGate.Delegate, StateDelegate<ServerState> {
@@ -134,38 +133,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         return rMsg;
     }
 
-    public void sendSlowlyCommand(final Command cmd) {
-        BackgroundThreads.wait(new Runnable() {
-            @Override
-            public void run() {
-                ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
-                // send out directly
-                Messenger messenger = Messenger.getInstance();
-                byte[] data = messenger.serializeMessage(rMsg);
-                send(data, StarShip.SLOWER);
-            }
-        });
-    }
-
     //---- urgent command for connection
-
-    private void sendUrgentCommand(final HandshakeCommand cmd) {
-        BackgroundThreads.rush(new Runnable() {
-            @Override
-            public void run() {
-                ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
-                // first handshake?
-                if (cmd.state == HandshakeCommand.HandshakeState.START) {
-                    // [Meta protocol]
-                    rMsg.setMeta(currentUser.getMeta());
-                }
-                // send out directly
-                Messenger messenger = Messenger.getInstance();
-                byte[] data = messenger.serializeMessage(rMsg);
-                send(data, StarShip.URGENT);
-            }
-        });
-    }
 
     private static void setLastReceivedMessageTime(HandshakeCommand cmd) {
         ConversationDatabase db = ConversationDatabase.getInstance();
@@ -197,7 +165,16 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         setLastReceivedMessageTime(cmd);
-        sendUrgentCommand(cmd);
+        ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
+        // first handshake?
+        if (cmd.state == HandshakeCommand.HandshakeState.START) {
+            // [Meta protocol]
+            rMsg.setMeta(currentUser.getMeta());
+        }
+        // send out directly
+        Messenger messenger = Messenger.getInstance();
+        byte[] data = messenger.serializeMessage(rMsg);
+        send(data, StarShip.URGENT);
     }
 
     public void handshakeAccepted() {
@@ -423,11 +400,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     }
 
     @Override
-    public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        return sendPackage(StarShip.NORMAL, data, handler);
-    }
-
-    public boolean sendPackage(int priority, byte[] data, CompletionHandler handler) {
+    public boolean sendPackage(byte[] data, CompletionHandler handler, int priority) {
         RequestWrapper wrapper = new RequestWrapper(priority, data, handler);
 
         ServerState state = getCurrentState();

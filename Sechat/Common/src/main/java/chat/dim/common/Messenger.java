@@ -274,7 +274,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //-------- Send
 
     @Override
-    public boolean sendMessage(final InstantMessage<ID, SymmetricKey> iMsg, final Callback callback) {
+    public boolean sendMessage(final InstantMessage<ID, SymmetricKey> iMsg, final Callback callback, final int priority) {
         BackgroundThreads.wait(new Runnable() {
             @Override
             public void run() {
@@ -291,7 +291,7 @@ public abstract class Messenger extends chat.dim.Messenger {
                     throw new NullPointerException("failed to sign message: " + sMsg);
                 }
 
-                sendMessage(rMsg, callback);
+                sendMessage(rMsg, callback, priority);
                 // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
 
                 // save signature for receipt
@@ -303,7 +303,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return true;
     }
 
-    public boolean sendCommand(Command cmd) {
+    public boolean sendCommand(Command cmd, int priority) {
         return false;
     }
 

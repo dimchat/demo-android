@@ -113,8 +113,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
                 }
                 response = serializeMessage(rMsg);
                 if (response != null && response.length > 0) {
-                    Server server = (Server) getDelegate();
-                    server.sendPackage(StarShip.SLOWER, response, null);
+                    getDelegate().sendPackage(response, null, StarShip.SLOWER);
                 }
             }
         }
@@ -273,7 +272,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         // pack message
         InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(res, user.identifier, sender);
         // normal response
-        sendMessage(iMsg, null);
+        sendMessage(iMsg, null, StarShip.SLOWER);
         // DON'T respond to station directly
         return null;
     }
@@ -284,22 +283,22 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
      * @param cmd - command should be sent to station
      * @return true on success
      */
-    public boolean sendCommand(Command cmd) {
+    @Override
+    public boolean sendCommand(Command cmd, int priority) {
         if (server == null) {
             return false;
         }
-        return sendContent(cmd, server.identifier, null);
+        return sendContent(cmd, server.identifier, null, priority);
     }
 
     /**
      *  Pack and broadcast content to everyone
      *
      * @param content - message content
-     * @return true on success
      */
-    public boolean broadcastContent(Content content) {
+    public void broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
-        return sendContent(content, ID.EVERYONE, null);
+        sendContent(content, ID.EVERYONE, null, StarShip.SLOWER);
     }
 
     public void broadcastProfile(Profile profile) {
@@ -322,13 +321,9 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID contact : contacts) {
-                sendContent(cmd, contact, null);
+                sendContent(cmd, contact, null, StarShip.SLOWER);
             }
         }
-    }
-
-    public boolean postProfile(Profile profile) {
-        return postProfile(profile, null);
     }
 
     public boolean postProfile(Profile profile, Meta meta) {
@@ -341,10 +336,10 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             profile = null;
         }
         Command cmd = new ProfileCommand(identifier, meta, profile);
-        return sendCommand(cmd);
+        return sendCommand(cmd, StarShip.SLOWER);
     }
 
-    public boolean postContacts(List<ID> contacts) {
+    public void postContacts(List<ID> contacts) {
         User user = getFacebook().getCurrentUser();
         assert user != null : "current user empty";
         // 1. generate password
@@ -353,7 +348,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             password = SymmetricKey.generate(SymmetricKey.AES);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return false;
+            return;
         }
         // 2. encrypt contacts list
         byte[] data = JSON.encode(contacts);
@@ -366,15 +361,15 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         cmd.setIdentifier(user.identifier);
         cmd.setData(data);
         cmd.setKey(key);
-        return sendCommand(cmd);
+        sendCommand(cmd, StarShip.SLOWER);
     }
 
-    public boolean queryContacts() {
+    public void queryContacts() {
         User user = getFacebook().getCurrentUser();
         assert user != null : "current user empty";
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
         cmd.setIdentifier(user.identifier);
-        return sendCommand(cmd);
+        sendCommand(cmd, StarShip.SLOWER);
     }
 
     private final Map<ID, Long> metaQueryTime = new HashMap<>();
@@ -383,6 +378,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     private static final int EXPIRES = 120 * 1000;  // query expires (2 minutes)
 
+    @Override
     public boolean queryMeta(ID identifier) {
         if (identifier.isBroadcast()) {
             // broadcast ID has no meta
@@ -391,8 +387,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number lastTime = metaQueryTime.get(identifier);
-        if (lastTime != null && now > lastTime.longValue()) {
+        Number expires = metaQueryTime.get(identifier);
+        if (expires != null && now < expires.longValue()) {
             return false;
         }
         metaQueryTime.put(identifier, now + EXPIRES);
@@ -400,11 +396,10 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         // query from DIM network
         Command cmd = new MetaCommand(identifier);
-        Server server = (Server) getDelegate();
-        server.sendSlowlyCommand(cmd);
-        return true;
+        return sendCommand(cmd, StarShip.SLOWER);
     }
 
+    @Override
     public boolean queryProfile(ID identifier) {
         if (identifier.isBroadcast()) {
             // broadcast ID has no profile
@@ -413,8 +408,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number lastTime = profileQueryTime.get(identifier);
-        if (lastTime != null && now > lastTime.longValue()) {
+        Number expires = profileQueryTime.get(identifier);
+        if (expires != null && now < expires.longValue()) {
             return false;
         }
         profileQueryTime.put(identifier, now + EXPIRES);
@@ -422,11 +417,10 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         // query from DIM network
         Command cmd = new ProfileCommand(identifier);
-        Server server = (Server) getDelegate();
-        server.sendSlowlyCommand(cmd);
-        return true;
+        return sendCommand(cmd, StarShip.SLOWER);
     }
 
+    @Override
     public boolean queryGroupInfo(ID group, List<ID> members) {
         if (group.equals(ID.EVERYONE)) {
             // this group contains all users
@@ -435,8 +429,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number lastTime = groupQueryTime.get(group);
-        if (lastTime != null && now > lastTime.longValue()) {
+        Number expires = groupQueryTime.get(group);
+        if (expires != null && now < expires.longValue()) {
             return false;
         }
         groupQueryTime.put(group, now + EXPIRES);
@@ -445,7 +439,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         Command cmd = new QueryCommand(group);
         boolean checking = false;
         for (ID user : members) {
-            if (sendContent(cmd, user, null)) {
+            if (sendContent(cmd, user, null, StarShip.SLOWER)) {
                 checking = true;
             }
         }
@@ -454,12 +448,12 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     public boolean queryOnlineUsers() {
         Command cmd = new SearchCommand(SearchCommand.ONLINE_USERS);
-        return sendCommand(cmd);
+        return sendCommand(cmd, StarShip.NORMAL);
     }
 
     public boolean searchUsers(String keywords) {
         Command cmd = new SearchCommand(keywords);
-        return sendCommand(cmd);
+        return sendCommand(cmd, StarShip.NORMAL);
     }
 
     public boolean login(User user) {

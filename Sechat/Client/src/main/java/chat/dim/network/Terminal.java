@@ -224,7 +224,7 @@ public class Terminal implements StationDelegate {
         if (offlineTime != null) {
             cmd.put("last_time", offlineTime.getTime() / 1000);
         }
-        messenger.sendCommand(cmd);
+        messenger.sendCommand(cmd, StarShip.NORMAL);
     }
     private void reportOffline() {
         User user = getCurrentUser();
@@ -234,7 +234,7 @@ public class Terminal implements StationDelegate {
         // report client state
         Command cmd = new ReportCommand(ReportCommand.OFFLINE);
         cmd.put("time", offlineTime.getTime() / 1000);
-        messenger.sendCommand(cmd);
+        messenger.sendCommand(cmd, StarShip.NORMAL);
     }
 
     public void enterBackground() {
@@ -274,7 +274,7 @@ public class Terminal implements StationDelegate {
             response = null;
         }
         if (response != null && response.length > 0) {
-            currentServer.sendPackage(StarShip.SLOWER, response, null);
+            currentServer.sendPackage(response, null, StarShip.SLOWER);
         }
     }
 
@@ -296,7 +296,7 @@ public class Terminal implements StationDelegate {
         // post current profile to station
         Profile profile = user.getProfile();
         if (!facebook.isEmpty(profile)) {
-            messenger.postProfile(profile);
+            messenger.postProfile(profile, null);
         }
 
         // report client state

@@ -20,6 +20,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
+import chat.dim.stargate.StarShip;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
@@ -88,7 +89,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         SearchCommand cmd = new SearchCommand(keywords);
         Messenger messenger = Messenger.getInstance();
-        return messenger.sendCommand(cmd);
+        return messenger.sendCommand(cmd, StarShip.NORMAL);
     }
 
     @Override
