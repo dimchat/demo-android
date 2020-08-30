@@ -42,7 +42,7 @@ import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.ReportCommand;
-import chat.dim.stargate.Ship;
+import chat.dim.stargate.StarShip;
 
 public class Terminal implements StationDelegate {
 
@@ -274,7 +274,7 @@ public class Terminal implements StationDelegate {
             response = null;
         }
         if (response != null && response.length > 0) {
-            currentServer.sendPackage(Ship.SLOWER, response, null);
+            currentServer.sendPackage(StarShip.SLOWER, response, null);
         }
     }
 

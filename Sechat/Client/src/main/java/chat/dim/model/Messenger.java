@@ -69,7 +69,7 @@ import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.stargate.Ship;
+import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger implements Observer {
@@ -114,7 +114,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
                 response = serializeMessage(rMsg);
                 if (response != null && response.length > 0) {
                     Server server = (Server) getDelegate();
-                    server.sendPackage(Ship.SLOWER, response, null);
+                    server.sendPackage(StarShip.SLOWER, response, null);
                 }
             }
         }

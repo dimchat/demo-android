@@ -54,15 +54,12 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
-import chat.dim.sg.Star;
-import chat.dim.sg.StarDelegate;
-import chat.dim.sg.StarStatus;
-import chat.dim.stargate.Gate;
-import chat.dim.stargate.Ship;
+import chat.dim.stargate.StarGate;
+import chat.dim.stargate.StarShip;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements MessengerDelegate, StarDelegate<Package>, StateDelegate<ServerState> {
+public class Server extends Station implements MessengerDelegate, StarGate.Delegate, StateDelegate<ServerState> {
 
     public final String name;
 
@@ -71,7 +68,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
 
     private final StateMachine fsm;
 
-    private Gate star = null;
+    private StarGate star = null;
     final private ReadWriteLock starLock = new ReentrantReadWriteLock();
 
     private Map<String, Object> startOptions = null;
@@ -105,13 +102,13 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         return fsm.getCurrentState();
     }
 
-    StarStatus getStatus() {
-        StarStatus status;
+    StarGate.Status getStatus() {
+        StarGate.Status status;
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
             if (star == null) {
-                status = StarStatus.Error;
+                status = StarGate.Status.Error;
             } else {
                 status = star.getStatus();
             }
@@ -145,7 +142,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
                 // send out directly
                 Messenger messenger = Messenger.getInstance();
                 byte[] data = messenger.serializeMessage(rMsg);
-                send(data, Ship.SLOWER);
+                send(data, StarShip.SLOWER);
             }
         });
     }
@@ -165,7 +162,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
                 // send out directly
                 Messenger messenger = Messenger.getInstance();
                 byte[] data = messenger.serializeMessage(rMsg);
-                send(data, Ship.URGENT);
+                send(data, StarShip.URGENT);
             }
         });
     }
@@ -190,7 +187,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
 //            return;
 //        }
         // check connection status == 'Connected'
-        if (getStatus() != StarStatus.Connected) {
+        if (getStatus() != StarGate.Status.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
             return;
         }
@@ -254,7 +251,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         writeLock.lock();
         try {
             if (star == null) {
-                setStar(new Gate(this));
+                setStar(new StarGate(this));
             }
             Log.info("launching with options: " + options);
             star.launch(options);
@@ -267,7 +264,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         // TODO: let the subclass to create StarGate
     }
 
-    private void setStar(Gate newStar) {
+    private void setStar(StarGate newStar) {
         Lock writeLock = starLock.writeLock();
         writeLock.lock();
         try {
@@ -331,7 +328,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     }
 
     private void send(byte[] payload, int priority) {
-        Ship ship = new Ship(priority, payload, this);
+        StarShip ship = new StarShip(priority, payload, this);
         Lock readLock = starLock.readLock();
         readLock.lock();
         try {
@@ -347,7 +344,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
         if (startOptions == null) {
             return;
         }
-        setStar(new Gate(this));
+        setStar(new StarGate(this));
         Log.info("restart with options: " + startOptions);
         star.launch(startOptions);
 
@@ -357,19 +354,19 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     //-------- StarDelegate
 
     @Override
-    public void onReceived(Star star, Package response) {
+    public void onReceived(StarGate star, Package response) {
         Log.info("received " + response.getLength() + " bytes");
         delegate.onReceivePackage(response.body.getBytes(), this);
     }
 
     @Override
-    public void onStatusChanged(Star star, StarStatus oldStatus, StarStatus newStatus) {
+    public void onStatusChanged(StarGate star, StarGate.Status oldStatus, StarGate.Status newStatus) {
         Log.info("status changed: " + oldStatus + " -> " + newStatus);
         fsm.tick();
     }
 
     @Override
-    public void onSent(Star star, Package request, Error error) {
+    public void onSent(StarGate star, Package request, Error error) {
         Log.info("sent " + request.getLength() + " bytes");
         CompletionHandler handler = null;
 
@@ -406,7 +403,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
     private void sendAllWaiting() {
         RequestWrapper wrapper;
         ServerState state;
-        while (waitingList.size() > 0 && getStatus() == StarStatus.Connected) {
+        while (waitingList.size() > 0 && getStatus() == StarGate.Status.Connected) {
             state = getCurrentState();
             if (state == null || !state.name.equals(ServerState.RUNNING)) {
                 break;
@@ -427,7 +424,7 @@ public class Server extends Station implements MessengerDelegate, StarDelegate<P
 
     @Override
     public boolean sendPackage(byte[] data, CompletionHandler handler) {
-        return sendPackage(Ship.NORMAL, data, handler);
+        return sendPackage(StarShip.NORMAL, data, handler);
     }
 
     public boolean sendPackage(int priority, byte[] data, CompletionHandler handler) {
