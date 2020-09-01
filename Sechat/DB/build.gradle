@@ -29,7 +29,7 @@ dependencies {
     implementation project(':Client')
     implementation project(':Common')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.4.11'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.4.12'
     implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 

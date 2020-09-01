@@ -154,7 +154,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         // save this message in a queue waiting sender's meta response
         ID waiting = (ID) msg.get("waiting");
         if (waiting == null) {
-            waiting = msg.envelope.getSender();
+            waiting = msg.getSender();
         } else {
             msg.remove("waiting");
         }
@@ -212,7 +212,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         if (content instanceof InviteCommand) {
             // send keys again
-            ID me = iMsg.envelope.getReceiver();
+            ID me = iMsg.getReceiver();
             ID group = (ID) content.getGroup();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
             if (key != null) {
@@ -266,7 +266,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
 
         // check receiver
-        ID receiver = rMsg.envelope.getReceiver();
+        ID receiver = rMsg.getReceiver();
         User user = select(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message

@@ -23,14 +23,10 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.extension;
+package chat.dim;
 
 import java.util.List;
 
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
-import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Command;

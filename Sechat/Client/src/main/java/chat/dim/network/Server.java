@@ -139,7 +139,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         ConversationDatabase db = ConversationDatabase.getInstance();
         InstantMessage iMsg = db.lastReceivedMessage();
         if (iMsg != null) {
-            Date lastTime = iMsg.envelope.getTime();
+            Date lastTime = iMsg.getTime();
             if (lastTime != null) {
                 long timestamp = lastTime.getTime() / 1000;
                 cmd.put("last_time", timestamp);
@@ -415,7 +415,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
 
     @Override
     public String uploadData(byte[] data, InstantMessage iMsg) {
-        ID sender = ID.getInstance(iMsg.envelope.getSender());
+        ID sender = ID.getInstance(iMsg.getSender());
         FileContent content = (FileContent) iMsg.getContent();
         String filename = content.getFilename();
 

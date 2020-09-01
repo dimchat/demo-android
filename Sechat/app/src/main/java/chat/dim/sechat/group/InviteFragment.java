@@ -18,11 +18,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import chat.dim.GroupManager;
 import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.SignKey;
-import chat.dim.extension.GroupManager;
 import chat.dim.model.Facebook;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

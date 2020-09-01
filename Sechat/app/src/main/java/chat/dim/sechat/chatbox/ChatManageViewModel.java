@@ -3,9 +3,9 @@ package chat.dim.sechat.chatbox;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.GroupManager;
 import chat.dim.ID;
 import chat.dim.User;
-import chat.dim.extension.GroupManager;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;

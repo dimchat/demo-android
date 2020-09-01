@@ -53,7 +53,7 @@ public final class ConversationDatabase {
     public MessageTable messageTable = null;
 
     public String getTimeString(Message msg) {
-        Date time = msg.envelope.getTime();
+        Date time = msg.getTime();
         if (time == null) {
             return null;
         }
@@ -173,7 +173,7 @@ public final class ConversationDatabase {
                 Envelope<ID> env = receipt.getEnvelope();
                 if (env != null) {
                     ID sender = env.getSender();
-                    if (sender != null && sender.equals(iMsg.envelope.getReceiver())) {
+                    if (sender != null && sender.equals(iMsg.getReceiver())) {
                         entity = env.getReceiver();
                     }
                 }

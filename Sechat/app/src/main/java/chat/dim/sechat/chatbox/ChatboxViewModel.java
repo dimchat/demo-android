@@ -66,7 +66,7 @@ public class ChatboxViewModel extends EntityViewModel {
             return MsgType.COMMAND;
         }
 
-        ID sender = (ID) iMsg.envelope.getSender();
+        ID sender = (ID) iMsg.getSender();
         if (sender.equals(chatBox.identifier)) {
             return MsgType.RECEIVED;
         }

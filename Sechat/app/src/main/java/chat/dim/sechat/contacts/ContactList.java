@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import java.text.Collator;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -100,11 +101,12 @@ public class ContactList extends DummyList<ContactList.Item> {
             if (cmd != null) {
                 Map<String, Object> info = cmd.getStation();
                 ID sid = EntityViewModel.getID(info.get("ID"));
-                if (cmd.time != null) {
+                Date time = cmd.getTime();
+                if (time != null) {
                     if (sid != null) {
-                        return "Last login [" + Times.getTimeString(cmd.time) + "]: " + EntityViewModel.getName(sid);
+                        return "Last login [" + Times.getTimeString(time) + "]: " + EntityViewModel.getName(sid);
                     } else {
-                        return "Last login [" + Times.getTimeString(cmd.time) + "]";
+                        return "Last login [" + Times.getTimeString(time) + "]";
                     }
                 } else if (sid != null) {
                     return "Last login station: " + EntityViewModel.getName(sid);

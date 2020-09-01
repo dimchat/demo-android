@@ -35,7 +35,7 @@ import chat.dim.Messenger;
 import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.extension.Password;
+import chat.dim.crypto.plugins.Password;
 import chat.dim.format.JSON;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.StorageCommand;

@@ -131,7 +131,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         if (MsgType.SENT == type) {
             List traces = (List) iMsg.get("traces");
             if (traces == null || traces.size() == 0) {
-                Date time = iMsg.envelope.getTime();
+                Date time = iMsg.getTime();
                 if (time == null || time.getTime() < (System.currentTimeMillis() - 120 * 1000)) {
                     holder.failedIndicator.setVisibility(View.VISIBLE);
                     holder.sendingIndicator.setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         if (MsgType.RECEIVED == type) {
             holder.avatarView.setOnClickListener(v -> {
-                Object sender = iMsg.envelope.getSender();
+                Object sender = iMsg.getSender();
                 Intent intent = new Intent();
                 intent.setClass(context, ProfileActivity.class);
                 intent.putExtra("ID", sender.toString());
@@ -194,7 +194,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     private void showImage(InstantMessage iMsg, Context context) {
         if (iMsg.getContent() instanceof ImageContent) {
             ImageContent content = (ImageContent) iMsg.getContent();
-            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.envelope.getSender()), context);
+            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.getSender()), context);
         }
     }
 
@@ -216,7 +216,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
 
-        ID sender = (ID) iMsg.envelope.getSender();
+        ID sender = (ID) iMsg.getSender();
 
         // time
         String time = msgDB.getTimeString(iMsg);

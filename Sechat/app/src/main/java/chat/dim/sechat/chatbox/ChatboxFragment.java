@@ -183,7 +183,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         //ftp.saveThumbnail(thumbnail, filename);
 
         // add image data length & thumbnail into message content
-        ImageContent content = new ImageContent(jpeg, filename);
+        ImageContent content = new ImageContent(filename, jpeg);
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
 
@@ -345,7 +345,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             e.printStackTrace();
         }
 
-        AudioContent content = new AudioContent(mp4, filename);
+        AudioContent content = new AudioContent(filename, mp4);
         content.put("duration", duration);
         sendContent(content);
     }

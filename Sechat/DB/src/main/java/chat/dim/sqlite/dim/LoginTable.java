@@ -91,14 +91,20 @@ public final class LoginTable extends DataTable implements LoginCommandProcessor
         if (oldTime == null) {
             // not exists, insert new record
             values.put("uid", user.toString());
-            values.put("time", command.time.getTime() / 1000);
+            Date time = command.getTime();
+            if (time != null) {
+                values.put("time", time.getTime() / 1000);
+            }
             return insert(MainDatabase.T_LOGIN, null, values) >= 0;
         } else {
             // update record with user ID
-            if (oldTime.after(command.time)) {
+            if (oldTime.after(command.getTime())) {
                 values.put("time", oldTime.getTime() / 1000);
             } else {
-                values.put("time", command.time.getTime() / 1000);
+                Date time = command.getTime();
+                if (time != null) {
+                    values.put("time", time.getTime() / 1000);
+                }
             }
             String[] whereArgs = {user.toString()};
             return update(MainDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;

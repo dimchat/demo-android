@@ -31,10 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.GroupManager;
 import chat.dim.ID;
 import chat.dim.Meta;
 import chat.dim.Profile;
-import chat.dim.extension.GroupManager;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;

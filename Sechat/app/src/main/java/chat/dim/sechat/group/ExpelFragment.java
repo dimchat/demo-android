@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import chat.dim.GroupManager;
 import chat.dim.ID;
 import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.SignKey;
-import chat.dim.extension.GroupManager;
 import chat.dim.model.Facebook;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;

@@ -21,8 +21,8 @@ import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.ID;
+import chat.dim.Register;
 import chat.dim.User;
-import chat.dim.extension.Register;
 import chat.dim.model.Facebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;

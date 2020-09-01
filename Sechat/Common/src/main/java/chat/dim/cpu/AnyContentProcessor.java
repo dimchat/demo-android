@@ -86,7 +86,7 @@ public class AnyContentProcessor extends ContentProcessor {
             assert content.get("URL") != null : "page content error: " + content;
             text = "Web page received";
         } else {
-            text = "Content (type: " + content.type + ") not support yet!";
+            text = "Content (type: " + content.getType() + ") not support yet!";
             TextContent res = new TextContent(text);
             ID group = content.getGroup();
             if (group != null) {
@@ -102,7 +102,7 @@ public class AnyContentProcessor extends ContentProcessor {
         }
 
         // response
-        ReceiptCommand receipt = new ReceiptCommand(text, content.serialNumber, rMsg.envelope);
+        ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
         receipt.put("signature", rMsg.get("signature"));
         return receipt;
     }
@@ -139,7 +139,7 @@ public class AnyContentProcessor extends ContentProcessor {
             PageContent page = (PageContent) content;
             text = String.format("[URL:%s]", page.getURL());
         } else {
-            text = String.format("Current version doesn't support this message type: %s", content.type);
+            text = String.format("Current version doesn't support this message type: %s", content.getType());
         }
         // store message text
         content.put("text", text);
@@ -158,7 +158,7 @@ public class AnyContentProcessor extends ContentProcessor {
         } else if (cmd instanceof LoginCommand) {
             text = MessageBuilder.getLoginCommandText((LoginCommand) cmd, commander);
         } else {
-            text = String.format("Current version doesn't support this command: %s", cmd.command);
+            text = String.format("Current version doesn't support this command: %s", cmd.getCommand());
         }
         // store message text
         cmd.put("text", text);

@@ -3,6 +3,7 @@ package chat.dim.sechat.history;
 import android.graphics.Bitmap;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import chat.dim.ID;
@@ -82,12 +83,15 @@ public class ConversationList extends DummyList<ConversationList.Item> {
         }
 
         String getTime() {
-            String time = "";
+            String string = "";
             InstantMessage iMsg = chatBox.getLastVisibleMessage();
-            if (iMsg != null && iMsg.envelope.getTime() != null) {
-                time = Times.getTimeString(iMsg.envelope.getTime());
+            if (iMsg != null) {
+                Date time = iMsg.getTime();
+                if (time != null) {
+                    string = Times.getTimeString(time);
+                }
             }
-            return time;
+            return string;
         }
 
         String getDesc() {
@@ -97,7 +101,7 @@ public class ConversationList extends DummyList<ConversationList.Item> {
                 chat.dim.Content content = iMsg.getContent();
                 if (content instanceof Command) {
                     Command cmd = (Command) content;
-                    ID sender = (ID) iMsg.envelope.getSender();
+                    ID sender = (ID) iMsg.getSender();
                     text = msgDB.getCommandText(cmd, sender);
                 } else {
                     text = msgDB.getContentText(iMsg.getContent());

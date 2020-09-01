@@ -81,7 +81,7 @@ public class Conversation {
         Date time = null;
         InstantMessage iMsg = getLastMessage();
         if (iMsg != null) {
-            time = iMsg.envelope.getTime();
+            time = iMsg.getTime();
         }
         if (time == null) {
             time = new Date(0);

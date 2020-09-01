@@ -23,16 +23,11 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.extension;
+package chat.dim;
 
 import java.util.Map;
 import java.util.Random;
 
-import chat.dim.Group;
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
-import chat.dim.User;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;

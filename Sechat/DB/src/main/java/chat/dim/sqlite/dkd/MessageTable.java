@@ -95,13 +95,13 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
                     if (msg1 == null) {
                         time1 = new Date();
                     } else {
-                        time1 = msg1.envelope.getTime();
+                        time1 = msg1.getTime();
                     }
                     InstantMessage msg2 = MessageTable.this.lastMessage(cid2);
                     if (msg2 == null) {
                         time2 = new Date();
                     } else {
-                        time2 = msg2.envelope.getTime();
+                        time2 = msg2.getTime();
                     }
                     return time2.compareTo(time1);
                 }
@@ -446,11 +446,11 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             return false;
         }
         String cid = entity.toString();
-        String sender = iMsg.envelope.getSender().toString();
-        String receiver = iMsg.envelope.getReceiver().toString();
-        Date time = iMsg.envelope.getTime();
-        int type = content.type;
-        long sn = content.serialNumber;
+        String sender = iMsg.getSender().toString();
+        String receiver = iMsg.getReceiver().toString();
+        Date time = iMsg.getTime();
+        int type = content.getType();
+        long sn = content.getSerialNumber();
         String signature = (String) iMsg.get("signature");
         if (signature == null) {
             signature = "";
@@ -512,8 +512,8 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
 
     @Override
     public boolean removeMessage(InstantMessage iMsg, ID entity) {
-        Object sender = iMsg.envelope.getSender();
-        long sn = iMsg.getContent().serialNumber;
+        Object sender = iMsg.getSender();
+        long sn = iMsg.getContent().getSerialNumber();
         String signature = (String) iMsg.get("signature");
         if (signature == null) {
             signature = "";
@@ -542,8 +542,8 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             return false;
         }
         ReceiptCommand receipt = (ReceiptCommand) content;
-        ID sender = (ID) iMsg.envelope.getSender();
-        ID receiver = (ID) iMsg.envelope.getReceiver();
+        ID sender = (ID) iMsg.getSender();
+        ID receiver = (ID) iMsg.getReceiver();
         // FIXME: check for origin conversation
         if (entity.isUser()) {
             Envelope<ID> env = receipt.getEnvelope();
@@ -555,7 +555,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             }
         }
 
-        long sn = receipt.serialNumber;
+        long sn = receipt.getSerialNumber();
         String signature = (String) receipt.get("signature");
         if (signature == null) {
             // only save receipt for normal content
@@ -595,11 +595,11 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
 
         // 1. check sender & receiver
         Object sender = receipt.get("sender");
-        if (sender != null && !iMsg.envelope.getSender().equals(sender)) {
+        if (sender != null && !iMsg.getSender().equals(sender)) {
             return false;
         }
         Object receiver = receipt.get("receiver");
-        if (receiver != null && !iMsg.envelope.getReceiver().equals(receiver)) {
+        if (receiver != null && !iMsg.getReceiver().equals(receiver)) {
             return false;
         }
         // 2. check signature
@@ -619,6 +619,6 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             }
         }
         // 3. check sn
-        return iMsg.getContent().serialNumber == receipt.serialNumber;
+        return iMsg.getContent().getSerialNumber() == receipt.getSerialNumber();
     }
 }

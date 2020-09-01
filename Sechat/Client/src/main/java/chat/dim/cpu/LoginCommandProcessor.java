@@ -51,7 +51,7 @@ public class LoginCommandProcessor extends CommandProcessor {
 
         ID identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
-        Log.info("[" + Times.getTimeString(cmd.time) + "] user (" + identifier + ") login: " + station);
+        Log.info("[" + Times.getTimeString(cmd.getTime()) + "] user (" + identifier + ") login: " + station);
 
         // no need to response login command
         return null;
