@@ -74,8 +74,11 @@ public final class MessageDatabase extends Database {
                 " content TEXT, type INTEGER, sn VARCHAR(20)," +
                 // extra info
                 " signature VARCHAR(8), read BIT)");
+        db.execSQL("CREATE INDEX cid_index ON " + T_MESSAGE + "(cid)");
+
         // traces for messages
         db.execSQL("CREATE TABLE " + T_TRACE + "(cid VARCHAR(64), sn VARCHAR(20), signature VARCHAR(8), trace TEXT)");
+        db.execSQL("CREATE INDEX trace_id_index ON " + T_TRACE + "(cid)");
     }
 
     @Override

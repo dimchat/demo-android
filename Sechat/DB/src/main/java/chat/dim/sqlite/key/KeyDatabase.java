@@ -59,6 +59,7 @@ public final class KeyDatabase extends Database {
 
         // msg (symmetric) key
         db.execSQL("CREATE TABLE " + T_MESSAGE_KEY + "(sender VARCHAR(64), receiver VARCHAR(64), pwd TEXT)");
+        db.execSQL("CREATE INDEX direction_index ON " + T_MESSAGE_KEY + "(sender, receiver)");
     }
 
     @Override

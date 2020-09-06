@@ -67,19 +67,23 @@ public final class EntityDatabase extends Database {
     public void onCreate(SQLiteDatabase db) {
         // metas
         db.execSQL("CREATE TABLE " + T_META + "(did VARCHAR(64), version INTEGER, pk TEXT, seed VARCHAR(20), fingerprint BLOB)");
+        db.execSQL("CREATE INDEX meta_id_index ON " + T_META + "(did)");
 
         // profiles
         db.execSQL("CREATE TABLE " + T_PROFILE + "(did VARCHAR(64), data TEXT, signature BLOB)");
+        db.execSQL("CREATE INDEX profile_id_index ON " + T_PROFILE + "(did)");
 
         // local users
         db.execSQL("CREATE TABLE " + T_USER + "(uid VARCHAR(64), chosen BIT)");
 
         // user contacts
         db.execSQL("CREATE TABLE " + T_CONTACT + "(uid VARCHAR(64), contact VARCHAR(64), alias VARCHAR(32))");
+        db.execSQL("CREATE INDEX user_id_index ON " + T_CONTACT + "(uid)");
 
         // group members
         db.execSQL("CREATE TABLE " + T_GROUP + "(gid VARCHAR(64), name VARCHAR(32), founder VARCHAR(64), owner VARCHAR(64))");
         db.execSQL("CREATE TABLE " + T_MEMBER + "(gid VARCHAR(64), member VARCHAR(64))");
+        db.execSQL("CREATE INDEX group_id_index ON " + T_MEMBER + "(gid)");
     }
 
     @Override

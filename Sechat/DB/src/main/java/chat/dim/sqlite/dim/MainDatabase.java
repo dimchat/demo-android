@@ -67,6 +67,7 @@ public final class MainDatabase extends Database {
 
         // login info
         db.execSQL("CREATE TABLE " + T_LOGIN + "(uid VARCHAR(64), time INTEGER, station VARCHAR(64), command TEXT)");
+        db.execSQL("CREATE INDEX user_id_index ON " + T_LOGIN + "(uid)");
     }
 
     @Override

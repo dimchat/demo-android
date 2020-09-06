@@ -54,6 +54,7 @@ public final class AddressNameDatabase extends Database {
     public void onCreate(SQLiteDatabase db) {
         // ANS records
         db.execSQL("CREATE TABLE " + T_RECORD + "(did VARCHAR(64), alias VARCHAR(32))");
+        db.execSQL("CREATE INDEX alias_index ON " + T_RECORD + "(alias)");
     }
 
     @Override
