@@ -30,6 +30,7 @@ import java.util.Map;
 import chat.dim.ID;
 import chat.dim.Messenger;
 import chat.dim.ReliableMessage;
+import chat.dim.database.LoginTable;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.utils.Log;
@@ -47,7 +48,7 @@ public class LoginCommandProcessor extends CommandProcessor {
         LoginCommand cmd = (LoginCommand) content;
 
         // update contact's login status
-        dataHandler.save(cmd);
+        loginTable.saveLoginCommand(cmd);
 
         ID identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
@@ -57,9 +58,5 @@ public class LoginCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    public static DataHandler dataHandler = null;
-
-    public interface DataHandler {
-        boolean save(LoginCommand command);
-    }
+    public static LoginTable loginTable = null;
 }

@@ -28,8 +28,8 @@ package chat.dim.sqlite.mkm;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import chat.dim.Facebook;
 import chat.dim.ID;
-import chat.dim.model.Facebook;
 import chat.dim.sqlite.Database;
 
 public final class EntityDatabase extends Database {
@@ -39,6 +39,9 @@ public final class EntityDatabase extends Database {
     }
 
     private static EntityDatabase ourInstance = null;
+
+    public static Facebook facebook = null;
+
     public static void setContext(Context context) {
         ourInstance = new EntityDatabase(context, getFilePath(DB_NAME), DB_VERSION);
     }
@@ -95,7 +98,6 @@ public final class EntityDatabase extends Database {
     //
 
     public static ID getID(Object identifier) {
-        Facebook facebook = Facebook.getInstance();
         return facebook.getID(identifier);
     }
 }

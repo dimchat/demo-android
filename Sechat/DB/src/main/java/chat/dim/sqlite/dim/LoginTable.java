@@ -34,12 +34,11 @@ import java.util.Date;
 import java.util.Map;
 
 import chat.dim.ID;
-import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.format.JSON;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
 
-public final class LoginTable extends DataTable implements LoginCommandProcessor.DataHandler {
+public final class LoginTable extends DataTable implements chat.dim.database.LoginTable {
 
     private LoginTable() {
         super(MainDatabase.getInstance());
@@ -58,6 +57,7 @@ public final class LoginTable extends DataTable implements LoginCommandProcessor
     //
 
     @SuppressWarnings("unchecked")
+    @Override
     public LoginCommand getLoginCommand(ID user) {
         String[] columns = {"command"};
         String[] selectionArgs = {user.toString()};
@@ -78,7 +78,7 @@ public final class LoginTable extends DataTable implements LoginCommandProcessor
     }
 
     @Override
-    public boolean save(LoginCommand command) {
+    public boolean saveLoginCommand(LoginCommand command) {
         ID user = command.getIdentifier();
         Date oldTime = getLoginTime(user);
         Map<String, Object> station = command.getStation();
@@ -111,7 +111,7 @@ public final class LoginTable extends DataTable implements LoginCommandProcessor
         }
     }
 
-    public Date getLoginTime(ID user) {
+    private Date getLoginTime(ID user) {
         String[] columns = {"time"};
         String[] selectionArgs = {user.toString()};
         try (Cursor cursor = query(MainDatabase.T_LOGIN, columns, "uid=?", selectionArgs, null, null, null)) {

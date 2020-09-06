@@ -34,9 +34,9 @@ import java.util.Map;
 
 import chat.dim.ID;
 import chat.dim.InstantMessage;
+import chat.dim.Messenger;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
-import chat.dim.model.Messenger;
 import chat.dim.sqlite.Database;
 
 public final class MessageDatabase extends Database {
@@ -46,6 +46,8 @@ public final class MessageDatabase extends Database {
     }
 
     private static MessageDatabase ourInstance = null;
+
+    public static Messenger messenger = null;
 
     public static void setContext(Context context) {
         ourInstance = new MessageDatabase(context, getFilePath(DB_NAME), DB_VERSION);
@@ -106,7 +108,7 @@ public final class MessageDatabase extends Database {
     private static InstantMessage<ID, SymmetricKey> getInstanceMessage(Map msg) {
         InstantMessage<ID, SymmetricKey> iMsg = InstantMessage.getInstance(msg);
         if (iMsg != null) {
-            iMsg.setDelegate(Messenger.getInstance());
+            iMsg.setDelegate(messenger);
         }
         return iMsg;
     }

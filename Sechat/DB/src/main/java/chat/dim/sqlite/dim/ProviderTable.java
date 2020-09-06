@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.ID;
-import chat.dim.model.Configuration;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 
@@ -173,15 +172,5 @@ public final class ProviderTable extends DataTable implements chat.dim.database.
     public boolean removeStations(ID sp) {
         String[] whereArgs = {sp.toString()};
         return delete(MainDatabase.T_STATION, "spid=?", whereArgs) > 0;
-    }
-
-    @Override
-    public ApiInfo getAPI(ID sp, ID station) {
-        // TODO: save APIs into database
-        Configuration config = Configuration.getInstance();
-        String upload = config.getUploadURL();
-        String download = config.getDownloadURL();
-        String avatar = config.getAvatarURL();
-        return new ApiInfo(upload, download, avatar);
     }
 }

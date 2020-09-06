@@ -45,12 +45,41 @@ public interface ProviderTable {
         }
     }
 
+    /**
+     *  Get all providers
+     *
+     * @return provider list
+     */
     List<ProviderInfo> getProviders();
 
+    /**
+     *  Add provider info
+     *
+     * @param identifier - sp ID
+     * @param name       - sp name
+     * @param url        - entrance URL
+     * @param chosen     - whether current sp
+     * @return false on failed
+     */
     boolean addProvider(ID identifier, String name, String url, int chosen);
 
+    /**
+     *  Update provider info
+     *
+     * @param identifier - sp ID
+     * @param name       - sp name
+     * @param url        - entrance URL
+     * @param chosen     - whether current sp
+     * @return false on failed
+     */
     boolean updateProvider(ID identifier, String name, String url, int chosen);
 
+    /**
+     *  Remove provider info
+     *
+     * @param identifier - sp ID
+     * @return false on failed
+     */
     boolean removeProvider(ID identifier);
 
     //
@@ -73,33 +102,63 @@ public interface ProviderTable {
         }
     }
 
+    /**
+     *  Get all stations of this sp
+     *
+     * @param sp - sp ID
+     * @return station list
+     */
     List<StationInfo> getStations(ID sp);
 
+    /**
+     *  Add station info with sp ID
+     *
+     * @param sp      - sp ID
+     * @param station - station ID
+     * @param host    - station IP
+     * @param port    - station port
+     * @param name    - station name
+     * @param chosen  - whether current station
+     * @return false on failed
+     */
     boolean addStation(ID sp, ID station, String host, int port, String name, int chosen);
 
+    /**
+     *  Update station info
+     *
+     * @param sp      - sp ID
+     * @param station - station ID
+     * @param host    - station IP
+     * @param port    - station port
+     * @param name    - station name
+     * @param chosen  - whether current station
+     * @return false on failed
+     */
     boolean updateStation(ID sp, ID station, String host, int port, String name, int chosen);
 
+    /**
+     *  Set this station as current station
+     *
+     * @param sp      - sp ID
+     * @param station - station ID
+     * @return false on failed
+     */
     boolean chooseStation(ID sp, ID station);
 
+    /**
+     *  Remove this station
+     *
+     * @param sp      - sp ID
+     * @param station - station ID
+     * @return false on failed
+     */
     boolean removeStation(ID sp, ID station);
 
+    /**
+     *  Remove all station of the sp
+     *
+     * @param sp - sp ID
+     * @return false on failed
+     */
     boolean removeStations(ID sp);
-
-    //
-    //  APIs
-    //
-
-    class ApiInfo {
-        public String upload;
-        public String download;
-        public String avatar;
-
-        public ApiInfo(String upload, String download, String avatar) {
-            this.upload = upload;
-            this.download = download;
-            this.avatar = avatar;
-        }
-    }
-
-    ApiInfo getAPI(ID sp, ID station);
 }
