@@ -258,7 +258,9 @@ public class Terminal implements StationDelegate {
             // clear icon badge
 
             // try to activate the connection
-            server.handshake(null);
+            if (server.getCurrentUser() != null) {
+                server.handshake(null);
+            }
         }
     }
 

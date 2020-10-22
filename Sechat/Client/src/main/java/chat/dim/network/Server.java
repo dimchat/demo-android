@@ -120,6 +120,9 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     //---- slowly command for meta/profile
 
     private ReliableMessage<ID, SymmetricKey> packCommand(Command cmd) {
+        if (currentUser == null) {
+            throw new NullPointerException("current user not set");
+        }
         InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
         Messenger messenger = Messenger.getInstance();
         SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
