@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.User;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -52,7 +54,7 @@ public class ContactList extends DummyList<ContactList.Item> {
                 };
                 Collections.sort(contacts, comparator);
                 for (ID identifier : contacts) {
-                    if (identifier.isGroup()) {
+                    if (NetworkType.isGroup(identifier.getType())) {
                         // FIXME: where to show groups?
                         continue;
                     }
@@ -79,14 +81,14 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         Bitmap getAvatar() {
-            if (identifier.isGroup()) {
+            if (NetworkType.isGroup(identifier.getType())) {
                 return GroupViewModel.getLogo(identifier);
             }
             return UserViewModel.getAvatar(identifier);
         }
 
         String getTitle() {
-            if (identifier.isGroup()) {
+            if (NetworkType.isGroup(identifier.getType())) {
                 // TODO: show group title with format "group name (members count)"
                 return EntityViewModel.getName(identifier);
             }
@@ -94,13 +96,13 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getDesc() {
-            if (identifier.isGroup()) {
+            if (NetworkType.isGroup(identifier.getType())) {
                 return null;
             }
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
             if (cmd != null) {
                 Map<String, Object> info = cmd.getStation();
-                ID sid = EntityViewModel.getID(info.get("ID"));
+                ID sid = Entity.parseID(info.get("ID"));
                 Date time = cmd.getTime();
                 if (time != null) {
                     if (sid != null) {

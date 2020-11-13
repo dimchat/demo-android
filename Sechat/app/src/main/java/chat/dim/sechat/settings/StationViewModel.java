@@ -2,8 +2,8 @@ package chat.dim.sechat.settings;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.model.NetworkDatabase;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.utils.Log;

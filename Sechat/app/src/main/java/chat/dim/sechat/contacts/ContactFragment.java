@@ -14,12 +14,12 @@ import android.view.ViewGroup;
 
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.network.ServerState;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.MainActivity;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;

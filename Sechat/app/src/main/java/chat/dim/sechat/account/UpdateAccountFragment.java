@@ -16,10 +16,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import chat.dim.ID;
-import chat.dim.Profile;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
@@ -93,7 +93,6 @@ public class UpdateAccountFragment extends Fragment {
         }
 
         // ID.number & address
-        numberView.setText(mViewModel.getNumberString());
         addressView.setText(mViewModel.getAddressString());
 
         saveButton.setOnClickListener(v -> save());

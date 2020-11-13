@@ -4,9 +4,10 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.User;
 import chat.dim.model.Facebook;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -44,7 +45,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         ID identifier;
         for (String item : users) {
-            identifier = facebook.getID(item);
+            identifier = Entity.parseID(item);
             if (identifier == null) {
                 continue;
             }
@@ -61,7 +62,7 @@ public class DummyContent extends DummyList<DummyContent.Item> {
 
         Item(Object id) {
             super();
-            account = facebook.getUser(ID.getInstance(id));
+            account = facebook.getUser(Entity.parseID(id));
         }
 
         ID getIdentifier() {

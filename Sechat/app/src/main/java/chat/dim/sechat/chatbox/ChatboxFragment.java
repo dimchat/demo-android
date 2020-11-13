@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.MessageFactory;
 import chat.dim.User;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -35,7 +34,11 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
@@ -144,10 +147,11 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         // pack message content
         ID sender = user.identifier;
         ID receiver = chatBox.identifier;
-        if (receiver.isGroup()) {
+        if (NetworkType.isGroup(receiver.getType())) {
             content.setGroup(receiver);
         }
-        InstantMessage iMsg = new InstantMessage<>(content, sender, receiver);
+        Envelope env = MessageFactory.getEnvelope(sender, receiver);
+        InstantMessage iMsg = MessageFactory.getInstantMessage(env, content);
         sendMessage(iMsg);
     }
 

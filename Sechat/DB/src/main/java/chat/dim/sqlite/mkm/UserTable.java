@@ -32,7 +32,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
 public final class UserTable extends DataTable implements chat.dim.database.UserTable {
@@ -66,7 +67,7 @@ public final class UserTable extends DataTable implements chat.dim.database.User
             users = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 if (identifier != null) {
                     users.add(identifier);
                 }
@@ -153,7 +154,7 @@ public final class UserTable extends DataTable implements chat.dim.database.User
         String[] columns = {"uid"};
         try (Cursor cursor = query(EntityDatabase.T_USER, columns, null, null, null, null, "chosen DESC")) {
             while (cursor.moveToNext()) {
-                current = EntityDatabase.getID(cursor.getString(0));
+                current = Entity.parseID(cursor.getString(0));
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();

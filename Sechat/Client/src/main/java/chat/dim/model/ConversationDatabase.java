@@ -29,16 +29,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Envelope;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
-import chat.dim.Message;
 import chat.dim.User;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Message;
+import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
@@ -60,7 +62,7 @@ public final class ConversationDatabase {
         return Times.getTimeString(time);
     }
 
-    public String getContentText(chat.dim.Content content) {
+    public String getContentText(Content content) {
         return AnyContentProcessor.getContentText(content);
     }
 
@@ -168,9 +170,9 @@ public final class ConversationDatabase {
         if (OK) {
             ID entity = chatBox.identifier;
             // FIXME: check for origin conversation
-            if (entity.isUser()) {
+            if (NetworkType.isUser(entity.getType())) {
                 ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
-                Envelope<ID> env = receipt.getEnvelope();
+                Envelope env = receipt.getEnvelope();
                 if (env != null) {
                     ID sender = env.getSender();
                     if (sender != null && sender.equals(iMsg.getReceiver())) {

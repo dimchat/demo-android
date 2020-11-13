@@ -13,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
@@ -24,6 +21,9 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
+import chat.dim.protocol.Profile;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 messenger.postProfile(profile, meta);
             }
             //将用户地址设为别名
-            JPushManager.getInstance().setAlias(user.identifier.address.toString());
+            JPushManager.getInstance().setAlias(user.identifier.getAddress().toString());
         }
     }
 }

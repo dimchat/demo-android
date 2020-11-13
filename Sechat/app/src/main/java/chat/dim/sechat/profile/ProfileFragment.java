@@ -18,11 +18,11 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.image.ImageViewerActivity;
@@ -36,7 +36,6 @@ public class ProfileFragment extends Fragment implements Observer {
     private ImageView imageView;
     private TextView nameView;
     private TextView addressView;
-    private TextView numberView;
 
     private Button messageButton;
     private Button removeButton;
@@ -82,7 +81,6 @@ public class ProfileFragment extends Fragment implements Observer {
         imageView = view.findViewById(R.id.avatarView);
         nameView = view.findViewById(R.id.nameView);
         addressView = view.findViewById(R.id.addressView);
-        numberView = view.findViewById(R.id.numberView);
 
         messageButton = view.findViewById(R.id.sendMessage);
         removeButton = view.findViewById(R.id.removeContact);
@@ -103,7 +101,6 @@ public class ProfileFragment extends Fragment implements Observer {
 
         nameView.setText(mViewModel.getName());
         addressView.setText(mViewModel.getAddressString());
-        numberView.setText(mViewModel.getNumberString());
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);

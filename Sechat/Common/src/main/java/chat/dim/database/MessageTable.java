@@ -25,8 +25,8 @@
  */
 package chat.dim.database;
 
-import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 
 public interface MessageTable {
 

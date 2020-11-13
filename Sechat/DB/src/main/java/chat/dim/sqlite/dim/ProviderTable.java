@@ -32,9 +32,9 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
-import chat.dim.sqlite.mkm.EntityDatabase;
 
 public final class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
 
@@ -64,7 +64,7 @@ public final class ProviderTable extends DataTable implements chat.dim.database.
             String url;
             int chosen;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 name = cursor.getString(1);
                 url = cursor.getString(2);
                 chosen = cursor.getInt(3);
@@ -114,7 +114,7 @@ public final class ProviderTable extends DataTable implements chat.dim.database.
             int port;
             int chosen;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 name = cursor.getString(1);
                 host = cursor.getString(2);
                 port = cursor.getInt(3);

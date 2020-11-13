@@ -32,7 +32,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
 public final class ContactTable extends DataTable implements chat.dim.database.ContactTable {
@@ -61,7 +62,7 @@ public final class ContactTable extends DataTable implements chat.dim.database.C
         try (Cursor cursor = query(EntityDatabase.T_CONTACT, columns, "uid=?", selectionArgs, null, null, null)) {
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 if (identifier != null) {
                     contacts.add(identifier);
                 }

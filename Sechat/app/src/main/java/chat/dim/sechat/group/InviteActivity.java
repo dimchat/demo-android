@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import chat.dim.ID;
-import chat.dim.model.Facebook;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
 public class InviteActivity extends AppCompatActivity {
@@ -25,11 +25,10 @@ public class InviteActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Facebook facebook = Facebook.getInstance();
         Intent intent = getIntent();
         // get extra info
-        ID identifier = facebook.getID(intent.getStringExtra("ID"));
-        ID from = facebook.getID(intent.getStringExtra("from"));
+        ID identifier = Entity.parseID(intent.getStringExtra("ID"));
+        ID from = Entity.parseID(intent.getStringExtra("from"));
 
         if (savedInstanceState == null) {
             fragment = InviteFragment.newInstance(identifier);

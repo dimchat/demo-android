@@ -30,8 +30,9 @@ import android.graphics.Bitmap;
 import java.io.IOException;
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.User;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sqlite.dim.LoginTable;
@@ -47,7 +48,7 @@ public class UserViewModel extends EntityViewModel {
         if (identifier == null) {
             throw new NullPointerException("user ID empty");
         }
-        return facebook.getUser(facebook.getID(identifier));
+        return facebook.getUser(Entity.parseID(identifier));
     }
     public User getUser() {
         return getUser(getIdentifier());
@@ -94,9 +95,7 @@ public class UserViewModel extends EntityViewModel {
         if (identifier == null) {
             throw new NullPointerException("user ID empty");
         }
-        String name = EntityViewModel.getName(identifier);
-        String number = facebook.getNumberString(identifier);
-        return name + " (" + number + ")";
+        return EntityViewModel.getName(identifier);
     }
     public String getUserTitle() {
         return getUserTitle(getIdentifier());

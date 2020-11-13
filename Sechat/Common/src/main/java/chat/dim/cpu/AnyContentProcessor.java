@@ -29,20 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
 import chat.dim.common.Facebook;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.PageContent;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
@@ -59,7 +58,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -79,11 +78,9 @@ public class AnyContentProcessor extends ContentProcessor {
             }
         } else if (content instanceof TextContent) {
             // Text
-            assert content.get("text") != null : "text content error: " + content;
             text = "Text message received";
         } else if (content instanceof PageContent) {
             // Web page
-            assert content.get("URL") != null : "page content error: " + content;
             text = "Web page received";
         } else {
             text = "Content (type: " + content.getType() + ") not support yet!";
@@ -102,8 +99,9 @@ public class AnyContentProcessor extends ContentProcessor {
         }
 
         // response
+        Object signature = ((Map) rMsg).get("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
-        receipt.put("signature", rMsg.get("signature"));
+        receipt.put("signature", signature);
         return receipt;
     }
 
@@ -111,7 +109,7 @@ public class AnyContentProcessor extends ContentProcessor {
     //  Text Builder
     //
 
-    public static String getContentText(chat.dim.Content content) {
+    public static String getContentText(Content content) {
         String text = (String) content.get("text");
         if (text != null) {
             return text;

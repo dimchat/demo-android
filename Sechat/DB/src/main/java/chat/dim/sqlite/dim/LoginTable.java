@@ -33,8 +33,8 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.format.JSON;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
 

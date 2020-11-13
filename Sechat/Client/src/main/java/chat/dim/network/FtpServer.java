@@ -28,7 +28,6 @@ package chat.dim.network;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -37,6 +36,7 @@ import chat.dim.format.Hex;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.Configuration;
 import chat.dim.protocol.FileContent;
+import chat.dim.protocol.ID;
 
 public final class FtpServer {
     private static final FtpServer ourInstance = new FtpServer();
@@ -58,7 +58,7 @@ public final class FtpServer {
         // upload to CDN
         String upload = config.getUploadURL();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", identifier.address.toString());
+        upload = upload.replaceAll("\\{ID\\}", identifier.getAddress().toString());
 
         HTTPClient httpClient = HTTPClient.getInstance();
         httpClient.upload(imageData, upload, filename, "avatar");
@@ -66,7 +66,7 @@ public final class FtpServer {
         // build download URL
         String download = config.getAvatarURL();
         assert download != null : "download API error";
-        download = download.replaceAll("\\{ID\\}", identifier.address.toString()).replaceAll("\\{filename\\}", filename);
+        download = download.replaceAll("\\{ID\\}", identifier.getAddress().toString()).replaceAll("\\{filename\\}", filename);
 
         try {
             // store in user's directory
@@ -131,7 +131,7 @@ public final class FtpServer {
         // upload to CDN
         String upload = config.getUploadURL();
         assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", sender.address.toString());
+        upload = upload.replaceAll("\\{ID\\}", sender.getAddress().toString());
 
         HTTPClient httpClient = HTTPClient.getInstance();
         httpClient.upload(data, upload, filename, "file");
@@ -139,7 +139,7 @@ public final class FtpServer {
         // build download URL
         String download = config.getDownloadURL();
         assert download != null : "download API error";
-        return download.replaceAll("\\{ID\\}", sender.address.toString()).replaceAll("\\{filename\\}", filename);
+        return download.replaceAll("\\{ID\\}", sender.getAddress().toString()).replaceAll("\\{filename\\}", filename);
     }
 
     public String downloadEncryptedData(String url) {

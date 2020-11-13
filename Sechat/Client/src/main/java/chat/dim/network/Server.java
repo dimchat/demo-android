@@ -36,13 +36,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.CompletionHandler;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.MessageFactory;
 import chat.dim.MessengerDelegate;
-import chat.dim.ReliableMessage;
-import chat.dim.SecureMessage;
 import chat.dim.User;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.StateDelegate;
@@ -52,8 +48,13 @@ import chat.dim.mtp.protocol.Package;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
@@ -119,17 +120,18 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
 
     //---- slowly command for meta/profile
 
-    private ReliableMessage<ID, SymmetricKey> packCommand(Command cmd) {
+    private ReliableMessage packCommand(Command cmd) {
         if (currentUser == null) {
             throw new NullPointerException("current user not set");
         }
-        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(cmd, currentUser.identifier, identifier);
+        Envelope env = MessageFactory.getEnvelope(currentUser.identifier, identifier);
+        InstantMessage iMsg = MessageFactory.getInstantMessage(env, cmd);
         Messenger messenger = Messenger.getInstance();
-        SecureMessage<ID, SymmetricKey> sMsg = messenger.encryptMessage(iMsg);
+        SecureMessage sMsg = messenger.encryptMessage(iMsg);
         if (sMsg == null) {
             throw new NullPointerException("failed to encrypt message: " + iMsg);
         }
-        ReliableMessage<ID, SymmetricKey> rMsg = messenger.signMessage(sMsg);
+        ReliableMessage rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
             throw new NullPointerException("failed to sign message: " + sMsg);
         }
@@ -168,7 +170,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(session);
         setLastReceivedMessageTime(cmd);
-        ReliableMessage<ID, SymmetricKey> rMsg = packCommand(cmd);
+        ReliableMessage rMsg = packCommand(cmd);
         // first handshake?
         if (cmd.state == HandshakeCommand.HandshakeState.START) {
             // [Meta protocol]
@@ -418,7 +420,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
 
     @Override
     public String uploadData(byte[] data, InstantMessage iMsg) {
-        ID sender = ID.getInstance(iMsg.getSender());
+        ID sender = iMsg.getSender();
         FileContent content = (FileContent) iMsg.getContent();
         String filename = content.getFilename();
 

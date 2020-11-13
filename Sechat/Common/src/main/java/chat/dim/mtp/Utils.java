@@ -35,14 +35,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
+import chat.dim.MessageFactory;
 import chat.dim.dmtp.protocol.Message;
 import chat.dim.dmtp.values.BinaryValue;
 import chat.dim.dmtp.values.StringValue;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.tlv.Data;
 import chat.dim.tlv.IntegerData;
 import chat.dim.tlv.MutableData;
@@ -52,7 +53,7 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
-        Map<String, Object> info = new HashMap<>(msg);
+        Map<String, Object> info = new HashMap<>((Map) msg);
         //
         //  envelope
         //
@@ -184,7 +185,7 @@ public class Utils {
             info.put("profile", JSON.decode(profile.getBytes()));
         }
 
-        return ReliableMessage.getInstance(info);
+        return MessageFactory.getReliableMessage(info);
     }
 
     private static Data KEYS_PREFIX = new Data("KEYS:".getBytes());

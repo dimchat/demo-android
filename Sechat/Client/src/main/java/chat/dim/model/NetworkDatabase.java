@@ -31,13 +31,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
+import chat.dim.Entity;
 import chat.dim.database.ProviderTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
 
 public final class NetworkDatabase {
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
@@ -143,10 +144,10 @@ public final class NetworkDatabase {
     @SuppressWarnings("unchecked")
     private static Meta loadMeta(ID identifier) {
         try {
-            String path = Paths.appendPathComponent(identifier.address.toString(), "meta.js");
+            String path = Paths.appendPathComponent(identifier.getAddress().toString(), "meta.js");
             Object meta = Resources.loadJSON(path);
-            return Meta.getInstance((Map<String, Object>) meta);
-        } catch (IOException | ClassNotFoundException e) {
+            return Entity.parseMeta(meta);
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -158,7 +159,7 @@ public final class NetworkDatabase {
         Facebook facebook = Facebook.getInstance();
         Map<String, Object> spConfig = Configuration.getInstance().getDefaultProvider();
 
-        ID sp = facebook.getID(spConfig.get("ID"));
+        ID sp = Entity.parseID(spConfig.get("ID"));
         String name = (String) spConfig.get("name");
         String url = (String) spConfig.get("URL");
         addProvider(sp, name, url, 1);
@@ -172,7 +173,7 @@ public final class NetworkDatabase {
         int chosen = 1;
 
         for (Map item : stations) {
-            sid = facebook.getID(item.get("ID"));
+            sid = Entity.parseID(item.get("ID"));
             host = (String) item.get("host");
             port = (int) item.get("port");
             name = (String) item.get("name");

@@ -29,7 +29,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import chat.dim.Facebook;
-import chat.dim.ID;
 import chat.dim.sqlite.Database;
 
 public final class EntityDatabase extends Database {
@@ -91,13 +90,5 @@ public final class EntityDatabase extends Database {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    }
-
-    //
-    //  MingKeMing
-    //
-
-    public static ID getID(Object identifier) {
-        return facebook.getID(identifier);
     }
 }

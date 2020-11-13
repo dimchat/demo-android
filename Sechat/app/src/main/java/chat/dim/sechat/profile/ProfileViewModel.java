@@ -4,8 +4,8 @@ import android.net.Uri;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 
 public class ProfileViewModel extends UserViewModel {

@@ -30,8 +30,8 @@ import java.util.List;
 
 import chat.dim.Entity;
 import chat.dim.Group;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
 
 public class Conversation {
@@ -53,7 +53,7 @@ public class Conversation {
 
     private byte getType(Entity entity) {
         ID identifier = entity.identifier;
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             return GroupChat;
         }
         return PersonalChat;
@@ -66,7 +66,7 @@ public class Conversation {
     public String getTitle() {
         String name = entity.getName();
         ID identifier = entity.identifier;
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             Group group = (Group) entity;
             List<ID> members = group.getMembers();
             int count = (members == null) ? 0 : members.size();

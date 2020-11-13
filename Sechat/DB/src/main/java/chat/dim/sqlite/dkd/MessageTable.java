@@ -38,15 +38,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Content;
-import chat.dim.Envelope;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
-import chat.dim.crypto.SymmetricKey;
+import chat.dim.Entity;
 import chat.dim.format.JSON;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.sqlite.DataTable;
-import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.utils.Log;
 
 public final class MessageTable extends DataTable implements chat.dim.database.MessageTable {
@@ -81,7 +81,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             List<ID> array = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 if (identifier != null) {
                     array.add(identifier);
                 }
@@ -153,7 +153,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
     //-------- messages
 
     private ID cachedMessagesID = null;
-    private List<InstantMessage<ID, SymmetricKey>> cachedMessages = null;
+    private List<InstantMessage> cachedMessages = null;
 
     private ID cachedTracesID = null;
     private Map<String, List<String>> cachedTraces = null;
@@ -239,7 +239,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         return array;
     }
 
-    private List<InstantMessage<ID, SymmetricKey>> messagesInConversation(ID entity) {
+    private List<InstantMessage> messagesInConversation(ID entity) {
         if (entity.equals(cachedMessagesID) && cachedMessages != null) {
             return cachedMessages;
         }
@@ -250,14 +250,15 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         String[] columns = {"sender", "receiver", "time", "content", "sn", "signature"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, null)) {
-            List<InstantMessage<ID, SymmetricKey>> messages = new ArrayList<>();
+            List<InstantMessage> messages = new ArrayList<>();
             String sender;
             String receiver;
             long time;
             String content;
             int sn;
             String signature;
-            InstantMessage<ID, SymmetricKey> iMsg;
+            Envelope env;
+            InstantMessage iMsg;
             List<String> array;
             while (cursor.moveToNext()) {
                 sender = cursor.getString(0);
@@ -335,7 +336,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             }
             return null;
         }
-        InstantMessage<ID, SymmetricKey> iMsg = null;
+        InstantMessage iMsg = null;
         String[] columns = {"sender", "receiver", "time", "content", "signature"};
         String[] selectionArgs = {entity.toString()};
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=?", selectionArgs, null, null, "time DESC LIMIT 1")) {
@@ -374,7 +375,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             long time;
             String content;
             String signature;
-            InstantMessage<ID, SymmetricKey> iMsg;
+            InstantMessage iMsg;
             if (cursor.moveToNext()) {
                 sender = cursor.getString(0);
                 receiver = cursor.getString(1);
@@ -396,7 +397,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
 
     @Override
     public InstantMessage messageAtIndex(int index, ID entity) {
-        List<InstantMessage<ID, SymmetricKey>> messages = messagesInConversation(entity);
+        List<InstantMessage> messages = messagesInConversation(entity);
         if (messages == null || messages.size() <= index) {
             return null;
         }
@@ -545,8 +546,8 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         ID sender = (ID) iMsg.getSender();
         ID receiver = (ID) iMsg.getReceiver();
         // FIXME: check for origin conversation
-        if (entity.isUser()) {
-            Envelope<ID> env = receipt.getEnvelope();
+        if (NetworkType.isUser(entity.getType())) {
+            Envelope env = receipt.getEnvelope();
             if (env != null && receiver.equals(env.getSender())) {
                 receiver = env.getReceiver();
                 if (receiver != null) {
@@ -570,7 +571,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
 
         // update message already loaded into memory cache
         if (entity.equals(cachedMessagesID) && cachedMessages != null) {
-            InstantMessage<ID, SymmetricKey> item;
+            InstantMessage item;
             int index = cachedMessages.size() - 1;
             for (; index >= 0; --index) {
                 item = cachedMessages.get(index);

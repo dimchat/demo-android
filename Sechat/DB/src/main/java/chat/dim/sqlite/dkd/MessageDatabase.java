@@ -32,11 +32,10 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.InstantMessage;
+import chat.dim.MessageFactory;
 import chat.dim.Messenger;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.sqlite.Database;
 
 public final class MessageDatabase extends Database {
@@ -91,7 +90,7 @@ public final class MessageDatabase extends Database {
     //  DaoKeDao
     //
 
-    static InstantMessage<ID, SymmetricKey> getInstanceMessage(String sender, String receiver, long timestamp, String content) {
+    static InstantMessage getInstanceMessage(String sender, String receiver, long timestamp, String content) {
         Map dict = (Map) JSON.decode(content.getBytes(Charset.forName("UTF-8")));
         if (dict == null) {
             throw new NullPointerException("message content error: " + content);
@@ -105,8 +104,8 @@ public final class MessageDatabase extends Database {
     }
 
     @SuppressWarnings("unchecked")
-    private static InstantMessage<ID, SymmetricKey> getInstanceMessage(Map msg) {
-        InstantMessage<ID, SymmetricKey> iMsg = InstantMessage.getInstance(msg);
+    private static InstantMessage getInstanceMessage(Map msg) {
+        InstantMessage iMsg = MessageFactory.getInstantMessage(msg);
         if (iMsg != null) {
             iMsg.setDelegate(messenger);
         }

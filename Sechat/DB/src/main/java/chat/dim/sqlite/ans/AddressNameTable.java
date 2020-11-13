@@ -29,7 +29,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
-import chat.dim.ID;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
 public final class AddressNameTable extends DataTable implements chat.dim.database.AddressNameTable {
@@ -57,7 +58,7 @@ public final class AddressNameTable extends DataTable implements chat.dim.databa
         String[] selectionArgs = {alias};
         try (Cursor cursor = query(AddressNameDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                identifier = ID.getInstance(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();

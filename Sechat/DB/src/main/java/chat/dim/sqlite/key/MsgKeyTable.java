@@ -31,9 +31,9 @@ import android.database.Cursor;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
 public final class MsgKeyTable extends DataTable implements chat.dim.database.MsgKeyTable {

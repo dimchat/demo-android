@@ -25,8 +25,8 @@
  */
 package chat.dim.database;
 
-import chat.dim.ID;
-import chat.dim.Profile;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Profile;
 
 public interface ProfileTable {
 

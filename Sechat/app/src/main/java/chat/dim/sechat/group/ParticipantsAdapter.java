@@ -19,8 +19,8 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.Group;
-import chat.dim.ID;
 import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.model.Facebook;
@@ -28,6 +28,8 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -36,8 +38,8 @@ import chat.dim.ui.Alert;
 
 public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
-    public static final ID INVITE_BTN_ID = ID.getInstance("invite@anywhere");
-    public static final ID EXPEL_BTN_ID = ID.getInstance("expel@anywhere");
+    public static final ID INVITE_BTN_ID = Entity.parseID("invite@anywhere");
+    public static final ID EXPEL_BTN_ID = Entity.parseID("expel@anywhere");
 
     private final int resId;
     private final ID identifier;
@@ -82,14 +84,13 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         }
 
         Group group;
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             if (!GroupViewModel.existsMember(user.identifier, identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
             group = GroupViewModel.getGroup(identifier);
         } else {
-            assert identifier.isUser() : "user ID error: " + identifier;
             Register register = new Register();
             group = register.createGroup(user.identifier, "Sophon Shield");
         }

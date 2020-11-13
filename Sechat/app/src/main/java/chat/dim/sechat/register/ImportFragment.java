@@ -15,10 +15,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.Alert;

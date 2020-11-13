@@ -2,8 +2,8 @@ package chat.dim.sechat.chatbox;
 
 import java.util.List;
 
-import chat.dim.InstantMessage;
 import chat.dim.model.Conversation;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 

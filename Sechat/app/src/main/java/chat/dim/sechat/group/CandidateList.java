@@ -4,8 +4,9 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -32,7 +33,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         List<ID> contacts = UserViewModel.getContacts(user.identifier);
         if (contacts != null) {
             for (ID member : contacts) {
-                if (!member.isUser()) {
+                if (!NetworkType.isUser(member.getType())) {
                     continue;
                 }
                 if (GroupViewModel.existsMember(member, group)) {

@@ -33,10 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
+import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
 public final class PrivateKeyTable extends DataTable implements chat.dim.database.PrivateKeyTable {

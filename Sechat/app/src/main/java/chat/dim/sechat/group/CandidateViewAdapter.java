@@ -10,9 +10,9 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;

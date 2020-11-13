@@ -28,13 +28,11 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 import chat.dim.AddressNameService;
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.Immortals;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -46,7 +44,12 @@ import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
+import chat.dim.mkm.BaseProfile;
+import chat.dim.mkm.BroadcastAddress;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Profile;
 
 public class Facebook extends chat.dim.Facebook {
     public Facebook() {
@@ -143,14 +146,19 @@ public class Facebook extends chat.dim.Facebook {
         return userTable.removeUser(user);
     }
 
-    @Override
-    protected ID createID(String string) {
-        // try ANS record
-        ID identifier = ans.identifier(string);
-        if (identifier != null) {
-            return identifier;
+    protected ID getID(Object identifier) {
+        if (identifier == null) {
+            return null;
+        } else if (identifier instanceof ID) {
+            return (ID) identifier;
         }
-        return super.createID(string);
+        // try ANS record
+        String string = (String) identifier;
+        ID id = ans.identifier(string);
+        if (id != null) {
+            return id;
+        }
+        return Entity.parseID(string);
     }
 
     //-------- Contacts
@@ -188,7 +196,7 @@ public class Facebook extends chat.dim.Facebook {
             // profile's signature not match
             return false;
         }
-        profile.remove(EXPIRES_KEY);
+        ((BaseProfile) profile).remove(EXPIRES_KEY);
         return profileTable.saveProfile(profile);
     }
 
@@ -217,10 +225,10 @@ public class Facebook extends chat.dim.Facebook {
         return getUsername(getID(string));
     }
     public String getUsername(ID identifier) {
-        String username = identifier.name;
+        String username = identifier.getName();
         String nickname = getNickname(identifier);
         if (nickname != null && nickname.length() > 0) {
-            if (identifier.isUser()) {
+            if (NetworkType.isUser(identifier.getType())) {
                 if (username != null && username.length() > 0) {
                     return nickname + " (" + username + ")";
                 }
@@ -230,14 +238,13 @@ public class Facebook extends chat.dim.Facebook {
             return username;
         }
         // ID only contains address: BTC, ETH, ...
-        return identifier.address.toString();
+        return identifier.getAddress().toString();
     }
 
     public String getNickname(Object identifier) {
         return getNickname(getID(identifier));
     }
     public String getNickname(ID identifier) {
-        assert identifier.isUser() : "ID error: " + identifier;
         Profile profile = getProfile(identifier);
         assert profile != null : "profile object should not be null: " + identifier;
         return profile.getName();
@@ -246,18 +253,11 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(identifier);
     }
 
-    public String getNumberString(ID identifier) {
-        long number = identifier.getNumber();
-        String string = String.format(Locale.CHINA, "%010d", number);
-        string = string.substring(0, 3) + "-" + string.substring(3, 6) + "-" + string.substring(6);
-        return string;
-    }
-
     //-------- EntityDataSource
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
+        if (identifier.getAddress() instanceof BroadcastAddress) {
             // broadcast ID has not meta
             return null;
         }
@@ -296,19 +296,11 @@ public class Facebook extends chat.dim.Facebook {
         return profile;
     }
 
-    public boolean isEmpty(Profile profile) {
-        if (profile == null) {
-            return true;
-        }
-        String json = (String) profile.get("data");
-        return json == null || json.length() == 0;
-    }
-
     public boolean isSigned(Profile profile) {
         if (isEmpty(profile)) {
             return false;
         }
-        String base64 = (String) profile.get("signature");
+        String base64 = (String) ((Map) profile).get("signature");
         return base64 != null && base64.length() > 0;
     }
 
@@ -337,7 +329,6 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public SignKey getPrivateKeyForSignature(ID user) {
-        assert user.isUser() : "user ID error: " + user;
         SignKey key = privateTable.getPrivateKeyForSignature(user);
         if (key == null) {
             // try immortals
@@ -348,7 +339,6 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
-        assert user.isUser() : "user ID error: " + user;
         List<DecryptKey> keys = privateTable.getPrivateKeysForDecryption(user);
         if (keys == null || keys.size() == 0) {
             // try immortals
@@ -395,7 +385,6 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public List<ID> getAssistants(ID group) {
-        assert group.isGroup() : "group ID error: " + group;
         // try ANS record
         ID identifier = ans.identifier("assistant");
         if (identifier == null) {

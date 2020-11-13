@@ -32,7 +32,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.Entity;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sqlite.DataTable;
 
@@ -61,7 +62,7 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
         String[] selectionArgs = {group.toString()};
         try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                founder = EntityDatabase.getID(cursor.getString(0));
+                founder = Entity.parseID(cursor.getString(0));
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();
@@ -77,10 +78,10 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
         String[] selectionArgs = {group.toString()};
         try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                owner = EntityDatabase.getID(cursor.getString(0));
+                owner = Entity.parseID(cursor.getString(0));
                 if (owner == null && group.getType() == NetworkType.Polylogue.value) {
                     // Polylogue's owner is its founder
-                    owner = EntityDatabase.getID(cursor.getString(1));
+                    owner = Entity.parseID(cursor.getString(1));
                 }
             }
         } catch (SQLiteCantOpenDatabaseException e) {
@@ -97,7 +98,7 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
         try (Cursor cursor = query(EntityDatabase.T_MEMBER, columns, "gid=?", selectionArgs, null, null, null)) {
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = EntityDatabase.getID(cursor.getString(0));
+                identifier = Entity.parseID(cursor.getString(0));
                 if (identifier != null) {
                     members.add(identifier);
                 }

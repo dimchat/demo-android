@@ -5,17 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.JSON;
+import chat.dim.mkm.plugins.DefaultMeta;
+import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Profile;
 import chat.dim.sechat.model.UserViewModel;
 
 public class AccountViewModel extends UserViewModel {
@@ -93,7 +95,7 @@ public class AccountViewModel extends UserViewModel {
         Map<String, Object> info = new HashMap<>();
 
         // meta version
-        info.put("version", meta.getVersion());
+        info.put("version", meta.getType());
 
         // key data
         info.put("data", pem);
@@ -105,7 +107,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // ID.seed
-        String seed = identifier.name;
+        String seed = identifier.getName();
         if (seed != null && seed.length() > 0) {
             info.put("seed", seed);
         }
@@ -190,15 +192,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // generate meta
-        Meta meta = null;
-        try {
-            meta = Meta.generate(metaVersion, privateKey, seed);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (meta == null) {
-            return null;
-        }
+        DefaultMeta meta = DefaultMeta.generate(metaVersion, privateKey, seed);
 
         // generate ID
         ID identifier = meta.generateID(network);
@@ -218,7 +212,7 @@ public class AccountViewModel extends UserViewModel {
 
         // generate profile
         if (nickname != null && nickname.length() > 0) {
-            Profile profile = new Profile(identifier);
+            Profile profile = new UserProfile(identifier);
             profile.setName(nickname);
             if (profile.sign(privateKey) == null) {
                 return null;

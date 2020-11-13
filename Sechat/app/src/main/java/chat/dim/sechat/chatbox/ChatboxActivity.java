@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
@@ -22,6 +22,8 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
@@ -86,11 +88,10 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Facebook facebook = Facebook.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();
         // get extra info
         String string = getIntent().getStringExtra("ID");
-        identifier = facebook.getID(string);
+        identifier = Entity.parseID(string);
         assert identifier != null : "ID error: " + string;
         Conversation chatBox = clerk.getConversation(identifier);
 
@@ -101,7 +102,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
                     .commitNow();
         }
 
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
             BackgroundThreads.rush(this::refresh);

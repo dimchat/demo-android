@@ -7,12 +7,12 @@ import android.content.pm.PackageManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.network.Terminal;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.model.GroupViewModel;
 
 public final class Client extends Terminal implements Observer {

@@ -2,8 +2,8 @@ package chat.dim.sechat.settings;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.database.ProviderTable;
+import chat.dim.protocol.ID;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
 

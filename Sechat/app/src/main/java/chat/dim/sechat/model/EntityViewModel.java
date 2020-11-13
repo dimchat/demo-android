@@ -27,10 +27,10 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
-import chat.dim.ID;
-import chat.dim.Profile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Profile;
 import chat.dim.threading.BackgroundThreads;
 
 public class EntityViewModel extends ViewModel {
@@ -42,27 +42,11 @@ public class EntityViewModel extends ViewModel {
     //
     //  ID
     //
-    public static ID getID(Object identifier) {
-        return facebook.getID(identifier);
-    }
     public ID getIdentifier() {
         return identifier;
     }
     public void setIdentifier(ID identifier) {
         this.identifier = identifier;
-    }
-
-    //
-    //  Number string
-    //
-    public static String getNumberString(ID identifier) {
-        if (identifier == null) {
-            throw new NullPointerException("entity ID empty");
-        }
-        return facebook.getNumberString(identifier);
-    }
-    public String getNumberString() {
-        return getNumberString(getIdentifier());
     }
 
     //
@@ -72,7 +56,7 @@ public class EntityViewModel extends ViewModel {
         if (identifier == null) {
             throw new NullPointerException("entity ID empty");
         }
-        return identifier.address.toString();
+        return identifier.getAddress().toString();
     }
     public String getAddressString() {
         return getAddressString(getIdentifier());
@@ -86,7 +70,7 @@ public class EntityViewModel extends ViewModel {
         if (name != null) {
             return name;
         }
-        name = identifier.name;
+        name = identifier.getName();
         if (name != null) {
             return name;
         }

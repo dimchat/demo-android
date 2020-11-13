@@ -32,11 +32,13 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Meta;
+import chat.dim.Entity;
 import chat.dim.crypto.PublicKey;
+import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.sqlite.DataTable;
 import chat.dim.utils.Log;
@@ -70,14 +72,14 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             Log.info("meta exists: " + entity);
             return true;
         }
-        PublicKey key = meta.getKey();
+        VerifyKey key = meta.getKey();
         byte[] data = JSON.encode(key);
         String pk = new String(data, Charset.forName("UTF-8"));
 
         // 1. save into database
         ContentValues values = new ContentValues();
         values.put("did", entity.toString());
-        values.put("version", meta.getVersion());
+        values.put("version", meta.getType());
         values.put("pk", pk);
         values.put("seed", meta.getSeed());
         values.put("fingerprint", meta.getFingerprint());
@@ -126,7 +128,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
                     info.put("seed", seed);
                     info.put("fingerprint", Base64.encode(fp));
                 }
-                meta = Meta.getInstance(info);
+                meta = Entity.parseMeta(info);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

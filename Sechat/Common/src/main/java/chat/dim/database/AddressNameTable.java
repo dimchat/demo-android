@@ -25,7 +25,7 @@
  */
 package chat.dim.database;
 
-import chat.dim.ID;
+import chat.dim.protocol.ID;
 
 public interface AddressNameTable {
 

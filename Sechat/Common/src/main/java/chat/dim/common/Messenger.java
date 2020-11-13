@@ -31,11 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
-import chat.dim.Meta;
-import chat.dim.ReliableMessage;
-import chat.dim.SecureMessage;
+import chat.dim.CommandParser;
+import chat.dim.Entity;
 import chat.dim.core.CipherKeyDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
@@ -46,12 +43,21 @@ import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
+import chat.dim.mkm.BroadcastAddress;
 import chat.dim.mtp.Utils;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.ReportCommand;
+import chat.dim.protocol.SearchCommand;
+import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.threading.BackgroundThreads;
@@ -84,7 +90,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     private boolean checkGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
-        if (group == null || group.isBroadcast()) {
+        if (group == null || group.getAddress() instanceof BroadcastAddress) {
             // 1. personal message
             // 2. broadcast message
             return false;
@@ -135,7 +141,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //-------- Serialization
 
     @Override
-    public byte[] serializeMessage(ReliableMessage<ID, SymmetricKey> rMsg) {
+    public byte[] serializeMessage(ReliableMessage rMsg) {
         attachKeyDigest(rMsg);
         if (mtpFormat == MTP_JSON) {
             // JsON
@@ -148,11 +154,11 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     @SuppressWarnings("unchecked")
     @Override
-    public ReliableMessage<ID, SymmetricKey> deserializeMessage(byte[] data) {
+    public ReliableMessage deserializeMessage(byte[] data) {
         if (data == null || data.length < 2) {
             return null;
         }
-        ReliableMessage<ID, SymmetricKey> rMsg;
+        ReliableMessage rMsg;
         if (data[0] == '{') {
             // JsON
             rMsg = super.deserializeMessage(data);
@@ -165,7 +171,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return rMsg;
     }
 
-    private void attachKeyDigest(ReliableMessage<ID, SymmetricKey> rMsg) {
+    private void attachKeyDigest(ReliableMessage rMsg) {
         if (rMsg.getDelegate() == null) {
             rMsg.setDelegate(this);
         }
@@ -208,11 +214,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public SecureMessage<ID, SymmetricKey> encryptMessage(InstantMessage<ID, SymmetricKey> iMsg) {
-        SecureMessage<ID, SymmetricKey> sMsg = super.encryptMessage(iMsg);
+    public SecureMessage encryptMessage(InstantMessage iMsg) {
+        SecureMessage sMsg = super.encryptMessage(iMsg);
 
         ID receiver = iMsg.getReceiver();
-        if (receiver.isGroup()) {
+        if (NetworkType.isGroup(receiver.getType())) {
             CipherKeyDelegate keyCache = getCipherKeyDelegate();
             // reuse group message keys
             ID sender = iMsg.getSender();
@@ -225,11 +231,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    public byte[] serializeKey(SymmetricKey password, InstantMessage<ID, SymmetricKey> iMsg) {
+    public byte[] serializeKey(SymmetricKey password, InstantMessage iMsg) {
         Object reused = password.get("reused");
         if (reused != null) {
             ID receiver = iMsg.getReceiver();
-            if (receiver.isGroup()) {
+            if (NetworkType.isGroup(receiver.getType())) {
                 // reuse key for grouped message
                 return null;
             }
@@ -245,7 +251,8 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
+        //noinspection unchecked
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();
@@ -261,7 +268,7 @@ public abstract class Messenger extends chat.dim.Messenger {
             if (text.contains("failed to get meta for ")) {
                 int pos = text.indexOf(": ");
                 if (pos > 0) {
-                    ID waiting = getEntityDelegate().getID(text.substring(pos + 2));
+                    ID waiting = Entity.parseID(text.substring(pos + 2));
                     assert waiting != null : "failed to get ID: " + text;
                     rMsg.put("waiting", waiting);
                     suspendMessage(rMsg);
@@ -274,18 +281,18 @@ public abstract class Messenger extends chat.dim.Messenger {
     //-------- Send
 
     @Override
-    public boolean sendMessage(final InstantMessage<ID, SymmetricKey> iMsg, final Callback callback, final int priority) {
+    public boolean sendMessage(final InstantMessage iMsg, final Callback callback, final int priority) {
         BackgroundThreads.wait(new Runnable() {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station
-                SecureMessage<ID, SymmetricKey> sMsg = encryptMessage(iMsg);
+                SecureMessage sMsg = encryptMessage(iMsg);
                 if (sMsg == null) {
                     // public key not found?
                     return ;
                     //throw new NullPointerException("failed to encrypt message: " + iMsg);
                 }
-                ReliableMessage<ID, SymmetricKey> rMsg = signMessage(sMsg);
+                ReliableMessage rMsg = signMessage(sMsg);
                 if (rMsg == null) {
                     // TODO: set iMsg.state = error
                     throw new NullPointerException("failed to sign message: " + sMsg);
@@ -334,5 +341,35 @@ public abstract class Messenger extends chat.dim.Messenger {
 
         // default content processor
         ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);
+    }
+
+    static {
+        Command.parser = new CommandParser() {
+
+            @Override
+            public Command parseCommand(Map<String, Object> cmd) {
+
+                String command = (String) cmd.get("command");
+
+                if (command.equals(SearchCommand.SEARCH)) {
+                    return new SearchCommand(cmd);
+                }
+                if (command.equals(SearchCommand.ONLINE_USERS)) {
+                    return new SearchCommand(cmd);
+                }
+
+                if (command.equals(ReportCommand.REPORT)) {
+                    return new ReportCommand(cmd);
+                }
+                if (command.equals(ReportCommand.ONLINE)) {
+                    return new ReportCommand(cmd);
+                }
+                if (command.equals(ReportCommand.OFFLINE)) {
+                    return new ReportCommand(cmd);
+                }
+
+                return super.parseCommand(cmd);
+            }
+        };
     }
 }

@@ -27,7 +27,8 @@ package chat.dim.database;
 
 import java.util.List;
 
-import chat.dim.ID;
+import chat.dim.protocol.ID;
+
 
 public interface UserTable {
 

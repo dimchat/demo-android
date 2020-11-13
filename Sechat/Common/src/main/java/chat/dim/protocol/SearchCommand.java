@@ -55,7 +55,7 @@ public class SearchCommand extends Command {
         super(ONLINE_USERS.equals(keywords) ? ONLINE_USERS : SEARCH);
 
         if (!ONLINE_USERS.equals(keywords)) {
-            dictionary.put("keywords", keywords);
+            put("keywords", keywords);
         }
     }
 
@@ -66,7 +66,7 @@ public class SearchCommand extends Command {
      */
     @SuppressWarnings("unchecked")
     public List<String> getUsers() {
-        List<String> users = (List) dictionary.get("users");
+        List<String> users = (List) get("users");
         if (users == null) {
             return null;
         }
@@ -80,16 +80,10 @@ public class SearchCommand extends Command {
      */
     @SuppressWarnings("unchecked")
     public Map<String, Object> getResults() {
-        Map<String, Object> results = (Map) dictionary.get("results");
+        Map<String, Object> results = (Map) get("results");
         if (results == null) {
             return null;
         }
         return results;
-    }
-
-    static {
-        // register
-        register(SEARCH, SearchCommand.class);
-        register(ONLINE_USERS, SearchCommand.class);
     }
 }

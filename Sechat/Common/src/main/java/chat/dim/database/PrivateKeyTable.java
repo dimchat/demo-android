@@ -27,9 +27,9 @@ package chat.dim.database;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.protocol.ID;
 
 public interface PrivateKeyTable {
 

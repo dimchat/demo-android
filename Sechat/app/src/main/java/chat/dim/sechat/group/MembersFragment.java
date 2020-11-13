@@ -13,8 +13,9 @@ import android.widget.GridView;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.User;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -30,7 +31,7 @@ public class MembersFragment extends Fragment {
     private List<ID> participants = null;
 
     public static MembersFragment newInstance(ID identifier) {
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             GroupViewModel.checkMembers(identifier);
         }
 
@@ -40,7 +41,7 @@ public class MembersFragment extends Fragment {
     }
 
     private boolean isGroupAdmin() {
-        if (identifier != null && identifier.isGroup()) {
+        if (identifier != null && NetworkType.isGroup(identifier.getType())) {
             User user = UserViewModel.getCurrentUser();
             return GroupViewModel.isAdmin(user, identifier);
         }

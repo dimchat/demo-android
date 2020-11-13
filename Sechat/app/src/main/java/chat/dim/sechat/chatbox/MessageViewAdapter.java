@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.InstantMessage;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.ConversationDatabase;
@@ -34,8 +32,11 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.ContactList;
@@ -216,7 +217,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
 
-        ID sender = (ID) iMsg.getSender();
+        ID sender = iMsg.getSender();
 
         // time
         String time = msgDB.getTimeString(iMsg);
@@ -240,7 +241,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         // show by content type
-        chat.dim.Content content = iMsg.getContent();
+        Content content = iMsg.getContent();
         if (content instanceof Command) {
             Command cmd = (Command) content;
             String text = msgDB.getCommandText(cmd, sender);

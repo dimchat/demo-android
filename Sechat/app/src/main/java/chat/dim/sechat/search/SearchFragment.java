@@ -11,12 +11,12 @@ import android.widget.SearchView;
 
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.model.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;

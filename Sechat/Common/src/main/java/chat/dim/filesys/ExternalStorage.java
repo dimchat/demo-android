@@ -33,10 +33,10 @@ package chat.dim.filesys;
 import java.io.File;
 import java.io.IOException;
 
-import chat.dim.Address;
-import chat.dim.ID;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
+import chat.dim.protocol.Address;
+import chat.dim.protocol.ID;
 
 public class ExternalStorage {
 
@@ -234,7 +234,7 @@ public class ExternalStorage {
      * @return entity file path
      */
     public static String getEntityFilePath(ID entity, String filename) throws IOException {
-        return getEntityDirectory(entity.address) + separator + filename;
+        return getEntityDirectory(entity.getAddress()) + separator + filename;
     }
 
     public static String getEntityDirectory(Address address) throws IOException {

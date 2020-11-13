@@ -29,11 +29,17 @@ import java.util.Map;
 import java.util.Random;
 
 import chat.dim.crypto.PrivateKey;
+import chat.dim.mkm.BaseProfile;
+import chat.dim.mkm.plugins.BTCMeta;
+import chat.dim.mkm.plugins.DefaultMeta;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Profile;
 import chat.dim.utils.Log;
 
 /**
@@ -136,12 +142,7 @@ public class Register {
     }
     public Meta generateMeta(String seed) {
         assert privateKey != null : "private key not found";
-        try {
-            return Meta.generate(MetaType.Default, privateKey, seed);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return DefaultMeta.generate(MetaType.Default.value, privateKey, seed);
     }
 
     //
@@ -151,8 +152,8 @@ public class Register {
         return generateID(meta, network);
     }
     public ID generateID(Meta meta, NetworkType type) {
-        assert meta != null : "meta not found";
-        return meta.generateID(type);
+        assert meta instanceof BTCMeta : "meta error: " + meta;
+        return ((BTCMeta) meta).generateID(type.value);
     }
 
     //
@@ -165,10 +166,10 @@ public class Register {
         assert identifier != null : "ID error";
         assert privateKey != null : "profile not found";
         Profile profile;
-        if (identifier.isUser()) {
+        if (NetworkType.isUser(identifier.getType())) {
             profile = new UserProfile(identifier);
         } else {
-            profile = new Profile(identifier);
+            profile = new BaseProfile(identifier);
         }
         profile.setName(name);
         if (avatarUrl != null) {
@@ -182,10 +183,10 @@ public class Register {
         assert identifier != null : "ID error";
         assert privateKey != null : "private key not found";
         Profile profile;
-        if (identifier.isUser()) {
+        if (NetworkType.isUser(identifier.getType())) {
             profile = new UserProfile(identifier);
         } else {
-            profile = new Profile(identifier);
+            profile = new BaseProfile(identifier);
         }
         for (Map.Entry<String, Object> entry : properties.entrySet()){
             profile.setProperty(entry.getKey(), entry.getValue());

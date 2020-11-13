@@ -34,11 +34,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.ID;
-import chat.dim.InstantMessage;
-import chat.dim.Meta;
-import chat.dim.Profile;
-import chat.dim.ReliableMessage;
+import chat.dim.MessageFactory;
 import chat.dim.User;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
@@ -47,6 +43,7 @@ import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.mkm.BroadcastAddress;
 import chat.dim.network.Server;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -55,15 +52,21 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Profile;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
@@ -104,7 +107,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         if (name.equals(NotificationNames.MetaSaved)) {
             ID entity = (ID) info.get("ID");
             // purge incoming messages waiting for this ID's meta
-            ReliableMessage<ID, SymmetricKey> rMsg;
+            ReliableMessage rMsg;
             byte[] response;
             while ((rMsg = getIncomingMessage(entity)) != null) {
                 rMsg = process(rMsg);
@@ -150,7 +153,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     @Override
-    public void suspendMessage(ReliableMessage<ID, SymmetricKey> msg) {
+    public void suspendMessage(ReliableMessage msg) {
         // save this message in a queue waiting sender's meta response
         ID waiting = (ID) msg.get("waiting");
         if (waiting == null) {
@@ -162,13 +165,13 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     @Override
-    public void suspendMessage(InstantMessage<ID, SymmetricKey> msg) {
+    public void suspendMessage(InstantMessage msg) {
         // TODO: save this message in a queue waiting receiver's meta response
     }
 
     @Override
-    public boolean saveMessage(InstantMessage<ID, SymmetricKey> iMsg) {
-        chat.dim.Content content = iMsg.getContent();
+    public boolean saveMessage(InstantMessage iMsg) {
+        Content content = iMsg.getContent();
         // TODO: check message type
         //       only save normal message and group commands
         //       ignore 'Handshake', ...
@@ -235,7 +238,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
         Content res = super.process(content, sender, rMsg);
         if (res == null) {
             // respond nothing
@@ -270,7 +273,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         User user = select(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message
-        InstantMessage<ID, SymmetricKey> iMsg = new InstantMessage<>(res, user.identifier, sender);
+        Envelope env = MessageFactory.getEnvelope(user.identifier, sender);
+        InstantMessage iMsg = MessageFactory.getInstantMessage(env, res);
         // normal response
         sendMessage(iMsg, null, StarShip.SLOWER);
         // DON'T respond to station directly
@@ -308,7 +312,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             throw new IllegalStateException("login first");
         }
         Facebook facebook = (Facebook) getFacebook();
-        ID identifier = facebook.getID(profile.getIdentifier());
+        ID identifier = profile.getIdentifier();
         assert identifier.equals(user.identifier) : "profile error: " + profile;
         // check profile
         if (facebook.isSigned(profile)) {
@@ -327,7 +331,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     }
 
     public boolean postProfile(Profile profile, Meta meta) {
-        ID identifier = ID.getInstance(profile.getIdentifier());
+        ID identifier = profile.getIdentifier();
         // check profile
         Facebook facebook = (Facebook) getFacebook();
         if (facebook.isSigned(profile)) {
@@ -380,7 +384,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     @Override
     public boolean queryMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
+        if (identifier.getAddress() instanceof BroadcastAddress) {
             // broadcast ID has no meta
             return false;
         }
@@ -401,7 +405,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     @Override
     public boolean queryProfile(ID identifier) {
-        if (identifier.isBroadcast()) {
+        if (identifier.getAddress() instanceof BroadcastAddress) {
             // broadcast ID has no profile
             return false;
         }

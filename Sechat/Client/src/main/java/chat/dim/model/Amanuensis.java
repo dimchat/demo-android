@@ -26,9 +26,10 @@
 package chat.dim.model;
 
 import chat.dim.Entity;
-import chat.dim.ID;
-import chat.dim.InstantMessage;
 import chat.dim.User;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.NetworkType;
 
 public final class Amanuensis {
     private static final Amanuensis ourInstance = new Amanuensis();
@@ -46,9 +47,9 @@ public final class Amanuensis {
     public Conversation getConversation(ID identifier) {
         // create directly if we can find the entity
         Entity entity = null;
-        if (identifier.isUser()) {
+        if (NetworkType.isUser(identifier.getType())) {
             entity = facebook.getUser(identifier);
-        } else if (identifier.isGroup()) {
+        } else if (NetworkType.isGroup(identifier.getType())) {
             entity = facebook.getGroup(identifier);
         }
         if (entity == null) {
@@ -61,19 +62,19 @@ public final class Amanuensis {
 
     private Conversation getConversation(InstantMessage iMsg) {
         // check receiver
-        ID receiver = (ID) iMsg.getReceiver();
-        if (receiver.isGroup()) {
+        ID receiver = iMsg.getReceiver();
+        if (NetworkType.isGroup(receiver.getType())) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
         // check group
-        ID group = (ID) iMsg.getContent().getGroup();
+        ID group = iMsg.getContent().getGroup();
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        ID sender = (ID) iMsg.getSender();
+        ID sender = iMsg.getSender();
         User user = facebook.getCurrentUser();
         if (sender.equals(user.identifier)) {
             return getConversation(receiver);

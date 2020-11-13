@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
 public class ExportFragment extends Fragment {

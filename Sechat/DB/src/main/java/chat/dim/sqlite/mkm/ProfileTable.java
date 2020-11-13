@@ -32,9 +32,11 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Profile;
+import chat.dim.Entity;
 import chat.dim.format.Base64;
+import chat.dim.mkm.BaseProfile;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Profile;
 import chat.dim.sqlite.DataTable;
 import chat.dim.utils.Log;
 
@@ -61,17 +63,11 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
 
     @Override
     public boolean saveProfile(Profile profile) {
-        Object identifier = profile.getIdentifier();
-        String entity;
-        if (identifier instanceof String) {
-            entity = (String) identifier;
-        } else {
-            entity = identifier.toString();
-        }
+        ID identifier = profile.getIdentifier();
         // 0. check duplicate record
-        if (getProfile(ID.getInstance(identifier)) != null) {
-            Log.info("profile exists, update it: " + entity);
-            String[] whereArgs = {entity};
+        if (getProfile(identifier) != null) {
+            Log.info("profile exists, update it: " + identifier);
+            String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
         }
 
@@ -86,16 +82,16 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
 
         // 1. save into database
         ContentValues values = new ContentValues();
-        values.put("did", entity);
+        values.put("did", identifier.toString());
         values.put("data", data);
         values.put("signature", signature);
         if (insert(EntityDatabase.T_PROFILE, null, values) < 0) {
             return false;
         }
-        Log.info("-------- profile updated: " + entity);
+        Log.info("-------- profile updated: " + identifier);
 
         // 2. store into memory cache
-        profileTable.put(entity, profile);
+        profileTable.put(identifier.toString(), profile);
         return true;
     }
 
@@ -123,14 +119,14 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
                 info.put("data", data);
                 info.put("signature", Base64.encode(signature));
 
-                profile = Profile.getInstance(info);
+                profile = Entity.parseProfile(info);
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();
         }
         if (profile == null) {
             // 2.1. place an empty profile for cache
-            profile = new Profile(entity);
+            profile = new BaseProfile(entity);
         }
 
         // 3. store into memory cache

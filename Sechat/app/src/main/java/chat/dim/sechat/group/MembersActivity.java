@@ -7,14 +7,14 @@ import android.view.MenuItem;
 
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
-import chat.dim.model.Facebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
 public class MembersActivity extends AppCompatActivity implements Observer {
@@ -59,11 +59,10 @@ public class MembersActivity extends AppCompatActivity implements Observer {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Facebook facebook = Facebook.getInstance();
         Amanuensis clerk = Amanuensis.getInstance();
         // get extra info
         String string = getIntent().getStringExtra("ID");
-        ID identifier = facebook.getID(string);
+        ID identifier = Entity.parseID(string);
         assert identifier != null : "ID error: " + string;
         Conversation chatBox = clerk.getConversation(identifier);
         setTitle(chatBox.getTitle());

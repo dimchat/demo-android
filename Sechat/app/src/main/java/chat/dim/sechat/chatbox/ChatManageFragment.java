@@ -17,9 +17,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.model.Facebook;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
@@ -40,13 +41,12 @@ public class ChatManageFragment extends Fragment {
 
     private TextView nameTextView;
     private TextView addressTextView;
-    private TextView numberTextView;
 
     ID identifier = null;
     private List<ID> participants = null;
 
     public static ChatManageFragment newInstance(ID identifier) {
-        if (identifier.isGroup()) {
+        if (NetworkType.isGroup(identifier.getType())) {
             GroupViewModel.checkMembers(identifier);
         }
 
@@ -97,7 +97,6 @@ public class ChatManageFragment extends Fragment {
 
         nameTextView = view.findViewById(R.id.nameView);
         addressTextView = view.findViewById(R.id.addressView);
-        numberTextView = view.findViewById(R.id.numberView);
 
         return view;
     }
@@ -122,8 +121,7 @@ public class ChatManageFragment extends Fragment {
         }
 
         nameTextView.setText(EntityViewModel.getName(identifier));
-        addressTextView.setText(identifier.address.toString());
-        numberTextView.setText(EntityViewModel.getNumberString(identifier));
+        addressTextView.setText(identifier.getAddress().toString());
     }
 
     private void showMembers() {
@@ -143,7 +141,7 @@ public class ChatManageFragment extends Fragment {
     }
 
     private boolean canQuit() {
-        if (!identifier.isGroup()) {
+        if (!NetworkType.isGroup(identifier.getType())) {
             return false;
         }
         Facebook facebook = Facebook.getInstance();

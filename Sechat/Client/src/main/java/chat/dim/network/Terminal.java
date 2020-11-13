@@ -32,15 +32,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.ID;
-import chat.dim.Profile;
 import chat.dim.User;
 import chat.dim.database.ProviderTable;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.Profile;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.stargate.StarShip;
 

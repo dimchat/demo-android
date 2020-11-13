@@ -54,9 +54,9 @@ public class ReportCommand extends Command {
     }
 
     public void setTitle(String title) {
-        dictionary.put("title", title);
+        put("title", title);
     }
     public String getTitle() {
-        return (String) dictionary.get("title");
+        return (String) get("title");
     }
 }

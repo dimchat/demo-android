@@ -17,11 +17,12 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.ID;
+import chat.dim.Entity;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
@@ -149,7 +150,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
 
     private void addStation() {
         String sid = newSID.getText().toString();
-        ID identifier = mViewModel.getID(sid);
+        ID identifier = Entity.parseID(sid);
         if (identifier == null || !NetworkType.Station.equals(identifier.getType())) {
             Alert.tips(getContext(), "Station ID error: " + sid);
             return;

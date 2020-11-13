@@ -33,11 +33,12 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.ID;
 import chat.dim.core.CipherKeyDelegate;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.plugins.PlainKey;
 import chat.dim.database.MsgKeyTable;
+import chat.dim.mkm.BroadcastAddress;
+import chat.dim.protocol.ID;
 
 public final class KeyStore implements CipherKeyDelegate {
 
@@ -58,7 +59,7 @@ public final class KeyStore implements CipherKeyDelegate {
 
     @Override
     public SymmetricKey getCipherKey(ID sender, ID receiver) {
-        if (receiver.isBroadcast()) {
+        if (receiver.getAddress() instanceof BroadcastAddress) {
             // broadcast message has no key
             return PlainKey.getInstance();
         }
@@ -84,7 +85,7 @@ public final class KeyStore implements CipherKeyDelegate {
 
     @Override
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        if (receiver.isBroadcast()) {
+        if (receiver.getAddress() instanceof BroadcastAddress) {
             // broadcast message has no key
             return;
         }

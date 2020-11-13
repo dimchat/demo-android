@@ -27,14 +27,15 @@ package chat.dim.cpu;
 
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.Facebook;
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
-import chat.dim.Meta;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 
 public class SearchCommandProcessor extends CommandProcessor {
@@ -44,11 +45,8 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     private Meta getMeta(ID identifier, Map<String, Object> dictionary) {
-        Meta meta;
-        try {
-            meta = Meta.getInstance(dictionary);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        Meta meta = Entity.parseMeta(dictionary);
+        if (meta == null) {
             return null;
         }
         if (meta.matches(identifier)) {
@@ -67,7 +65,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         ID identifier;
         Meta meta;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
-            identifier = facebook.getID(entry.getKey());
+            identifier = Entity.parseID(entry.getKey());
             meta = getMeta(identifier, (Map<String, Object>) entry.getValue());
             if (meta == null) {
                 // TODO: meta error

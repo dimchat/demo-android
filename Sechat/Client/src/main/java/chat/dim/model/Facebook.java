@@ -32,13 +32,14 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.GroupManager;
-import chat.dim.ID;
-import chat.dim.Meta;
-import chat.dim.Profile;
+import chat.dim.mkm.BroadcastAddress;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.Meta;
+import chat.dim.protocol.Profile;
 import chat.dim.utils.Log;
 
 public final class Facebook extends chat.dim.common.Facebook {
@@ -192,7 +193,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
+        if (identifier.getAddress() instanceof BroadcastAddress) {
             // broadcast ID has not meta
             return null;
         }
@@ -254,8 +255,6 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     @Override
     public boolean existsMember(ID member, ID group) {
-        assert member.isUser() : "member ID error: " + member;
-        assert group.isGroup() : "group ID error: " + group;
         List<ID> members = getMembers(group);
         if (members != null && members.contains(member)) {
             return true;

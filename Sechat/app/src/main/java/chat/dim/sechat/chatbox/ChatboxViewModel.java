@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.ID;
-import chat.dim.InstantMessage;
 import chat.dim.User;
 import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
@@ -21,7 +19,9 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.FileContent;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.ui.image.Images;
@@ -66,7 +66,7 @@ public class ChatboxViewModel extends EntityViewModel {
             return MsgType.COMMAND;
         }
 
-        ID sender = (ID) iMsg.getSender();
+        ID sender = iMsg.getSender();
         if (sender.equals(chatBox.identifier)) {
             return MsgType.RECEIVED;
         }

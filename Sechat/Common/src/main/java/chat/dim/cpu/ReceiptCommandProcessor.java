@@ -25,12 +25,11 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ReceiptCommand;
+import chat.dim.protocol.ReliableMessage;
 
 public class ReceiptCommandProcessor extends CommandProcessor {
 
@@ -39,7 +38,7 @@ public class ReceiptCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         assert content instanceof ReceiptCommand : "receipt command error: " + content;
         // no need to response receipt command
         return null;

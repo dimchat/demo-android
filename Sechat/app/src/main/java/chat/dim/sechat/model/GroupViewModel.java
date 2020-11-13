@@ -36,9 +36,9 @@ import java.util.Map;
 
 import chat.dim.Group;
 import chat.dim.GroupManager;
-import chat.dim.ID;
 import chat.dim.User;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.image.Images;

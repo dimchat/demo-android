@@ -27,12 +27,11 @@ package chat.dim.cpu;
 
 import java.util.List;
 
-import chat.dim.ID;
-import chat.dim.ReliableMessage;
 import chat.dim.Messenger;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.ReliableMessage;
 
 public class BlockCommandProcessor extends CommandProcessor {
 
@@ -51,7 +50,7 @@ public class BlockCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage<ID, SymmetricKey> rMsg) {
+    public Content process(Content content, ID sender, ReliableMessage rMsg) {
         assert content instanceof BlockCommand : "block command error: " + content;
         BlockCommand cmd = (BlockCommand) content;
         List list = cmd.getBlockCList();
