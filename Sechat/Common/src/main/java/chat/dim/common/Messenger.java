@@ -252,7 +252,6 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     @Override
     protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        //noinspection unchecked
         if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();

@@ -48,12 +48,14 @@ import chat.dim.tlv.Data;
 import chat.dim.tlv.IntegerData;
 import chat.dim.tlv.MutableData;
 import chat.dim.tlv.VarIntData;
+import chat.dim.type.Dictionary;
 
 public class Utils {
 
     @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
-        Map<String, Object> info = new HashMap<>((Map) msg);
+        Dictionary dict = (Dictionary) msg;
+        Map<String, Object> info = dict.copyMap();
         //
         //  envelope
         //

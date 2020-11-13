@@ -146,7 +146,7 @@ public final class NetworkDatabase {
         try {
             String path = Paths.appendPathComponent(identifier.getAddress().toString(), "meta.js");
             Object meta = Resources.loadJSON(path);
-            return Entity.parseMeta(meta);
+            return Entity.parseMeta((Map<String, Object>) meta);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

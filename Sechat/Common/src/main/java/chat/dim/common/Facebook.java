@@ -28,7 +28,6 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.AddressNameService;
 import chat.dim.Entity;
@@ -44,7 +43,6 @@ import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
-import chat.dim.mkm.BaseProfile;
 import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -196,7 +194,7 @@ public class Facebook extends chat.dim.Facebook {
             // profile's signature not match
             return false;
         }
-        ((BaseProfile) profile).remove(EXPIRES_KEY);
+        profile.remove(EXPIRES_KEY);
         return profileTable.saveProfile(profile);
     }
 
@@ -300,7 +298,7 @@ public class Facebook extends chat.dim.Facebook {
         if (isEmpty(profile)) {
             return false;
         }
-        String base64 = (String) ((Map) profile).get("signature");
+        String base64 = (String) profile.get("signature");
         return base64 != null && base64.length() > 0;
     }
 

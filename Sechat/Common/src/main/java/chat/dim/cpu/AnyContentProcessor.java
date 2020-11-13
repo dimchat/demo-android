@@ -99,7 +99,7 @@ public class AnyContentProcessor extends ContentProcessor {
         }
 
         // response
-        Object signature = ((Map) rMsg).get("signature");
+        Object signature = rMsg.get("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
         receipt.put("signature", signature);
         return receipt;
