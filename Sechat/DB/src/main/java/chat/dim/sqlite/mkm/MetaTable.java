@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.Entity;
-import chat.dim.crypto.PublicKey;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -121,7 +120,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
                 info = new HashMap<>();
                 info.put("version", version);
-                info.put("key", PublicKey.getInstance(key));
+                info.put("key", key);
                 if (MetaType.hasSeed(version)) {
                     seed = cursor.getString(2);
                     fp = cursor.getBlob(3);
@@ -130,8 +129,6 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
                 }
                 meta = Entity.parseMeta(info);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         if (meta == null) {
             return null;

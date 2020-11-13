@@ -28,6 +28,7 @@ package chat.dim;
 import java.util.Map;
 import java.util.Random;
 
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.mkm.BaseProfile;
 import chat.dim.mkm.plugins.BTCMeta;
@@ -125,12 +126,7 @@ public class Register {
         return generatePrivateKey(PrivateKey.RSA);
     }
     public PrivateKey generatePrivateKey(String algorithm) {
-        privateKey = null;
-        try {
-            privateKey = PrivateKey.generate(algorithm);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        privateKey = KeyFactory.getPrivateKey(algorithm);
         return privateKey;
     }
 

@@ -31,6 +31,7 @@ import java.util.Map;
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.User;
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.crypto.plugins.Password;
@@ -62,7 +63,7 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private Object decryptData(StorageCommand cmd) throws ClassNotFoundException {
+    private Object decryptData(StorageCommand cmd) {
         // 1. get encrypt key
         byte[] key = cmd.getKey();
         if (key == null) {
@@ -82,7 +83,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         }
         // 4. decode key
         Object dict = JSON.decode(key);
-        SymmetricKey password = SymmetricKey.getInstance((Map<String, Object>) dict);
+        SymmetricKey password = KeyFactory.getSymmetricKey((Map<String, Object>) dict);
         // 5. decrypt data
         return decryptData(cmd, password);
     }
@@ -99,11 +100,7 @@ public class StorageCommandProcessor extends CommandProcessor {
     private Content processContacts(StorageCommand cmd) {
         List<String> contacts = (List) cmd.get("contacts");
         if (contacts == null) {
-            try {
-                contacts = (List) decryptData(cmd);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            contacts = (List) decryptData(cmd);
             if (contacts == null) {
                 throw new NullPointerException("failed to decrypt contacts: " + cmd);
             }
@@ -124,12 +121,7 @@ public class StorageCommandProcessor extends CommandProcessor {
         String string = "<TODO: input your password>";
         SymmetricKey password = Password.generate(string);
         Object dict = decryptData(cmd, password);
-        PrivateKey key = null;
-        try {
-            key = PrivateKey.getInstance((Map<String, Object>) dict);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        PrivateKey key = KeyFactory.getPrivateKey((Map<String, Object>) dict);
         if (key == null) {
             throw new NullPointerException("failed to decrypt private key: " + cmd);
         }

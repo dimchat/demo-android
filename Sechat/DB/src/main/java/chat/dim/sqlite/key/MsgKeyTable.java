@@ -31,6 +31,7 @@ import android.database.Cursor;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ID;
@@ -66,10 +67,8 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
             if (cursor.moveToNext()) {
                 sk = cursor.getString(0);
                 info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
-                key = SymmetricKey.getInstance(info);
+                key = KeyFactory.getSymmetricKey(info);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         return key;
     }

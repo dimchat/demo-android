@@ -28,6 +28,7 @@ package chat.dim.network;
 import java.io.IOException;
 import java.util.Map;
 
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -161,7 +162,7 @@ public final class FtpServer {
         byte[] data = null;
         try {
             data = decryptFile(path2, content.getPassword());
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         if (data != null) {
@@ -178,7 +179,7 @@ public final class FtpServer {
         return null;
     }
 
-    private byte[] decryptFile(String path, Map<String, Object> password) throws IOException, ClassNotFoundException {
+    private byte[] decryptFile(String path, Map<String, Object> password) throws IOException {
         if (!ExternalStorage.exists(path)) {
             return null;
         }
@@ -187,7 +188,7 @@ public final class FtpServer {
             // file not found
             return null;
         }
-        SymmetricKey key = SymmetricKey.getInstance(password);
+        SymmetricKey key = KeyFactory.getSymmetricKey(password);
         if (key == null) {
             // key error
             return null;

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ID;
@@ -95,10 +96,8 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             if (cursor.moveToNext()) {
                 sk = cursor.getString(0);
                 info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
-                key = PrivateKey.getInstance(info);
+                key = KeyFactory.getPrivateKey(info);
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         return key;
     }
@@ -116,13 +115,11 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             if (cursor.moveToNext()) {
                 sk = cursor.getString(0);
                 info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
-                key = PrivateKey.getInstance(info);
+                key = KeyFactory.getPrivateKey(info);
                 if (key instanceof DecryptKey) {
                     keys.add((DecryptKey) key);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
         return keys;
     }

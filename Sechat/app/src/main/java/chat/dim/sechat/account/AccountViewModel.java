@@ -7,6 +7,7 @@ import java.util.Map;
 
 import chat.dim.User;
 import chat.dim.crypto.AsymmetricKey;
+import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.JSON;
@@ -181,12 +182,7 @@ public class AccountViewModel extends UserViewModel {
         Map<String, Object> keyInfo = new HashMap<>();
         keyInfo.put("algorithm", algorithm);
         keyInfo.put("data", keyData);
-        PrivateKey privateKey = null;
-        try {
-            privateKey = PrivateKey.getInstance(keyInfo);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        PrivateKey privateKey = KeyFactory.getPrivateKey(keyInfo);
         if (privateKey == null) {
             return null;
         }
