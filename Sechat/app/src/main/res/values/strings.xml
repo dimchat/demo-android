@@ -16,7 +16,7 @@
     <string name="chat_send">Send</string>
     <string name="id_seed">Seed</string>
     <string name="id_address">Address</string>
-    <string name="id_number">Number</string>
+    <string name="search_hint">Input ID/address to search</string>
     <string name="contact_add">Add contact</string>
     <string name="send_message">Send message</string>
     <string name="register">Register</string>

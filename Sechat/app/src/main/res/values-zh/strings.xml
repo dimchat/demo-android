@@ -15,7 +15,7 @@
     <string name="chat_send">发送</string>
     <string name="contact_add">添加好友</string>
     <string name="id_address">地址</string>
-    <string name="id_number">搜索号</string>
+    <string name="search_hint">输入ID/地址搜索</string>
     <string name="id_seed">Seed</string>
     <string name="send_message">发送信息</string>
     <string name="main_contacts">联系人</string>

@@ -66,27 +66,6 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/id_number"
-                android:textColor="@android:color/darker_gray" />
-
-            <TextView
-                android:id="@+id/numberView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:text="search number"
-                android:textColor="@android:color/black"
-                android:textIsSelectable="true" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="@string/id_address"
                 android:textColor="@android:color/darker_gray" />
 

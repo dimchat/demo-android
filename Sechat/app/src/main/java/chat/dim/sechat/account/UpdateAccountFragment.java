@@ -33,7 +33,6 @@ public class UpdateAccountFragment extends Fragment {
 
     private ImageView avatarView;
     private EditText nicknameText;
-    private TextView numberView;
     private TextView addressView;
 
     private Bitmap avatarImage = null;
@@ -54,7 +53,6 @@ public class UpdateAccountFragment extends Fragment {
 
         avatarView = view.findViewById(R.id.avatarView);
         nicknameText = view.findViewById(R.id.nickname);
-        numberView = view.findViewById(R.id.number);
         addressView = view.findViewById(R.id.address);
 
         saveButton = view.findViewById(R.id.save);
