@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.CommandParser;
-import chat.dim.Entity;
 import chat.dim.core.CipherKeyDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
@@ -55,8 +53,6 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.ReportCommand;
-import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
@@ -87,7 +83,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     // check whether need to update group
-    private boolean checkGroup(Content content, ID sender) {
+    public boolean checkGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
         if (group == null || group.getAddress() instanceof BroadcastAddress) {
@@ -250,33 +246,6 @@ public abstract class Messenger extends chat.dim.Messenger {
         return data;
     }
 
-    @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        if (checkGroup(content, sender)) {
-            // save this message in a queue to wait group meta response
-            ID group = content.getGroup();
-            rMsg.put("waiting", group);
-            suspendMessage(rMsg);
-            return null;
-        }
-        try {
-            return super.process(content, sender, rMsg);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            String text = e.getMessage();
-            if (text.contains("failed to get meta for ")) {
-                int pos = text.indexOf(": ");
-                if (pos > 0) {
-                    ID waiting = Entity.parseID(text.substring(pos + 2));
-                    assert waiting != null : "failed to get ID: " + text;
-                    rMsg.put("waiting", waiting);
-                    suspendMessage(rMsg);
-                }
-            }
-            return null;
-        }
-    }
-
     //-------- Send
 
     @Override
@@ -340,40 +309,5 @@ public abstract class Messenger extends chat.dim.Messenger {
 
         // default content processor
         ContentProcessor.register(ContentType.UNKNOWN, AnyContentProcessor.class);
-    }
-
-    static {
-        Command.parser = new CommandParser() {
-
-            @Override
-            public Command parseCommand(Map<String, Object> cmd, String name) {
-                // parse core command first
-                Command core = super.parseCommand(cmd, name);
-                if (core != null) {
-                    return core;
-                }
-
-                // search command
-                if (SearchCommand.SEARCH.equals(name)) {
-                    return new SearchCommand(cmd);
-                }
-                if (SearchCommand.ONLINE_USERS.equals(name)) {
-                    return new SearchCommand(cmd);
-                }
-
-                // report command
-                if (ReportCommand.REPORT.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-                if (ReportCommand.ONLINE.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-                if (ReportCommand.OFFLINE.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-
-                return null;
-            }
-        };
     }
 }

@@ -34,7 +34,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.MessageFactory;
 import chat.dim.User;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
@@ -53,9 +52,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ForwardContent;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -63,7 +60,6 @@ import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Profile;
 import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
@@ -82,6 +78,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     private Messenger()  {
         super();
         setEntityDelegate(Facebook.getInstance());
+        setMessageProcessor(new MessageProcessor(this));
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MetaSaved);
@@ -111,7 +108,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             ReliableMessage rMsg;
             byte[] response;
             while ((rMsg = getIncomingMessage(entity)) != null) {
-                rMsg = process(rMsg);
+                rMsg = getMessageProcessor().process(rMsg);
                 if (rMsg == null) {
                     continue;
                 }
@@ -236,50 +233,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         } else {
             return clerk.saveMessage(iMsg);
         }
-    }
-
-    @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        Content res = super.process(content, sender, rMsg);
-        if (res == null) {
-            // respond nothing
-            return null;
-        }
-        if (res instanceof HandshakeCommand) {
-            // urgent command
-            return res;
-        }
-
-        if (res instanceof ReceiptCommand) {
-            if (NetworkType.Station.equals(sender.getType())) {
-                // no need to respond receipt to station
-                return null;
-            }
-            Log.info("receipt to sender: " + sender);
-        }
-
-        if (content instanceof QueryCommand) {
-            if (res instanceof GroupCommand) {
-                Facebook facebook = (Facebook) getFacebook();
-                String name = facebook.getNickname(sender);
-                if (name == null || name.length() == 0) {
-                    name = sender.toString();
-                }
-                res.put("text", name + " is querying group info, responded.");
-            }
-        }
-
-        // check receiver
-        ID receiver = rMsg.getReceiver();
-        User user = select(receiver);
-        assert user != null : "receiver error: " + receiver;
-        // pack message
-        Envelope env = MessageFactory.getEnvelope(user.identifier, sender);
-        InstantMessage iMsg = MessageFactory.getInstantMessage(env, res);
-        // normal response
-        sendMessage(iMsg, null, StarShip.SLOWER);
-        // DON'T respond to station directly
-        return null;
     }
 
     /**
