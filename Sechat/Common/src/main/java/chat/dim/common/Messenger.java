@@ -346,28 +346,33 @@ public abstract class Messenger extends chat.dim.Messenger {
         Command.parser = new CommandParser() {
 
             @Override
-            public Command parseCommand(Map<String, Object> cmd) {
+            public Command parseCommand(Map<String, Object> cmd, String name) {
+                // parse core command first
+                Command core = super.parseCommand(cmd, name);
+                if (core != null) {
+                    return core;
+                }
 
-                String command = (String) cmd.get("command");
-
-                if (command.equals(SearchCommand.SEARCH)) {
+                // search command
+                if (SearchCommand.SEARCH.equals(name)) {
                     return new SearchCommand(cmd);
                 }
-                if (command.equals(SearchCommand.ONLINE_USERS)) {
+                if (SearchCommand.ONLINE_USERS.equals(name)) {
                     return new SearchCommand(cmd);
                 }
 
-                if (command.equals(ReportCommand.REPORT)) {
+                // report command
+                if (ReportCommand.REPORT.equals(name)) {
                     return new ReportCommand(cmd);
                 }
-                if (command.equals(ReportCommand.ONLINE)) {
+                if (ReportCommand.ONLINE.equals(name)) {
                     return new ReportCommand(cmd);
                 }
-                if (command.equals(ReportCommand.OFFLINE)) {
+                if (ReportCommand.OFFLINE.equals(name)) {
                     return new ReportCommand(cmd);
                 }
 
-                return super.parseCommand(cmd);
+                return null;
             }
         };
     }
