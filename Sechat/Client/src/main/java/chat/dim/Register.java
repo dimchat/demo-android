@@ -25,14 +25,17 @@
  */
 package chat.dim;
 
-import java.util.Map;
 import java.util.Random;
 
+import chat.dim.crypto.AsymmetricKey;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.PublicKey;
+import chat.dim.database.PrivateKeyTable;
 import chat.dim.mkm.BaseProfile;
-import chat.dim.mkm.plugins.BTCMeta;
 import chat.dim.mkm.plugins.DefaultMeta;
+import chat.dim.mkm.plugins.ETHMeta;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
@@ -70,18 +73,29 @@ public class Register {
      */
     public User createUser(String name, String avatar) {
         Facebook facebook = Facebook.getInstance();
-        // 1. generate private key
-        PrivateKey key = generatePrivateKey();
-        // 2. generate meta
-        Meta meta = generateMeta("sechat");
-        // 3. generate ID
-        ID identifier = generateID(meta, NetworkType.Main);
-        // 4. generate profile
-        Profile profile = createProfile(identifier, name, avatar);
+        //
+        //  Step 1. generate private key (with asymmetric algorithm)
+        //
+        privateKey = KeyFactory.getPrivateKey(PrivateKey.ECC);
+        //
+        //  Step 2. generate meta with private key (and meta seed)
+        //
+        ETHMeta meta = ETHMeta.generate(privateKey, null);
+        //
+        //  Step 3. generate ID with meta
+        //
+        ID identifier = meta.generateID();
+        //
+        //  Step 4. generate profile with ID and sign with private key
+        //
+        PrivateKey priKey = KeyFactory.getPrivateKey(AsymmetricKey.RSA);
+        PublicKey msgKey = priKey.getPublicKey();
+        Profile profile = createUserProfile(identifier, name, avatar, (EncryptKey) msgKey);
         // 5. save private key, meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
-        facebook.savePrivateKey(key, identifier, "M");
+        facebook.savePrivateKey(privateKey, identifier, PrivateKeyTable.META);
+        facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.PROFILE);
         facebook.saveProfile(profile);
         // 6. create user
         return facebook.getUser(identifier);
@@ -104,11 +118,11 @@ public class Register {
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(founder);
         // 2. generate meta
-        Meta meta = generateMeta(seed);
+        DefaultMeta meta = DefaultMeta.generate(MetaType.Default.value, privateKey, seed);
         // 3. generate ID
-        ID identifier = generateID(meta, NetworkType.Polylogue);
+        ID identifier = meta.generateID(NetworkType.Polylogue.value);
         // 4. generate profile
-        Profile profile = createProfile(identifier, name);
+        Profile profile = createGroupProfile(identifier, name);
         // 5. save meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
@@ -119,81 +133,26 @@ public class Register {
         return facebook.getGroup(identifier);
     }
 
-    //
-    //  Step 1. generate private key (with asymmetric algorithm)
-    //
-    public PrivateKey generatePrivateKey() {
-        return generatePrivateKey(PrivateKey.RSA);
-    }
-    public PrivateKey generatePrivateKey(String algorithm) {
-        privateKey = KeyFactory.getPrivateKey(algorithm);
-        return privateKey;
-    }
-
-    //
-    //  Step 2. generate meta with private key (and meta seed)
-    //
-    public Meta generateMeta() {
-        return generateMeta("anonymous");
-    }
-    public Meta generateMeta(String seed) {
+    public Profile createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
+        assert NetworkType.isUser(identifier.getType()) : "ID error";
         assert privateKey != null : "private key not found";
-        return DefaultMeta.generate(MetaType.Default.value, privateKey, seed);
+        UserProfile profile = new UserProfile(identifier);
+        profile.setName(name);
+        profile.setAvatar(avatarUrl);
+        profile.setKey(key);
+        profile.sign(privateKey);
+        return profile;
     }
-
-    //
-    //  Step 3. generate ID with meta (and network type)
-    //
-    public ID generateID(Meta meta) {
-        return generateID(meta, network);
-    }
-    public ID generateID(Meta meta, NetworkType type) {
-        assert meta instanceof BTCMeta : "meta error: " + meta;
-        return ((BTCMeta) meta).generateID(type.value);
-    }
-
-    //
-    //  Step 4. create profile with ID and sign with private key
-    //
-    public Profile createProfile(ID identifier, String name) {
-        return createProfile(identifier, name, null);
-    }
-    public Profile createProfile(ID identifier, String name, String avatarUrl) {
+    public Profile createGroupProfile(ID identifier, String name) {
         assert identifier != null : "ID error";
         assert privateKey != null : "profile not found";
-        Profile profile;
-        if (NetworkType.isUser(identifier.getType())) {
-            profile = new UserProfile(identifier);
-        } else {
-            profile = new BaseProfile(identifier);
-        }
+        Profile profile = new BaseProfile(identifier);
         profile.setName(name);
-        if (avatarUrl != null) {
-            assert profile instanceof UserProfile : "profile error: " + profile;
-            ((UserProfile) profile).setAvatar(avatarUrl);
-        }
-        profile.sign(privateKey);
-        return profile;
-    }
-    public Profile createProfile(ID identifier, Map<String, Object> properties) {
-        assert identifier != null : "ID error";
-        assert privateKey != null : "private key not found";
-        Profile profile;
-        if (NetworkType.isUser(identifier.getType())) {
-            profile = new UserProfile(identifier);
-        } else {
-            profile = new BaseProfile(identifier);
-        }
-        for (Map.Entry<String, Object> entry : properties.entrySet()){
-            profile.setProperty(entry.getKey(), entry.getValue());
-        }
         profile.sign(privateKey);
         return profile;
     }
 
-    //
-    //  Step 5. upload meta & profile for ID
-    //
+    // upload meta & profile for ID
     public boolean upload(ID identifier, Meta meta, Profile profile) {
         assert identifier != null : "ID error";
         assert identifier.equals(profile.getIdentifier()) : "profile ID not match";

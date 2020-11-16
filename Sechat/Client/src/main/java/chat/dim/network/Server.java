@@ -175,6 +175,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         if (cmd.state == HandshakeCommand.HandshakeState.START) {
             // [Meta protocol]
             rMsg.setMeta(currentUser.getMeta());
+            rMsg.setProfile(currentUser.getProfile());
         }
         // send out directly
         Messenger messenger = Messenger.getInstance();
