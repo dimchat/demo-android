@@ -90,7 +90,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
         PrivateKey key = null;
         String[] columns = {"sk"};
         String[] selectionArgs = {user.toString()};
-        try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND sign=1", selectionArgs, null, null,"type DESC")) {
+        try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
             String sk;
             Map<String, Object> info;
             if (cursor.moveToNext()) {

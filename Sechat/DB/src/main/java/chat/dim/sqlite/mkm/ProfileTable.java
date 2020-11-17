@@ -115,7 +115,7 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
                 signature = cursor.getBlob(1);
 
                 info = new HashMap<>();
-                info.put("ID", entity);
+                info.put("ID", entity.toString());
                 info.put("data", data);
                 info.put("signature", Base64.encode(signature));
 
