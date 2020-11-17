@@ -10,6 +10,8 @@ import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
+import chat.dim.crypto.plugins.ECCPrivateKey;
+import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.mkm.plugins.DefaultMeta;
 import chat.dim.mkm.plugins.UserProfile;
@@ -75,21 +77,30 @@ public class AccountViewModel extends UserViewModel {
             return null;
         }
 
-        String pem = (String) privateKey.get("data");
-        if (pem == null) {
-            return null;
-        }
-        int begin = pem.indexOf("-----BEGIN PUBLIC KEY-----");
-        if (begin >= 0) {
-            int end = pem.indexOf("-----END PUBLIC KEY-----", begin + "-----BEGIN PUBLIC KEY-----".length());
-            if (end > 0) {
-                String tail = pem.substring(end + "-----END PUBLIC KEY-----".length());
-                if (begin == 0) {
-                    pem = tail;
-                } else {
-                    pem = pem.substring(0, begin) + tail;
+        String pem;
+        if (privateKey instanceof ECCPrivateKey) {
+            byte[] data = privateKey.getData();
+            if (data == null) {
+                return null;
+            }
+            pem = Hex.encode(data);
+        } else {
+            pem = (String) privateKey.get("data");
+            if (pem == null) {
+                return null;
+            }
+            int begin = pem.indexOf("-----BEGIN PUBLIC KEY-----");
+            if (begin >= 0) {
+                int end = pem.indexOf("-----END PUBLIC KEY-----", begin + "-----BEGIN PUBLIC KEY-----".length());
+                if (end > 0) {
+                    String tail = pem.substring(end + "-----END PUBLIC KEY-----".length());
+                    if (begin == 0) {
+                        pem = tail;
+                    } else {
+                        pem = pem.substring(0, begin) + tail;
+                    }
+                    pem = pem.trim();
                 }
-                pem = pem.trim();
             }
         }
 
