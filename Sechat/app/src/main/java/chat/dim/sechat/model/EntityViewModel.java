@@ -27,8 +27,13 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
+import java.util.Locale;
+
+import chat.dim.eth.ETHWallet;
+import chat.dim.mkm.plugins.ETHAddress;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Profile;
 import chat.dim.threading.BackgroundThreads;
@@ -106,5 +111,20 @@ public class EntityViewModel extends ViewModel {
                 messenger.queryProfile(identifier);
             }
         });
+    }
+
+    //
+    //  ETH
+    //
+    public static String getBalance(ID identifier) {
+        Address address = identifier.getAddress();
+        if (address instanceof ETHAddress) {
+            double balance = ETHWallet.getBalance(address.toString());
+            return String.format(Locale.CHINA, "%.06f", balance);
+        }
+        return "-";
+    }
+    public String getBalance() {
+        return getBalance(identifier);
     }
 }

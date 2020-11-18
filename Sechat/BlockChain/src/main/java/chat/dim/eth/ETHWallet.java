@@ -42,8 +42,8 @@ public class ETHWallet implements Wallet {
         return client.getBalance(address);
     }
 
-    public static long getBalance(String address) {
+    public static double getBalance(String address) {
         ETHWallet wallet = new ETHWallet(address);
-        return wallet.getBalance();
+        return wallet.getBalance() / 1000000000000000000.0;
     }
 }

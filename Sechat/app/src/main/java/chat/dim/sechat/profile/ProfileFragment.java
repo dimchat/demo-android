@@ -36,6 +36,7 @@ public class ProfileFragment extends Fragment implements Observer {
     private ImageView imageView;
     private TextView nameView;
     private TextView addressView;
+    private TextView balanceView;
 
     private Button messageButton;
     private Button removeButton;
@@ -81,6 +82,7 @@ public class ProfileFragment extends Fragment implements Observer {
         imageView = view.findViewById(R.id.avatarView);
         nameView = view.findViewById(R.id.nameView);
         addressView = view.findViewById(R.id.addressView);
+        balanceView = view.findViewById(R.id.balanceView);
 
         messageButton = view.findViewById(R.id.sendMessage);
         removeButton = view.findViewById(R.id.removeContact);
@@ -101,6 +103,7 @@ public class ProfileFragment extends Fragment implements Observer {
 
         nameView.setText(mViewModel.getName());
         addressView.setText(mViewModel.getAddressString());
+        balanceView.setText(mViewModel.getBalance());
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);
