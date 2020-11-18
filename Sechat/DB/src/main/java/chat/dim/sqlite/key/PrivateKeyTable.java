@@ -30,6 +30,7 @@ import android.database.Cursor;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
         }
         return ourInstance;
     }
+
+    // memory caches
+    private Map<ID, PrivateKey> signKeyTable = new HashMap<>();
+    private Map<ID, List<DecryptKey>> decryptKeysTable = new HashMap<>();
 
     //
     //  chat.dim.database.PrivateKeyTable
@@ -87,16 +92,23 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
     @SuppressWarnings("unchecked")
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
-        PrivateKey key = null;
-        String[] columns = {"sk"};
-        String[] selectionArgs = {user.toString()};
-        try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
-            String sk;
-            Map<String, Object> info;
-            if (cursor.moveToNext()) {
-                sk = cursor.getString(0);
-                info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
-                key = KeyFactory.getPrivateKey(info);
+        // get from memory cache
+        PrivateKey key = signKeyTable.get(user);
+        if (key == null) {
+            String[] columns = {"sk"};
+            String[] selectionArgs = {user.toString()};
+            try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
+                String sk;
+                Map<String, Object> info;
+                if (cursor.moveToNext()) {
+                    sk = cursor.getString(0);
+                    info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
+                    key = KeyFactory.getPrivateKey(info);
+                }
+            }
+            // cache it
+            if (key != null) {
+                signKeyTable.put(user, key);
             }
         }
         return key;
@@ -105,20 +117,28 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
     @SuppressWarnings("unchecked")
     @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
-        List<DecryptKey> keys = new ArrayList<>();
-        String[] columns = {"sk"};
-        String[] selectionArgs = {user.toString()};
-        try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND decrypt=1", selectionArgs, null, null,"type DESC")) {
-            PrivateKey key;
-            String sk;
-            Map<String, Object> info;
-            if (cursor.moveToNext()) {
-                sk = cursor.getString(0);
-                info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
-                key = KeyFactory.getPrivateKey(info);
-                if (key instanceof DecryptKey) {
-                    keys.add((DecryptKey) key);
+        // get from memory cache
+        List<DecryptKey> keys = decryptKeysTable.get(user);
+        if (keys == null || keys.size() == 0) {
+            keys = new ArrayList<>();
+            String[] columns = {"sk"};
+            String[] selectionArgs = {user.toString()};
+            try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND decrypt=1", selectionArgs, null, null,"type DESC")) {
+                PrivateKey key;
+                String sk;
+                Map<String, Object> info;
+                if (cursor.moveToNext()) {
+                    sk = cursor.getString(0);
+                    info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
+                    key = KeyFactory.getPrivateKey(info);
+                    if (key instanceof DecryptKey) {
+                        keys.add((DecryptKey) key);
+                    }
                 }
+            }
+            // cache it
+            if (keys.size() > 0) {
+                decryptKeysTable.put(user, keys);
             }
         }
         return keys;
