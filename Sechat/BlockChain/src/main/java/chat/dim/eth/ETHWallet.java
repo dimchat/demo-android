@@ -25,7 +25,11 @@
  */
 package chat.dim.eth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import chat.dim.blockchain.Wallet;
+import chat.dim.threading.BackgroundThreads;
 
 public class ETHWallet implements Wallet {
 
@@ -42,8 +46,18 @@ public class ETHWallet implements Wallet {
         return client.getBalance(address);
     }
 
+    private static final Map<String, Double> balances = new HashMap<>();
+
     public static double getBalance(String address) {
-        ETHWallet wallet = new ETHWallet(address);
-        return wallet.getBalance() / 1000000000000000000.0;
+        BackgroundThreads.wait(() -> {
+            ETHWallet wallet = new ETHWallet(address);
+            double eth = wallet.getBalance() / 1000000000000000000.0;
+            balances.put(address, eth);
+        });
+        Object eth = balances.get(address);
+        if (eth == null) {
+            return  -1;
+        }
+        return (double) eth;
     }
 }

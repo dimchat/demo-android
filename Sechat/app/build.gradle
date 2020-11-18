@@ -16,6 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
 
         ndk {
             //选择要添加的对应 cpu 类型的 .so 库。
@@ -59,7 +60,7 @@ dependencies {
     implementation project(':BlockChain')
 
     implementation group: 'chat.dim', name: 'SDK', version: '0.5.2'
-    implementation group: 'chat.dim', name: 'Plugins', version: '0.2.2'
+    implementation group: 'chat.dim', name: 'Plugins', version: '0.2.3'
     implementation group: 'chat.dim', name: 'StarGate', version: '0.2.5'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 
