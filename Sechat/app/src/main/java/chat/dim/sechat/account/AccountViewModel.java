@@ -7,6 +7,8 @@ import java.util.Map;
 
 import chat.dim.User;
 import chat.dim.crypto.AsymmetricKey;
+import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
@@ -132,8 +134,18 @@ public class AccountViewModel extends UserViewModel {
 
     @SuppressWarnings("unchecked")
     public ID savePrivateInfo(String json) {
-        byte[] data = json.getBytes(Charset.forName("UTF-8"));
-        Map<String, Object> info = (Map<String, Object>) JSON.decode(data);
+        Map<String, Object> info = null;
+        if (json.length() == 64) {
+            // ECC private key
+            info = new HashMap<>();
+            info.put("data", json);
+            info.put("algorithm", AsymmetricKey.ECC);
+            info.put("version", MetaType.ETH.value);
+        } else if (json.startsWith("{")) {
+            // dictionary
+            byte[] data = json.getBytes(Charset.forName("UTF-8"));
+            info = (Map<String, Object>) JSON.decode(data);
+        }
         if (info == null) {
             return null;
         }
@@ -228,15 +240,31 @@ public class AccountViewModel extends UserViewModel {
             return null;
         }
 
+        EncryptKey msgKey;
+        if (privateKey instanceof DecryptKey) {
+            msgKey = null;
+        } else {
+            PrivateKey rsaKey = KeyFactory.getPrivateKey(AsymmetricKey.RSA);
+            if (!facebook.savePrivateKey(rsaKey, identifier, "P")) {
+                return null;
+            }
+            msgKey = (EncryptKey) rsaKey.getPublicKey();
+        }
+
         // save meta with user ID
         if (!facebook.saveMeta(meta, identifier)) {
             return null;
         }
 
         // generate profile
-        if (nickname != null && nickname.length() > 0) {
-            Profile profile = new UserProfile(identifier);
-            profile.setName(nickname);
+        if (nickname != null || msgKey != null) {
+            UserProfile profile = new UserProfile(identifier);
+            if (nickname != null && nickname.length() > 0) {
+                profile.setName(nickname);
+            }
+            if (msgKey != null) {
+                profile.setKey(msgKey);
+            }
             if (profile.sign(privateKey) == null) {
                 return null;
             }
