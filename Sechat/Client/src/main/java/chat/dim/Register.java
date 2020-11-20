@@ -41,7 +41,6 @@ import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Profile;
 import chat.dim.utils.Log;
@@ -118,7 +117,7 @@ public class Register {
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(founder);
         // 2. generate meta
-        DefaultMeta meta = DefaultMeta.generate(MetaType.Default.value, privateKey, seed);
+        DefaultMeta meta = DefaultMeta.generate(privateKey, seed);
         // 3. generate ID
         ID identifier = meta.generateID(NetworkType.Polylogue.value);
         // 4. generate profile

@@ -13,7 +13,9 @@ import chat.dim.crypto.SignKey;
 import chat.dim.crypto.plugins.ECCPrivateKey;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
+import chat.dim.mkm.plugins.BTCMeta;
 import chat.dim.mkm.plugins.DefaultMeta;
+import chat.dim.mkm.plugins.ETHMeta;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.ID;
@@ -177,9 +179,6 @@ public class AccountViewModel extends UserViewModel {
         String seed = (String) info.get("seed");
         if (seed == null) {
             seed = (String) info.get("username");
-            if (seed == null) {
-                seed = "dim";
-            }
         }
 
         // profile.name
@@ -199,10 +198,27 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // generate meta
-        DefaultMeta meta = DefaultMeta.generate(metaVersion, privateKey, seed);
+        Meta meta;
+        if (metaVersion == MetaType.MKM.value) {
+            if (seed == null) {
+                seed = "dim";
+            }
+            meta = DefaultMeta.generate(privateKey, seed);
+        } else if (metaVersion == MetaType.BTC.value || metaVersion == MetaType.ExBTC.value) {
+            meta = BTCMeta.generate(privateKey, seed);
+        } else if (metaVersion == MetaType.ETH.value || metaVersion == MetaType.ExETH.value) {
+            meta = ETHMeta.generate(privateKey, seed);
+        } else {
+            throw new IllegalArgumentException("meta version not supported: " + metaVersion);
+        }
 
         // generate ID
-        ID identifier = meta.generateID(network);
+        ID identifier;
+        if (meta instanceof BTCMeta) {
+            identifier = ((BTCMeta) meta).generateID(network);
+        } else {
+            identifier = ((ETHMeta) meta).generateID();
+        }
         if (identifier == null) {
             return null;
         }
