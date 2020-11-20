@@ -23,12 +23,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.blockchain;
+package chat.dim.wallet;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.eth.ETHWallet;
+import chat.dim.ethereum.DIMTWallet;
+import chat.dim.ethereum.ETHWallet;
+import chat.dim.ethereum.USDTWallet;
 
 public class WalletFactory {
 
@@ -61,6 +63,12 @@ public class WalletFactory {
     public static Creator creator = (name, address) -> {
         if (name.equals(WalletName.ETH)) {
             return new ETHWallet(address);
+        }
+        if (name.equals(WalletName.USDT)) {
+            return new USDTWallet(address);
+        }
+        if (name.equals(WalletName.DIMT)) {
+            return new DIMTWallet(address);
         }
         return null;
     };

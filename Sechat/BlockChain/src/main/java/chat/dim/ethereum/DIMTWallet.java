@@ -23,30 +23,29 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.blockchain;
+package chat.dim.ethereum;
 
-public enum WalletName implements Wallet.Name {
-    ETH ("eth"),
-    USDT("usdt-erc20"),
-    DIMT("dimt");
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
-    private final String value;
+public class DIMTWallet extends ERC20Wallet {
 
-    WalletName(String name) {
-        value = name.toLowerCase();
+    public DIMTWallet(String address) {
+//        super(address, "0x042B6b20b09749125F969820Eca69e75893abFCA");
+        super(address, "0x81246a3F5fab7Aa9f4F625866105F3CAfFc67686");
     }
 
     @Override
-    public String getValue() {
-        return value;
-    }
-
-    public static WalletName fromString(String name) {
-        for (WalletName walletName : values()) {
-            if (name.equalsIgnoreCase(walletName.value)) {
-                return walletName;
-            }
+    protected double getBalance(String erc20Balance) {
+        if (erc20Balance.startsWith("0x")) {
+            erc20Balance = erc20Balance.substring(2);
         }
-        return valueOf(name);
+        if (erc20Balance.length() == 0) {
+            return 0;
+        }
+        BigInteger balance = new BigInteger(erc20Balance, 16);
+        BigDecimal amount = new BigDecimal(balance);
+        BigDecimal res = amount.divide(Ethereum.THE_18TH_POWER_OF_10, 18, BigDecimal.ROUND_DOWN);
+        return res.doubleValue();
     }
 }

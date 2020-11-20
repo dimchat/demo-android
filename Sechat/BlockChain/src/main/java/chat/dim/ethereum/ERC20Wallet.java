@@ -23,27 +23,29 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.eth;
-
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+package chat.dim.ethereum;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.blockchain.Wallet;
-import chat.dim.blockchain.WalletName;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.threading.BackgroundThreads;
+import chat.dim.wallet.Wallet;
+import chat.dim.wallet.WalletName;
 
-public class ETHWallet implements Wallet {
+public abstract class ERC20Wallet implements Wallet {
 
+    private final String contactAddress;
     private final String address;
     private double balance = 0;
 
-    public ETHWallet(String address) {
+    public ERC20Wallet(String address, String contactAddress) {
         super();
         this.address = address;
+        this.contactAddress = contactAddress;
     }
+
+    abstract protected double getBalance(String erc20Balance);
 
     @Override
     public double getBalance(boolean refresh) {
@@ -52,7 +54,12 @@ public class ETHWallet implements Wallet {
         }
         BackgroundThreads.rush(() -> {
             Ethereum client = Ethereum.getInstance();
-            balance = client.getBalance(address);
+            String result = client.erc20GetBalance(address, contactAddress);
+            if (result == null) {
+                // TODO: failed to get ERC20 balance
+                return;
+            }
+            balance = getBalance(result);
             // post notification
             Map<String, Object> info = new HashMap<>();
             info.put("name", WalletName.ETH.getValue());
@@ -65,32 +72,7 @@ public class ETHWallet implements Wallet {
     }
 
     @Override
-    public boolean transfer(String toAddress, double money) {
-        if (balance < money) {
-            // balance not enough
-            return false;
-        }
-        BackgroundThreads.rush(() -> {
-            Map<String, Object> info = new HashMap<>();
-            info.put("name", WalletName.ETH.getValue());
-            info.put("address", address);
-            info.put("to", toAddress);
-            info.put("money", money);
-
-            Ethereum client = Ethereum.getInstance();
-            TransactionReceipt receipt = client.sendFunds(address, toAddress, money);
-            if (receipt == null) {
-                info.put("balance", balance);
-                NotificationCenter nc = NotificationCenter.getInstance();
-                nc.postNotification(Wallet.TransactionError, this, info);
-            } else {
-                // TODO: process receipt
-                balance -= money;
-                info.put("balance", balance);
-                NotificationCenter nc = NotificationCenter.getInstance();
-                nc.postNotification(Wallet.TransactionSuccess, this, info);
-            }
-        });
-        return true;
+    public boolean transfer(String toAddress, double amount) {
+        return false;
     }
 }

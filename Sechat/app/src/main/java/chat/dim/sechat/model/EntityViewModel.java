@@ -29,9 +29,6 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.Locale;
 
-import chat.dim.blockchain.Wallet;
-import chat.dim.blockchain.WalletFactory;
-import chat.dim.blockchain.WalletName;
 import chat.dim.mkm.plugins.ETHAddress;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
@@ -39,6 +36,9 @@ import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Profile;
 import chat.dim.threading.BackgroundThreads;
+import chat.dim.wallet.Wallet;
+import chat.dim.wallet.WalletFactory;
+import chat.dim.wallet.WalletName;
 
 public class EntityViewModel extends ViewModel {
 

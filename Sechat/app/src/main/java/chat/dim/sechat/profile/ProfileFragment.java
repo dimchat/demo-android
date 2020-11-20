@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.blockchain.Wallet;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -27,6 +26,7 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.image.ImageViewerActivity;
+import chat.dim.wallet.Wallet;
 
 public class ProfileFragment extends Fragment implements Observer {
 
@@ -35,9 +35,11 @@ public class ProfileFragment extends Fragment implements Observer {
     private ID identifier;
 
     private ImageView imageView;
-    private TextView nameView;
     private TextView addressView;
-    private TextView balanceView;
+
+    private TextView ethBalance;
+    private TextView usdtBalance;
+    private TextView dimtBalance;
 
     private Button messageButton;
     private Button removeButton;
@@ -71,8 +73,11 @@ public class ProfileFragment extends Fragment implements Observer {
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (identifier.getAddress().toString().equals(address)) {
-                balanceView.setText(mViewModel.getBalance("ETH", false));
+                ethBalance.setText(mViewModel.getBalance("ETH", false));
+                usdtBalance.setText(mViewModel.getBalance("USDT-ERC20", false));
+                dimtBalance.setText(mViewModel.getBalance("DIMT", false));
             }
+            System.out.println("balance: " + mViewModel.getBalance("ETH", false));
         }
     }
 
@@ -88,9 +93,11 @@ public class ProfileFragment extends Fragment implements Observer {
         View view = inflater.inflate(R.layout.profile_fragment, container, false);
 
         imageView = view.findViewById(R.id.avatarView);
-        nameView = view.findViewById(R.id.nameView);
         addressView = view.findViewById(R.id.addressView);
-        balanceView = view.findViewById(R.id.balanceView);
+
+        ethBalance = view.findViewById(R.id.ethBalance);
+        usdtBalance = view.findViewById(R.id.usdtBalance);
+        dimtBalance = view.findViewById(R.id.dimtBalance);
 
         messageButton = view.findViewById(R.id.sendMessage);
         removeButton = view.findViewById(R.id.removeContact);
@@ -109,9 +116,11 @@ public class ProfileFragment extends Fragment implements Observer {
         Bitmap avatar = mViewModel.getAvatar();
         imageView.setImageBitmap(avatar);
 
-        nameView.setText(mViewModel.getName());
         addressView.setText(mViewModel.getAddressString());
-        balanceView.setText(mViewModel.getBalance("ETH", true));
+
+        ethBalance.setText(mViewModel.getBalance("ETH", true));
+        usdtBalance.setText(mViewModel.getBalance("USDT-ERC20", true));
+        dimtBalance.setText(mViewModel.getBalance("DIMT", true));
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);

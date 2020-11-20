@@ -23,10 +23,16 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.eth;
+package chat.dim.ethereum;
 
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Function;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
@@ -34,6 +40,8 @@ import org.web3j.protocol.http.HttpService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
 
 class Ethereum {
     private static final Ethereum ourInstance = new Ethereum();
@@ -46,6 +54,9 @@ class Ethereum {
     private final String API_KEY = "dde1df04b8d4424f8cb09a403f76db1c";
     private final Web3j web3;
     private boolean connected = false;
+
+    static final BigDecimal THE_18TH_POWER_OF_10 = new BigDecimal("1000000000000000000");
+    static final BigDecimal THE_6TH_POWER_OF_10 = new BigDecimal("1000000");
 
     private Ethereum() {
         web3 = Web3j.build(new HttpService(API_URL + API_KEY));
@@ -69,7 +80,7 @@ class Ethereum {
         return connected;
     }
 
-    double getBalance(String address) {
+    BigInteger ethGetBalance(String address) {
         EthGetBalance balance = null;
         try {
             if (connectToEthNetwork()) {
@@ -79,17 +90,34 @@ class Ethereum {
             e.printStackTrace();
         }
         if (balance == null) {
-            return -1;
+            return null;
         }
-        BigDecimal amount = new BigDecimal(balance.getBalance());
-        BigDecimal res = amount.divide(THE_18TH_POWER_OF_10, 18, BigDecimal.ROUND_DOWN);
-        return res.doubleValue();
+        return balance.getBalance();
     }
-
-    static private final BigDecimal THE_18TH_POWER_OF_10 = new BigDecimal("1000000000000000000");
 
     TransactionReceipt sendFunds(String fromAddress, String toAddress, double money) {
         // TODO: send funds
         return null;
     };
+
+    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+    String erc20GetBalance(String address, String contractAddress) {
+        Function function = new Function("balanceOf",
+                Arrays.asList(new Address(address)),
+                Arrays.asList(new TypeReference<Address>() {}));
+        String encode = FunctionEncoder.encode(function);
+        Transaction tx = Transaction.createEthCallTransaction(address, contractAddress, encode);
+        EthCall call = null;
+        try {
+            if (connectToEthNetwork()) {
+                call = web3.ethCall(tx, DefaultBlockParameterName.LATEST).send();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (call == null) {
+            return null;
+        }
+        return call.getValue();
+    }
 }
