@@ -26,14 +26,14 @@
 package chat.dim.eth;
 
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.concurrent.ExecutionException;
+import java.math.BigDecimal;
 
 class Ethereum {
     private static final Ethereum ourInstance = new Ethereum();
@@ -44,11 +44,19 @@ class Ethereum {
 
     private final String API_URL = "https://mainnet.infura.io/v3/";
     private final String API_KEY = "dde1df04b8d4424f8cb09a403f76db1c";
-    private Web3j web3 = null;
+    private final Web3j web3;
+    private boolean connected = false;
 
     private Ethereum() {
+        web3 = Web3j.build(new HttpService(API_URL + API_KEY));
+    }
+
+    private boolean connectToEthNetwork() throws IOException {
+        if (connected) {
+            return true;
+        }
         System.out.println("Connecting to Ethereum network with key: " + API_KEY + "...");
-        Web3ClientVersion clientVersion = connectToEthNetwork();
+        Web3ClientVersion clientVersion = web3.web3ClientVersion().send();
         if (clientVersion == null) {
             System.out.println("failed to connect " + API_URL + API_KEY);
         } else if (clientVersion.hasError()) {
@@ -56,28 +64,32 @@ class Ethereum {
         } else {
             System.out.println(clientVersion.getWeb3ClientVersion());
             System.out.println("Connected!");
+            connected = true;
         }
+        return connected;
     }
 
-    private Web3ClientVersion connectToEthNetwork() {
-        web3 = Web3j.build(new HttpService(API_URL + API_KEY));
+    double getBalance(String address) {
+        EthGetBalance balance = null;
         try {
-            return web3.web3ClientVersion().sendAsync().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    long getBalance(String address) {
-        EthGetBalance balance;
-        try {
-            balance = web3.ethGetBalance(address, DefaultBlockParameter.valueOf("latest")).send();
+            if (connectToEthNetwork()) {
+                balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+            }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (balance == null) {
             return -1;
         }
-        BigInteger number = balance.getBalance();
-        return number.longValue();
+        BigDecimal amount = new BigDecimal(balance.getBalance());
+        BigDecimal res = amount.divide(THE_18TH_POWER_OF_10, 18, BigDecimal.ROUND_DOWN);
+        return res.doubleValue();
     }
+
+    static private final BigDecimal THE_18TH_POWER_OF_10 = new BigDecimal("1000000000000000000");
+
+    TransactionReceipt sendFunds(String fromAddress, String toAddress, double money) {
+        // TODO: send funds
+        return null;
+    };
 }

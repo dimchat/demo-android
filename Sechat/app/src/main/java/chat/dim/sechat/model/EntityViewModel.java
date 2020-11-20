@@ -29,7 +29,9 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.Locale;
 
-import chat.dim.eth.ETHWallet;
+import chat.dim.blockchain.Wallet;
+import chat.dim.blockchain.WalletFactory;
+import chat.dim.blockchain.WalletName;
 import chat.dim.mkm.plugins.ETHAddress;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
@@ -116,15 +118,18 @@ public class EntityViewModel extends ViewModel {
     //
     //  ETH
     //
-    public static String getBalance(ID identifier) {
+    public static String getBalance(String name, ID identifier, boolean refresh) {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
-            double balance = ETHWallet.getBalance(address.toString());
-            return String.format(Locale.CHINA, "%.06f", balance);
+            Wallet wallet = WalletFactory.getWallet(WalletName.fromString(name), address.toString());
+            if (wallet != null) {
+                double balance = wallet.getBalance(refresh);
+                return String.format(Locale.CHINA, "%.06f", balance);
+            }
         }
         return "-";
     }
-    public String getBalance() {
-        return getBalance(identifier);
+    public String getBalance(String name, boolean refresh) {
+        return getBalance(name, identifier, refresh);
     }
 }

@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import java.util.Map;
 
+import chat.dim.blockchain.Wallet;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -46,12 +47,14 @@ public class ProfileFragment extends Fragment implements Observer {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.ContactsUpdated);
+        nc.addObserver(this, Wallet.BalanceUpdated);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.ContactsUpdated);
+        nc.removeObserver(this, Wallet.BalanceUpdated);
         super.onDestroy();
     }
 
@@ -64,6 +67,11 @@ public class ProfileFragment extends Fragment implements Observer {
             ID contact = (ID) info.get("ID");
             if (identifier.equals(contact)) {
                 refresh();
+            }
+        } else if (name.equals(Wallet.BalanceUpdated)) {
+            String address = (String) info.get("address");
+            if (identifier.getAddress().toString().equals(address)) {
+                balanceView.setText(mViewModel.getBalance("ETH", false));
             }
         }
     }
@@ -103,7 +111,7 @@ public class ProfileFragment extends Fragment implements Observer {
 
         nameView.setText(mViewModel.getName());
         addressView.setText(mViewModel.getAddressString());
-        balanceView.setText(mViewModel.getBalance());
+        balanceView.setText(mViewModel.getBalance("ETH", true));
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);

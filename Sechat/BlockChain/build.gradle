@@ -32,6 +32,8 @@ dependencies {
 
     implementation project(':Common')
 
+    implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
+
     implementation 'org.web3j:core:4.6.0-android'
     implementation 'androidx.appcompat:appcompat:1.2.0'
 

@@ -25,36 +25,43 @@
  */
 package chat.dim.blockchain;
 
-public interface Wallet {
+import java.util.HashMap;
+import java.util.Map;
 
-    /**
-     *  Get balance
-     *
-     * @param refresh - whether refresh from network
-     * @return amount of coins
-     */
-    double getBalance(boolean refresh);
+import chat.dim.eth.ETHWallet;
 
-    /**
-     *  Transfer funds to receiver's address
-     *
-     * @param toAddress - receiver's address
-     * @param amount - amount of coins
-     * @return false on insufficient funds
-     */
-    boolean transfer(String toAddress, double amount);
+public class WalletFactory {
 
-    /**
-     *  Wallet name: BTC, ETH, DIMT, ...
-     */
-    interface Name {
-        String getValue();
+    static private final Map<Wallet.Name, Map<String, Wallet>> allWallets = new HashMap<>();
+
+    public static Wallet getWallet(Wallet.Name name, String address) {
+        Map<String, Wallet> caches = allWallets.get(name);
+        if (caches == null) {
+            caches = new HashMap<>();
+            allWallets.put(name, caches);
+        }
+        Wallet wallet = caches.get(address);
+        if (wallet == null) {
+            wallet = creator.create(name, address);
+            if (wallet != null) {
+                caches.put(address, wallet);
+            }
+        }
+        return wallet;
     }
 
     /**
-     *  Wallet notification names
+     *  Wallet Creator
      */
-    String BalanceUpdated     = "BalanceUpdated";
-    String TransactionSuccess = "TransactionSuccess";
-    String TransactionError   = "TransactionError";
+    public interface Creator {
+        Wallet create(Wallet.Name name, String address);
+    }
+
+    // default creator
+    public static Creator creator = (name, address) -> {
+        if (name.equals(WalletName.ETH)) {
+            return new ETHWallet(address);
+        }
+        return null;
+    };
 }

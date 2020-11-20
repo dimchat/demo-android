@@ -25,36 +25,28 @@
  */
 package chat.dim.blockchain;
 
-public interface Wallet {
+public enum WalletName implements Wallet.Name {
+    ETH ("eth"),
+    USDT("usdt-erc20"),
+    DIMT("dimt");
 
-    /**
-     *  Get balance
-     *
-     * @param refresh - whether refresh from network
-     * @return amount of coins
-     */
-    double getBalance(boolean refresh);
+    private final String value;
 
-    /**
-     *  Transfer funds to receiver's address
-     *
-     * @param toAddress - receiver's address
-     * @param amount - amount of coins
-     * @return false on insufficient funds
-     */
-    boolean transfer(String toAddress, double amount);
-
-    /**
-     *  Wallet name: BTC, ETH, DIMT, ...
-     */
-    interface Name {
-        String getValue();
+    WalletName(String name) {
+        value = name.toLowerCase();
     }
 
-    /**
-     *  Wallet notification names
-     */
-    String BalanceUpdated     = "BalanceUpdated";
-    String TransactionSuccess = "TransactionSuccess";
-    String TransactionError   = "TransactionError";
+    @Override
+    public String getValue() {
+        return value;
+    }
+
+    public static WalletName fromString(String name) {
+        for (WalletName walletName : values()) {
+            if (name.equalsIgnoreCase(walletName.value)) {
+                return walletName;
+            }
+        }
+        return valueOf(name);
+    }
 }
