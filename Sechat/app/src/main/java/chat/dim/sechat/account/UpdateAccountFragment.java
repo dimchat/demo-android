@@ -1,6 +1,9 @@
 package chat.dim.sechat.account;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -25,7 +28,7 @@ import chat.dim.sechat.SechatApp;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.Images;
 
-public class UpdateAccountFragment extends Fragment {
+public class UpdateAccountFragment extends Fragment implements DialogInterface.OnClickListener {
 
     private AccountViewModel mViewModel;
 
@@ -39,6 +42,7 @@ public class UpdateAccountFragment extends Fragment {
 
     private Button saveButton;
     private Button exportButton;
+    private Button deleteButton;
 
     public static UpdateAccountFragment newInstance() {
         return new UpdateAccountFragment();
@@ -57,6 +61,7 @@ public class UpdateAccountFragment extends Fragment {
 
         saveButton = view.findViewById(R.id.save);
         exportButton = view.findViewById(R.id.export);
+        deleteButton = view.findViewById(R.id.delete);
 
         // hide keyboard
         nicknameText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -95,6 +100,7 @@ public class UpdateAccountFragment extends Fragment {
 
         saveButton.setOnClickListener(v -> save());
         exportButton.setOnClickListener(v -> activity.exportAccount(mViewModel));
+        deleteButton.setOnClickListener(v -> deleteAccount());
     }
 
     public void setAvatarImage(Bitmap bitmap) {
@@ -133,5 +139,28 @@ public class UpdateAccountFragment extends Fragment {
         mViewModel.updateProfile(profile);
 
         Alert.tips(getActivity(), R.string.account_saved);
+    }
+
+    private void deleteAccount() {
+        FragmentActivity activity = getActivity();
+        assert activity != null : "failed to get fragment activity";
+        CharSequence[] items = {
+                "DON'T!!",
+                "DON'T!!",
+                "DON'T!!",
+                "Yes, I had already saved private key.",
+                "DON'T!!",
+                "DON'T!!",
+                "DON'T!!",
+        };
+        Alert.alert(activity, items, this);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (which == 3) {
+            mViewModel.removeCurrentUser();
+            Alert.tips(getContext(), "Current user removed!");
+        }
     }
 }

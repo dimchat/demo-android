@@ -248,4 +248,13 @@ public class AccountViewModel extends UserViewModel {
         // OK
         return identifier;
     }
+
+    public boolean removeCurrentUser() {
+        if (facebook.removeUser(identifier)) {
+            identifier = null;
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
