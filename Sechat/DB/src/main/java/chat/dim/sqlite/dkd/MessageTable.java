@@ -82,9 +82,13 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             ID identifier;
             while (cursor.moveToNext()) {
                 identifier = Entity.parseID(cursor.getString(0));
-                if (identifier != null) {
-                    array.add(identifier);
+                if (identifier == null) {
+                    continue;
+                } else if (identifier.getType() == NetworkType.Station.value) {
+                    // TODO: set flag to ignore message from station
+                    continue;
                 }
+                array.add(identifier);
             }
             // sort by last message time
             Comparator<ID> comparator = new Comparator<ID>() {

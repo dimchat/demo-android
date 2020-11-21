@@ -128,6 +128,12 @@ public class AccountViewModel extends UserViewModel {
             info.put("seed", seed);
         }
 
+        // nickname
+        String nickname = facebook.getNickname(identifier);
+        if (nickname != null && nickname.length() > 0) {
+            info.put("nickname", nickname);
+        }
+
         byte[] data = JSON.encode(info);
         return UTF8.decode(data);
     }

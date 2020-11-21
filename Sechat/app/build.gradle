@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "chat.dim.client"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 27
         vectorDrawables {
             useSupportLibrary true
         }

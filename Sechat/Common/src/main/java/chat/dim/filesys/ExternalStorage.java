@@ -58,11 +58,10 @@ public class ExternalStorage {
                 saveText("Moky loves May Lee forever!", path);
             }
             made = true;
-            return root;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        return root;
     }
     public static void setRoot(String dir) {
         if (dir.length() > separator.length() && dir.endsWith(separator)) {
