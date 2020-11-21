@@ -65,10 +65,16 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
 
     @Override
     public boolean savePrivateKey(ID user, PrivateKey key, String type, int sign, int decrypt) {
-        if (META.equals(type)/* && getPrivateKeyForSignature(user) != null*/) {
-            String[] whereArgs = {user.toString(), META};
-            delete(KeyDatabase.T_PRIVATE_KEY, "uid=? AND type=?", whereArgs);
+        if (decrypt == 1) {
+            decryptKeysTable.remove(user);
+        }/* else */
+        if (sign == 1) {
+            signKeyTable.remove(user);
         }
+        //if (META.equals(type)/* && getPrivateKeyForSignature(user) != null*/) {
+            String[] whereArgs = {user.toString(), type};
+            delete(KeyDatabase.T_PRIVATE_KEY, "uid=? AND type=?", whereArgs);
+        //}
         byte[] data = JSON.encode(key);
         String text = UTF8.decode(data);
         ContentValues values = new ContentValues();

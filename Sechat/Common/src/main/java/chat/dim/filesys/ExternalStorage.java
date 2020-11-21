@@ -41,24 +41,34 @@ import chat.dim.protocol.ID;
 public class ExternalStorage {
 
     // "/sdcard/chat.dim.sechat"
-    protected static String root = "/tmp/.dim";
+    private static String root = "/tmp/.dim";
+    private static boolean made = false;
 
     protected static String separator = File.separator;
 
     public static String getRoot() {
-        return root;
+        if (made) {
+            return root;
+        }
+        try {
+            mkdirs(root);
+            // forbid the gallery from scanning media files
+            String path = root + separator + ".nomedia";
+            if (!exists(path)) {
+                saveText("Moky loves May Lee forever!", path);
+            }
+            made = true;
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     public static void setRoot(String dir) {
-        root = dir;
-
-        // forbid the gallery from scanning media files
-        String path = dir + separator + ".nomedia";
-        if (!exists(path)) {
-            try {
-                saveText("Moky loves May Lee forever!", path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (dir.length() > separator.length() && dir.endsWith(separator)) {
+            root = dir.substring(0, dir.length() - separator.length());
+        } else {
+            root = dir;
         }
     }
 
