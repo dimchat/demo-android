@@ -19,8 +19,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
@@ -159,7 +164,11 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == 3) {
-            mViewModel.removeCurrentUser();
+            ID identifier = mViewModel.removeCurrentUser();
+            Map<String, Object> info = new HashMap<>();
+            info.put("ID", identifier);
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.postNotification(NotificationNames.AccountDeleted, this, info);
             Alert.tips(getContext(), "Current user removed!");
         }
     }

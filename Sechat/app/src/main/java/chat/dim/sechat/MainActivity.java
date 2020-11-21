@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         nc.addObserver(this, NotificationNames.ServerStateChanged);
         nc.addObserver(this, NotificationNames.GroupCreated);
         nc.addObserver(this, NotificationNames.StartChat);
+        nc.addObserver(this, NotificationNames.AccountDeleted);
     }
 
     @Override
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         nc.removeObserver(this, NotificationNames.ServerStateChanged);
         nc.removeObserver(this, NotificationNames.GroupCreated);
         nc.removeObserver(this, NotificationNames.StartChat);
+        nc.removeObserver(this, NotificationNames.AccountDeleted);
         super.onDestroy();
     }
 
@@ -61,16 +63,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
             case NotificationNames.ServerStateChanged: {
                 serverState = (String) info.get("state");
                 Message msg = new Message();
+                msg.what = 9527;
                 msgHandler.sendMessage(msg);
                 break;
             }
-            case NotificationNames.GroupCreated: {
-                ID entity = (ID) info.get("ID");
-                if (entity != null) {
-                    startChat(entity);
-                }
-                break;
-            }
+            case NotificationNames.GroupCreated:
             case NotificationNames.StartChat: {
                 ID entity = (ID) info.get("ID");
                 if (entity != null) {
@@ -78,7 +75,42 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 }
                 break;
             }
+            case NotificationNames.AccountDeleted: {
+                Message msg = new Message();
+                msg.what = 9528;
+                msgHandler.sendMessage(msg);
+                break;
+            }
         }
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 9527: {
+                    refreshTitle();
+                    break;
+                }
+                case 9528: {
+                    checkCurrentUser();
+                    break;
+                }
+            }
+        }
+    };
+
+    private User checkCurrentUser() {
+        Facebook facebook = Facebook.getInstance();
+        User user = facebook.getCurrentUser();
+        if (user == null) {
+            // show register
+            Intent intent = new Intent();
+            intent.setClass(getApplicationContext(), RegisterActivity.class);
+            startActivity(intent);
+        }
+        return user;
     }
 
     private void startChat(ID entity) {
@@ -87,14 +119,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         intent.putExtra("ID", entity.toString());
         startActivity(intent);
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            refreshTitle();
-        }
-    };
 
     private void refreshTitle() {
         CharSequence status;
@@ -168,13 +192,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         SechatApp.launch(getApplication(), this);
 
-        Client client = Client.getInstance();
-        User user = client.getCurrentUser();
-        if (user == null) {
-            Intent intent = new Intent();
-            intent.setClass(getApplicationContext(), RegisterActivity.class);
-            startActivity(intent);
-        } else {
+        User user = checkCurrentUser();
+        if (user != null) {
             Meta meta = user.getMeta();
             if (meta == null) {
                 throw new NullPointerException("failed to get user meta: " + user);

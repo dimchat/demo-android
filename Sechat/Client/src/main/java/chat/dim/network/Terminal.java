@@ -167,6 +167,9 @@ public class Terminal implements StationDelegate {
         // connect server
         Server server = getCurrentServer();
         if (server == null || server.getPort() != port || !server.getHost().equals(host)) {
+            if (server != null) {
+                server.end();
+            }
             server = new Server(identifier, host, port, name);
             server.setDataSource(Facebook.getInstance());
             server.delegate = this;
