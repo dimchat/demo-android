@@ -28,7 +28,6 @@ package chat.dim.sqlite.key;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +37,7 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
@@ -70,7 +70,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             delete(KeyDatabase.T_PRIVATE_KEY, "uid=? AND type=?", whereArgs);
         }
         byte[] data = JSON.encode(key);
-        String text = new String(data, Charset.forName("UTF-8"));
+        String text = UTF8.decode(data);
         ContentValues values = new ContentValues();
         values.put("uid", user.toString());
         values.put("sk", text);
@@ -102,7 +102,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
                 Map<String, Object> info;
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
-                    info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
+                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
                     key = KeyFactory.getPrivateKey(info);
                 }
             }
@@ -129,7 +129,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
                 Map<String, Object> info;
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
-                    info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
+                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
                     key = KeyFactory.getPrivateKey(info);
                     if (key instanceof DecryptKey) {
                         keys.add((DecryptKey) key);

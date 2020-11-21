@@ -30,7 +30,6 @@
  */
 package chat.dim.mtp;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +40,7 @@ import chat.dim.dmtp.values.BinaryValue;
 import chat.dim.dmtp.values.StringValue;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
@@ -82,7 +82,7 @@ public class Utils {
         if (content != null) {
             if (content.startsWith("{")) {
                 // JsON
-                info.put("data", content.getBytes(Charset.forName("UTF-8")));
+                info.put("data", UTF8.encode(content));
             } else {
                 // Base64
                 info.put("data", Base64.decode(content));

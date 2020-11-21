@@ -29,7 +29,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,6 +39,7 @@ import java.util.Map;
 
 import chat.dim.Entity;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
@@ -257,7 +257,6 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             String content;
             int sn;
             String signature;
-            Envelope env;
             InstantMessage iMsg;
             List<String> array;
             while (cursor.moveToNext()) {
@@ -489,7 +488,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         values.put("time", time.getTime() / 1000);
         // content
         byte[] data = JSON.encode(content);
-        String text = new String(data, Charset.forName("UTF-8"));
+        String text = UTF8.decode(data);
         values.put("content", text);
         values.put("type", type);
         values.put("sn", sn);
@@ -543,8 +542,8 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             return false;
         }
         ReceiptCommand receipt = (ReceiptCommand) content;
-        ID sender = (ID) iMsg.getSender();
-        ID receiver = (ID) iMsg.getReceiver();
+        ID sender = iMsg.getSender();
+        ID receiver = iMsg.getReceiver();
         // FIXME: check for origin conversation
         if (NetworkType.isUser(entity.getType())) {
             Envelope env = receipt.getEnvelope();

@@ -28,13 +28,13 @@ package chat.dim.sqlite.dkd;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.MessageFactory;
 import chat.dim.Messenger;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.sqlite.Database;
 
@@ -91,7 +91,7 @@ public final class MessageDatabase extends Database {
     //
 
     static InstantMessage getInstanceMessage(String sender, String receiver, long timestamp, String content) {
-        Map dict = (Map) JSON.decode(content.getBytes(Charset.forName("UTF-8")));
+        Map dict = (Map) JSON.decode(UTF8.encode(content));
         if (dict == null) {
             throw new NullPointerException("message content error: " + content);
         }

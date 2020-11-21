@@ -96,7 +96,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
     private final Map<ID, List<ReliableMessage>> incomingMessages = new HashMap<>();
     private final ReadWriteLock incomingMessageLock = new ReentrantReadWriteLock();
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
@@ -214,7 +213,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         if (content instanceof InviteCommand) {
             // send keys again
             ID me = iMsg.getReceiver();
-            ID group = (ID) content.getGroup();
+            ID group = content.getGroup();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
             if (key != null) {
                 //key.put("reused", null);

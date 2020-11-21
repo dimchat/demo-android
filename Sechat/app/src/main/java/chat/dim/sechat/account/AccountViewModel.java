@@ -1,6 +1,5 @@
 package chat.dim.sechat.account;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import chat.dim.crypto.SignKey;
 import chat.dim.crypto.plugins.ECCPrivateKey;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.mkm.plugins.BTCMeta;
 import chat.dim.mkm.plugins.DefaultMeta;
 import chat.dim.mkm.plugins.ETHMeta;
@@ -129,7 +129,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         byte[] data = JSON.encode(info);
-        return new String(data, Charset.forName("UTF-8"));
+        return UTF8.decode(data);
     }
 
     @SuppressWarnings("unchecked")
@@ -143,7 +143,7 @@ public class AccountViewModel extends UserViewModel {
             info.put("version", MetaType.ETH.value);
         } else if (json.startsWith("{")) {
             // dictionary
-            byte[] data = json.getBytes(Charset.forName("UTF-8"));
+            byte[] data = UTF8.encode(json);
             info = (Map<String, Object>) JSON.decode(data);
         }
         if (info == null) {

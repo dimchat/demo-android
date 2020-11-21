@@ -28,12 +28,12 @@ package chat.dim.sqlite.key;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 
@@ -66,7 +66,7 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
             Map<String, Object> info;
             if (cursor.moveToNext()) {
                 sk = cursor.getString(0);
-                info = (Map<String, Object>) JSON.decode(sk.getBytes(Charset.forName("UTF-8")));
+                info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
                 key = KeyFactory.getSymmetricKey(info);
             }
         }
@@ -79,7 +79,7 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
         delete(KeyDatabase.T_MESSAGE_KEY, "sender=? AND receiver=?", whereArgs);
 
         byte[] data = JSON.encode(key);
-        String text = new String(data, Charset.forName("UTF-8"));
+        String text = UTF8.decode(data);
         ContentValues values = new ContentValues();
         values.put("sender", from.toString());
         values.put("receiver", to.toString());

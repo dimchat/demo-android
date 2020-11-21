@@ -32,9 +32,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.format.UTF8;
 import chat.dim.utils.Log;
 
 class Request {
@@ -135,8 +135,7 @@ class Request {
 
     private static byte[] buildHTTPBody(byte[] data, String filename, String name) {
         String begin = String.format(BEGIN, name, filename);
-        //noinspection CharsetObjectCanBeUsed
-        byte[] head = begin.getBytes(Charset.forName("UTF-8"));
+        byte[] head = UTF8.encode(begin);
 
         byte[] buffer = new byte[head.length + data.length + TAIL.length];
 
@@ -154,6 +153,5 @@ class Request {
             + "Content-Disposition: form-data; name=%s; filename=%s\r\n"
             + "Content-Type: application/octet-stream\r\n\r\n";
     private static final String END = "\r\n--" + BOUNDARY + "--";
-    @SuppressWarnings("CharsetObjectCanBeUsed")
-    private static final byte[] TAIL = END.getBytes(Charset.forName("UTF-8"));
+    private static final byte[] TAIL = UTF8.encode(END);
 }

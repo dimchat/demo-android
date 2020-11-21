@@ -29,11 +29,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Map;
 
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
@@ -66,7 +66,7 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
             Object info;
             if (cursor.moveToNext()) {
                 text = cursor.getString(0);
-                info = JSON.decode(text.getBytes(Charset.forName("UTF-8")));
+                info = JSON.decode(UTF8.encode(text));
                 if (info instanceof Map) {
                     return new LoginCommand((Map<String, Object>) info);
                 }
@@ -83,7 +83,7 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
         Date oldTime = getLoginTime(user);
         Map<String, Object> station = command.getStation();
         String sid = (String) station.get("ID");
-        String text = new String(JSON.encode(command), Charset.forName("UTF-8"));
+        String text = UTF8.decode(JSON.encode(command));
 
         ContentValues values = new ContentValues();
         values.put("station", sid);

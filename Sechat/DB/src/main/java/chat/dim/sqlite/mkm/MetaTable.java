@@ -28,7 +28,6 @@ package chat.dim.sqlite.mkm;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ import chat.dim.Entity;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
@@ -73,7 +73,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
         }
         VerifyKey key = meta.getKey();
         byte[] data = JSON.encode(key);
-        String pk = new String(data, Charset.forName("UTF-8"));
+        String pk = UTF8.decode(data);
 
         // 1. save into database
         ContentValues values = new ContentValues();
@@ -115,7 +115,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             if (cursor.moveToNext()) {
                 version = cursor.getInt(0);
                 pk = cursor.getString(1);
-                data = pk.getBytes(Charset.forName("UTF-8"));
+                data = UTF8.encode(pk);
                 key = (Map<String, Object>) JSON.decode(data);
 
                 info = new HashMap<>();

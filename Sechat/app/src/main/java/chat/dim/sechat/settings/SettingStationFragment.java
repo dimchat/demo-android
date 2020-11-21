@@ -88,6 +88,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
                 ID station = (ID) info.get("station");
                 String host = (String) info.get("host");
                 String port = "" + info.get("port");
+                assert station != null : "station ID should not be empty";
                 newSID.setText(station.toString());
                 newHost.setText(host);
                 newPort.setText(port);
@@ -157,7 +158,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
         }
         String host = newHost.getText().toString();
         String port = newPort.getText().toString();
-        if (mViewModel.addStation(identifier, host, Integer.valueOf(port))) {
+        if (mViewModel.addStation(identifier, host, Integer.parseInt(port))) {
             Alert.tips(getContext(), "station " + identifier + "(" + host + ":" + port + ") added");
         } else {
             Alert.tips(getContext(), "Failed to add station: " + identifier + " (" + host + ":" + port + ")");

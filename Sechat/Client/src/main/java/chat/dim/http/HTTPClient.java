@@ -26,7 +26,6 @@
 package chat.dim.http;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
+import chat.dim.format.UTF8;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 
@@ -63,7 +63,7 @@ public final class HTTPClient extends Thread {
             if (ext == null || ext.length() == 0) {
                 ext = "tmp";
             }
-            byte[] data = url.getBytes(Charset.forName("UTF-8"));
+            byte[] data = UTF8.encode(url);
             filename = Hex.encode(MD5.digest(data)) + "." + ext;
 
         }

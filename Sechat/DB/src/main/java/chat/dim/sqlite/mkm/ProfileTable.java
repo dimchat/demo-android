@@ -65,7 +65,7 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
     public boolean saveProfile(Profile profile) {
         ID identifier = profile.getIdentifier();
         // 0. check duplicate record
-        if (getProfile(identifier) != null) {
+        if (getProfile(identifier).containsKey("data")) {
             Log.info("profile exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
