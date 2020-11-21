@@ -56,4 +56,10 @@
     <string name="group_quit_ok">You have quit from this group</string>
     <string name="download_audio_failed">Download audio failed</string>
     <string name="settings">Settings</string>
+    <string name="remit_money">Send funds</string>
+    <string name="remit_self">Cannot send funds to your self</string>
+    <string name="wallet">Wallet</string>
+    <string name="recharge">Recharge</string>
+    <string name="withdraw">Withdraw</string>
+    <string name="transfer">Transfer</string>
 </resources>

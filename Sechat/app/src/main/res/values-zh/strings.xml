@@ -55,4 +55,10 @@
     <string name="group_quit_ok">您已退出群聊</string>
     <string name="download_audio_failed">下载音频失败</string>
     <string name="settings">设置</string>
+    <string name="remit_money">转账</string>
+    <string name="remit_self">不能向自己转账</string>
+    <string name="wallet">钱包</string>
+    <string name="recharge">充值</string>
+    <string name="withdraw">提现</string>
+    <string name="transfer">转账</string>
 </resources>

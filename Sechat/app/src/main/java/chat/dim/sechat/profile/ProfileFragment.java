@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import java.util.Map;
 
+import chat.dim.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -25,6 +26,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
+import chat.dim.ui.Alert;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
@@ -43,6 +45,7 @@ public class ProfileFragment extends Fragment implements Observer {
     private TextView dimtBalance;
 
     private Button messageButton;
+    private Button remitButton;
     private Button removeButton;
     private Button addButton;
 
@@ -102,12 +105,14 @@ public class ProfileFragment extends Fragment implements Observer {
         dimtBalance = view.findViewById(R.id.dimtBalance);
 
         messageButton = view.findViewById(R.id.sendMessage);
+        remitButton = view.findViewById(R.id.remitMoney);
         removeButton = view.findViewById(R.id.removeContact);
         addButton = view.findViewById(R.id.addContact);
 
         imageView.setOnClickListener(v -> showAvatar());
 
         messageButton.setOnClickListener(v -> startChat());
+        remitButton.setOnClickListener(v -> remitMoney());
         removeButton.setOnClickListener(v -> removeContact());
         addButton.setOnClickListener(v -> addContact());
 
@@ -126,10 +131,12 @@ public class ProfileFragment extends Fragment implements Observer {
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);
+            remitButton.setVisibility(View.VISIBLE);
             removeButton.setVisibility(View.VISIBLE);
             addButton.setVisibility(View.GONE);
         } else {
             messageButton.setVisibility(View.GONE);
+            remitButton.setVisibility(View.GONE);
             removeButton.setVisibility(View.GONE);
             addButton.setVisibility(View.VISIBLE);
         }
@@ -160,6 +167,18 @@ public class ProfileFragment extends Fragment implements Observer {
         intent.setClass(getContext(), ChatboxActivity.class);
         intent.putExtra("ID", identifier.toString());
         startActivity(intent);
+    }
+
+    private void remitMoney() {
+        User user = ProfileViewModel.getCurrentUser();
+        if (user == null) {
+            throw new NullPointerException("failed to get current user");
+        }
+        if (user.identifier.equals(identifier)) {
+            Alert.tips(getContext(), R.string.remit_self);
+            return;
+        }
+        Alert.tips(getContext(), "Coming soon!");
     }
 
     private void close() {

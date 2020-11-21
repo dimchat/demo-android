@@ -126,6 +126,12 @@
         android:text="@string/send_message" />
 
     <Button
+        android:id="@+id/remitMoney"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remit_money" />
+
+    <Button
         android:id="@+id/removeContact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
