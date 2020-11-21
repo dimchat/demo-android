@@ -27,6 +27,7 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.wallet.Wallet;
+import chat.dim.wallet.WalletName;
 
 public class ProfileFragment extends Fragment implements Observer {
 
@@ -73,11 +74,12 @@ public class ProfileFragment extends Fragment implements Observer {
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (identifier.getAddress().toString().equals(address)) {
-                ethBalance.setText(mViewModel.getBalance("ETH", false));
-                usdtBalance.setText(mViewModel.getBalance("USDT-ERC20", false));
-                dimtBalance.setText(mViewModel.getBalance("DIMT", false));
+                ethBalance.setText(mViewModel.getBalance(WalletName.ETH, false));
+                usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, false));
+                dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, false));
             }
-            System.out.println("balance: " + mViewModel.getBalance("ETH", false));
+            System.out.println("balance " + info.get("name")
+                    + ": " + mViewModel.getBalance((String) info.get("name"), false));
         }
     }
 
@@ -118,9 +120,9 @@ public class ProfileFragment extends Fragment implements Observer {
 
         addressView.setText(mViewModel.getAddressString());
 
-        ethBalance.setText(mViewModel.getBalance("ETH", true));
-        usdtBalance.setText(mViewModel.getBalance("USDT-ERC20", true));
-        dimtBalance.setText(mViewModel.getBalance("DIMT", true));
+        ethBalance.setText(mViewModel.getBalance(WalletName.ETH, true));
+        usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, true));
+        dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, true));
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);

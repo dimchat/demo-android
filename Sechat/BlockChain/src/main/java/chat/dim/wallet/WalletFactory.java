@@ -64,7 +64,7 @@ public class WalletFactory {
         if (name.equals(WalletName.ETH)) {
             return new ETHWallet(address);
         }
-        if (name.equals(WalletName.USDT)) {
+        if (/*name.equals(WalletName.USDT) || */name.equals(WalletName.USDT_ERC20)) {
             return new USDTWallet(address);
         }
         if (name.equals(WalletName.DIMT)) {

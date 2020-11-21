@@ -45,6 +45,8 @@ public abstract class ERC20Wallet implements Wallet {
         this.contactAddress = contactAddress;
     }
 
+    abstract protected WalletName getName();
+
     abstract protected double getBalance(String erc20Balance);
 
     @Override
@@ -62,7 +64,7 @@ public abstract class ERC20Wallet implements Wallet {
             balance = getBalance(result);
             // post notification
             Map<String, Object> info = new HashMap<>();
-            info.put("name", WalletName.ETH.getValue());
+            info.put("name", getName().toString());
             info.put("address", address);
             info.put("balance", balance);
             NotificationCenter nc = NotificationCenter.getInstance();

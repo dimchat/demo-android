@@ -28,11 +28,18 @@ package chat.dim.ethereum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import chat.dim.wallet.WalletName;
+
 public class DIMTWallet extends ERC20Wallet {
 
     public DIMTWallet(String address) {
 //        super(address, "0x042B6b20b09749125F969820Eca69e75893abFCA");
         super(address, "0x81246a3F5fab7Aa9f4F625866105F3CAfFc67686");
+    }
+
+    @Override
+    protected WalletName getName() {
+        return WalletName.DIMT;
     }
 
     @Override

@@ -132,4 +132,7 @@ public class EntityViewModel extends ViewModel {
     public String getBalance(String name, boolean refresh) {
         return getBalance(name, identifier, refresh);
     }
+    public String getBalance(WalletName name, boolean refresh) {
+        return getBalance(name.getValue(), identifier, refresh);
+    }
 }

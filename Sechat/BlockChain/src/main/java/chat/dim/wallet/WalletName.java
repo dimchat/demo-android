@@ -25,9 +25,14 @@
  */
 package chat.dim.wallet;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum WalletName implements Wallet.Name {
+    BTC("btc"),
+//    USDT("usdt"),
+    USDT_OMNI("usdt-omni"),
+    USDT_ERC20("usdt-erc20"),
     ETH ("eth"),
-    USDT("usdt-erc20"),
     DIMT("dimt");
 
     private final String value;
@@ -38,6 +43,12 @@ public enum WalletName implements Wallet.Name {
 
     @Override
     public String getValue() {
+        return value;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
         return value;
     }
 

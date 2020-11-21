@@ -63,21 +63,23 @@ class Ethereum {
     }
 
     private boolean connectToEthNetwork() throws IOException {
-        if (connected) {
-            return true;
+        synchronized (Ethereum.class) {
+            if (connected) {
+                return true;
+            }
+            System.out.println("Connecting to Ethereum network with key: " + API_KEY + "...");
+            Web3ClientVersion clientVersion = web3.web3ClientVersion().send();
+            if (clientVersion == null) {
+                System.out.println("failed to connect " + API_URL + API_KEY);
+            } else if (clientVersion.hasError()) {
+                System.out.println(clientVersion.getError().getMessage());
+            } else {
+                System.out.println(clientVersion.getWeb3ClientVersion());
+                System.out.println("Connected!");
+                connected = true;
+            }
+            return connected;
         }
-        System.out.println("Connecting to Ethereum network with key: " + API_KEY + "...");
-        Web3ClientVersion clientVersion = web3.web3ClientVersion().send();
-        if (clientVersion == null) {
-            System.out.println("failed to connect " + API_URL + API_KEY);
-        } else if (clientVersion.hasError()) {
-            System.out.println(clientVersion.getError().getMessage());
-        } else {
-            System.out.println(clientVersion.getWeb3ClientVersion());
-            System.out.println("Connected!");
-            connected = true;
-        }
-        return connected;
     }
 
     BigInteger ethGetBalance(String address) {

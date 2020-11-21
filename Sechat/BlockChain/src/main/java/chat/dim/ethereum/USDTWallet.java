@@ -28,10 +28,17 @@ package chat.dim.ethereum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import chat.dim.wallet.WalletName;
+
 public class USDTWallet extends ERC20Wallet {
 
     public USDTWallet(String address) {
         super(address, "0xdAC17F958D2ee523a2206206994597C13D831ec7");
+    }
+
+    @Override
+    protected WalletName getName() {
+        return WalletName.USDT_ERC20;
     }
 
     @Override
