@@ -1,6 +1,8 @@
 package chat.dim.sechat.profile;
 
 import androidx.lifecycle.ViewModelProviders;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -26,12 +28,13 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
+import chat.dim.sechat.wallet.transfer.TransferActivity;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
 
-public class ProfileFragment extends Fragment implements Observer {
+public class ProfileFragment extends Fragment implements Observer, DialogInterface.OnClickListener {
 
     private ProfileViewModel mViewModel;
 
@@ -119,6 +122,15 @@ public class ProfileFragment extends Fragment implements Observer {
         return view;
     }
 
+    private void close() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            // should not happen
+            return;
+        }
+        activity.finish();
+    }
+
     private void refresh() {
         Bitmap avatar = mViewModel.getAvatar();
         imageView.setImageBitmap(avatar);
@@ -178,16 +190,44 @@ public class ProfileFragment extends Fragment implements Observer {
             Alert.tips(getContext(), R.string.remit_self);
             return;
         }
-        Alert.tips(getContext(), "Coming soon!");
+        CharSequence[] items = {
+                "ETH",
+                "USDT",
+                "DIMT",
+        };
+        Alert.alert(getActivity(), items, this);
     }
 
-    private void close() {
-        FragmentActivity activity = getActivity();
-        if (activity == null) {
-            // should not happen
-            return;
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        String name;
+        switch (which) {
+            case 0: {
+                name = "ETH";
+                break;
+            }
+
+            case 1: {
+                name = "USDT-ERC20";
+                break;
+            }
+
+            case 2: {
+                name = "DIMT";
+                break;
+            }
+
+            default: {
+                return;
+            }
         }
-        activity.finish();
+
+        assert getContext() != null : "fragment context error";
+        Intent intent = new Intent();
+        intent.setClass(getContext(), TransferActivity.class);
+        intent.putExtra("ID", identifier.toString());
+        intent.putExtra("wallet", name);
+        startActivity(intent);
     }
 
     @Override

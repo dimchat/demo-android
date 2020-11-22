@@ -44,6 +44,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".wallet.transfer.TransferActivity" android:label="@string/transfer" />
         <activity android:name=".wallet.WalletActivity" android:label="@string/wallet" />
         <activity android:name=".settings.SettingStationActivity" />
         <activity android:name=".settings.SettingsActivity" android:label="@string/settings" />
