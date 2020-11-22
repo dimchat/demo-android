@@ -26,45 +26,53 @@
 package chat.dim.ethereum;
 
 import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.crypto.Credentials;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
+import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.RawTransactionManager;
+import org.web3j.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 
 class Ethereum {
     private static final Ethereum ourInstance = new Ethereum();
 
-    static Ethereum getInstance() {
+    public static Ethereum getInstance() {
         return ourInstance;
     }
 
     private final String API_URL = "https://mainnet.infura.io/v3/";
     private final String API_KEY = "dde1df04b8d4424f8cb09a403f76db1c";
-    private final Web3j web3;
+    private final Web3j web3j;
     private boolean connected = false;
 
     private Ethereum() {
-        web3 = Web3j.build(new HttpService(API_URL + API_KEY));
+        web3j = Web3j.build(new HttpService(API_URL + API_KEY));
     }
 
-    private boolean connectToEthNetwork() throws IOException {
+    private boolean offline() throws IOException {
         synchronized (Ethereum.class) {
             if (connected) {
-                return true;
+                return false;
             }
             System.out.println("Connecting to Ethereum network with key: " + API_KEY + "...");
-            Web3ClientVersion clientVersion = web3.web3ClientVersion().send();
+            Web3ClientVersion clientVersion = web3j.web3ClientVersion().send();
             if (clientVersion == null) {
                 System.out.println("failed to connect " + API_URL + API_KEY);
             } else if (clientVersion.hasError()) {
@@ -74,48 +82,92 @@ class Ethereum {
                 System.out.println("Connected!");
                 connected = true;
             }
-            return connected;
+            return !connected;
         }
     }
 
-    BigInteger ethGetBalance(String address) {
-        EthGetBalance balance = null;
+    public EthGasPrice ethGasPrice() {
         try {
-            if (connectToEthNetwork()) {
-                balance = web3.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+            if (offline()) {
+                return null;
             }
+            return web3j.ethGasPrice().send();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (balance == null) {
-            return null;
-        }
-        return balance.getBalance();
-    }
-
-    TransactionReceipt sendFunds(String fromAddress, String toAddress, double money) {
-        // TODO: send funds
         return null;
     }
 
-    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
-    String erc20GetBalance(String address, String contractAddress) {
-        Function function = new Function("balanceOf",
-                Arrays.asList(new Address(address)),
-                Arrays.asList(new TypeReference<Address>() {}));
-        String encode = FunctionEncoder.encode(function);
-        Transaction tx = Transaction.createEthCallTransaction(address, contractAddress, encode);
-        EthCall call = null;
+    public EthGetTransactionCount ethGetTransactionCount(String address) {
         try {
-            if (connectToEthNetwork()) {
-                call = web3.ethCall(tx, DefaultBlockParameterName.LATEST).send();
+            if (offline()) {
+                return null;
             }
+            return web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).send();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (call == null) {
-            return null;
+        return null;
+    }
+
+    public EthGetBalance ethGetBalance(String address) {
+        try {
+            if (offline()) {
+                return null;
+            }
+            return web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).send();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return call.getValue();
+        return null;
+    }
+
+    public EthCall ethCall(Transaction tx) {
+        try {
+            if (offline()) {
+                return null;
+            }
+            return web3j.ethCall(tx, DefaultBlockParameterName.LATEST).send();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public EthSendTransaction ethSendTransaction(Credentials fromAccount, String toAddress,
+                                                 BigInteger sum,
+                                                 BigInteger gasPrice, BigInteger gasLimit) {
+        EthGetTransactionCount count = ethGetTransactionCount(fromAccount.getAddress());
+        BigInteger nonce = count == null ? BigInteger.ZERO : count.getTransactionCount();
+        RawTransaction tx = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, sum);
+        byte[] signed = TransactionEncoder.signMessage(tx, fromAccount);
+        String hex = Numeric.toHexString(signed);
+        try {
+            if (offline()) {
+                return null;
+            }
+            return web3j.ethSendRawTransaction(hex).send();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public EthSendTransaction sendTransaction(Credentials fromAccount, String toAddress,
+                                              String contractAddress, BigInteger sum,
+                                              BigInteger gasPrice, BigInteger gasLimit) {
+        String encode = FunctionEncoder.encode(new Function("transfer",
+                Arrays.asList(new Address(toAddress), new Uint256(sum)),
+                Collections.emptyList()));
+        RawTransactionManager manager = new RawTransactionManager(web3j, fromAccount);
+        try {
+            if (offline()) {
+                return null;
+            }
+            return manager.sendTransaction(gasPrice, gasLimit, contractAddress, encode, BigInteger.ZERO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

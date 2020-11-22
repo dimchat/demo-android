@@ -25,7 +25,9 @@
  */
 package chat.dim.ethereum;
 
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
@@ -40,12 +42,37 @@ import chat.dim.wallet.WalletName;
 
 public class ETHWallet implements Wallet {
 
+    private final Credentials credentials;
     private final String address;
-    private BigDecimal balance = null;  // Unit: ETHER
 
+    public ETHWallet(Credentials credentials) {
+        super();
+        this.credentials = credentials;
+        this.address = credentials.getAddress();
+    }
     public ETHWallet(String address) {
         super();
+        this.credentials = null;
         this.address = address;
+    }
+
+    //
+    //  Memory caches for Balances
+    //
+    static private final Map<String, BigDecimal> balances = new HashMap<>();  // Unit: ETHER
+
+    private double getBalance() {
+        BigDecimal balance = balances.get(address);
+        if (balance == null) {
+            return 0;
+        }
+        return balance.doubleValue();
+    }
+    private void setBalance(double balance) {
+        setBalance(new BigDecimal(balance));
+    }
+    private void setBalance(BigDecimal balance) {
+        balances.put(address, balance);
     }
 
     /**
@@ -54,37 +81,51 @@ public class ETHWallet implements Wallet {
      * @param ethBalance - wei
      * @return ether
      */
-    private BigDecimal getBalance(BigInteger ethBalance) {
-        BigDecimal wei = new BigDecimal(ethBalance);
+    private BigDecimal getBalance(EthGetBalance ethBalance) {
+        BigDecimal wei = new BigDecimal(ethBalance.getBalance());
         return Convert.fromWei(wei, Convert.Unit.ETHER);
+    }
+
+    /**
+     *  Convert ETH balance from Ether to Wei
+     *
+     * @param coins - ether
+     * @return wei
+     */
+    private BigInteger toWei(double coins) {
+        BigDecimal balance = new BigDecimal(coins);
+        BigDecimal wei = Convert.toWei(balance, Convert.Unit.ETHER);
+        return wei.toBigInteger();
     }
 
     @Override
     public double getBalance(boolean refresh) {
         if (refresh) {
             BackgroundThreads.rush(() -> {
-                Ethereum client = Ethereum.getInstance();
-                BigInteger ethBalance = client.ethGetBalance(address);
-                if (ethBalance == null) {
-                    // TODO: failed to get ETH balance
-                    return;
-                }
-                balance = getBalance(ethBalance);
-                // post notification
+                NotificationCenter nc = NotificationCenter.getInstance();
                 Map<String, Object> info = new HashMap<>();
                 info.put("name", WalletName.ETH.getValue());
                 info.put("address", address);
-                info.put("balance", balance.doubleValue());
-                NotificationCenter nc = NotificationCenter.getInstance();
-                nc.postNotification(Wallet.BalanceUpdated, this, info);
+                // get ETH balance
+                Ethereum client = Ethereum.getInstance();
+                EthGetBalance ethGetBalance = client.ethGetBalance(address);
+                if (ethGetBalance == null || ethGetBalance.hasError()) {
+                    nc.postNotification(Wallet.BalanceQueryFailed, this, info);
+                } else {
+                    BigDecimal result = getBalance(ethGetBalance);
+                    setBalance(result);
+                    info.put("balance", result.doubleValue());
+                    nc.postNotification(Wallet.BalanceUpdated, this, info);
+                }
             });
         }
-        return balance == null ? 0 : balance.doubleValue();
+        return getBalance();
     }
 
     @Override
-    public boolean transfer(String toAddress, double amount) {
-        if (balance == null || balance.doubleValue() < amount) {
+    public boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit) {
+        double balance = getBalance();
+        if (balance < coins) {
             // balance not enough
             return false;
         }
@@ -94,17 +135,20 @@ public class ETHWallet implements Wallet {
             info.put("name", WalletName.ETH.getValue());
             info.put("address", address);
             info.put("to", toAddress);
-            info.put("amount", amount);
-
+            info.put("amount", coins);
+            // send funds
             Ethereum client = Ethereum.getInstance();
-            TransactionReceipt receipt = client.sendFunds(address, toAddress, amount);
-            if (receipt == null) {
-                info.put("balance", balance.doubleValue());
+            EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress,
+                    toWei(coins), BigInteger.valueOf(gasPrice), BigInteger.valueOf(gasLimit));
+            if (tx == null || tx.hasError()) {
+                info.put("balance", balance);
                 nc.postNotification(Wallet.TransactionError, this, info);
             } else {
                 // TODO: process receipt
-                balance = balance.subtract(new BigDecimal(amount));
-                info.put("balance", balance.doubleValue());
+                double remaining = balance - coins;
+                setBalance(remaining);
+                info.put("balance", remaining);
+                info.put("transaction", tx);
                 nc.postNotification(Wallet.TransactionSuccess, this, info);
             }
         });

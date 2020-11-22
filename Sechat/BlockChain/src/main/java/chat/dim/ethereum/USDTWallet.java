@@ -25,6 +25,9 @@
  */
 package chat.dim.ethereum;
 
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.response.EthCall;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -32,8 +35,13 @@ import chat.dim.wallet.WalletName;
 
 public class USDTWallet extends ERC20Wallet {
 
+    static private final String CONTRACT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
+    public USDTWallet(Credentials credentials) {
+        super(credentials, CONTRACT_ADDRESS);
+    }
     public USDTWallet(String address) {
-        super(address, "0xdAC17F958D2ee523a2206206994597C13D831ec7");
+        super(address, CONTRACT_ADDRESS);
     }
 
     @Override
@@ -42,11 +50,17 @@ public class USDTWallet extends ERC20Wallet {
     }
 
     @Override
-    protected BigDecimal getBalance(String erc20Balance) {
-        if (erc20Balance.startsWith("0x")) {
-            erc20Balance = erc20Balance.substring(2);
+    protected BigDecimal getBalance(EthCall erc20Balance) {
+        String balance = erc20Balance.getValue();
+        if (balance.startsWith("0x")) {
+            balance = balance.substring(2);
         }
-        BigInteger balance = new BigInteger(erc20Balance, 16);
-        return ERC20Converter.fromMicroUSDT(balance);
+        BigInteger number = new BigInteger(balance, 16);
+        return ERC20Convert.fromMicroUSDT(number);
+    }
+
+    @Override
+    protected BigInteger toBalance(double coins) {
+        return ERC20Convert.toMicroUSDT(coins);
     }
 }

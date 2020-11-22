@@ -28,14 +28,24 @@ package chat.dim.ethereum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-class ERC20Converter {
+public class ERC20Convert {
 
     static BigDecimal fromMicroUSDT(BigInteger number) {
         return from(number, Unit.USDT);
     }
+    static BigInteger toMicroUSDT(double coins) {
+        BigDecimal money = new BigDecimal(coins);
+        money = to(money, Unit.USDT);
+        return money.toBigInteger();
+    }
 
     static BigDecimal fromMoky(BigInteger number) {
         return from(number, Unit.DIMT);
+    }
+    static BigInteger toMoky(double coins) {
+        BigDecimal money = new BigDecimal(coins);
+        money = to(money, Unit.DIMT);
+        return money.toBigInteger();
     }
 
     //-------- converters
@@ -45,6 +55,9 @@ class ERC20Converter {
     }
     private static BigDecimal from(BigDecimal number, Unit unit) {
         return number.divide(unit.factor, 6, BigDecimal.ROUND_HALF_UP);
+    }
+    private static BigDecimal to(BigDecimal number, Unit unit) {
+        return number.multiply(unit.factor);
     }
 
     public enum Unit {

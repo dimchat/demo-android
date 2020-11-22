@@ -39,10 +39,12 @@ public interface Wallet {
      *  Transfer funds to receiver's address
      *
      * @param toAddress - receiver's address
-     * @param amount - amount of coins
+     * @param coins - amount of coins
+     * @param gasPrice - gas price (wei)
+     * @param gasLimit - gas limit
      * @return false on insufficient funds
      */
-    boolean transfer(String toAddress, double amount);
+    boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit);
 
     /**
      *  Wallet name: BTC, ETH, DIMT, ...
@@ -55,6 +57,7 @@ public interface Wallet {
      *  Wallet notification names
      */
     String BalanceUpdated     = "BalanceUpdated";
+    String BalanceQueryFailed = "BalanceQueryFailed";
     String TransactionSuccess = "TransactionSuccess";
     String TransactionError   = "TransactionError";
 }

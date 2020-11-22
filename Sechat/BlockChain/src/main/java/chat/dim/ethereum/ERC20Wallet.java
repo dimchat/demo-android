@@ -25,7 +25,18 @@
  */
 package chat.dim.ethereum;
 
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.TypeReference;
+import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthCall;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
+
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,56 +47,133 @@ import chat.dim.wallet.WalletName;
 
 public abstract class ERC20Wallet implements Wallet {
 
-    private final String contractAddress;
+    private final Credentials credentials;
     private final String address;
-    private BigDecimal balance = null;  // Unit: ERC20 contract
+    private final String contractAddress;
 
+    ERC20Wallet(Credentials credentials, String contractAddress) {
+        super();
+        this.credentials = credentials;
+        this.address = credentials.getAddress();
+        this.contractAddress = contractAddress;
+    }
     ERC20Wallet(String address, String contractAddress) {
         super();
+        this.credentials = null;
         this.address = address;
         this.contractAddress = contractAddress;
+    }
+
+    //
+    //  Memory caches for Balances
+    //
+    static private final Map<WalletName, Map<String, BigDecimal>> allBalances = new HashMap<>();  // Unit: ERC20 contract
+
+    private double getBalance() {
+        Map<String, BigDecimal> balances = allBalances.get(getName());
+        if (balances == null) {
+            return 0;
+        }
+        BigDecimal balance = balances.get(address);
+        if (balance == null) {
+            return 0;
+        }
+        return balance.doubleValue();
+    }
+    private void setBalance(double balance) {
+        setBalance(new BigDecimal(balance));
+    }
+    private void setBalance(BigDecimal balance) {
+        Map<String, BigDecimal> balances = allBalances.get(getName());
+        if (balances == null) {
+            balances = new HashMap<>();
+            allBalances.put(getName(), balances);
+        }
+        balances.put(address, balance);
     }
 
     abstract protected WalletName getName();
 
     /**
-     *  Convert ERC20 balance
+     *  Convert ERC20 balance to coins
      *
      * @param erc20Balance - smallest unit
      * @return normal unit
      */
-    abstract protected BigDecimal getBalance(String erc20Balance);
+    abstract protected BigDecimal getBalance(EthCall erc20Balance);
+
+    /**
+     *  Convert ERC20 coins to balance
+     *
+     * @param coins - normal unit
+     * @return smallest unit
+     */
+    abstract protected BigInteger toBalance(double coins);
+
+    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+    private EthCall queryBalance() {
+        Function function = new Function("balanceOf",
+                Arrays.asList(new Address(address)),
+                Arrays.asList(new TypeReference<Address>() {}));
+        String encode = FunctionEncoder.encode(function);
+        Transaction tx = Transaction.createEthCallTransaction(address, contractAddress, encode);
+        Ethereum client = Ethereum.getInstance();
+        return client.ethCall(tx);
+    }
 
     @Override
     public double getBalance(boolean refresh) {
         if (refresh) {
             BackgroundThreads.rush(() -> {
-                Ethereum client = Ethereum.getInstance();
-                String result = client.erc20GetBalance(address, contractAddress);
-                if (result == null) {
-                    // TODO: failed to get ERC20 balance
-                    return;
-                }
-                balance = getBalance(result);
-                // post notification
+                NotificationCenter nc = NotificationCenter.getInstance();
                 Map<String, Object> info = new HashMap<>();
                 info.put("name", getName().toString());
                 info.put("address", address);
-                info.put("balance", balance.doubleValue());
-                NotificationCenter nc = NotificationCenter.getInstance();
-                nc.postNotification(Wallet.BalanceUpdated, this, info);
+                // get ERC20 balance
+                EthCall erc20GetBalance = queryBalance();
+                if (erc20GetBalance == null || erc20GetBalance.hasError()) {
+                    nc.postNotification(Wallet.BalanceQueryFailed, this, info);
+                } else {
+                    BigDecimal result = getBalance(erc20GetBalance);
+                    setBalance(result);
+                    info.put("balance", result.doubleValue());
+                    nc.postNotification(Wallet.BalanceUpdated, this, info);
+                }
             });
         }
-        return balance == null ? 0 : balance.doubleValue();
+        return getBalance();
     }
 
     @Override
-    public boolean transfer(String toAddress, double amount) {
-        if (balance == null || balance.doubleValue() < amount) {
+    public boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit) {
+        double balance = getBalance();
+        if (balance < coins) {
             // balance not enough
             return false;
         }
-        // TODO:
-        return false;
+        BackgroundThreads.rush(() -> {
+            NotificationCenter nc = NotificationCenter.getInstance();
+            Map<String, Object> info = new HashMap<>();
+            info.put("name", getName().getValue());
+            info.put("address", address);
+            info.put("to", toAddress);
+            info.put("amount", coins);
+            // send funds
+            Ethereum client = Ethereum.getInstance();
+            EthSendTransaction tx = client.sendTransaction(credentials, toAddress, contractAddress,
+                    toBalance(coins), BigInteger.valueOf(gasPrice), BigInteger.valueOf(gasLimit));
+            if (tx == null || tx.hasError()) {
+                info.put("balance", balance);
+                nc.postNotification(Wallet.TransactionError, this, info);
+            } else {
+                // TODO: process receipt
+                double remaining = balance - coins;
+                setBalance(remaining);
+                info.put("balance", remaining);
+                info.put("transaction", tx);
+                nc.postNotification(Wallet.TransactionSuccess, this, info);
+            }
+        });
+        return true;
     }
 }

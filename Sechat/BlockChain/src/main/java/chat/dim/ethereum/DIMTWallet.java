@@ -25,6 +25,9 @@
  */
 package chat.dim.ethereum;
 
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.core.methods.response.EthCall;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -32,8 +35,13 @@ import chat.dim.wallet.WalletName;
 
 public class DIMTWallet extends ERC20Wallet {
 
+    static private final String CONTRACT_ADDRESS = "0x81246a3F5fab7Aa9f4F625866105F3CAfFc67686";
+
+    public DIMTWallet(Credentials credentials) {
+        super(credentials, CONTRACT_ADDRESS);
+    }
     public DIMTWallet(String address) {
-        super(address, "0x81246a3F5fab7Aa9f4F625866105F3CAfFc67686");
+        super(address, CONTRACT_ADDRESS);
     }
 
     @Override
@@ -42,11 +50,17 @@ public class DIMTWallet extends ERC20Wallet {
     }
 
     @Override
-    protected BigDecimal getBalance(String erc20Balance) {
-        if (erc20Balance.startsWith("0x")) {
-            erc20Balance = erc20Balance.substring(2);
+    protected BigDecimal getBalance(EthCall erc20Balance) {
+        String balance = erc20Balance.getValue();
+        if (balance.startsWith("0x")) {
+            balance = balance.substring(2);
         }
-        BigInteger balance = new BigInteger(erc20Balance, 16);
-        return ERC20Converter.fromMoky(balance);
+        BigInteger number = new BigInteger(balance, 16);
+        return ERC20Convert.fromMoky(number);
+    }
+
+    @Override
+    protected BigInteger toBalance(double coins) {
+        return ERC20Convert.toMoky(coins);
     }
 }
