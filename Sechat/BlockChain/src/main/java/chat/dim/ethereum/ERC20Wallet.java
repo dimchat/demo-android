@@ -25,6 +25,7 @@
  */
 package chat.dim.ethereum;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,46 +36,56 @@ import chat.dim.wallet.WalletName;
 
 public abstract class ERC20Wallet implements Wallet {
 
-    private final String contactAddress;
+    private final String contractAddress;
     private final String address;
-    private double balance = 0;
+    private BigDecimal balance = null;  // Unit: ERC20 contract
 
-    public ERC20Wallet(String address, String contactAddress) {
+    ERC20Wallet(String address, String contractAddress) {
         super();
         this.address = address;
-        this.contactAddress = contactAddress;
+        this.contractAddress = contractAddress;
     }
 
     abstract protected WalletName getName();
 
-    abstract protected double getBalance(String erc20Balance);
+    /**
+     *  Convert ERC20 balance
+     *
+     * @param erc20Balance - smallest unit
+     * @return normal unit
+     */
+    abstract protected BigDecimal getBalance(String erc20Balance);
 
     @Override
     public double getBalance(boolean refresh) {
-        if (!refresh) {
-            return balance;
+        if (refresh) {
+            BackgroundThreads.rush(() -> {
+                Ethereum client = Ethereum.getInstance();
+                String result = client.erc20GetBalance(address, contractAddress);
+                if (result == null) {
+                    // TODO: failed to get ERC20 balance
+                    return;
+                }
+                balance = getBalance(result);
+                // post notification
+                Map<String, Object> info = new HashMap<>();
+                info.put("name", getName().toString());
+                info.put("address", address);
+                info.put("balance", balance.doubleValue());
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(Wallet.BalanceUpdated, this, info);
+            });
         }
-        BackgroundThreads.rush(() -> {
-            Ethereum client = Ethereum.getInstance();
-            String result = client.erc20GetBalance(address, contactAddress);
-            if (result == null) {
-                // TODO: failed to get ERC20 balance
-                return;
-            }
-            balance = getBalance(result);
-            // post notification
-            Map<String, Object> info = new HashMap<>();
-            info.put("name", getName().toString());
-            info.put("address", address);
-            info.put("balance", balance);
-            NotificationCenter nc = NotificationCenter.getInstance();
-            nc.postNotification(Wallet.BalanceUpdated, this, info);
-        });
-        return balance;
+        return balance == null ? 0 : balance.doubleValue();
     }
 
     @Override
     public boolean transfer(String toAddress, double amount) {
+        if (balance == null || balance.doubleValue() < amount) {
+            // balance not enough
+            return false;
+        }
+        // TODO:
         return false;
     }
 }

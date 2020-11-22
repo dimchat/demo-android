@@ -28,25 +28,44 @@ package chat.dim.ethereum;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import chat.dim.wallet.WalletName;
+class ERC20Converter {
 
-public class DIMTWallet extends ERC20Wallet {
-
-    public DIMTWallet(String address) {
-        super(address, "0x81246a3F5fab7Aa9f4F625866105F3CAfFc67686");
+    static BigDecimal fromMicroUSDT(BigInteger number) {
+        return from(number, Unit.USDT);
     }
 
-    @Override
-    protected WalletName getName() {
-        return WalletName.DIMT;
+    static BigDecimal fromMoky(BigInteger number) {
+        return from(number, Unit.DIMT);
     }
 
-    @Override
-    protected BigDecimal getBalance(String erc20Balance) {
-        if (erc20Balance.startsWith("0x")) {
-            erc20Balance = erc20Balance.substring(2);
+    //-------- converters
+
+    private static BigDecimal from(BigInteger number, Unit unit) {
+        return from(new BigDecimal(number), unit);
+    }
+    private static BigDecimal from(BigDecimal number, Unit unit) {
+        return number.divide(unit.factor, 6, BigDecimal.ROUND_HALF_UP);
+    }
+
+    public enum Unit {
+        //
+        //  Units of USDT
+        //
+        MICRO_USDT("micro-usdt", 0),
+        USDT("usdt", 6),
+
+        //
+        //  Units of DIMT
+        //
+        MOKY("moky", 0),
+        DIMT("dimt", 18);
+
+        public final String name;
+        public final BigDecimal factor;
+
+        Unit(String name, int factor) {
+            this.name = name;
+            this.factor = BigDecimal.TEN.pow(factor);
         }
-        BigInteger balance = new BigInteger(erc20Balance, 16);
-        return ERC20Converter.fromMoky(balance);
     }
 }

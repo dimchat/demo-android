@@ -26,6 +26,7 @@
 package chat.dim.ethereum;
 
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -40,63 +41,70 @@ import chat.dim.wallet.WalletName;
 public class ETHWallet implements Wallet {
 
     private final String address;
-    private double balance = 0;
+    private BigDecimal balance = null;  // Unit: ETHER
 
     public ETHWallet(String address) {
         super();
         this.address = address;
     }
 
-    @Override
-    public double getBalance(boolean refresh) {
-        if (!refresh) {
-            return balance;
-        }
-        BackgroundThreads.rush(() -> {
-            Ethereum client = Ethereum.getInstance();
-            BigInteger ethBalance = client.ethGetBalance(address);
-            if (ethBalance == null) {
-                // TODO: failed to get ETH balance
-                return;
-            }
-            BigDecimal amount = new BigDecimal(ethBalance);
-            BigDecimal res = amount.divide(Ethereum.THE_18TH_POWER_OF_10, 18, BigDecimal.ROUND_DOWN);
-            balance = res.doubleValue();
-            // post notification
-            Map<String, Object> info = new HashMap<>();
-            info.put("name", WalletName.ETH.getValue());
-            info.put("address", address);
-            info.put("balance", balance);
-            NotificationCenter nc = NotificationCenter.getInstance();
-            nc.postNotification(Wallet.BalanceUpdated, this, info);
-        });
-        return balance;
+    /**
+     *  Convert ETH balance from Wei to Ether
+     *
+     * @param ethBalance - wei
+     * @return ether
+     */
+    private BigDecimal getBalance(BigInteger ethBalance) {
+        BigDecimal wei = new BigDecimal(ethBalance);
+        return Convert.fromWei(wei, Convert.Unit.ETHER);
     }
 
     @Override
-    public boolean transfer(String toAddress, double money) {
-        if (balance < money) {
+    public double getBalance(boolean refresh) {
+        if (refresh) {
+            BackgroundThreads.rush(() -> {
+                Ethereum client = Ethereum.getInstance();
+                BigInteger ethBalance = client.ethGetBalance(address);
+                if (ethBalance == null) {
+                    // TODO: failed to get ETH balance
+                    return;
+                }
+                balance = getBalance(ethBalance);
+                // post notification
+                Map<String, Object> info = new HashMap<>();
+                info.put("name", WalletName.ETH.getValue());
+                info.put("address", address);
+                info.put("balance", balance.doubleValue());
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(Wallet.BalanceUpdated, this, info);
+            });
+        }
+        return balance == null ? 0 : balance.doubleValue();
+    }
+
+    @Override
+    public boolean transfer(String toAddress, double amount) {
+        if (balance == null || balance.doubleValue() < amount) {
             // balance not enough
             return false;
         }
         BackgroundThreads.rush(() -> {
+            NotificationCenter nc = NotificationCenter.getInstance();
             Map<String, Object> info = new HashMap<>();
             info.put("name", WalletName.ETH.getValue());
             info.put("address", address);
             info.put("to", toAddress);
-            info.put("money", money);
+            info.put("amount", amount);
 
             Ethereum client = Ethereum.getInstance();
-            TransactionReceipt receipt = client.sendFunds(address, toAddress, money);
+            TransactionReceipt receipt = client.sendFunds(address, toAddress, amount);
             if (receipt == null) {
-                info.put("balance", balance);
-                NotificationCenter nc = NotificationCenter.getInstance();
+                info.put("balance", balance.doubleValue());
                 nc.postNotification(Wallet.TransactionError, this, info);
             } else {
                 // TODO: process receipt
-                balance -= money;
-                info.put("balance", balance);
-                NotificationCenter nc = NotificationCenter.getInstance();
+                balance = balance.subtract(new BigDecimal(amount));
+                info.put("balance", balance.doubleValue());
                 nc.postNotification(Wallet.TransactionSuccess, this, info);
             }
         });

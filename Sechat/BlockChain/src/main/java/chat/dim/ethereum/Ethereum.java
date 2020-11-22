@@ -39,7 +39,6 @@ import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -54,9 +53,6 @@ class Ethereum {
     private final String API_KEY = "dde1df04b8d4424f8cb09a403f76db1c";
     private final Web3j web3;
     private boolean connected = false;
-
-    static final BigDecimal THE_18TH_POWER_OF_10 = new BigDecimal("1000000000000000000");
-    static final BigDecimal THE_6TH_POWER_OF_10 = new BigDecimal("1000000");
 
     private Ethereum() {
         web3 = Web3j.build(new HttpService(API_URL + API_KEY));
@@ -100,7 +96,7 @@ class Ethereum {
     TransactionReceipt sendFunds(String fromAddress, String toAddress, double money) {
         // TODO: send funds
         return null;
-    };
+    }
 
     @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
     String erc20GetBalance(String address, String contractAddress) {

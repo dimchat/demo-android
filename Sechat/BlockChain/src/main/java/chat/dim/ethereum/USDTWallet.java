@@ -42,16 +42,11 @@ public class USDTWallet extends ERC20Wallet {
     }
 
     @Override
-    protected double getBalance(String erc20Balance) {
+    protected BigDecimal getBalance(String erc20Balance) {
         if (erc20Balance.startsWith("0x")) {
             erc20Balance = erc20Balance.substring(2);
         }
-        if (erc20Balance.length() == 0) {
-            return 0;
-        }
         BigInteger balance = new BigInteger(erc20Balance, 16);
-        BigDecimal amount = new BigDecimal(balance);
-        BigDecimal res = amount.divide(Ethereum.THE_6TH_POWER_OF_10, 6, BigDecimal.ROUND_DOWN);
-        return res.doubleValue();
+        return ERC20Converter.fromMicroUSDT(balance);
     }
 }
