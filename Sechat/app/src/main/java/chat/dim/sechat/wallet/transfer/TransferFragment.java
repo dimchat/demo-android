@@ -8,12 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.User;
@@ -34,6 +38,11 @@ public class TransferFragment extends Fragment implements Observer {
 
     private TextView balanceView;
     private EditText toAddress;
+    private EditText amountView;
+
+    private TextView feeView;
+    private EditText priceView;
+    private EditText limitView;
 
     public TransferFragment() {
         super();
@@ -78,6 +87,26 @@ public class TransferFragment extends Fragment implements Observer {
 
         balanceView = view.findViewById(R.id.balance);
         toAddress = view.findViewById(R.id.toAddress);
+        amountView = view.findViewById(R.id.amount);
+
+        feeView = view.findViewById(R.id.feeView);
+        priceView = view.findViewById(R.id.gasPrice);
+        limitView = view.findViewById(R.id.gasLimit);
+
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                calculateFee();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        priceView.addTextChangedListener(watcher);
+        limitView.addTextChangedListener(watcher);
 
         return view;
     }
@@ -96,4 +125,16 @@ public class TransferFragment extends Fragment implements Observer {
         toAddress.setText(identifier.getAddress().toString());
     }
 
+    private void calculateFee() {
+        try {
+            BigDecimal price = new BigDecimal(priceView.getText().toString());
+            BigDecimal limit = new BigDecimal(limitView.getText().toString());
+            final BigDecimal factor = new BigDecimal(1_000_000_000);
+            BigDecimal fee = price.multiply(limit).divide(factor, 6, BigDecimal.ROUND_HALF_UP);
+            String text = String.format(Locale.CHINA, "%.2f Gwei * %d = %.6f ETH", price.floatValue(), limit.intValue(), fee.doubleValue());
+            feeView.setText(text);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
