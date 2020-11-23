@@ -40,11 +40,9 @@ public interface Wallet {
      *
      * @param toAddress - receiver's address
      * @param coins - amount of coins
-     * @param gasPrice - gas price (wei)
-     * @param gasLimit - gas limit
      * @return false on insufficient funds
      */
-    boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit);
+    boolean transfer(String toAddress, double coins);
 
     /**
      *  Wallet name: BTC, ETH, DIMT, ...

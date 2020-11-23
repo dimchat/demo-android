@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.web3j.utils.Convert;
+
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Map;
@@ -123,14 +125,20 @@ public class TransferFragment extends Fragment implements Observer {
 
         balanceView.setText(mViewModel.getBalance(wallet, true));
         toAddress.setText(identifier.getAddress().toString());
+
+        double gasPrice = mViewModel.getGasPrice(wallet, true);
+        priceView.setText(String.format(Locale.CHINA, "%.2f", gasPrice));
+        long gasLimit = mViewModel.getGasLimit(wallet, true);
+        limitView.setText(String.format(Locale.CHINA, "%d", gasLimit));
+        calculateFee();
     }
 
     private void calculateFee() {
         try {
             BigDecimal price = new BigDecimal(priceView.getText().toString());
             BigDecimal limit = new BigDecimal(limitView.getText().toString());
-            final BigDecimal factor = new BigDecimal(1_000_000_000);
-            BigDecimal fee = price.multiply(limit).divide(factor, 6, BigDecimal.ROUND_HALF_UP);
+            BigDecimal wei = Convert.toWei(price.multiply(limit), Convert.Unit.GWEI);
+            BigDecimal fee = Convert.fromWei(wei, Convert.Unit.ETHER);
             String text = String.format(Locale.CHINA, "%.2f Gwei * %d = %.6f ETH", price.floatValue(), limit.intValue(), fee.doubleValue());
             feeView.setText(text);
         } catch (Exception e) {

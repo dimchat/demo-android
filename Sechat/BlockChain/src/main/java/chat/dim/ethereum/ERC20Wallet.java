@@ -51,6 +51,9 @@ public abstract class ERC20Wallet implements Wallet {
     private final String address;
     private final String contractAddress;
 
+    public BigInteger gasPrice = new BigInteger("58000000000");  // wei
+    public BigInteger gasLimit = new BigInteger("21000");
+
     ERC20Wallet(Credentials credentials, String contractAddress) {
         super();
         this.credentials = credentials;
@@ -145,7 +148,7 @@ public abstract class ERC20Wallet implements Wallet {
     }
 
     @Override
-    public boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit) {
+    public boolean transfer(String toAddress, double coins) {
         double balance = getBalance();
         if (balance < coins) {
             // balance not enough
@@ -161,7 +164,7 @@ public abstract class ERC20Wallet implements Wallet {
             // send funds
             Ethereum client = Ethereum.getInstance();
             EthSendTransaction tx = client.sendTransaction(credentials, toAddress, contractAddress,
-                    toBalance(coins), BigInteger.valueOf(gasPrice), BigInteger.valueOf(gasLimit));
+                    toBalance(coins), gasPrice, gasLimit);
             if (tx == null || tx.hasError()) {
                 info.put("balance", balance);
                 nc.postNotification(Wallet.TransactionError, this, info);

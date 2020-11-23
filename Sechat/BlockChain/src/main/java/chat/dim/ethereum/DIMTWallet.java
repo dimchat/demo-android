@@ -56,11 +56,11 @@ public class DIMTWallet extends ERC20Wallet {
             balance = balance.substring(2);
         }
         BigInteger number = new BigInteger(balance, 16);
-        return ERC20Convert.fromMoky(number);
+        return ERC20Convert.fromAlbert(number);
     }
 
     @Override
     protected BigInteger toBalance(double coins) {
-        return ERC20Convert.toMoky(coins);
+        return ERC20Convert.toAlbert(coins);
     }
 }

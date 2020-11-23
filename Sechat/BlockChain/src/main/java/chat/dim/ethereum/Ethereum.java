@@ -86,7 +86,7 @@ class Ethereum {
         }
     }
 
-    public EthGasPrice ethGasPrice() {
+    EthGasPrice ethGasPrice() {
         try {
             if (offline()) {
                 return null;
@@ -98,7 +98,7 @@ class Ethereum {
         return null;
     }
 
-    public EthGetTransactionCount ethGetTransactionCount(String address) {
+    private EthGetTransactionCount ethGetTransactionCount(String address) {
         try {
             if (offline()) {
                 return null;
@@ -110,7 +110,7 @@ class Ethereum {
         return null;
     }
 
-    public EthGetBalance ethGetBalance(String address) {
+    EthGetBalance ethGetBalance(String address) {
         try {
             if (offline()) {
                 return null;
@@ -122,7 +122,7 @@ class Ethereum {
         return null;
     }
 
-    public EthCall ethCall(Transaction tx) {
+    EthCall ethCall(Transaction tx) {
         try {
             if (offline()) {
                 return null;
@@ -134,9 +134,9 @@ class Ethereum {
         return null;
     }
 
-    public EthSendTransaction ethSendTransaction(Credentials fromAccount, String toAddress,
-                                                 BigInteger sum,
-                                                 BigInteger gasPrice, BigInteger gasLimit) {
+    EthSendTransaction ethSendTransaction(Credentials fromAccount, String toAddress,
+                                          BigInteger sum,
+                                          BigInteger gasPrice, BigInteger gasLimit) {
         EthGetTransactionCount count = ethGetTransactionCount(fromAccount.getAddress());
         BigInteger nonce = count == null ? BigInteger.ZERO : count.getTransactionCount();
         RawTransaction tx = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, sum);
@@ -153,9 +153,9 @@ class Ethereum {
         return null;
     }
 
-    public EthSendTransaction sendTransaction(Credentials fromAccount, String toAddress,
-                                              String contractAddress, BigInteger sum,
-                                              BigInteger gasPrice, BigInteger gasLimit) {
+    EthSendTransaction sendTransaction(Credentials fromAccount, String toAddress,
+                                       String contractAddress, BigInteger sum,
+                                       BigInteger gasPrice, BigInteger gasLimit) {
         String encode = FunctionEncoder.encode(new Function("transfer",
                 Arrays.asList(new Address(toAddress), new Uint256(sum)),
                 Collections.emptyList()));

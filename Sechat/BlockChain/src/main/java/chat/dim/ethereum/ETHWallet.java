@@ -45,6 +45,9 @@ public class ETHWallet implements Wallet {
     private final Credentials credentials;
     private final String address;
 
+    public BigInteger gasPrice = new BigInteger("52000000000");  // wei
+    public BigInteger gasLimit = new BigInteger("21000");
+
     public ETHWallet(Credentials credentials) {
         super();
         this.credentials = credentials;
@@ -93,8 +96,7 @@ public class ETHWallet implements Wallet {
      * @return wei
      */
     private BigInteger toWei(double coins) {
-        BigDecimal balance = new BigDecimal(coins);
-        BigDecimal wei = Convert.toWei(balance, Convert.Unit.ETHER);
+        BigDecimal wei = Convert.toWei(new BigDecimal(coins), Convert.Unit.ETHER);
         return wei.toBigInteger();
     }
 
@@ -123,7 +125,7 @@ public class ETHWallet implements Wallet {
     }
 
     @Override
-    public boolean transfer(String toAddress, double coins, int gasPrice, int gasLimit) {
+    public boolean transfer(String toAddress, double coins) {
         double balance = getBalance();
         if (balance < coins) {
             // balance not enough
@@ -139,7 +141,7 @@ public class ETHWallet implements Wallet {
             // send funds
             Ethereum client = Ethereum.getInstance();
             EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress,
-                    toWei(coins), BigInteger.valueOf(gasPrice), BigInteger.valueOf(gasLimit));
+                    toWei(coins), gasPrice, gasLimit);
             if (tx == null || tx.hasError()) {
                 info.put("balance", balance);
                 nc.postNotification(Wallet.TransactionError, this, info);

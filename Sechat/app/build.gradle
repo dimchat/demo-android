@@ -64,6 +64,8 @@ dependencies {
     implementation group: 'chat.dim', name: 'StarGate', version: '0.2.5'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 
+    implementation 'org.web3j:core:4.6.0-android'
+
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
