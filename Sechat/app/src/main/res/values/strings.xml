@@ -62,4 +62,7 @@
     <string name="recharge">Recharge</string>
     <string name="withdraw">Withdraw</string>
     <string name="transfer">Transfer</string>
+    <string name="insufficient_funds">Insufficient funds</string>
+    <string name="transfer_sent">Transaction sent</string>
+    <string name="transfer_failed">Transfer failed</string>
 </resources>

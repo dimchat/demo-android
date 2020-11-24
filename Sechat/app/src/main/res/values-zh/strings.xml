@@ -61,4 +61,7 @@
     <string name="recharge">充值</string>
     <string name="withdraw">提现</string>
     <string name="transfer">转账</string>
+    <string name="insufficient_funds">余额不足</string>
+    <string name="transfer_sent">交易已提交</string>
+    <string name="transfer_failed">交易失败</string>
 </resources>

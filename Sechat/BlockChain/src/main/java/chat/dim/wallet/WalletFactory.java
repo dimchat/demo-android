@@ -25,6 +25,8 @@
  */
 package chat.dim.wallet;
 
+import org.web3j.crypto.Credentials;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,10 +36,35 @@ import chat.dim.ethereum.USDTWallet;
 
 public class WalletFactory {
 
+    static private final Map<Wallet.Name, Map<String, Wallet>> myWallets = new HashMap<>();
     static private final Map<Wallet.Name, Map<String, Wallet>> allWallets = new HashMap<>();
 
+    public static Wallet getWallet(Wallet.Name name, Credentials account) {
+        Map<String, Wallet> caches = myWallets.get(name);
+        if (caches == null) {
+            caches = new HashMap<>();
+            myWallets.put(name, caches);
+        }
+        String address = account.getAddress();
+        Wallet wallet = caches.get(address);
+        if (wallet == null) {
+            wallet = creator.create(name, account);
+            if (wallet != null) {
+                caches.put(address, wallet);
+            }
+        }
+        return wallet;
+    }
     public static Wallet getWallet(Wallet.Name name, String address) {
-        Map<String, Wallet> caches = allWallets.get(name);
+        // check my wallets first
+        Map<String, Wallet> caches = myWallets.get(name);
+        if (caches != null) {
+            Wallet wallet = caches.get(address);
+            if (wallet != null) {
+                return wallet;
+            }
+        }
+        caches = allWallets.get(name);
         if (caches == null) {
             caches = new HashMap<>();
             allWallets.put(name, caches);
@@ -57,19 +84,37 @@ public class WalletFactory {
      */
     public interface Creator {
         Wallet create(Wallet.Name name, String address);
+        Wallet create(Wallet.Name name, Credentials account);
     }
 
     // default creator
-    public static Creator creator = (name, address) -> {
-        if (name.equals(WalletName.ETH)) {
-            return new ETHWallet(address);
+    public static Creator creator = new Creator() {
+        @Override
+        public Wallet create(Wallet.Name name, String address) {
+            if (name.equals(WalletName.ETH)) {
+                return new ETHWallet(address);
+            }
+            if (/*name.equals(WalletName.USDT) || */name.equals(WalletName.USDT_ERC20)) {
+                return new USDTWallet(address);
+            }
+            if (name.equals(WalletName.DIMT)) {
+                return new DIMTWallet(address);
+            }
+            return null;
         }
-        if (/*name.equals(WalletName.USDT) || */name.equals(WalletName.USDT_ERC20)) {
-            return new USDTWallet(address);
+
+        @Override
+        public Wallet create(Wallet.Name name, Credentials account) {
+            if (name.equals(WalletName.ETH)) {
+                return new ETHWallet(account);
+            }
+            if (/*name.equals(WalletName.USDT) || */name.equals(WalletName.USDT_ERC20)) {
+                return new USDTWallet(account);
+            }
+            if (name.equals(WalletName.DIMT)) {
+                return new DIMTWallet(account);
+            }
+            return null;
         }
-        if (name.equals(WalletName.DIMT)) {
-            return new DIMTWallet(address);
-        }
-        return null;
     };
 }
