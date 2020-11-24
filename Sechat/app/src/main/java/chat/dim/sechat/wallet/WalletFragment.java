@@ -2,17 +2,21 @@ package chat.dim.sechat.wallet;
 
 import androidx.lifecycle.ViewModelProviders;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.notification.Notification;
@@ -56,14 +60,20 @@ public class WalletFragment extends Fragment implements Observer {
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (identifier.getAddress().toString().equals(address)) {
-                ethBalance.setText(mViewModel.getBalance(WalletName.ETH, false));
-                usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, false));
-                dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, false));
+                Message msg = new Message();
+                msgHandler.sendMessage(msg);
             }
-            System.out.println("balance " + info.get("name")
-                    + ": " + mViewModel.getBalance((String) info.get("name"), false));
+            System.out.println("balance updated: " + info);
         }
     }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            refreshPage(false);
+        }
+    };
 
     public static WalletFragment newInstance(ID identifier) {
         WalletFragment fragment = new WalletFragment();
@@ -86,6 +96,20 @@ public class WalletFragment extends Fragment implements Observer {
         return view;
     }
 
+    private void refreshPage(boolean queryBalance) {
+        Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
+        double eth = ethWallet.getBalance(queryBalance);
+        ethBalance.setText(String.format(Locale.CHINA, "%.06f", eth));
+
+        Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
+        double usdt = usdtWallet.getBalance(queryBalance);
+        usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdt));
+
+        Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
+        double dimt = dimtWallet.getBalance(queryBalance);
+        dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimt));
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -95,9 +119,8 @@ public class WalletFragment extends Fragment implements Observer {
         mViewModel.setIdentifier(identifier);
 
         addressView.setText(mViewModel.getAddressString());
-        ethBalance.setText(mViewModel.getBalance(WalletName.ETH, true));
-        usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, true));
-        dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, true));
+
+        refreshPage(true);
     }
 
 }

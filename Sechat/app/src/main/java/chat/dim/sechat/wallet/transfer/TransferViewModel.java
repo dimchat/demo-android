@@ -1,17 +1,13 @@
 package chat.dim.sechat.wallet.transfer;
 
-import org.web3j.crypto.Credentials;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import chat.dim.crypto.PrivateKey;
 import chat.dim.ethereum.ERC20Wallet;
 import chat.dim.ethereum.ETHWallet;
-import chat.dim.format.Hex;
 import chat.dim.mkm.plugins.ETHAddress;
-import chat.dim.model.Facebook;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.profile.ProfileViewModel;
@@ -21,15 +17,7 @@ import chat.dim.wallet.WalletName;
 
 public class TransferViewModel extends ProfileViewModel {
 
-    public Wallet getMyWallet(String name) {
-        Facebook facebook = Facebook.getInstance();
-        PrivateKey privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(identifier);
-        byte[] keyData = privateKey.getData();
-        Credentials account = Credentials.create(Hex.encode(keyData));
-        return WalletFactory.getWallet(WalletName.fromString(name), account);
-    }
-
-    public static double getGasPrice(String name, ID identifier, boolean refresh) {
+    private static double getGasPrice(String name, ID identifier, boolean refresh) {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             BigInteger gasPrice = null;
@@ -49,7 +37,7 @@ public class TransferViewModel extends ProfileViewModel {
         return getGasPrice(name, identifier, refresh);
     }
 
-    public static long getGasLimit(String name, ID identifier, boolean refresh) {
+    private static long getGasLimit(String name, ID identifier, boolean refresh) {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             BigInteger gasLimit = null;

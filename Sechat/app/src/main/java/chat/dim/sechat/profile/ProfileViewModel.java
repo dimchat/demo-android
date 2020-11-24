@@ -2,12 +2,15 @@ package chat.dim.sechat.profile;
 
 import android.net.Uri;
 
+import org.web3j.crypto.Credentials;
+
 import java.util.List;
-import java.util.Locale;
 
 import chat.dim.User;
+import chat.dim.crypto.PrivateKey;
+import chat.dim.format.Hex;
 import chat.dim.mkm.plugins.ETHAddress;
-import chat.dim.protocol.Address;
+import chat.dim.model.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.wallet.Wallet;
@@ -41,23 +44,27 @@ public class ProfileViewModel extends UserViewModel {
     }
 
     //
-    //  ETH
+    //  ETH wallets
     //
-    public static String getBalance(String name, ID identifier, boolean refresh) {
-        Address address = identifier.getAddress();
-        if (address instanceof ETHAddress) {
-            Wallet wallet = WalletFactory.getWallet(WalletName.fromString(name), address.toString());
-            if (wallet != null) {
-                double balance = wallet.getBalance(refresh);
-                return String.format(Locale.CHINA, "%.06f", balance);
-            }
+    private static Wallet getETHWallet(WalletName name, ID identifier) {
+        Facebook facebook = Facebook.getInstance();
+        PrivateKey privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(identifier);
+        if (privateKey == null) {
+            return WalletFactory.getWallet(name, identifier.getAddress().toString());
+        } else {
+            byte[] keyData = privateKey.getData();
+            Credentials account = Credentials.create(Hex.encode(keyData));
+            return WalletFactory.getWallet(name, account);
         }
-        return "-";
     }
-    public String getBalance(String name, boolean refresh) {
-        return getBalance(name, identifier, refresh);
+    public Wallet getWallet(WalletName name) {
+        if (identifier.getAddress() instanceof ETHAddress) {
+            return getETHWallet(name, identifier);
+        }
+        // only support ETH address now
+        return null;
     }
-    public String getBalance(WalletName name, boolean refresh) {
-        return getBalance(name.getValue(), identifier, refresh);
+    public Wallet getWallet(String name) {
+        return getWallet(WalletName.fromString(name));
     }
 }

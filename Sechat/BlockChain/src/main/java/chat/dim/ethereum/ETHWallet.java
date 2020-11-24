@@ -114,9 +114,9 @@ public class ETHWallet implements Wallet {
                 if (ethGetBalance == null || ethGetBalance.hasError()) {
                     nc.postNotification(Wallet.BalanceQueryFailed, this, info);
                 } else {
-                    BigDecimal result = getBalance(ethGetBalance);
-                    setBalance(result);
-                    info.put("balance", result.doubleValue());
+                    BigDecimal balance = getBalance(ethGetBalance);
+                    setBalance(balance);
+                    info.put("balance", balance.doubleValue());
                     nc.postNotification(Wallet.BalanceUpdated, this, info);
                 }
             });

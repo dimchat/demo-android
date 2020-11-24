@@ -130,16 +130,16 @@ public abstract class ERC20Wallet implements Wallet {
             BackgroundThreads.rush(() -> {
                 NotificationCenter nc = NotificationCenter.getInstance();
                 Map<String, Object> info = new HashMap<>();
-                info.put("name", getName().toString());
+                info.put("name", getName().getValue());
                 info.put("address", address);
                 // get ERC20 balance
                 EthCall erc20GetBalance = queryBalance();
                 if (erc20GetBalance == null || erc20GetBalance.hasError()) {
                     nc.postNotification(Wallet.BalanceQueryFailed, this, info);
                 } else {
-                    BigDecimal result = getBalance(erc20GetBalance);
-                    setBalance(result);
-                    info.put("balance", result.doubleValue());
+                    BigDecimal balance = getBalance(erc20GetBalance);
+                    setBalance(balance);
+                    info.put("balance", balance.doubleValue());
                     nc.postNotification(Wallet.BalanceUpdated, this, info);
                 }
             });

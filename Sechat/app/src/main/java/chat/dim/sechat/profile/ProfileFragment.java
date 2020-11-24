@@ -2,6 +2,7 @@ package chat.dim.sechat.profile;
 
 import androidx.lifecycle.ViewModelProviders;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +22,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.User;
@@ -75,19 +80,26 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         if (name.equals(NotificationNames.ContactsUpdated)) {
             ID contact = (ID) info.get("ID");
             if (identifier.equals(contact)) {
-                refresh();
+                Message msg = new Message();
+                msgHandler.sendMessage(msg);
             }
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (identifier.getAddress().toString().equals(address)) {
-                ethBalance.setText(mViewModel.getBalance(WalletName.ETH, false));
-                usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, false));
-                dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, false));
+                Message msg = new Message();
+                msgHandler.sendMessage(msg);
             }
-            System.out.println("balance " + info.get("name")
-                    + ": " + mViewModel.getBalance((String) info.get("name"), false));
+            System.out.println("balance updated: " + info);
         }
     }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            refreshPage(false);
+        }
+    };
 
     public static ProfileFragment newInstance(ID identifier) {
         ProfileFragment fragment = new ProfileFragment();
@@ -131,15 +143,20 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         activity.finish();
     }
 
-    private void refresh() {
+    private void refreshPage(boolean queryBalance) {
         Bitmap avatar = mViewModel.getAvatar();
         imageView.setImageBitmap(avatar);
 
         addressView.setText(mViewModel.getAddressString());
 
-        ethBalance.setText(mViewModel.getBalance(WalletName.ETH, true));
-        usdtBalance.setText(mViewModel.getBalance(WalletName.USDT_ERC20, true));
-        dimtBalance.setText(mViewModel.getBalance(WalletName.DIMT, true));
+        Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
+        ethBalance.setText(String.format(Locale.CHINA, "%.06f", ethWallet.getBalance(queryBalance)));
+
+        Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
+        usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdtWallet.getBalance(queryBalance)));
+
+        Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
+        dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimtWallet.getBalance(queryBalance)));
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);
@@ -238,6 +255,6 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         mViewModel.setIdentifier(identifier);
         mViewModel.refreshProfile();
 
-        refresh();
+        refreshPage(true);
     }
 }

@@ -76,10 +76,10 @@ public class TransferFragment extends Fragment implements Observer {
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (identifier.getAddress().toString().equals(address)) {
-                balanceView.setText(mViewModel.getBalance(walletName, false));
+                Wallet wallet = mViewModel.getWallet(walletName);
+                balanceView.setText(String.format(Locale.CHINA, "%.06f", wallet.getBalance(false)));
             }
-            System.out.println("balance " + info.get("name")
-                    + ": " + mViewModel.getBalance(walletName, false));
+            System.out.println("balance updated: " + info);
         }
     }
 
@@ -140,7 +140,9 @@ public class TransferFragment extends Fragment implements Observer {
         User user = facebook.getCurrentUser();
         mViewModel.setIdentifier(user.identifier);
 
-        balanceView.setText(mViewModel.getBalance(walletName, true));
+        Wallet wallet = mViewModel.getWallet(walletName);
+        balanceView.setText(String.format(Locale.CHINA, "%.06f", wallet.getBalance(true)));
+
         toAddress.setText(identifier.getAddress().toString());
 
         double gasPrice = mViewModel.getGasPrice(walletName, true);
@@ -151,7 +153,8 @@ public class TransferFragment extends Fragment implements Observer {
     }
 
     private double getBalance() {
-        String balance = mViewModel.getBalance(walletName, false);
+        Wallet wallet = mViewModel.getWallet(walletName);
+        double balance = wallet.getBalance(true);
         return new BigDecimal(balance).doubleValue();
     }
     private double getAmount() {
@@ -233,7 +236,7 @@ public class TransferFragment extends Fragment implements Observer {
         BigDecimal gasPrice = getGasPrice();
         BigInteger gasLimit = getGasLimit();
         BigDecimal price = Convert.toWei(gasPrice, Convert.Unit.GWEI);
-        Wallet wallet = mViewModel.getMyWallet(walletName);
+        Wallet wallet = mViewModel.getWallet(walletName);
         if (wallet instanceof ETHWallet) {
             ((ETHWallet) wallet).gasPrice = price.toBigInteger();
             ((ETHWallet) wallet).gasLimit = gasLimit;
