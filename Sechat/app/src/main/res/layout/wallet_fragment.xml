@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="balance"
+                android:text="-"
                 android:textColor="@android:color/black" />
 
         </TableRow>
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="balance"
+                android:text="-"
                 android:textColor="@android:color/black" />
 
         </TableRow>
@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="balance"
+                android:text="-"
                 android:textColor="@android:color/black" />
 
         </TableRow>

@@ -98,16 +98,22 @@ public class WalletFragment extends Fragment implements Observer {
 
     private void refreshPage(boolean queryBalance) {
         Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
-        double eth = ethWallet.getBalance(queryBalance);
-        ethBalance.setText(String.format(Locale.CHINA, "%.06f", eth));
+        if (ethWallet != null) {
+            double eth = ethWallet.getBalance(queryBalance);
+            ethBalance.setText(String.format(Locale.CHINA, "%.06f", eth));
+        }
 
         Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
-        double usdt = usdtWallet.getBalance(queryBalance);
-        usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdt));
+        if (usdtWallet != null) {
+            double usdt = usdtWallet.getBalance(queryBalance);
+            usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdt));
+        }
 
         Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
-        double dimt = dimtWallet.getBalance(queryBalance);
-        dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimt));
+        if (dimtWallet != null) {
+            double dimt = dimtWallet.getBalance(queryBalance);
+            dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimt));
+        }
     }
 
     @Override

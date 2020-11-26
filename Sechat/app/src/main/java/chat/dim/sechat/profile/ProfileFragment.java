@@ -150,13 +150,19 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         addressView.setText(mViewModel.getAddressString());
 
         Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
-        ethBalance.setText(String.format(Locale.CHINA, "%.06f", ethWallet.getBalance(queryBalance)));
+        if (ethWallet != null) {
+            ethBalance.setText(String.format(Locale.CHINA, "%.06f", ethWallet.getBalance(queryBalance)));
+        }
 
         Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
-        usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdtWallet.getBalance(queryBalance)));
+        if (usdtWallet != null) {
+            usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdtWallet.getBalance(queryBalance)));
+        }
 
         Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
-        dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimtWallet.getBalance(queryBalance)));
+        if (dimtWallet != null) {
+            dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimtWallet.getBalance(queryBalance)));
+        }
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);
