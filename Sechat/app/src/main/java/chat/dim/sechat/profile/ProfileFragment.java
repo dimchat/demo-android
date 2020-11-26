@@ -85,7 +85,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
             }
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equals(address)) {
+            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
                 Message msg = new Message();
                 msgHandler.sendMessage(msg);
             }
@@ -151,17 +151,26 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
 
         Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
         if (ethWallet != null) {
-            ethBalance.setText(String.format(Locale.CHINA, "%.06f", ethWallet.getBalance(queryBalance)));
+            double balance = ethWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                ethBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
 
         Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
         if (usdtWallet != null) {
-            usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdtWallet.getBalance(queryBalance)));
+            double balance = usdtWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                usdtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
 
         Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
         if (dimtWallet != null) {
-            dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimtWallet.getBalance(queryBalance)));
+            double balance = dimtWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                dimtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
 
         if (mViewModel.existsContact(identifier)) {

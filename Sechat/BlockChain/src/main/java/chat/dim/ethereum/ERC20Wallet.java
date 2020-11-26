@@ -75,11 +75,11 @@ public abstract class ERC20Wallet implements Wallet {
     private double getBalance() {
         Map<String, BigDecimal> balances = allBalances.get(getName());
         if (balances == null) {
-            return 0;
+            return -1;
         }
         BigDecimal balance = balances.get(address);
         if (balance == null) {
-            return 0;
+            return -1;
         }
         return balance.doubleValue();
     }

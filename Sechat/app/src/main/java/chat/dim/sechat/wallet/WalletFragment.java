@@ -59,7 +59,7 @@ public class WalletFragment extends Fragment implements Observer {
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equals(address)) {
+            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
                 Message msg = new Message();
                 msgHandler.sendMessage(msg);
             }
@@ -99,20 +99,26 @@ public class WalletFragment extends Fragment implements Observer {
     private void refreshPage(boolean queryBalance) {
         Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
         if (ethWallet != null) {
-            double eth = ethWallet.getBalance(queryBalance);
-            ethBalance.setText(String.format(Locale.CHINA, "%.06f", eth));
+            double balance = ethWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                ethBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
 
         Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
         if (usdtWallet != null) {
-            double usdt = usdtWallet.getBalance(queryBalance);
-            usdtBalance.setText(String.format(Locale.CHINA, "%.06f", usdt));
+            double balance = usdtWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                usdtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
 
         Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
         if (dimtWallet != null) {
-            double dimt = dimtWallet.getBalance(queryBalance);
-            dimtBalance.setText(String.format(Locale.CHINA, "%.06f", dimt));
+            double balance = dimtWallet.getBalance(queryBalance);
+            if (balance >= 0) {
+                dimtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
+            }
         }
     }
 

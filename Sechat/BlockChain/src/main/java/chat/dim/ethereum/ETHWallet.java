@@ -67,7 +67,7 @@ public class ETHWallet implements Wallet {
     private double getBalance() {
         BigDecimal balance = balances.get(address);
         if (balance == null) {
-            return 0;
+            return -1;
         }
         return balance.doubleValue();
     }

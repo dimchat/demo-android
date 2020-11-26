@@ -75,7 +75,7 @@ public class TransferFragment extends Fragment implements Observer {
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equals(address)) {
+            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
                 Wallet wallet = mViewModel.getWallet(walletName);
                 balanceView.setText(String.format(Locale.CHINA, "%.06f", wallet.getBalance(false)));
             }
