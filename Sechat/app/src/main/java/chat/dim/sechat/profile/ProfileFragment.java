@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.User;
@@ -85,7 +84,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
             }
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
+            if (mViewModel.matchesWalletAddress(address)) {
                 Message msg = new Message();
                 msgHandler.sendMessage(msg);
             }
@@ -149,29 +148,9 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
 
         addressView.setText(mViewModel.getAddressString());
 
-        Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
-        if (ethWallet != null) {
-            double balance = ethWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                ethBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
-
-        Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
-        if (usdtWallet != null) {
-            double balance = usdtWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                usdtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
-
-        Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
-        if (dimtWallet != null) {
-            double balance = dimtWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                dimtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
+        mViewModel.setBalance(ethBalance, WalletName.ETH, queryBalance);
+        mViewModel.setBalance(usdtBalance, WalletName.USDT_ERC20, queryBalance);
+        mViewModel.setBalance(dimtBalance, WalletName.DIMT, queryBalance);
 
         if (mViewModel.existsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);

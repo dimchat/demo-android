@@ -45,8 +45,8 @@ public class ETHWallet implements Wallet {
     private final Credentials credentials;
     private final String address;
 
-    public BigInteger gasPrice = new BigInteger("52000000000");  // wei
-    public BigInteger gasLimit = new BigInteger("21000");
+    private BigInteger gasPrice = new BigInteger("58000000000");  // wei
+    private BigInteger gasLimit = new BigInteger("21000");
 
     public ETHWallet(Credentials credentials) {
         super();
@@ -57,6 +57,15 @@ public class ETHWallet implements Wallet {
         super();
         this.credentials = null;
         this.address = address;
+    }
+
+    public void setGasPrice(double gwei) {
+        BigDecimal number = BigDecimal.valueOf(gwei);
+        BigDecimal wei = Convert.toWei(number, Convert.Unit.GWEI);
+        gasPrice = wei.toBigInteger();
+    }
+    public void setGasLimit(long gas) {
+        gasLimit = BigInteger.valueOf(gas);
     }
 
     //

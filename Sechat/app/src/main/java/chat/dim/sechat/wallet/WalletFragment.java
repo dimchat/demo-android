@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.notification.Notification;
@@ -59,7 +58,7 @@ public class WalletFragment extends Fragment implements Observer {
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
+            if (mViewModel.matchesWalletAddress(address)) {
                 Message msg = new Message();
                 msgHandler.sendMessage(msg);
             }
@@ -97,29 +96,9 @@ public class WalletFragment extends Fragment implements Observer {
     }
 
     private void refreshPage(boolean queryBalance) {
-        Wallet ethWallet = mViewModel.getWallet(WalletName.ETH);
-        if (ethWallet != null) {
-            double balance = ethWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                ethBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
-
-        Wallet usdtWallet = mViewModel.getWallet(WalletName.USDT_ERC20);
-        if (usdtWallet != null) {
-            double balance = usdtWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                usdtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
-
-        Wallet dimtWallet = mViewModel.getWallet(WalletName.DIMT);
-        if (dimtWallet != null) {
-            double balance = dimtWallet.getBalance(queryBalance);
-            if (balance >= 0) {
-                dimtBalance.setText(String.format(Locale.CHINA, "%.06f", balance));
-            }
-        }
+        mViewModel.setBalance(ethBalance, WalletName.ETH, queryBalance);
+        mViewModel.setBalance(usdtBalance, WalletName.USDT_ERC20, queryBalance);
+        mViewModel.setBalance(dimtBalance, WalletName.DIMT, queryBalance);
     }
 
     @Override

@@ -1,59 +1,58 @@
 package chat.dim.sechat.wallet.transfer;
 
+import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import chat.dim.ethereum.ERC20Wallet;
-import chat.dim.ethereum.ETHWallet;
+import chat.dim.ethereum.Ethereum;
 import chat.dim.mkm.plugins.ETHAddress;
 import chat.dim.protocol.Address;
-import chat.dim.protocol.ID;
-import chat.dim.sechat.profile.ProfileViewModel;
-import chat.dim.wallet.Wallet;
-import chat.dim.wallet.WalletFactory;
+import chat.dim.sechat.wallet.WalletViewModel;
+import chat.dim.threading.BackgroundThreads;
+import chat.dim.utils.Log;
 import chat.dim.wallet.WalletName;
 
-public class TransferViewModel extends ProfileViewModel {
+class TransferViewModel extends WalletViewModel {
 
-    private static double getGasPrice(String name, ID identifier, boolean refresh) {
+    static private double gasPrice = 58.0;  // Gwei
+
+    static private double getGasPrice() {
+        BackgroundThreads.wait(() -> {
+            Ethereum client = Ethereum.getInstance();
+            EthGasPrice ethGasPrice = client.ethGasPrice();
+            if (ethGasPrice == null || ethGasPrice.hasError()) {
+                return;
+            }
+            BigInteger price = ethGasPrice.getGasPrice();
+            if (price == null || price.longValue() <= 0) {
+                return;
+            }
+            BigDecimal wei = new BigDecimal(price);
+            BigDecimal gWei = Convert.fromWei(wei, Convert.Unit.GWEI);
+            gasPrice = gWei.doubleValue();
+            Log.info("new gas price: " + gWei.toString());
+        });
+        return gasPrice;
+    }
+    double getGasPrice(WalletName name) {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
-            BigInteger gasPrice = null;
-            Wallet wallet = WalletFactory.getWallet(WalletName.fromString(name), address.toString());
-            if (wallet instanceof ETHWallet) {
-                gasPrice = ((ETHWallet) wallet).gasPrice;
-            } else if (wallet instanceof ERC20Wallet) {
-                gasPrice = ((ERC20Wallet) wallet).gasPrice;
-            }
-            if (gasPrice != null) {
-                return Convert.fromWei(new BigDecimal(gasPrice), Convert.Unit.GWEI).doubleValue();
-            }
+            return getGasPrice();
         }
-        return 58.0;
-    }
-    public double getGasPrice(String name, boolean refresh) {
-        return getGasPrice(name, identifier, refresh);
+        return 0;
     }
 
-    private static long getGasLimit(String name, ID identifier, boolean refresh) {
+    long getGasLimit(WalletName name) {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
-            BigInteger gasLimit = null;
-            Wallet wallet = WalletFactory.getWallet(WalletName.fromString(name), address.toString());
-            if (wallet instanceof ETHWallet) {
-                gasLimit = ((ETHWallet) wallet).gasLimit;
-            } else if (wallet instanceof ERC20Wallet) {
-                gasLimit = ((ERC20Wallet) wallet).gasLimit;
-            }
-            if (gasLimit != null) {
-                return gasLimit.longValue();
+            if (name.equals(WalletName.ETH)) {
+                return 21_000;
+            } else {
+                return 60_000;
             }
         }
-        return 21000;
-    }
-    public long getGasLimit(String name, boolean refresh) {
-        return getGasLimit(name, identifier, refresh);
+        return 0;
     }
 }

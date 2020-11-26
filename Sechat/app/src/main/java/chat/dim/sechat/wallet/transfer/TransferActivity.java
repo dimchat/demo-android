@@ -10,6 +10,7 @@ import chat.dim.Entity;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.wallet.WalletName;
 
 public class TransferActivity extends AppCompatActivity {
 
@@ -34,7 +35,7 @@ public class TransferActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, TransferFragment.newInstance(identifier, wallet))
+                    .replace(R.id.container, TransferFragment.newInstance(identifier, WalletName.fromString(wallet)))
                     .commitNow();
         }
     }

@@ -1,16 +1,20 @@
 package chat.dim.sechat.profile;
 
+import android.graphics.Color;
 import android.net.Uri;
+import android.widget.TextView;
 
 import org.web3j.crypto.Credentials;
 
 import java.util.List;
+import java.util.Locale;
 
 import chat.dim.User;
-import chat.dim.crypto.PrivateKey;
+import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.mkm.plugins.ETHAddress;
 import chat.dim.model.Facebook;
+import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.wallet.Wallet;
@@ -46,25 +50,42 @@ public class ProfileViewModel extends UserViewModel {
     //
     //  ETH wallets
     //
-    private static Wallet getETHWallet(WalletName name, ID identifier) {
-        Facebook facebook = Facebook.getInstance();
-        PrivateKey privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(identifier);
-        if (privateKey == null) {
-            return WalletFactory.getWallet(name, identifier.getAddress().toString());
-        } else {
-            byte[] keyData = privateKey.getData();
-            Credentials account = Credentials.create(Hex.encode(keyData));
-            return WalletFactory.getWallet(name, account);
-        }
+    public boolean matchesWalletAddress(String address) {
+        return getIdentifier().getAddress().toString().equalsIgnoreCase(address);
     }
+
     public Wallet getWallet(WalletName name) {
-        if (identifier.getAddress() instanceof ETHAddress) {
-            return getETHWallet(name, identifier);
+        Facebook facebook = Facebook.getInstance();
+        SignKey privateKey = facebook.getPrivateKeyForSignature(identifier);
+        Address address = identifier.getAddress();
+        if (address instanceof ETHAddress) {
+            if (privateKey == null) {
+                return WalletFactory.getWallet(name, address.toString());
+            } else {
+                Credentials account = Credentials.create(Hex.encode(privateKey.getData()));
+                return WalletFactory.getWallet(name, account);
+            }
         }
         // only support ETH address now
         return null;
     }
-    public Wallet getWallet(String name) {
-        return getWallet(WalletName.fromString(name));
+
+    public void setBalance(TextView textView, WalletName name, boolean refresh) {
+        Wallet wallet = getWallet(name);
+        if (wallet == null) {
+            textView.setText("-");
+            textView.setTextColor(Color.RED);
+        } else {
+            double balance = wallet.getBalance(refresh);
+            textView.setText(String.format(Locale.CHINA, "%.06f", balance));
+            if (balance < 0) {
+                textView.setText("...");
+                textView.setTextColor(Color.BLUE);
+            } else if (balance > 0) {
+                textView.setTextColor(Color.BLACK);
+            } else {
+                textView.setTextColor(Color.GRAY);
+            }
+        }
     }
 }

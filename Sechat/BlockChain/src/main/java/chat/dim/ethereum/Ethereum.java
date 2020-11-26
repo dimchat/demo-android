@@ -50,7 +50,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 
-class Ethereum {
+public class Ethereum {
     private static final Ethereum ourInstance = new Ethereum();
 
     public static Ethereum getInstance() {
@@ -86,7 +86,7 @@ class Ethereum {
         }
     }
 
-    EthGasPrice ethGasPrice() {
+    public EthGasPrice ethGasPrice() {
         try {
             if (offline()) {
                 return null;

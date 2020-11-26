@@ -33,6 +33,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -51,8 +52,8 @@ public abstract class ERC20Wallet implements Wallet {
     private final String address;
     private final String contractAddress;
 
-    public BigInteger gasPrice = new BigInteger("58000000000");  // wei
-    public BigInteger gasLimit = new BigInteger("21000");
+    private BigInteger gasPrice = new BigInteger("58000000000");  // wei
+    private BigInteger gasLimit = new BigInteger("60000");
 
     ERC20Wallet(Credentials credentials, String contractAddress) {
         super();
@@ -65,6 +66,15 @@ public abstract class ERC20Wallet implements Wallet {
         this.credentials = null;
         this.address = address;
         this.contractAddress = contractAddress;
+    }
+
+    public void setGasPrice(double gwei) {
+        BigDecimal number = BigDecimal.valueOf(gwei);
+        BigDecimal wei = Convert.toWei(number, Convert.Unit.GWEI);
+        gasPrice = wei.toBigInteger();
+    }
+    public void setGasLimit(long gas) {
+        gasLimit = BigInteger.valueOf(gas);
     }
 
     //

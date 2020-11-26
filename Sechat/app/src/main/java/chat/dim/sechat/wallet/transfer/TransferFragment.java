@@ -20,7 +20,6 @@ import android.widget.TextView;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Map;
 
@@ -37,13 +36,14 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
+import chat.dim.wallet.WalletName;
 
 public class TransferFragment extends Fragment implements Observer {
 
     private TransferViewModel mViewModel;
 
     private ID identifier;
-    private String walletName;
+    private WalletName walletName;
 
     private TextView balanceView;
     private EditText toAddress;
@@ -75,15 +75,14 @@ public class TransferFragment extends Fragment implements Observer {
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
-            if (identifier.getAddress().toString().equalsIgnoreCase(address)) {
-                Wallet wallet = mViewModel.getWallet(walletName);
-                balanceView.setText(String.format(Locale.CHINA, "%.06f", wallet.getBalance(false)));
+            if (mViewModel.matchesWalletAddress(address)) {
+                mViewModel.setBalance(balanceView, walletName, false);
             }
             System.out.println("balance updated: " + info);
         }
     }
 
-    public static TransferFragment newInstance(ID identifier, String walletName) {
+    public static TransferFragment newInstance(ID identifier, WalletName walletName) {
         TransferFragment fragment = new TransferFragment();
         fragment.identifier = identifier;
         fragment.walletName = walletName;
@@ -140,14 +139,13 @@ public class TransferFragment extends Fragment implements Observer {
         User user = facebook.getCurrentUser();
         mViewModel.setIdentifier(user.identifier);
 
-        Wallet wallet = mViewModel.getWallet(walletName);
-        balanceView.setText(String.format(Locale.CHINA, "%.06f", wallet.getBalance(true)));
+        mViewModel.setBalance(balanceView, walletName, true);
 
         toAddress.setText(identifier.getAddress().toString());
 
-        double gasPrice = mViewModel.getGasPrice(walletName, true);
+        double gasPrice = mViewModel.getGasPrice(walletName);
         priceView.setText(String.format(Locale.CHINA, "%.2f", gasPrice));
-        long gasLimit = mViewModel.getGasLimit(walletName, true);
+        long gasLimit = mViewModel.getGasLimit(walletName);
         limitView.setText(String.format(Locale.CHINA, "%d", gasLimit));
         calculateFee();
     }
@@ -166,33 +164,32 @@ public class TransferFragment extends Fragment implements Observer {
             return 0;
         }
     }
-    private BigDecimal getGasPrice() {
+    private double getGasPrice() {
         try {
             String price = priceView.getText().toString();
-            return new BigDecimal(price);
+            return Double.valueOf(price);
         } catch (Exception e) {
             e.printStackTrace();
-            return BigDecimal.ZERO;
+            return 0;
         }
     }
-    private BigInteger getGasLimit() {
+    private long getGasLimit() {
         try {
             String limit = limitView.getText().toString();
-            return new BigInteger(limit);
+            return Long.valueOf(limit);
         } catch (Exception e) {
             e.printStackTrace();
-            return BigInteger.ZERO;
+            return 0;
         }
     }
 
     private void calculateFee() {
-        BigDecimal gasPrice = getGasPrice();
-        BigInteger gasLimit = getGasLimit();
-        BigDecimal wei = Convert.toWei(gasPrice, Convert.Unit.GWEI);
-        BigInteger fee = gasLimit.multiply(wei.toBigInteger());
-        BigDecimal ether = Convert.fromWei(new BigDecimal(fee), Convert.Unit.ETHER);
-        String text = String.format(Locale.CHINA, "%.2f Gwei * %d = %.6f ETH",
-                gasPrice.floatValue(), gasLimit.intValue(), ether.doubleValue());
+        double price = getGasPrice();
+        long limit = getGasLimit();
+        BigDecimal wei = Convert.toWei(BigDecimal.valueOf(price), Convert.Unit.GWEI);
+        BigDecimal fee = BigDecimal.valueOf(limit).multiply(wei);
+        BigDecimal ether = Convert.fromWei(fee, Convert.Unit.ETHER);
+        String text = String.format(Locale.CHINA, "%.2f Gwei * %d = %.6f ETH", price, limit, ether.doubleValue());
         feeView.setText(text);
     }
 
@@ -209,13 +206,13 @@ public class TransferFragment extends Fragment implements Observer {
             return false;
         }
         // TODO: check gas price & limit
-        BigDecimal gasPrice = getGasPrice();
-        if (gasPrice.doubleValue() < 2) {
+        double gasPrice = getGasPrice();
+        if (gasPrice < 2) {
             Alert.tips(getContext(), "Gas price too low");
             return false;
         }
-        BigInteger gasLimit = getGasLimit();
-        if (gasLimit.longValue() < 20000) {
+        long gasLimit = getGasLimit();
+        if (gasLimit < 21000) {
             Alert.tips(getContext(), "Gas limit too low");
             return false;
         }
@@ -233,16 +230,15 @@ public class TransferFragment extends Fragment implements Observer {
     }
 
     private void doTransfer() {
-        BigDecimal gasPrice = getGasPrice();
-        BigInteger gasLimit = getGasLimit();
-        BigDecimal price = Convert.toWei(gasPrice, Convert.Unit.GWEI);
+        double gasPrice = getGasPrice();
+        long gasLimit = getGasLimit();
         Wallet wallet = mViewModel.getWallet(walletName);
         if (wallet instanceof ETHWallet) {
-            ((ETHWallet) wallet).gasPrice = price.toBigInteger();
-            ((ETHWallet) wallet).gasLimit = gasLimit;
+            ((ETHWallet) wallet).setGasPrice(gasPrice);
+            ((ETHWallet) wallet).setGasLimit(gasLimit);
         } else if (wallet instanceof ERC20Wallet) {
-            ((ERC20Wallet) wallet).gasPrice = price.toBigInteger();
-            ((ERC20Wallet) wallet).gasLimit = gasLimit;
+            ((ERC20Wallet) wallet).setGasPrice(gasPrice);
+            ((ERC20Wallet) wallet).setGasLimit(gasLimit);
         } else {
             Alert.tips(getContext(), "wallet error");
             return;
