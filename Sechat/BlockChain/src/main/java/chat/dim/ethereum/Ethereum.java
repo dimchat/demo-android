@@ -40,7 +40,9 @@ import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
@@ -146,6 +148,38 @@ public class Ethereum {
         }
         try {
             return web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).send();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     *  Get transaction receipt with hash
+     *
+     * @param txHash    - transaction hash
+     * @param blockHash - block hash
+     * @return null on failed
+     */
+    EthGetTransactionReceipt ethGetTransactionReceipt(String txHash, String blockHash) {
+        if (offline()) {
+            return null;
+        }
+        try {
+            // check block hash
+            if (blockHash == null) {
+                EthTransaction tx = web3j.ethGetTransactionByHash(txHash).send();
+                if (tx.getResult() == null) {
+                    return null;
+                }
+                blockHash = tx.getResult().getBlockHash();
+            }
+            if (Numeric.toBigInt(blockHash).compareTo(BigInteger.ZERO) == 0) {
+                return null;
+            }
+
+            // transaction accepted, get receipt
+            return web3j.ethGetTransactionReceipt(txHash).send();
         } catch (IOException e) {
             e.printStackTrace();
             return null;

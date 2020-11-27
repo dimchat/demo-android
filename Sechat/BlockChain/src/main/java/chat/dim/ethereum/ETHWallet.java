@@ -81,9 +81,6 @@ public class ETHWallet implements Wallet {
         }
         return balance.doubleValue();
     }
-    private void setBalance(double balance) {
-        setBalance(new BigDecimal(balance));
-    }
     private void setBalance(BigDecimal balance) {
         balances.put(address, balance);
     }
@@ -114,7 +111,7 @@ public class ETHWallet implements Wallet {
     public double getBalance(boolean refresh) {
         if (refresh) {
             BackgroundThreads.rush(() -> {
-                NotificationCenter nc = NotificationCenter.getInstance();
+                String event;
                 Map<String, Object> info = new HashMap<>();
                 info.put("name", WalletName.ETH.getValue());
                 info.put("address", address);
@@ -122,36 +119,18 @@ public class ETHWallet implements Wallet {
                 Ethereum client = Ethereum.getInstance();
                 EthGetBalance ethGetBalance = client.ethGetBalance(address);
                 if (ethGetBalance == null || ethGetBalance.hasError()) {
-                    nc.postNotification(Wallet.BalanceQueryFailed, this, info);
+                    event = Wallet.BalanceQueryFailed;
                 } else {
+                    event = Wallet.BalanceUpdated;
                     BigDecimal balance = getBalance(ethGetBalance);
                     setBalance(balance);
                     info.put("balance", balance.doubleValue());
-                    nc.postNotification(Wallet.BalanceUpdated, this, info);
                 }
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(event, this, info);
             });
         }
         return getBalance();
-    }
-
-    private static String transfer(Credentials fromAccount, String toAddress, double eth) {
-        Ethereum client = Ethereum.getInstance();
-        TransactionReceipt receipt = client.sendFunds(fromAccount, toAddress, new BigDecimal(eth));
-        if (receipt == null) {
-            return null;
-        } else {
-            return receipt.getTransactionHash();
-        }
-    }
-    private static String transfer(Credentials fromAccount, String toAddress, BigInteger sum,
-                                   BigInteger gasPrice, BigInteger gasLimit) {
-        Ethereum client = Ethereum.getInstance();
-        EthSendTransaction tx = client.ethSendTransaction(fromAccount, toAddress, sum, gasPrice, gasLimit);
-        if (tx == null || tx.hasError()) {
-            return null;
-        } else {
-            return tx.getTransactionHash();
-        }
     }
 
     @Override
@@ -162,30 +141,38 @@ public class ETHWallet implements Wallet {
             return false;
         }
         BackgroundThreads.rush(() -> {
-            NotificationCenter nc = NotificationCenter.getInstance();
+            String event;
             Map<String, Object> info = new HashMap<>();
             info.put("name", WalletName.ETH.getValue());
             info.put("address", address);
             info.put("to", toAddress);
             info.put("amount", coins);
             // send funds
-            String txHash;
+            Ethereum client = Ethereum.getInstance();
             if (gasPrice == null || gasLimit == null) {
-                txHash = transfer(credentials, toAddress, coins);
+                TransactionReceipt receipt = client.sendFunds(credentials, toAddress, new BigDecimal(coins));
+                if (receipt == null) {
+                    event = Wallet.TransactionError;
+                    info.put("balance", balance);
+                } else {
+                    event = Wallet.TransactionSuccess;
+                    info.put("balance", balance - coins);
+                    info.put("blockHash", receipt.getBlockHash());
+                    info.put("transactionHash", receipt.getTransactionHash());
+                }
             } else {
-                txHash = transfer(credentials, toAddress, toWei(coins), gasPrice, gasLimit);
+                EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress, toWei(coins), gasPrice, gasLimit);
+                if (tx == null || tx.hasError()) {
+                    event = Wallet.TransactionError;
+                    info.put("balance", balance);
+                } else {
+                    event = Wallet.TransactionSuccess;
+                    info.put("balance", balance - coins);
+                    info.put("transactionHash", tx.getTransactionHash());
+                }
             }
-            if (txHash == null) {
-                info.put("balance", balance);
-                nc.postNotification(Wallet.TransactionError, this, info);
-            } else {
-                // TODO: process receipt
-                double remaining = balance - coins;
-                setBalance(remaining);
-                info.put("balance", remaining);
-                info.put("transactionHash", txHash);
-                nc.postNotification(Wallet.TransactionSuccess, this, info);
-            }
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.postNotification(event, this, info);
         });
         return true;
     }

@@ -121,7 +121,7 @@ public abstract class ERC20Wallet implements Wallet {
     public double getBalance(boolean refresh) {
         if (refresh) {
             BackgroundThreads.rush(() -> {
-                NotificationCenter nc = NotificationCenter.getInstance();
+                String event;
                 Map<String, Object> info = new HashMap<>();
                 info.put("name", getName().getValue());
                 info.put("address", address);
@@ -129,13 +129,15 @@ public abstract class ERC20Wallet implements Wallet {
                 Ethereum client = Ethereum.getInstance();
                 EthCall erc20GetBalance = client.getBalance(address, contractAddress);
                 if (erc20GetBalance == null || erc20GetBalance.hasError()) {
-                    nc.postNotification(Wallet.BalanceQueryFailed, this, info);
+                    event = Wallet.BalanceQueryFailed;
                 } else {
+                    event = Wallet.BalanceUpdated;
                     BigDecimal balance = getBalance(erc20GetBalance);
                     setBalance(balance);
                     info.put("balance", balance.doubleValue());
-                    nc.postNotification(Wallet.BalanceUpdated, this, info);
                 }
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(event, this, info);
             });
         }
         return getBalance();
@@ -149,7 +151,7 @@ public abstract class ERC20Wallet implements Wallet {
             return false;
         }
         BackgroundThreads.rush(() -> {
-            NotificationCenter nc = NotificationCenter.getInstance();
+            String event;
             Map<String, Object> info = new HashMap<>();
             info.put("name", getName().getValue());
             info.put("address", address);
@@ -160,16 +162,17 @@ public abstract class ERC20Wallet implements Wallet {
             EthSendTransaction tx = client.sendTransaction(credentials, toAddress, contractAddress,
                     toBalance(coins), gasPrice, gasLimit);
             if (tx == null || tx.hasError()) {
+                event = Wallet.TransactionError;
                 info.put("balance", balance);
-                nc.postNotification(Wallet.TransactionError, this, info);
             } else {
-                // TODO: process receipt
+                event = Wallet.TransactionSuccess;
                 double remaining = balance - coins;
                 setBalance(remaining);
                 info.put("balance", remaining);
                 info.put("transaction", tx);
-                nc.postNotification(Wallet.TransactionSuccess, this, info);
             }
+            NotificationCenter nc = NotificationCenter.getInstance();
+            nc.postNotification(event, this, info);
         });
         return true;
     }
