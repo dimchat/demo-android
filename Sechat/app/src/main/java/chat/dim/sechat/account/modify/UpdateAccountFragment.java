@@ -26,8 +26,8 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.account.AccountViewModel;
@@ -121,7 +121,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         if (identifier == null) {
             throw new NullPointerException("current user ID empty");
         }
-        Profile profile = mViewModel.getProfile(Profile.BIO);
+        Document profile = mViewModel.getDocument(Document.PROFILE);
         assert profile != null : "profile object should not be null: " + identifier;
 
         // upload avatar

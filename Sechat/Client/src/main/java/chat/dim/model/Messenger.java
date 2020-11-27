@@ -52,6 +52,8 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.Document;
+import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
@@ -60,8 +62,6 @@ import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.MuteCommand;
-import chat.dim.protocol.Profile;
-import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
@@ -258,7 +258,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         sendContent(content, ID.EVERYONE, null, StarShip.SLOWER);
     }
 
-    public void broadcastProfile(Profile profile) {
+    public void broadcastProfile(Document profile) {
         User user = server.getCurrentUser();
         if (user == null) {
             // TODO: save the message content in waiting queue
@@ -274,7 +274,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             profile = null;
         }
         // pack and send profile to every contact
-        Command cmd = new ProfileCommand(identifier, profile);
+        Command cmd = new DocumentCommand(identifier, profile);
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID contact : contacts) {
@@ -283,7 +283,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         }
     }
 
-    public boolean postProfile(Profile profile, Meta meta) {
+    public boolean postProfile(Document profile, Meta meta) {
         ID identifier = profile.getIdentifier();
         // check profile
         Facebook facebook = (Facebook) getFacebook();
@@ -292,7 +292,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         } else {
             profile = null;
         }
-        Command cmd = new ProfileCommand(identifier, meta, profile);
+        Command cmd = new DocumentCommand(identifier, meta, profile);
         return sendCommand(cmd, StarShip.SLOWER);
     }
 
@@ -367,7 +367,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         Log.info("querying profile: " + identifier);
 
         // query from DIM network
-        Command cmd = new ProfileCommand(identifier);
+        Command cmd = new DocumentCommand(identifier);
         return sendCommand(cmd, StarShip.SLOWER);
     }
 

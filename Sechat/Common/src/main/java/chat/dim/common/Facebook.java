@@ -38,16 +38,16 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.ContactTable;
+import chat.dim.database.DocumentTable;
 import chat.dim.database.GroupTable;
 import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
-import chat.dim.database.ProfileTable;
 import chat.dim.database.UserTable;
 import chat.dim.mkm.BroadcastAddress;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.Profile;
 
 public class Facebook extends chat.dim.Facebook {
     public Facebook() {
@@ -91,7 +91,7 @@ public class Facebook extends chat.dim.Facebook {
 
     public PrivateKeyTable privateTable = null;
     public MetaTable metaTable = null;
-    public ProfileTable profileTable = null;
+    public DocumentTable docsTable = null;
 
     public AddressNameTable ansTable = null;
 
@@ -189,13 +189,13 @@ public class Facebook extends chat.dim.Facebook {
     //-------- Profile
 
     @Override
-    public boolean saveProfile(Profile profile) {
+    public boolean saveDocument(Document profile) {
         if (!verify(profile)) {
             // profile's signature not match
             return false;
         }
         profile.remove(EXPIRES_KEY);
-        return profileTable.saveProfile(profile);
+        return docsTable.saveDocument(profile);
     }
 
     //-------- Relationship
@@ -243,7 +243,7 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(getID(identifier));
     }
     public String getNickname(ID identifier) {
-        Profile profile = getProfile(identifier, Profile.ANY);
+        Document profile = getDocument(identifier, Document.ANY);
         assert profile != null : "profile object should not be null: " + identifier;
         return profile.getName();
     }
@@ -276,15 +276,15 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     @Override
-    public Profile getProfile(ID identifier, String type) {
+    public Document getDocument(ID identifier, String type) {
         // try from database
-        Profile profile = profileTable.getProfile(identifier, type);
+        Document profile = docsTable.getDocument(identifier, type);
         if (isEmpty(profile)) {
             // try from immortals
             if (identifier.getType() == NetworkType.Main.value) {
-                Profile tai = immortals.getProfile(identifier, type);
+                Document tai = immortals.getDocument(identifier, type);
                 if (tai != null) {
-                    profileTable.saveProfile(tai);
+                    docsTable.saveDocument(tai);
                     return tai;
                 }
             }
@@ -294,7 +294,7 @@ public class Facebook extends chat.dim.Facebook {
         return profile;
     }
 
-    public boolean isSigned(Profile profile) {
+    public boolean isSigned(Document profile) {
         if (isEmpty(profile)) {
             return false;
         }
@@ -302,7 +302,7 @@ public class Facebook extends chat.dim.Facebook {
         return base64 != null && base64.length() > 0;
     }
 
-    public boolean isExpired(Profile profile) {
+    public boolean isExpired(Document profile) {
         long now = (new Date()).getTime();
         Number expires = (Number) profile.get(EXPIRES_KEY);
         if (expires == null) {

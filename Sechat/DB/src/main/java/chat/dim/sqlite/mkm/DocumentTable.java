@@ -34,28 +34,28 @@ import java.util.Map;
 
 import chat.dim.Entity;
 import chat.dim.format.Base64;
-import chat.dim.mkm.BaseProfile;
+import chat.dim.mkm.BaseDocument;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Profile;
 import chat.dim.sqlite.DataTable;
 import chat.dim.utils.Log;
 
-public final class ProfileTable extends DataTable implements chat.dim.database.ProfileTable {
+public final class DocumentTable extends DataTable implements chat.dim.database.DocumentTable {
 
-    private ProfileTable() {
+    private DocumentTable() {
         super(EntityDatabase.getInstance());
     }
 
-    private static ProfileTable ourInstance;
-    public static ProfileTable getInstance() {
+    private static DocumentTable ourInstance;
+    public static DocumentTable getInstance() {
         if (ourInstance == null) {
-            ourInstance = new ProfileTable();
+            ourInstance = new DocumentTable();
         }
         return ourInstance;
     }
 
     // memory caches
-    private Map<String, Profile> profileTable = new HashMap<>();
+    private Map<String, Document> docsTable = new HashMap<>();
 
     //
     //  chat.dim.database.UserTable
@@ -63,17 +63,17 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
 
     // TODO: support multi profiles
     @Override
-    public boolean saveProfile(Profile profile) {
-        ID identifier = profile.getIdentifier();
+    public boolean saveDocument(Document doc) {
+        ID identifier = doc.getIdentifier();
         // 0. check duplicate record
-        if (getProfile(identifier, Profile.ANY).containsKey("data")) {
-            Log.info("profile exists, update it: " + identifier);
+        if (getDocument(identifier, Document.ANY).containsKey("data")) {
+            Log.info("entity document exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
         }
 
-        String data = (String) profile.get("data");
-        String base64 = (String) profile.get("signature");
+        String data = (String) doc.get("data");
+        String base64 = (String) doc.get("signature");
         byte[] signature;
         if (base64 != null) {
             signature = Base64.decode(base64);
@@ -89,19 +89,19 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
         if (insert(EntityDatabase.T_PROFILE, null, values) < 0) {
             return false;
         }
-        Log.info("-------- profile updated: " + identifier);
+        Log.info("-------- entity document updated: " + identifier);
 
         // 2. store into memory cache
-        profileTable.put(identifier.toString(), profile);
+        docsTable.put(identifier.toString(), doc);
         return true;
     }
 
     @Override
-    public Profile getProfile(ID entity, String type) {
+    public Document getDocument(ID entity, String type) {
         // 1. try from memory cache
-        Profile profile = profileTable.get(entity.toString());
-        if (profile != null) {
-            return profile;
+        Document doc = docsTable.get(entity.toString());
+        if (doc != null) {
+            return doc;
         }
 
         // 2. try from database
@@ -120,18 +120,18 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
                 info.put("data", data);
                 info.put("signature", Base64.encode(signature));
 
-                profile = Entity.parseProfile(info);
+                doc = Entity.parseDocument(info);
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();
         }
-        if (profile == null) {
-            // 2.1. place an empty profile for cache
-            profile = new BaseProfile(entity);
+        if (doc == null) {
+            // 2.1. place an empty document for cache
+            doc = new BaseDocument(entity);
         }
 
         // 3. store into memory cache
-        profileTable.put(entity.toString(), profile);
-        return profile;
+        docsTable.put(entity.toString(), doc);
+        return doc;
     }
 }

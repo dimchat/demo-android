@@ -21,13 +21,13 @@ import java.util.Set;
 import chat.dim.GroupManager;
 import chat.dim.User;
 import chat.dim.crypto.SignKey;
-import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.mkm.BaseBulletin;
 import chat.dim.model.Facebook;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.CandidateList;
 import chat.dim.sechat.group.CandidateViewAdapter;
@@ -105,10 +105,10 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
                 assert user != null : "failed to get current user";
                 SignKey key = facebook.getPrivateKeyForSignature(user.identifier);
                 assert key != null : "failed to get private key: " + user.identifier;
-                Profile profile = new UserProfile(identifier);
+                Document profile = new BaseBulletin(identifier);
                 profile.setName(newName);
                 profile.sign(key);
-                facebook.saveProfile(profile);
+                facebook.saveDocument(profile);
             }
         }
 

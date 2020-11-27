@@ -22,9 +22,9 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.Alert;
@@ -152,7 +152,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
         Meta meta = user.getMeta();
-        Profile profile = user.getProfile(Profile.VISA);
+        Document profile = user.getDocument(Document.VISA);
 
         Facebook facebook = Facebook.getInstance();
 
@@ -169,7 +169,7 @@ public class RegisterFragment extends Fragment {
             SignKey sk = facebook.getPrivateKeyForSignature(user.identifier);
             assert sk != null : "failed to get private key: " + user.identifier;
             profile.sign(sk);
-            facebook.saveProfile(profile);
+            facebook.saveDocument(profile);
         }
 
         // 3. set current user

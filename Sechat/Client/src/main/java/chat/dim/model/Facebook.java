@@ -37,9 +37,9 @@ import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.Profile;
 import chat.dim.utils.Log;
 
 public final class Facebook extends chat.dim.common.Facebook {
@@ -52,7 +52,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     public String getAvatar(ID identifier) {
         String url = null;
-        Profile profile = getProfile(identifier, Profile.BIO);
+        Document profile = getDocument(identifier, Document.PROFILE);
         if (!isEmpty(profile)) {
             if (profile instanceof UserProfile) {
                 url = ((UserProfile) profile).getAvatar();
@@ -85,8 +85,8 @@ public final class Facebook extends chat.dim.common.Facebook {
     //-------- Profile
 
     @Override
-    public boolean saveProfile(Profile profile) {
-        if (!super.saveProfile(profile)) {
+    public boolean saveDocument(Document profile) {
+        if (!super.saveDocument(profile)) {
             return false;
         }
         ID entity = getID(profile.getIdentifier());
@@ -208,18 +208,18 @@ public final class Facebook extends chat.dim.common.Facebook {
     }
 
     @Override
-    public Profile getProfile(ID identifier, String type) {
+    public Document getDocument(ID identifier, String type) {
         // try from database
-        Profile profile = super.getProfile(identifier, type);
-        if (isEmpty(profile)/* && isExpired(profile)*/) {
+        Document doc = super.getDocument(identifier, type);
+        if (isEmpty(doc)/* && isExpired(profile)*/) {
             // update EXPIRES value
             long now = (new Date()).getTime();
-            profile.put(EXPIRES_KEY, now + EXPIRES);
+            doc.put(EXPIRES_KEY, now + EXPIRES);
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
             messenger.queryProfile(identifier);
         }
-        return profile;
+        return doc;
     }
 
     //-------- UserDataSource

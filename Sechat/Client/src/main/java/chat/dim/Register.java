@@ -33,16 +33,16 @@ import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
-import chat.dim.mkm.BaseProfile;
+import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.plugins.DefaultMeta;
 import chat.dim.mkm.plugins.ETHMeta;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.Profile;
 import chat.dim.utils.Log;
 
 /**
@@ -89,13 +89,13 @@ public class Register {
         //
         PrivateKey priKey = KeyFactory.getPrivateKey(AsymmetricKey.RSA);
         PublicKey msgKey = priKey.getPublicKey();
-        Profile profile = createUserProfile(identifier, name, avatar, (EncryptKey) msgKey);
+        Document profile = createUserProfile(identifier, name, avatar, (EncryptKey) msgKey);
         // 5. save private key, meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
         facebook.savePrivateKey(privateKey, identifier, PrivateKeyTable.META);
         facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.PROFILE);
-        facebook.saveProfile(profile);
+        facebook.saveDocument(profile);
         // 6. create user
         return facebook.getUser(identifier);
     }
@@ -121,18 +121,18 @@ public class Register {
         // 3. generate ID
         ID identifier = meta.generateID(NetworkType.Polylogue.value);
         // 4. generate profile
-        Profile profile = createGroupProfile(identifier, name);
+        Document profile = createGroupProfile(identifier, name);
         // 5. save meta & profile in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
-        facebook.saveProfile(profile);
+        facebook.saveDocument(profile);
         // 6. add founder as first member
         facebook.addMember(founder, identifier);
         // 7. create group
         return facebook.getGroup(identifier);
     }
 
-    public Profile createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
+    public UserProfile createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
         assert NetworkType.isUser(identifier.getType()) : "ID error";
         assert privateKey != null : "private key not found";
         UserProfile profile = new UserProfile(identifier);
@@ -142,17 +142,17 @@ public class Register {
         profile.sign(privateKey);
         return profile;
     }
-    public Profile createGroupProfile(ID identifier, String name) {
+    public BaseBulletin createGroupProfile(ID identifier, String name) {
         assert identifier != null : "ID error";
         assert privateKey != null : "profile not found";
-        Profile profile = new BaseProfile(identifier);
+        BaseBulletin profile = new BaseBulletin(identifier);
         profile.setName(name);
         profile.sign(privateKey);
         return profile;
     }
 
     // upload meta & profile for ID
-    public boolean upload(ID identifier, Meta meta, Profile profile) {
+    public boolean upload(ID identifier, Meta meta, Document profile) {
         assert identifier != null : "ID error";
         assert identifier.equals(profile.getIdentifier()) : "profile ID not match";
         Messenger messenger = Messenger.getInstance();
@@ -169,12 +169,12 @@ public class Register {
         Register userRegister = new Register();
         User user = userRegister.createUser("Albert Moky", null);
         Log.info("user: " + user);
-        //userRegister.upload(user.identifier, user.getMeta(), user.getProfile());
+        //userRegister.upload(user.identifier, user.getMeta(), user.getDocument());
 
         // 2. create group
         Register groupRegister = new Register(NetworkType.Polylogue);
         Group group = groupRegister.createGroup(user.identifier, "DIM Group");
         Log.info("group: " + group);
-        //groupRegister.upload(group.identifier, group.getMeta(), group.getProfile());
+        //groupRegister.upload(group.identifier, group.getMeta(), group.getDocument());
     }
 }

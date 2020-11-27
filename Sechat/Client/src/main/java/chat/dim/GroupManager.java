@@ -30,11 +30,11 @@ import java.util.List;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Document;
+import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
-import chat.dim.protocol.Profile;
-import chat.dim.protocol.ProfileCommand;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QuitCommand;
@@ -66,12 +66,12 @@ public class GroupManager {
         // 1. send group info to all
         Meta meta = facebook.getMeta(group);
         assert meta != null : "failed to get meta for group: " + group;
-        Profile profile = facebook.getProfile(group, Profile.BULLETIN);
+        Document profile = facebook.getDocument(group, Document.BULLETIN);
         if (facebook.isEmpty(profile)) {
             // empty profile
             cmd = new MetaCommand(group, meta);
         } else {
-            cmd = new ProfileCommand(group, meta, profile);
+            cmd = new DocumentCommand(group, meta, profile);
         }
         messenger.sendCommand(cmd, StarShip.NORMAL);         // to current station
         broadcastGroupCommand(cmd, group);  // to existed relationship

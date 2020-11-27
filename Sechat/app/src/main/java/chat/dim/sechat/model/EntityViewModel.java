@@ -29,8 +29,8 @@ import androidx.lifecycle.ViewModel;
 
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Profile;
 import chat.dim.threading.BackgroundThreads;
 
 public class EntityViewModel extends ViewModel {
@@ -65,7 +65,7 @@ public class EntityViewModel extends ViewModel {
     //
     //  Name string
     //
-    private static String getName(ID identifier, Profile profile) {
+    private static String getName(ID identifier, Document profile) {
         String name = profile.getName();
         if (name != null) {
             return name;
@@ -79,28 +79,28 @@ public class EntityViewModel extends ViewModel {
 
 
     public static String getName(ID identifier) {
-        return getName(identifier, getProfile(identifier, Profile.ANY));
+        return getName(identifier, getDocument(identifier, Document.ANY));
     }
     public String getName() {
-        return getName(identifier, getProfile(Profile.ANY));
+        return getName(identifier, getDocument(Document.ANY));
     }
 
     //
-    //  Profile
+    //  Entity Document
     //
-    public static Profile getProfile(ID identifier, String type) {
+    public static Document getDocument(ID identifier, String type) {
         if (identifier == null) {
             throw new NullPointerException("entity ID empty");
         }
-        return facebook.getProfile(identifier, type);
+        return facebook.getDocument(identifier, type);
     }
-    public Profile getProfile(String type) {
-        return getProfile(getIdentifier(), type);
+    public Document getDocument(String type) {
+        return getDocument(getIdentifier(), type);
     }
 
     public void refreshProfile() {
         BackgroundThreads.wait(() -> {
-            Profile profile = getProfile(Profile.ANY);
+            Document profile = getDocument(Document.ANY);
             if (facebook.isEmpty(profile) || facebook.isExpired(profile)) {
                 Messenger messenger = Messenger.getInstance();
                 messenger.queryProfile(identifier);

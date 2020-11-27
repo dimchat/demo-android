@@ -20,11 +20,11 @@ import chat.dim.mkm.plugins.DefaultMeta;
 import chat.dim.mkm.plugins.ETHMeta;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Messenger;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.Profile;
 import chat.dim.sechat.model.UserViewModel;
 
 public class AccountViewModel extends UserViewModel {
@@ -47,7 +47,7 @@ public class AccountViewModel extends UserViewModel {
         return user.getContacts();
     }
 
-    public void updateProfile(Profile profile) {
+    public void updateProfile(Document profile) {
         ID identifier = getIdentifier();
         if (identifier == null || !identifier.equals(profile.getIdentifier())) {
             return;
@@ -59,7 +59,7 @@ public class AccountViewModel extends UserViewModel {
         }
         profile.sign(privateKey);
         // save signed profile
-        if (!facebook.saveProfile(profile)) {
+        if (!facebook.saveDocument(profile)) {
             return;
         }
         Messenger messenger = Messenger.getInstance();
@@ -274,7 +274,7 @@ public class AccountViewModel extends UserViewModel {
             if (profile.sign(privateKey) == null) {
                 return null;
             }
-            if (!facebook.saveProfile(profile)) {
+            if (!facebook.saveDocument(profile)) {
                 return null;
             }
         }

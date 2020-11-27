@@ -30,10 +30,10 @@ import chat.dim.sqlite.dkd.MessageTable;
 import chat.dim.sqlite.key.MsgKeyTable;
 import chat.dim.sqlite.key.PrivateKeyTable;
 import chat.dim.sqlite.mkm.ContactTable;
+import chat.dim.sqlite.mkm.DocumentTable;
 import chat.dim.sqlite.mkm.EntityDatabase;
 import chat.dim.sqlite.mkm.GroupTable;
 import chat.dim.sqlite.mkm.MetaTable;
-import chat.dim.sqlite.mkm.ProfileTable;
 import chat.dim.sqlite.mkm.UserTable;
 import chat.dim.ui.Application;
 
@@ -66,7 +66,7 @@ public final class SechatApp extends Application {
 
         facebook.privateTable = PrivateKeyTable.getInstance();
         facebook.metaTable = MetaTable.getInstance();
-        facebook.profileTable = ProfileTable.getInstance();
+        facebook.docsTable = DocumentTable.getInstance();
         facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
         facebook.groupTable = GroupTable.getInstance();

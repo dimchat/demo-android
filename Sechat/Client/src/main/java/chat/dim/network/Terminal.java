@@ -38,9 +38,9 @@ import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
-import chat.dim.protocol.Profile;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.stargate.StarShip;
 
@@ -299,7 +299,7 @@ public class Terminal implements StationDelegate {
         assert user != null : "current user not found";
 
         // post current profile to station
-        Profile profile = user.getProfile(Profile.BIO);
+        Document profile = user.getDocument(Document.PROFILE);
         if (!facebook.isEmpty(profile)) {
             messenger.postProfile(profile, null);
         }

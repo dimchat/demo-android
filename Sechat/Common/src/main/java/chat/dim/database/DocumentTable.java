@@ -25,12 +25,12 @@
  */
 package chat.dim.database;
 
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Profile;
 
-public interface ProfileTable {
+public interface DocumentTable {
 
-    boolean saveProfile(Profile profile);
+    boolean saveDocument(Document doc);
 
-    Profile getProfile(ID entity, String type);
+    Document getDocument(ID entity, String type);
 }

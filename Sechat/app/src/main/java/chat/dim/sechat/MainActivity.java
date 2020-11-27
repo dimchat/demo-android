@@ -21,9 +21,9 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.Profile;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (meta == null) {
                 throw new NullPointerException("failed to get user meta: " + user);
             }
-            Profile profile = user.getProfile(Profile.BIO);
+            Document profile = user.getDocument(Document.PROFILE);
             // check profile
             Facebook facebook = Facebook.getInstance();
             if (facebook.isSigned(profile)) {
