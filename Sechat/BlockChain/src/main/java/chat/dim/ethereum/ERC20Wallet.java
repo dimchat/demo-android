@@ -25,19 +25,13 @@
  */
 package chat.dim.ethereum;
 
-import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.Function;
 import org.web3j.crypto.Credentials;
-import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,17 +117,6 @@ public abstract class ERC20Wallet implements Wallet {
      */
     abstract protected BigInteger toBalance(double coins);
 
-    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
-    private EthCall queryBalance() {
-        Function function = new Function("balanceOf",
-                Arrays.asList(new Address(address)),
-                Arrays.asList(new TypeReference<Address>() {}));
-        String encode = FunctionEncoder.encode(function);
-        Transaction tx = Transaction.createEthCallTransaction(address, contractAddress, encode);
-        Ethereum client = Ethereum.getInstance();
-        return client.ethCall(tx);
-    }
-
     @Override
     public double getBalance(boolean refresh) {
         if (refresh) {
@@ -143,7 +126,8 @@ public abstract class ERC20Wallet implements Wallet {
                 info.put("name", getName().getValue());
                 info.put("address", address);
                 // get ERC20 balance
-                EthCall erc20GetBalance = queryBalance();
+                Ethereum client = Ethereum.getInstance();
+                EthCall erc20GetBalance = client.getBalance(address, contractAddress);
                 if (erc20GetBalance == null || erc20GetBalance.hasError()) {
                     nc.postNotification(Wallet.BalanceQueryFailed, this, info);
                 } else {

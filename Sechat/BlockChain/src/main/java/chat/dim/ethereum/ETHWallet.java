@@ -28,6 +28,7 @@ package chat.dim.ethereum;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
@@ -45,8 +46,8 @@ public class ETHWallet implements Wallet {
     private final Credentials credentials;
     private final String address;
 
-    private BigInteger gasPrice = new BigInteger("58000000000");  // wei
-    private BigInteger gasLimit = new BigInteger("21000");
+    private BigInteger gasPrice = null; //new BigInteger("58000000000");  // wei
+    private BigInteger gasLimit = null; //new BigInteger("21000");
 
     public ETHWallet(Credentials credentials) {
         super();
@@ -133,6 +134,26 @@ public class ETHWallet implements Wallet {
         return getBalance();
     }
 
+    private static String transfer(Credentials fromAccount, String toAddress, double eth) {
+        Ethereum client = Ethereum.getInstance();
+        TransactionReceipt receipt = client.sendFunds(fromAccount, toAddress, new BigDecimal(eth));
+        if (receipt == null) {
+            return null;
+        } else {
+            return receipt.getTransactionHash();
+        }
+    }
+    private static String transfer(Credentials fromAccount, String toAddress, BigInteger sum,
+                                   BigInteger gasPrice, BigInteger gasLimit) {
+        Ethereum client = Ethereum.getInstance();
+        EthSendTransaction tx = client.ethSendTransaction(fromAccount, toAddress, sum, gasPrice, gasLimit);
+        if (tx == null || tx.hasError()) {
+            return null;
+        } else {
+            return tx.getTransactionHash();
+        }
+    }
+
     @Override
     public boolean transfer(String toAddress, double coins) {
         double balance = getBalance();
@@ -148,10 +169,13 @@ public class ETHWallet implements Wallet {
             info.put("to", toAddress);
             info.put("amount", coins);
             // send funds
-            Ethereum client = Ethereum.getInstance();
-            EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress,
-                    toWei(coins), gasPrice, gasLimit);
-            if (tx == null || tx.hasError()) {
+            String txHash;
+            if (gasPrice == null || gasLimit == null) {
+                txHash = transfer(credentials, toAddress, coins);
+            } else {
+                txHash = transfer(credentials, toAddress, toWei(coins), gasPrice, gasLimit);
+            }
+            if (txHash == null) {
                 info.put("balance", balance);
                 nc.postNotification(Wallet.TransactionError, this, info);
             } else {
@@ -159,7 +183,7 @@ public class ETHWallet implements Wallet {
                 double remaining = balance - coins;
                 setBalance(remaining);
                 info.put("balance", remaining);
-                info.put("transaction", tx);
+                info.put("transactionHash", txHash);
                 nc.postNotification(Wallet.TransactionSuccess, this, info);
             }
         });
