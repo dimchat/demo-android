@@ -1,4 +1,4 @@
-package chat.dim.sechat.chatbox;
+package chat.dim.sechat.chatbox.manage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 
-public class ChatManageViewModel extends EntityViewModel {
+class ChatManageViewModel extends EntityViewModel {
 
     public static int MAX_ITEM_COUNT = 2 * 3 * 5;
 
@@ -37,7 +37,7 @@ public class ChatManageViewModel extends EntityViewModel {
         return false;
     }
 
-    public List<ID> getParticipants(int count) {
+    List<ID> getParticipants(int count) {
         participants.clear();
 
         if (NetworkType.isUser(identifier.getType())) {

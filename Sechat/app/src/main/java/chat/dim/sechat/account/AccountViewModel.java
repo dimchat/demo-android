@@ -47,7 +47,7 @@ public class AccountViewModel extends UserViewModel {
         return user.getContacts();
     }
 
-    void updateProfile(Profile profile) {
+    public void updateProfile(Profile profile) {
         ID identifier = getIdentifier();
         if (identifier == null || !identifier.equals(profile.getIdentifier())) {
             return;
@@ -70,7 +70,7 @@ public class AccountViewModel extends UserViewModel {
         messenger.broadcastProfile(profile);
     }
 
-    String serializePrivateInfo() {
+    public String serializePrivateInfo() {
         ID identifier = getIdentifier();
         if (identifier == null) {
             return null;

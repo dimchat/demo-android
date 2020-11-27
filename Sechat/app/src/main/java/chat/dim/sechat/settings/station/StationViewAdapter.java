@@ -1,4 +1,4 @@
-package chat.dim.sechat.settings;
+package chat.dim.sechat.settings.station;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +15,7 @@ import chat.dim.ui.list.RecyclerViewHolder;
 
 public class StationViewAdapter extends RecyclerViewAdapter<StationViewAdapter.ViewHolder, StationList> {
 
-    public StationViewAdapter(StationList list, Listener<ViewHolder> listener) {
+    StationViewAdapter(StationList list, Listener<ViewHolder> listener) {
         super(list, listener);
     }
 

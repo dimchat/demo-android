@@ -17,7 +17,6 @@ import chat.dim.Entity;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
-import chat.dim.model.Facebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -26,6 +25,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.chatbox.manage.ChatManageActivity;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.image.ImagePickerActivity;
 

@@ -57,7 +57,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
             identifier = id;
         }
 
-        ID getIdentifier() {
+        public ID getIdentifier() {
             return identifier;
         }
 

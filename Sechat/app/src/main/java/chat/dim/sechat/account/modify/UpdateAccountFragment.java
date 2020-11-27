@@ -1,4 +1,4 @@
-package chat.dim.sechat.account;
+package chat.dim.sechat.account.modify;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -30,6 +30,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
+import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.Images;
 
@@ -108,7 +109,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         deleteButton.setOnClickListener(v -> deleteAccount());
     }
 
-    public void setAvatarImage(Bitmap bitmap) {
+    void setAvatarImage(Bitmap bitmap) {
         avatarImage = bitmap;
         if (bitmap != null) {
             avatarView.setImageBitmap(avatarImage);

@@ -1,4 +1,4 @@
-package chat.dim.sechat.account;
+package chat.dim.sechat.account.modify;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.sechat.R;
+import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.image.ImagePickerActivity;
 
 public class UpdateAccountActivity extends ImagePickerActivity {
@@ -48,7 +49,7 @@ public class UpdateAccountActivity extends ImagePickerActivity {
         return true;
     }
 
-    void exportAccount(AccountViewModel viewModel) {
+    public void exportAccount(AccountViewModel viewModel) {
         ExportFragment fragment = ExportFragment.newInstance(viewModel);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

@@ -1,4 +1,4 @@
-package chat.dim.sechat.group;
+package chat.dim.sechat.group.invite;
 
 import android.content.Intent;
 import androidx.appcompat.app.ActionBar;
@@ -11,14 +11,14 @@ import chat.dim.Entity;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
-public class ExpelActivity extends AppCompatActivity {
+public class InviteActivity extends AppCompatActivity {
 
-    private ExpelFragment fragment;
+    private InviteFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.expel_activity);
+        setContentView(R.layout.invite_activity);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -28,9 +28,11 @@ public class ExpelActivity extends AppCompatActivity {
         Intent intent = getIntent();
         // get extra info
         ID identifier = Entity.parseID(intent.getStringExtra("ID"));
+        ID from = Entity.parseID(intent.getStringExtra("from"));
 
         if (savedInstanceState == null) {
-            fragment = ExpelFragment.newInstance(identifier);
+            fragment = InviteFragment.newInstance(identifier);
+            fragment.setFrom(from);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, fragment)
                     .commitNow();

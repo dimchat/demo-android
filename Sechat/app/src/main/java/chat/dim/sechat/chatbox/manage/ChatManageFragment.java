@@ -1,4 +1,4 @@
-package chat.dim.sechat.chatbox;
+package chat.dim.sechat.chatbox.manage;
 
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;

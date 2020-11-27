@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import chat.dim.model.Configuration;
 import chat.dim.sechat.R;
+import chat.dim.sechat.account.modify.UpdateAccountActivity;
 import chat.dim.sechat.settings.SettingsActivity;
 import chat.dim.sechat.wallet.WalletActivity;
 import chat.dim.ui.web.WebViewActivity;

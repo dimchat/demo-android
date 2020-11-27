@@ -1,4 +1,4 @@
-package chat.dim.sechat.settings;
+package chat.dim.sechat.settings.station;
 
 import androidx.appcompat.app.AppCompatActivity;
 

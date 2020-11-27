@@ -25,9 +25,10 @@ import chat.dim.ui.list.RecyclerViewHolder;
  */
 public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapter.ViewHolder, CandidateList> {
 
-    ID group = null;
-    ID from = null;
+    public ID group = null;
+    public ID from = null;
 
+    @SuppressWarnings("unchecked")
     public CandidateViewAdapter(CandidateList list, Listener listener) {
         super(list, listener);
     }
@@ -78,7 +79,7 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
 
         final ImageView avatarView;
         final TextView titleView;
-        final CheckBox checkBox;
+        public final CheckBox checkBox;
 
         ViewHolder(View view) {
             super(view);

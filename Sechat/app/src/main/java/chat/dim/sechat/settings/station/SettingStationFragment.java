@@ -1,4 +1,4 @@
-package chat.dim.sechat.settings;
+package chat.dim.sechat.settings.station;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -27,6 +27,7 @@ import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
+import chat.dim.sechat.settings.SettingsViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.ListFragment;

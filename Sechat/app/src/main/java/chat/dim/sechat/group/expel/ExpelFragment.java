@@ -1,4 +1,4 @@
-package chat.dim.sechat.group;
+package chat.dim.sechat.group.expel;
 
 import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -13,9 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import chat.dim.GroupManager;
@@ -23,34 +21,28 @@ import chat.dim.User;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.plugins.UserProfile;
 import chat.dim.model.Facebook;
-import chat.dim.notification.NotificationCenter;
-import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Profile;
 import chat.dim.sechat.R;
+import chat.dim.sechat.group.CandidateViewAdapter;
+import chat.dim.sechat.group.MemberList;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
-public class InviteFragment extends ListFragment<CandidateViewAdapter, CandidateList> {
+public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList> {
 
-    private GroupViewModel mViewModel = null;
-    private ID identifier = null;
-    private ID from = null;
+    private GroupViewModel mViewModel;
+    private ID identifier;
 
     private ImageView groupLogo;
     private EditText groupName;
     private TextView groupOwner;
 
-    public InviteFragment() {
-        super();
-    }
-
-    public static InviteFragment newInstance(ID group) {
-        InviteFragment fragment = new InviteFragment();
+    public static ExpelFragment newInstance(ID group) {
+        ExpelFragment fragment = new ExpelFragment();
         fragment.setIdentifier(group);
         return fragment;
     }
@@ -58,7 +50,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
     private void setIdentifier(ID group) {
         identifier = group;
 
-        dummyList = new CandidateList(group);
+        dummyList = new MemberList(group);
         Listener listener = (Listener<CandidateViewAdapter.ViewHolder>) viewHolder -> {
             if (!viewHolder.checkBox.isEnabled()) {
                 return;
@@ -76,14 +68,6 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         adapter.group = group;
 
         reloadData();
-    }
-
-    void setFrom(ID identifier) {
-        from = identifier;
-        if (NetworkType.isUser(identifier.getType())) {
-            adapter.from = identifier;
-            selected.add(identifier);
-        }
     }
 
     private final Set<ID> selected = new HashSet<>();
@@ -110,18 +94,9 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
             }
         }
 
-        // invite group member(s)
+        // expel group member(s)
         GroupManager gm = new GroupManager(identifier);
-        if (gm.invite(new ArrayList<>(selected))) {
-            if (NetworkType.isUser(from.getType())) {
-                Map<String, Object> info = new HashMap<>();
-                info.put("ID", identifier);
-                info.put("from", from);
-                info.put("members", selected);
-                NotificationCenter nc = NotificationCenter.getInstance();
-                nc.postNotification(NotificationNames.GroupCreated, this, info);
-            }
-
+        if (gm.expel(new ArrayList<>(selected))) {
             Alert.tips(getContext(), R.string.group_members_updated);
             close();
         } else {
@@ -139,10 +114,10 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.invite_fragment, container, false);
+        View view = inflater.inflate(R.layout.expel_fragment, container, false);
 
-        RecyclerView contacts = view.findViewById(R.id.contacts);
-        bindRecyclerView(contacts); // Set the adapter
+        RecyclerView members = view.findViewById(R.id.members);
+        bindRecyclerView(members); // Set the adapter
 
         groupLogo = view.findViewById(R.id.logo);
         groupName = view.findViewById(R.id.name);

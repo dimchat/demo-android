@@ -1,4 +1,4 @@
-package chat.dim.sechat.settings;
+package chat.dim.sechat.settings.station;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class StationViewModel extends UserViewModel {
         return spid;
     }
 
-    static String getCurrentProviderName() {
+    public static String getCurrentProviderName() {
         if (spid == null) {
             if (getCurrentProvider() == null) {
                 return null;
@@ -36,7 +36,7 @@ public class StationViewModel extends UserViewModel {
         return getName(spid);
     }
 
-    static ProviderTable.StationInfo getCurrentStationInfo() {
+    public static ProviderTable.StationInfo getCurrentStationInfo() {
         if (spid == null) {
             if (getCurrentProvider() == null) {
                 return null;
@@ -49,7 +49,7 @@ public class StationViewModel extends UserViewModel {
         return stations.get(0);
     }
 
-    static String getCurrentStationName() {
+    public static String getCurrentStationName() {
         ProviderTable.StationInfo info = getCurrentStationInfo();
         if (info == null || info.identifier == null) {
             return null;
@@ -72,7 +72,7 @@ public class StationViewModel extends UserViewModel {
         }
     }
 
-    static boolean addStation(ID station, String host, int port) {
+    public static boolean addStation(ID station, String host, int port) {
         ID sp = getCurrentProvider();
         if (sp == null) {
             throw new NullPointerException("current SP not found");

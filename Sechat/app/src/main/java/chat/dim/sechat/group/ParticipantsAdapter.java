@@ -31,6 +31,8 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
+import chat.dim.sechat.group.expel.ExpelActivity;
+import chat.dim.sechat.group.invite.InviteActivity;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;

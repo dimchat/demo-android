@@ -34,13 +34,14 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.wallet.WalletViewModel;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
 
 public class TransferFragment extends Fragment implements Observer {
 
-    private TransferViewModel mViewModel;
+    private WalletViewModel mViewModel;
 
     private ID identifier;
     private WalletName walletName;
@@ -132,7 +133,7 @@ public class TransferFragment extends Fragment implements Observer {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(TransferViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(WalletViewModel.class);
         // TODO: Use the ViewModel
 
         Facebook facebook = Facebook.getInstance();
@@ -150,16 +151,11 @@ public class TransferFragment extends Fragment implements Observer {
         calculateFee();
     }
 
-    private double getBalance() {
-        Wallet wallet = mViewModel.getWallet(walletName);
-        double balance = wallet.getBalance(true);
-        return new BigDecimal(balance).doubleValue();
-    }
     private double getAmount() {
         try {
             String amount = amountView.getText().toString();
-            return new BigDecimal(amount).doubleValue();
-        } catch (Exception e) {
+            return Double.parseDouble(amount);
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             return 0;
         }
@@ -167,8 +163,8 @@ public class TransferFragment extends Fragment implements Observer {
     private double getGasPrice() {
         try {
             String price = priceView.getText().toString();
-            return Double.valueOf(price);
-        } catch (Exception e) {
+            return Double.parseDouble(price);
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             return 0;
         }
@@ -176,8 +172,8 @@ public class TransferFragment extends Fragment implements Observer {
     private long getGasLimit() {
         try {
             String limit = limitView.getText().toString();
-            return Long.valueOf(limit);
-        } catch (Exception e) {
+            return Long.parseLong(limit);
+        } catch (NumberFormatException e) {
             e.printStackTrace();
             return 0;
         }
@@ -200,7 +196,8 @@ public class TransferFragment extends Fragment implements Observer {
             Alert.tips(getContext(), "Amount too small");
             return false;
         }
-        double balance = getBalance();
+        Wallet wallet = mViewModel.getWallet(walletName);
+        double balance = wallet.getBalance(true);
         if (balance < amount) {
             Alert.tips(getContext(), R.string.insufficient_funds);
             return false;

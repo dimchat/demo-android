@@ -1,4 +1,4 @@
-package chat.dim.sechat.account;
+package chat.dim.sechat.account.modify;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -16,6 +16,7 @@ import java.util.List;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.sechat.account.AccountViewModel;
 
 public class ExportFragment extends Fragment {
 

@@ -23,6 +23,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.sechat.R;
+import chat.dim.sechat.settings.station.SettingStationActivity;
 
 public class SettingsFragment extends Fragment implements Observer {
 
