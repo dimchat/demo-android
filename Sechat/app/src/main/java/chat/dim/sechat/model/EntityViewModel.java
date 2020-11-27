@@ -79,28 +79,28 @@ public class EntityViewModel extends ViewModel {
 
 
     public static String getName(ID identifier) {
-        return getName(identifier, getProfile(identifier));
+        return getName(identifier, getProfile(identifier, Profile.ANY));
     }
     public String getName() {
-        return getName(identifier, getProfile());
+        return getName(identifier, getProfile(Profile.ANY));
     }
 
     //
     //  Profile
     //
-    public static Profile getProfile(ID identifier) {
+    public static Profile getProfile(ID identifier, String type) {
         if (identifier == null) {
             throw new NullPointerException("entity ID empty");
         }
-        return facebook.getProfile(identifier);
+        return facebook.getProfile(identifier, type);
     }
-    public Profile getProfile() {
-        return getProfile(getIdentifier());
+    public Profile getProfile(String type) {
+        return getProfile(getIdentifier(), type);
     }
 
     public void refreshProfile() {
         BackgroundThreads.wait(() -> {
-            Profile profile = getProfile();
+            Profile profile = getProfile(Profile.ANY);
             if (facebook.isEmpty(profile) || facebook.isExpired(profile)) {
                 Messenger messenger = Messenger.getInstance();
                 messenger.queryProfile(identifier);

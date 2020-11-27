@@ -243,7 +243,7 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(getID(identifier));
     }
     public String getNickname(ID identifier) {
-        Profile profile = getProfile(identifier);
+        Profile profile = getProfile(identifier, Profile.ANY);
         assert profile != null : "profile object should not be null: " + identifier;
         return profile.getName();
     }
@@ -276,13 +276,13 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     @Override
-    public Profile getProfile(ID identifier) {
+    public Profile getProfile(ID identifier, String type) {
         // try from database
-        Profile profile = profileTable.getProfile(identifier);
+        Profile profile = profileTable.getProfile(identifier, type);
         if (isEmpty(profile)) {
             // try from immortals
             if (identifier.getType() == NetworkType.Main.value) {
-                Profile tai = immortals.getProfile(identifier);
+                Profile tai = immortals.getProfile(identifier, type);
                 if (tai != null) {
                     profileTable.saveProfile(tai);
                     return tai;
@@ -326,16 +326,6 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     @Override
-    public SignKey getPrivateKeyForSignature(ID user) {
-        SignKey key = privateTable.getPrivateKeyForSignature(user);
-        if (key == null) {
-            // try immortals
-            key = immortals.getPrivateKeyForSignature(user);
-        }
-        return key;
-    }
-
-    @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
         List<DecryptKey> keys = privateTable.getPrivateKeysForDecryption(user);
         if (keys == null || keys.size() == 0) {
@@ -352,6 +342,26 @@ public class Facebook extends chat.dim.Facebook {
             }
         }
         return keys;
+    }
+
+    @Override
+    public SignKey getPrivateKeyForSignature(ID user) {
+        SignKey key = privateTable.getPrivateKeyForSignature(user);
+        if (key == null) {
+            // try immortals
+            key = immortals.getPrivateKeyForSignature(user);
+        }
+        return key;
+    }
+
+    @Override
+    public SignKey getPrivateKeyForVisaSignature(ID user) {
+        SignKey key = privateTable.getPrivateKeyForVisaSignature(user);
+        if (key == null) {
+            // try immortals
+            key = immortals.getPrivateKeyForVisaSignature(user);
+        }
+        return key;
     }
 
     //-------- GroupDataSource

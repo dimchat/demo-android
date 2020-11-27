@@ -97,31 +97,6 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
 
     @SuppressWarnings("unchecked")
     @Override
-    public PrivateKey getPrivateKeyForSignature(ID user) {
-        // get from memory cache
-        PrivateKey key = signKeyTable.get(user);
-        if (key == null) {
-            String[] columns = {"sk"};
-            String[] selectionArgs = {user.toString()};
-            try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
-                String sk;
-                Map<String, Object> info;
-                if (cursor.moveToNext()) {
-                    sk = cursor.getString(0);
-                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
-                    key = KeyFactory.getPrivateKey(info);
-                }
-            }
-            // cache it
-            if (key != null) {
-                signKeyTable.put(user, key);
-            }
-        }
-        return key;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
         // get from memory cache
         List<DecryptKey> keys = decryptKeysTable.get(user);
@@ -148,5 +123,36 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             }
         }
         return keys;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public PrivateKey getPrivateKeyForSignature(ID user) {
+        // get from memory cache
+        PrivateKey key = signKeyTable.get(user);
+        if (key == null) {
+            String[] columns = {"sk"};
+            String[] selectionArgs = {user.toString()};
+            try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
+                String sk;
+                Map<String, Object> info;
+                if (cursor.moveToNext()) {
+                    sk = cursor.getString(0);
+                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
+                    key = KeyFactory.getPrivateKey(info);
+                }
+            }
+            // cache it
+            if (key != null) {
+                signKeyTable.put(user, key);
+            }
+        }
+        return key;
+    }
+
+    @Override
+    public PrivateKey getPrivateKeyForVisaSignature(ID user) {
+        // TODO: support multi private keys
+        return getPrivateKeyForSignature(user);
     }
 }

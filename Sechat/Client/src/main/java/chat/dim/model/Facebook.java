@@ -52,7 +52,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     public String getAvatar(ID identifier) {
         String url = null;
-        Profile profile = getProfile(identifier);
+        Profile profile = getProfile(identifier, Profile.BIO);
         if (!isEmpty(profile)) {
             if (profile instanceof UserProfile) {
                 url = ((UserProfile) profile).getAvatar();
@@ -208,9 +208,9 @@ public final class Facebook extends chat.dim.common.Facebook {
     }
 
     @Override
-    public Profile getProfile(ID identifier) {
+    public Profile getProfile(ID identifier, String type) {
         // try from database
-        Profile profile = super.getProfile(identifier);
+        Profile profile = super.getProfile(identifier, type);
         if (isEmpty(profile)/* && isExpired(profile)*/) {
             // update EXPIRES value
             long now = (new Date()).getTime();

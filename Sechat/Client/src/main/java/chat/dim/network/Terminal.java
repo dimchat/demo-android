@@ -299,7 +299,7 @@ public class Terminal implements StationDelegate {
         assert user != null : "current user not found";
 
         // post current profile to station
-        Profile profile = user.getProfile();
+        Profile profile = user.getProfile(Profile.BIO);
         if (!facebook.isEmpty(profile)) {
             messenger.postProfile(profile, null);
         }

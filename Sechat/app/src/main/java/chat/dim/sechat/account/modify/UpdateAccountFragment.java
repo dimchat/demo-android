@@ -121,7 +121,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         if (identifier == null) {
             throw new NullPointerException("current user ID empty");
         }
-        Profile profile = mViewModel.getProfile();
+        Profile profile = mViewModel.getProfile(Profile.BIO);
         assert profile != null : "profile object should not be null: " + identifier;
 
         // upload avatar

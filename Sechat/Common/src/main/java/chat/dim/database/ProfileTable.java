@@ -32,5 +32,5 @@ public interface ProfileTable {
 
     boolean saveProfile(Profile profile);
 
-    Profile getProfile(ID entity);
+    Profile getProfile(ID entity, String type);
 }

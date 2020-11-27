@@ -66,7 +66,7 @@ public class GroupManager {
         // 1. send group info to all
         Meta meta = facebook.getMeta(group);
         assert meta != null : "failed to get meta for group: " + group;
-        Profile profile = facebook.getProfile(group);
+        Profile profile = facebook.getProfile(group, Profile.BULLETIN);
         if (facebook.isEmpty(profile)) {
             // empty profile
             cmd = new MetaCommand(group, meta);

@@ -152,7 +152,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
         Meta meta = user.getMeta();
-        Profile profile = user.getProfile();
+        Profile profile = user.getProfile(Profile.VISA);
 
         Facebook facebook = Facebook.getInstance();
 

@@ -53,8 +53,10 @@ import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Profile;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
+import chat.dim.protocol.Visa;
 import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
@@ -175,7 +177,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         if (cmd.state == HandshakeCommand.HandshakeState.START) {
             // [Meta protocol]
             rMsg.setMeta(currentUser.getMeta());
-            rMsg.setProfile(currentUser.getProfile());
+            rMsg.setVisa((Visa) currentUser.getProfile(Profile.VISA));
         }
         // send out directly
         Messenger messenger = Messenger.getInstance();

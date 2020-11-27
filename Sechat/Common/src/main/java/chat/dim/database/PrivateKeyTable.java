@@ -51,6 +51,14 @@ public interface PrivateKeyTable {
     boolean savePrivateKey(ID user, PrivateKey key, String type);
 
     /**
+     *  Get private keys for user
+     *
+     * @param user - user ID
+     * @return all keys marked for decryption
+     */
+    List<DecryptKey> getPrivateKeysForDecryption(ID user);
+
+    /**
      *  Get private key for user
      *
      * @param user - user ID
@@ -59,10 +67,10 @@ public interface PrivateKeyTable {
     PrivateKey getPrivateKeyForSignature(ID user);
 
     /**
-     *  Get private keys for user
+     *  Get private key for user
      *
      * @param user - user ID
-     * @return all keys marked for decryption
+     * @return the private key matched with meta.key
      */
-    List<DecryptKey> getPrivateKeysForDecryption(ID user);
+    PrivateKey getPrivateKeyForVisaSignature(ID user);
 }

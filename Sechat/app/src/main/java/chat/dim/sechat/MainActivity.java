@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (meta == null) {
                 throw new NullPointerException("failed to get user meta: " + user);
             }
-            Profile profile = user.getProfile();
+            Profile profile = user.getProfile(Profile.BIO);
             // check profile
             Facebook facebook = Facebook.getInstance();
             if (facebook.isSigned(profile)) {

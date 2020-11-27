@@ -61,11 +61,12 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
     //  chat.dim.database.UserTable
     //
 
+    // TODO: support multi profiles
     @Override
     public boolean saveProfile(Profile profile) {
         ID identifier = profile.getIdentifier();
         // 0. check duplicate record
-        if (getProfile(identifier).containsKey("data")) {
+        if (getProfile(identifier, Profile.ANY).containsKey("data")) {
             Log.info("profile exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
@@ -96,7 +97,7 @@ public final class ProfileTable extends DataTable implements chat.dim.database.P
     }
 
     @Override
-    public Profile getProfile(ID entity) {
+    public Profile getProfile(ID entity, String type) {
         // 1. try from memory cache
         Profile profile = profileTable.get(entity.toString());
         if (profile != null) {
