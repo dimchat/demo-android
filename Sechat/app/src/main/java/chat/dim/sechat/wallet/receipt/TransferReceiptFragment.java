@@ -190,7 +190,7 @@ public class TransferReceiptFragment extends Fragment implements Observer {
         feeView.setText(String.format(Locale.CHINA, "%s ETH", fee.toString()));
 
         BigDecimal gwei = Convert.fromWei(new BigDecimal(price), Convert.Unit.GWEI);
-        gasView.setText(String.format(Locale.CHINA, "GasPrice(%.02f Gwei) * Gas(%d)", gwei.doubleValue(), gas.longValue()));
+        gasView.setText(String.format(Locale.CHINA, "GasPrice(%.02f Gwei) * Gas(%,d)", gwei.doubleValue(), gas.longValue()));
 
         String from = mViewModel.getFromAddress(wallet, tx, receipt);
         String to = mViewModel.getToAddress(wallet, tx, receipt);

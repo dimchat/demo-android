@@ -7,6 +7,7 @@ import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
 
 import java.math.BigDecimal;
@@ -109,7 +110,8 @@ public class TransferReceiptViewModel extends ViewModel {
     String getAmount(Wallet wallet, Transaction tx, TransactionReceipt receipt) {
         if (wallet instanceof ETHWallet) {
             BigInteger value = tx.getValue();
-            return String.format(Locale.CHINA, "%s ETH", value.toString());
+            BigDecimal ether = Convert.fromWei(new BigDecimal(value), Convert.Unit.ETHER);
+            return String.format(Locale.CHINA, "%,f ETH", ether.doubleValue());
         } else if (wallet instanceof ERC20Wallet) {
             List<Log> logs = receipt.getLogs();
             if (logs != null && logs.size() > 0) {
@@ -117,10 +119,10 @@ public class TransferReceiptViewModel extends ViewModel {
                 BigInteger value = Numeric.toBigInt(hex);
                 if (wallet instanceof USDTWallet) {
                     BigDecimal coins = ERC20Convert.fromMicroUSDT(value);
-                    return String.format(Locale.CHINA, "%s USDT", coins.toString());
+                    return String.format(Locale.CHINA, "%,f USDT", coins.doubleValue());
                 } else if (wallet instanceof DIMTWallet) {
                     BigDecimal coins = ERC20Convert.fromAlbert(value);
-                    return String.format(Locale.CHINA, "%s DIMT", coins.toString());
+                    return String.format(Locale.CHINA, "%,f DIMT", coins.doubleValue());
                 }
             }
         }

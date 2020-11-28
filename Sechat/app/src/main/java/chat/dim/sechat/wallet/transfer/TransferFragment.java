@@ -232,7 +232,7 @@ public class TransferFragment extends Fragment implements Observer {
     private boolean checkTransfer() {
         // check amount & balance
         double amount = getAmount();
-        if (amount < 0.01) {
+        if (amount < 0.000001) {
             Alert.tips(getContext(), "Amount too small");
             return false;
         }

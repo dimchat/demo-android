@@ -77,7 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="0.003480 ETH"
+                    android:text="..."
                     android:textAlignment="textEnd"
                     android:textColor="@android:color/black" />
 
@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="GasPrice(58.00 Gwei) * Gas(60000)"
+                    android:text="..."
                     android:textAlignment="textEnd"
                     android:textSize="12sp" />
             </LinearLayout>

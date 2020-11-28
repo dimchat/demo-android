@@ -77,7 +77,7 @@ public class ProfileViewModel extends UserViewModel {
             textView.setTextColor(Color.RED);
         } else {
             double balance = wallet.getBalance(refresh);
-            textView.setText(String.format(Locale.CHINA, "%.06f", balance));
+            textView.setText(String.format(Locale.CHINA, "%,g", balance));
             if (balance < 0) {
                 textView.setText("...");
                 textView.setTextColor(Color.BLUE);
