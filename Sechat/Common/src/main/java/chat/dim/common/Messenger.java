@@ -148,7 +148,6 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public ReliableMessage deserializeMessage(byte[] data) {
         if (data == null || data.length < 2) {

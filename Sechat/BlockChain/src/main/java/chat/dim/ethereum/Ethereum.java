@@ -160,7 +160,7 @@ public class Ethereum {
      * @param txHash - transaction hash
      * @return null on failed
      */
-    EthTransaction ethGetTransactionByHash(String txHash) {
+    public EthTransaction ethGetTransactionByHash(String txHash) {
         if (offline()) {
             return null;
         }
@@ -178,7 +178,7 @@ public class Ethereum {
      * @param txHash - transaction hash
      * @return null on failed
      */
-    EthGetTransactionReceipt ethGetTransactionReceipt(String txHash) {
+    public EthGetTransactionReceipt ethGetTransactionReceipt(String txHash) {
         if (offline()) {
             return null;
         }

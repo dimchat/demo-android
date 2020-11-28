@@ -171,8 +171,8 @@ public class TransferReceiptFragment extends Fragment implements Observer {
         }
         hashView.setText(txHash);
 
-        Transaction tx = mViewModel.getTransactionByHash(wallet, txHash);
-        TransactionReceipt receipt = mViewModel.getTransactionReceipt(wallet, txHash);
+        Transaction tx = mViewModel.getTransactionByHash(txHash);
+        TransactionReceipt receipt = mViewModel.getTransactionReceipt(txHash);
         refreshPage(tx, receipt);
     }
     private void refreshPage(Transaction tx, TransactionReceipt receipt) {
@@ -180,21 +180,20 @@ public class TransferReceiptFragment extends Fragment implements Observer {
             return;
         }
 
-        BigInteger value = tx.getValue();
+        String amount = mViewModel.getAmount(wallet, tx, receipt);
+        amountView.setText(amount);
+
         BigInteger price = tx.getGasPrice();
         BigInteger gas = receipt.getGasUsed();
-
-        String from = tx.getFrom();
-        String to = tx.getTo();
-
-        BigDecimal ether = Convert.fromWei(new BigDecimal(value), Convert.Unit.ETHER);
-        amountView.setText(String.format(Locale.CHINA, "%s ETH", ether.toString()));
 
         BigDecimal fee = Convert.fromWei(new BigDecimal(price.multiply(gas)), Convert.Unit.ETHER);
         feeView.setText(String.format(Locale.CHINA, "%s ETH", fee.toString()));
 
         BigDecimal gwei = Convert.fromWei(new BigDecimal(price), Convert.Unit.GWEI);
         gasView.setText(String.format(Locale.CHINA, "GasPrice(%.02f Gwei) * Gas(%d)", gwei.doubleValue(), gas.longValue()));
+
+        String from = mViewModel.getFromAddress(wallet, tx, receipt);
+        String to = mViewModel.getToAddress(wallet, tx, receipt);
 
         fromView.setText(from);
         toView.setText(to);

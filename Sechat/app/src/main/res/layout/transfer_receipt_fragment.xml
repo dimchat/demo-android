@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0 ETH"
+                android:text="..."
                 android:textAlignment="textEnd"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="textMultiLine"
-                android:text="sender address"
+                android:text="..."
                 android:textAlignment="textEnd"
                 android:textColor="@android:color/black" />
 
@@ -133,7 +133,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="textMultiLine"
-                android:text="sender address"
+                android:text="..."
                 android:textAlignment="textEnd"
                 android:textColor="@android:color/black" />
 
@@ -162,7 +162,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:inputType="textMultiLine"
-                android:text="hash"
+                android:text="..."
                 android:textAlignment="textEnd"
                 android:textColor="@android:color/black" />
 

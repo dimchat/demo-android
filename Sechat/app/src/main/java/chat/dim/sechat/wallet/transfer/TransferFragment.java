@@ -81,7 +81,6 @@ public class TransferFragment extends Fragment implements Observer {
         super.onDestroy();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
