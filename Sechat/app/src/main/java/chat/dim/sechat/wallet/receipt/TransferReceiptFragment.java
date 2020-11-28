@@ -17,14 +17,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.utils.Convert;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.Entity;
-import chat.dim.ethereum.ETHWallet;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
@@ -44,10 +46,10 @@ public class TransferReceiptFragment extends Fragment implements Observer {
     private Map<String, Object> info;
 
     private TextView statusView;
-    private TextView timeView;
 
     private TextView amountView;
     private TextView feeView;
+    private TextView gasView;
     private TextView fromView;
     private TextView toView;
 
@@ -132,10 +134,10 @@ public class TransferReceiptFragment extends Fragment implements Observer {
         View view = inflater.inflate(R.layout.transfer_receipt_fragment, container, false);
 
         statusView = view.findViewById(R.id.statusView);
-        timeView = view.findViewById(R.id.timeView);
 
         amountView = view.findViewById(R.id.amountView);
         feeView = view.findViewById(R.id.feeView);
+        gasView = view.findViewById(R.id.gasView);
         fromView = view.findViewById(R.id.fromView);
         toView = view.findViewById(R.id.toView);
 
@@ -169,31 +171,42 @@ public class TransferReceiptFragment extends Fragment implements Observer {
         }
         hashView.setText(txHash);
 
-        TransactionReceipt receipt = (TransactionReceipt) info.get("receipt");
-        if (receipt == null) {
-            String blockHash = (String) info.get("blockHash");
-
-            if (wallet instanceof ETHWallet) {
-                receipt = ((ETHWallet) wallet).getTransactionReceipt(txHash, blockHash);
-            }
-        }
-        refreshPage(receipt);
+        Transaction tx = mViewModel.getTransactionByHash(wallet, txHash);
+        TransactionReceipt receipt = mViewModel.getTransactionReceipt(wallet, txHash);
+        refreshPage(tx, receipt);
     }
-    private void refreshPage(TransactionReceipt receipt) {
-        if (receipt == null) {
+    private void refreshPage(Transaction tx, TransactionReceipt receipt) {
+        if (tx == null || receipt == null) {
             return;
         }
 
+        BigInteger value = tx.getValue();
+        BigInteger price = tx.getGasPrice();
         BigInteger gas = receipt.getGasUsed();
-        feeView.setText(String.format(Locale.CHINA, "%d", gas.longValue()));
-        fromView.setText(receipt.getFrom());
-        toView.setText(receipt.getTo());
+
+        String from = tx.getFrom();
+        String to = tx.getTo();
+
+        BigDecimal ether = Convert.fromWei(new BigDecimal(value), Convert.Unit.ETHER);
+        amountView.setText(String.format(Locale.CHINA, "%s ETH", ether.toString()));
+
+        BigDecimal fee = Convert.fromWei(new BigDecimal(price.multiply(gas)), Convert.Unit.ETHER);
+        feeView.setText(String.format(Locale.CHINA, "%s ETH", fee.toString()));
+
+        BigDecimal gwei = Convert.fromWei(new BigDecimal(price), Convert.Unit.GWEI);
+        gasView.setText(String.format(Locale.CHINA, "GasPrice(%.02f Gwei) * Gas(%d)", gwei.doubleValue(), gas.longValue()));
+
+        fromView.setText(from);
+        toView.setText(to);
 
         if (receipt.isStatusOK()) {
-            statusView.setText("Success");
+            statusView.setText(R.string.success);
             refreshButton.setEnabled(false);
+            refreshButton.setVisibility(View.GONE);
         } else {
-            statusView.setText("Error");
+            statusView.setText(R.string.tx_waiting);
+            refreshButton.setEnabled(true);
+            refreshButton.setVisibility(View.VISIBLE);
         }
     }
 }

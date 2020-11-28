@@ -65,4 +65,13 @@
     <string name="transfer_sent">交易已提交</string>
     <string name="transfer_failed">交易失败</string>
     <string name="detail">详情</string>
+    <string name="tx_amount">金额</string>
+    <string name="tx_fee">矿工费</string>
+    <string name="tx_from">转出地址</string>
+    <string name="tx_to">转入地址</string>
+    <string name="tx_hash">交易号</string>
+    <string name="success">成功</string>
+    <string name="failed">失败</string>
+    <string name="error">错误</string>
+    <string name="tx_waiting">等待确认</string>
 </resources>

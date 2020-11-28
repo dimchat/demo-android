@@ -19,13 +19,6 @@
         android:textColor="@color/colorPrimary"
         android:textSize="24sp" />
 
-    <TextView
-        android:id="@+id/timeView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="time"
-        android:textAlignment="center" />
-
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -38,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Amount" />
+                android:text="@string/tx_amount" />
 
 
             <TextView
@@ -68,10 +61,10 @@
             android:padding="@dimen/fab_margin">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Fee: " />
+                android:text="@string/tx_fee" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -94,7 +87,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="GasPrice(58.00 Gwei) * Gas(60000)"
-                    android:textAlignment="textEnd" />
+                    android:textAlignment="textEnd"
+                    android:textSize="12sp" />
             </LinearLayout>
 
         </TableRow>
@@ -105,13 +99,13 @@
             android:padding="@dimen/fab_margin">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="From: " />
+                android:text="@string/tx_to" />
 
             <TextView
-                android:id="@+id/fromView"
+                android:id="@+id/toView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -128,13 +122,13 @@
             android:padding="@dimen/fab_margin">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="To: " />
+                android:text="@string/tx_from" />
 
             <TextView
-                android:id="@+id/toView"
+                android:id="@+id/fromView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -157,9 +151,10 @@
             android:padding="@dimen/fab_margin">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tx: " />
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="@string/tx_hash" />
 
             <TextView
                 android:id="@+id/hashView"

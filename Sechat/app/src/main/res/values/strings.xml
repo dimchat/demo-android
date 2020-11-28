@@ -66,4 +66,13 @@
     <string name="transfer_sent">Transaction sent</string>
     <string name="transfer_failed">Transfer failed</string>
     <string name="detail">Detail</string>
+    <string name="tx_amount">Amount</string>
+    <string name="tx_fee">Fee</string>
+    <string name="tx_from">From</string>
+    <string name="tx_to">To</string>
+    <string name="tx_hash">Tx</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
+    <string name="error">Error</string>
+    <string name="tx_waiting">Waiting</string>
 </resources>

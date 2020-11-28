@@ -142,7 +142,7 @@ public class Ethereum {
      * @param address - ETH address
      * @return count of transactions
      */
-    EthGetTransactionCount ethGetTransactionCount(String address) {
+    private EthGetTransactionCount ethGetTransactionCount(String address) {
         if (offline()) {
             return null;
         }
@@ -155,30 +155,34 @@ public class Ethereum {
     }
 
     /**
-     *  Get transaction receipt with hash
+     *  Get transaction by hash
      *
-     * @param txHash    - transaction hash
-     * @param blockHash - block hash
+     * @param txHash - transaction hash
      * @return null on failed
      */
-    EthGetTransactionReceipt ethGetTransactionReceipt(String txHash, String blockHash) {
+    EthTransaction ethGetTransactionByHash(String txHash) {
         if (offline()) {
             return null;
         }
         try {
-            // check block hash
-            if (blockHash == null) {
-                EthTransaction tx = web3j.ethGetTransactionByHash(txHash).send();
-                if (tx.getResult() == null) {
-                    return null;
-                }
-                blockHash = tx.getResult().getBlockHash();
-            }
-            if (Numeric.toBigInt(blockHash).compareTo(BigInteger.ZERO) == 0) {
-                return null;
-            }
+            return web3j.ethGetTransactionByHash(txHash).send();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-            // transaction accepted, get receipt
+    /**
+     *  Get transaction receipt by hash
+     *
+     * @param txHash - transaction hash
+     * @return null on failed
+     */
+    EthGetTransactionReceipt ethGetTransactionReceipt(String txHash) {
+        if (offline()) {
+            return null;
+        }
+        try {
             return web3j.ethGetTransactionReceipt(txHash).send();
         } catch (IOException e) {
             e.printStackTrace();
@@ -202,13 +206,7 @@ public class Ethereum {
             return null;
         }
         // get transaction count as next nonce
-        EthGetTransactionCount count;
-        try {
-            count = web3j.ethGetTransactionCount(fromAccount.getAddress(), DefaultBlockParameterName.LATEST).send();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        EthGetTransactionCount count = ethGetTransactionCount(fromAccount.getAddress());
         BigInteger nonce = count == null ? BigInteger.ZERO : count.getTransactionCount();
         RawTransaction tx = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit, toAddress, sum);
         byte[] signed = TransactionEncoder.signMessage(tx, fromAccount);

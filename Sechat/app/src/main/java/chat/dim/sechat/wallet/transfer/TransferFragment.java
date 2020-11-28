@@ -292,7 +292,14 @@ public class TransferFragment extends Fragment implements Observer {
         }
     }
 
+    private boolean shown = false;
+
     private void showDetail(Map<String, Object> info) {
+        if (shown) {
+            return;
+        }
+        shown = true;
+
         info.put("walletName", walletName.getValue());
         info.put("walletAddress", identifier.getAddress().toString());
 
