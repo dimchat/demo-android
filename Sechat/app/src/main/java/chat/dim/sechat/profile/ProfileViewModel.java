@@ -60,7 +60,7 @@ public class ProfileViewModel extends UserViewModel {
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             if (privateKey == null) {
-                return WalletFactory.getWallet(name, address.toString());
+                return WalletFactory.getWallet(name, address);
             } else {
                 Credentials account = Credentials.create(Hex.encode(privateKey.getData()));
                 return WalletFactory.getWallet(name, account);

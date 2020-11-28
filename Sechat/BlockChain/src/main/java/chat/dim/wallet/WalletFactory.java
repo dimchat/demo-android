@@ -33,6 +33,7 @@ import java.util.Map;
 import chat.dim.ethereum.DIMTWallet;
 import chat.dim.ethereum.ETHWallet;
 import chat.dim.ethereum.USDTWallet;
+import chat.dim.protocol.Address;
 
 public class WalletFactory {
 
@@ -55,11 +56,11 @@ public class WalletFactory {
         }
         return wallet;
     }
-    public static Wallet getWallet(Wallet.Name name, String address) {
+    public static Wallet getWallet(Wallet.Name name, Address address) {
         // check my wallets first
         Map<String, Wallet> caches = myWallets.get(name);
         if (caches != null) {
-            Wallet wallet = caches.get(address);
+            Wallet wallet = caches.get(address.toString());
             if (wallet != null) {
                 return wallet;
             }
@@ -69,11 +70,11 @@ public class WalletFactory {
             caches = new HashMap<>();
             allWallets.put(name, caches);
         }
-        Wallet wallet = caches.get(address);
+        Wallet wallet = caches.get(address.toString());
         if (wallet == null) {
             wallet = creator.create(name, address);
             if (wallet != null) {
-                caches.put(address, wallet);
+                caches.put(address.toString(), wallet);
             }
         }
         return wallet;
@@ -83,14 +84,14 @@ public class WalletFactory {
      *  Wallet Creator
      */
     public interface Creator {
-        Wallet create(Wallet.Name name, String address);
+        Wallet create(Wallet.Name name, Address address);
         Wallet create(Wallet.Name name, Credentials account);
     }
 
     // default creator
     public static Creator creator = new Creator() {
         @Override
-        public Wallet create(Wallet.Name name, String address) {
+        public Wallet create(Wallet.Name name, Address address) {
             if (name.equals(WalletName.ETH)) {
                 return new ETHWallet(address);
             }

@@ -283,7 +283,7 @@ public class TransferFragment extends Fragment implements Observer {
         }
         ID receiver = Entity.parseID(toAddress.getText().toString());
         double amount = getAmount();
-        boolean ok = wallet.transfer(receiver.getAddress().toString(), amount);
+        boolean ok = wallet.transfer(receiver.getAddress(), amount);
         if (ok) {
             transferButton.setEnabled(false);
             Alert.tips(getContext(), R.string.transfer_sent);

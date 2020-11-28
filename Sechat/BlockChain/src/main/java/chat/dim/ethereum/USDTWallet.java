@@ -31,6 +31,8 @@ import org.web3j.protocol.core.methods.response.EthCall;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import chat.dim.Entity;
+import chat.dim.protocol.Address;
 import chat.dim.wallet.WalletName;
 
 public class USDTWallet extends ERC20Wallet {
@@ -38,10 +40,10 @@ public class USDTWallet extends ERC20Wallet {
     static private final String CONTRACT_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
     public USDTWallet(Credentials credentials) {
-        super(credentials, CONTRACT_ADDRESS);
+        super(credentials, Entity.parseID(CONTRACT_ADDRESS).getAddress());
     }
-    public USDTWallet(String address) {
-        super(address, CONTRACT_ADDRESS);
+    public USDTWallet(Address address) {
+        super(address, Entity.parseID(CONTRACT_ADDRESS).getAddress());
     }
 
     @Override

@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.notification.NotificationCenter;
+import chat.dim.protocol.Address;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
@@ -49,17 +50,17 @@ public abstract class ERC20Wallet implements Wallet {
     private BigInteger gasPrice = new BigInteger("58000000000");  // wei
     private BigInteger gasLimit = new BigInteger("60000");
 
-    ERC20Wallet(Credentials credentials, String contractAddress) {
+    ERC20Wallet(Credentials credentials, Address contractAddress) {
         super();
         this.credentials = credentials;
         this.address = credentials.getAddress();
-        this.contractAddress = contractAddress;
+        this.contractAddress = contractAddress.toString();
     }
-    ERC20Wallet(String address, String contractAddress) {
+    ERC20Wallet(Address address, Address contractAddress) {
         super();
         this.credentials = null;
-        this.address = address;
-        this.contractAddress = contractAddress;
+        this.address = address.toString();
+        this.contractAddress = contractAddress.toString();
     }
 
     public void setGasPrice(double gwei) {
@@ -141,7 +142,7 @@ public abstract class ERC20Wallet implements Wallet {
     }
 
     @Override
-    public boolean transfer(String toAddress, double coins) {
+    public boolean transfer(Address toAddress, double coins) {
         double balance = getBalance();
         if (balance < coins) {
             // balance not enough
@@ -152,11 +153,11 @@ public abstract class ERC20Wallet implements Wallet {
             Map<String, Object> info = new HashMap<>();
             info.put("name", getName().getValue());
             info.put("address", address);
-            info.put("to", toAddress);
+            info.put("to", toAddress.toString());
             info.put("amount", coins);
             // send funds
             Ethereum client = Ethereum.getInstance();
-            EthSendTransaction tx = client.sendTransaction(credentials, toAddress, contractAddress,
+            EthSendTransaction tx = client.sendTransaction(credentials, toAddress.toString(), contractAddress,
                     toBalance(coins), gasPrice, gasLimit);
             if (tx == null || tx.hasError()) {
                 event = Wallet.TransactionError;

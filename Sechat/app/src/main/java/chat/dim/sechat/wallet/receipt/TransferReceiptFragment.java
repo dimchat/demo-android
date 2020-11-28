@@ -23,10 +23,12 @@ import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.ethereum.ETHWallet;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.Address;
 import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
@@ -114,12 +116,12 @@ public class TransferReceiptFragment extends Fragment implements Observer {
     };
 
     public static TransferReceiptFragment newInstance(Map<String, Object> info) {
-        String walletName = (String) info.get("walletName");
-        String walletAddress = (String) info.get("walletAddress");
+        WalletName walletName = WalletName.fromString((String) info.get("walletName"));
+        Address walletAddress = Entity.parseID(info.get("walletAddress")).getAddress();
 
         TransferReceiptFragment fragment = new TransferReceiptFragment();
         fragment.info = info;
-        fragment.wallet = WalletFactory.getWallet(WalletName.fromString(walletName), walletAddress);
+        fragment.wallet = WalletFactory.getWallet(walletName, walletAddress);
         return fragment;
     }
 

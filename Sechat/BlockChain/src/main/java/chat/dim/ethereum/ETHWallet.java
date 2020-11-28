@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.notification.NotificationCenter;
+import chat.dim.protocol.Address;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
@@ -55,10 +56,10 @@ public class ETHWallet implements Wallet {
         this.credentials = credentials;
         this.address = credentials.getAddress();
     }
-    public ETHWallet(String address) {
+    public ETHWallet(Address address) {
         super();
         this.credentials = null;
-        this.address = address;
+        this.address = address.toString();
     }
 
     public void setGasPrice(double gwei) {
@@ -135,7 +136,7 @@ public class ETHWallet implements Wallet {
     }
 
     @Override
-    public boolean transfer(String toAddress, double coins) {
+    public boolean transfer(Address toAddress, double coins) {
         double balance = getBalance();
         if (balance < coins) {
             // balance not enough
@@ -146,12 +147,12 @@ public class ETHWallet implements Wallet {
             Map<String, Object> info = new HashMap<>();
             info.put("name", WalletName.ETH.getValue());
             info.put("address", address);
-            info.put("to", toAddress);
+            info.put("to", toAddress.toString());
             info.put("amount", coins);
             // send funds
             Ethereum client = Ethereum.getInstance();
             if (gasPrice == null || gasLimit == null) {
-                TransactionReceipt receipt = client.sendFunds(credentials, toAddress, new BigDecimal(coins));
+                TransactionReceipt receipt = client.sendFunds(credentials, toAddress.toString(), new BigDecimal(coins));
                 if (receipt == null) {
                     event = Wallet.TransactionError;
                     info.put("balance", balance);
@@ -163,7 +164,7 @@ public class ETHWallet implements Wallet {
                     info.put("receipt", receipt);
                 }
             } else {
-                EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress, toWei(coins), gasPrice, gasLimit);
+                EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress.toString(), toWei(coins), gasPrice, gasLimit);
                 if (tx == null || tx.hasError()) {
                     event = Wallet.TransactionError;
                     info.put("balance", balance);

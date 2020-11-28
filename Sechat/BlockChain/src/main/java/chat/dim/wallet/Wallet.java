@@ -25,6 +25,8 @@
  */
 package chat.dim.wallet;
 
+import chat.dim.protocol.Address;
+
 public interface Wallet {
 
     /**
@@ -42,7 +44,7 @@ public interface Wallet {
      * @param coins - amount of coins
      * @return false on insufficient funds
      */
-    boolean transfer(String toAddress, double coins);
+    boolean transfer(Address toAddress, double coins);
 
     /**
      *  Wallet name: BTC, ETH, DIMT, ...
