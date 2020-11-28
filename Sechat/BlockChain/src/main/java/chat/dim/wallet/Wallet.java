@@ -57,5 +57,6 @@ public interface Wallet {
     String BalanceUpdated     = "BalanceUpdated";
     String BalanceQueryFailed = "BalanceQueryFailed";
     String TransactionSuccess = "TransactionSuccess";
+    String TransactionWaiting = "TransactionWaiting";
     String TransactionError   = "TransactionError";
 }

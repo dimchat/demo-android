@@ -1,13 +1,18 @@
 package chat.dim.sechat.wallet.transfer;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,7 +24,9 @@ import android.widget.TextView;
 
 import org.web3j.utils.Convert;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,6 +42,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.wallet.WalletViewModel;
+import chat.dim.sechat.wallet.receipt.TransferReceiptActivity;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
@@ -60,15 +68,20 @@ public class TransferFragment extends Fragment implements Observer {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, Wallet.BalanceUpdated);
+        nc.addObserver(this, Wallet.TransactionSuccess);
+        nc.addObserver(this, Wallet.TransactionError);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, Wallet.BalanceUpdated);
+        nc.removeObserver(this, Wallet.TransactionSuccess);
+        nc.removeObserver(this, Wallet.TransactionError);
         super.onDestroy();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
@@ -80,8 +93,36 @@ public class TransferFragment extends Fragment implements Observer {
                 mViewModel.setBalance(balanceView, walletName, false);
             }
             System.out.println("balance updated: " + info);
+        } else if (name.equals(Wallet.TransactionSuccess)) {
+            Message msg = new Message();
+            msg.what = 9527;
+            msg.obj = info;
+            msgHandler.sendMessage(msg);
+        } else if (name.equals(Wallet.TransactionError)) {
+            Message msg = new Message();
+            msg.what = 9528;
+            msgHandler.sendMessage(msg);
         }
     }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler msgHandler = new Handler() {
+        @SuppressWarnings("unchecked")
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 9527: {
+                    showDetail((HashMap<String, Object>) msg.obj);
+                    break;
+                }
+                case 9528: {
+                    Alert.tips(getContext(), R.string.transfer_failed);
+                    transferButton.setEnabled(true);
+                    break;
+                }
+            }
+        }
+    };
 
     public static TransferFragment newInstance(ID identifier, WalletName walletName) {
         TransferFragment fragment = new TransferFragment();
@@ -244,9 +285,25 @@ public class TransferFragment extends Fragment implements Observer {
         double amount = getAmount();
         boolean ok = wallet.transfer(receiver.getAddress().toString(), amount);
         if (ok) {
+            transferButton.setEnabled(false);
             Alert.tips(getContext(), R.string.transfer_sent);
         } else {
             Alert.tips(getContext(), R.string.transfer_failed);
         }
+    }
+
+    private void showDetail(Map<String, Object> info) {
+        info.put("walletName", walletName.getValue());
+        info.put("walletAddress", identifier.getAddress().toString());
+
+        FragmentActivity activity = getActivity();
+        assert activity != null : "failed to get context";
+
+        Intent intent = new Intent();
+        intent.setClass(activity, TransferReceiptActivity.class);
+        intent.putExtra("info", (Serializable) info);
+        activity.startActivity(intent);
+
+        activity.finish();
     }
 }

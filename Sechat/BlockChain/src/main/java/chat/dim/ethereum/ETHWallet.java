@@ -27,6 +27,7 @@ package chat.dim.ethereum;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.utils.Convert;
@@ -159,6 +160,7 @@ public class ETHWallet implements Wallet {
                     info.put("balance", balance - coins);
                     info.put("blockHash", receipt.getBlockHash());
                     info.put("transactionHash", receipt.getTransactionHash());
+                    info.put("receipt", receipt);
                 }
             } else {
                 EthSendTransaction tx = client.ethSendTransaction(credentials, toAddress, toWei(coins), gasPrice, gasLimit);
@@ -175,5 +177,43 @@ public class ETHWallet implements Wallet {
             nc.postNotification(event, this, info);
         });
         return true;
+    }
+
+    //
+    //  Memory caches for Transaction Receipts
+    //
+    static private final Map<String, TransactionReceipt> receipts = new HashMap<>();
+
+    private TransactionReceipt getReceipt(String txHash) {
+        return receipts.get(txHash);
+    }
+    private void setReceipt(TransactionReceipt receipt) {
+        receipts.put(receipt.getTransactionHash(), receipt);
+    }
+
+    public TransactionReceipt getTransactionReceipt(String txHash, String blockHash) {
+        TransactionReceipt receipt = getReceipt(txHash);
+        if (receipt == null) {
+            BackgroundThreads.rush(() -> {
+                String event;
+                Map<String, Object> info = new HashMap<>();
+                info.put("transactionHash", txHash);
+                // send funds
+                Ethereum client = Ethereum.getInstance();
+                EthGetTransactionReceipt txReceipt = client.ethGetTransactionReceipt(txHash, blockHash);
+                if (txReceipt == null || txReceipt.hasError()) {
+                    event = Wallet.TransactionWaiting;
+                } else {
+                    event = Wallet.TransactionSuccess;
+                    TransactionReceipt result = txReceipt.getResult();
+                    setReceipt(result);
+                    info.put("blockHash", result.getBlockHash());
+                    info.put("receipt", result);
+                }
+                NotificationCenter nc = NotificationCenter.getInstance();
+                nc.postNotification(event, this, info);
+            });
+        }
+        return receipt;
     }
 }

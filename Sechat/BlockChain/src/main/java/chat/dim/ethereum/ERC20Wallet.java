@@ -87,9 +87,6 @@ public abstract class ERC20Wallet implements Wallet {
         }
         return balance.doubleValue();
     }
-    private void setBalance(double balance) {
-        setBalance(new BigDecimal(balance));
-    }
     private void setBalance(BigDecimal balance) {
         Map<String, BigDecimal> balances = allBalances.get(getName());
         if (balances == null) {
@@ -166,10 +163,8 @@ public abstract class ERC20Wallet implements Wallet {
                 info.put("balance", balance);
             } else {
                 event = Wallet.TransactionSuccess;
-                double remaining = balance - coins;
-                setBalance(remaining);
-                info.put("balance", remaining);
-                info.put("transaction", tx);
+                info.put("balance", balance - coins);
+                info.put("transactionHash", tx.getTransactionHash());
             }
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.postNotification(event, this, info);
