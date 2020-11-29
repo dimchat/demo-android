@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import chat.dim.Entity;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -25,7 +24,7 @@ public class ProfileActivity extends AppCompatActivity {
         Facebook facebook = Facebook.getInstance();
         // get extra info
         String string = getIntent().getStringExtra("ID");
-        ID identifier = Entity.parseID(string);
+        ID identifier = ID.parse(string);
         setTitle(facebook.getUsername(identifier));
 
         if (savedInstanceState == null) {

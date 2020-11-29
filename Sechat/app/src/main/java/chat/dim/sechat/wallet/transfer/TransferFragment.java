@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.User;
 import chat.dim.ethereum.ERC20Wallet;
 import chat.dim.ethereum.ETHWallet;
@@ -254,7 +253,7 @@ public class TransferFragment extends Fragment implements Observer {
             return false;
         }
         // check receiver address
-        ID receiver = Entity.parseID(toAddress.getText().toString());
+        ID receiver = ID.parse(toAddress.getText().toString());
         if (receiver == null) {
             Alert.tips(getContext(), "Address error");
             return false;
@@ -280,7 +279,7 @@ public class TransferFragment extends Fragment implements Observer {
             Alert.tips(getContext(), "wallet error");
             return;
         }
-        ID receiver = Entity.parseID(toAddress.getText().toString());
+        ID receiver = ID.parse(toAddress.getText().toString());
         double amount = getAmount();
         boolean ok = wallet.transfer(receiver.getAddress(), amount);
         if (ok) {

@@ -29,7 +29,6 @@ import java.util.Random;
 
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.EncryptKey;
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
@@ -75,7 +74,7 @@ public class Register {
         //
         //  Step 1. generate private key (with asymmetric algorithm)
         //
-        privateKey = KeyFactory.getPrivateKey(PrivateKey.ECC);
+        privateKey = PrivateKey.generate(PrivateKey.ECC);
         //
         //  Step 2. generate meta with private key (and meta seed)
         //
@@ -87,7 +86,7 @@ public class Register {
         //
         //  Step 4. generate profile with ID and sign with private key
         //
-        PrivateKey priKey = KeyFactory.getPrivateKey(AsymmetricKey.RSA);
+        PrivateKey priKey = PrivateKey.generate(AsymmetricKey.RSA);
         PublicKey msgKey = priKey.getPublicKey();
         Document profile = createUserProfile(identifier, name, avatar, (EncryptKey) msgKey);
         // 5. save private key, meta & profile in local storage

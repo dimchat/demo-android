@@ -36,7 +36,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.CompletionHandler;
-import chat.dim.MessageFactory;
 import chat.dim.MessengerDelegate;
 import chat.dim.User;
 import chat.dim.filesys.ExternalStorage;
@@ -126,8 +125,8 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         if (currentUser == null) {
             throw new NullPointerException("current user not set");
         }
-        Envelope env = MessageFactory.getEnvelope(currentUser.identifier, identifier);
-        InstantMessage iMsg = MessageFactory.getInstantMessage(env, cmd);
+        Envelope env = Envelope.create(currentUser.identifier, identifier, null);
+        InstantMessage iMsg = InstantMessage.create(env, cmd);
         Messenger messenger = Messenger.getInstance();
         SecureMessage sMsg = messenger.encryptMessage(iMsg);
         if (sMsg == null) {

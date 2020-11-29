@@ -26,11 +26,11 @@ import java.math.BigInteger;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.Address;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
@@ -119,7 +119,7 @@ public class TransferReceiptFragment extends Fragment implements Observer {
 
     public static TransferReceiptFragment newInstance(Map<String, Object> info) {
         WalletName walletName = WalletName.fromString((String) info.get("walletName"));
-        Address walletAddress = Entity.parseID(info.get("walletAddress")).getAddress();
+        Address walletAddress = ID.parse(info.get("walletAddress")).getAddress();
 
         TransferReceiptFragment fragment = new TransferReceiptFragment();
         fragment.info = info;

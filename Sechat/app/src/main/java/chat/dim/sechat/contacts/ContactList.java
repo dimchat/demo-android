@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.User;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
@@ -102,7 +101,7 @@ public class ContactList extends DummyList<ContactList.Item> {
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
             if (cmd != null) {
                 Map<String, Object> info = cmd.getStation();
-                ID sid = Entity.parseID(info.get("ID"));
+                ID sid = ID.parse(info.get("ID"));
                 Date time = cmd.getTime();
                 if (time != null) {
                     if (sid != null) {

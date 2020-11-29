@@ -40,7 +40,6 @@ import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.mkm.BroadcastAddress;
@@ -300,7 +299,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
         User user = getFacebook().getCurrentUser();
         assert user != null : "current user empty";
         // 1. generate password
-        SymmetricKey password = KeyFactory.getSymmetricKey(SymmetricKey.AES);
+        SymmetricKey password = SymmetricKey.generate(SymmetricKey.AES);
         // 2. encrypt contacts list
         byte[] data = JSON.encode(contacts);
         data = password.encrypt(data);

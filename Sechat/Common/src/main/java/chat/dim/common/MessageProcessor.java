@@ -28,7 +28,6 @@ package chat.dim.common;
 import java.util.Map;
 
 import chat.dim.CommandParser;
-import chat.dim.Entity;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -67,7 +66,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             if (text.contains("failed to get meta for ")) {
                 int pos = text.indexOf(": ");
                 if (pos > 0) {
-                    ID waiting = Entity.parseID(text.substring(pos + 2));
+                    ID waiting = ID.parse(text.substring(pos + 2));
                     if (waiting == null) {
                         throw new NullPointerException("failed to get ID: " + text);
                     } else {

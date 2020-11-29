@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.database.ProviderTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
@@ -146,7 +145,7 @@ public final class NetworkDatabase {
         try {
             String path = Paths.appendPathComponent(identifier.getAddress().toString(), "meta.js");
             Object meta = Resources.loadJSON(path);
-            return Entity.parseMeta((Map<String, Object>) meta);
+            return Meta.parse((Map<String, Object>) meta);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -159,7 +158,7 @@ public final class NetworkDatabase {
         Facebook facebook = Facebook.getInstance();
         Map<String, Object> spConfig = Configuration.getInstance().getDefaultProvider();
 
-        ID sp = Entity.parseID(spConfig.get("ID"));
+        ID sp = ID.parse(spConfig.get("ID"));
         String name = (String) spConfig.get("name");
         String url = (String) spConfig.get("URL");
         addProvider(sp, name, url, 1);
@@ -173,7 +172,7 @@ public final class NetworkDatabase {
         int chosen = 1;
 
         for (Map item : stations) {
-            sid = Entity.parseID(item.get("ID"));
+            sid = ID.parse(item.get("ID"));
             host = (String) item.get("host");
             port = (int) item.get("port");
             name = (String) item.get("name");

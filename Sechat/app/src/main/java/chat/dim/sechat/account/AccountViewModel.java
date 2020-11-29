@@ -8,7 +8,6 @@ import chat.dim.User;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.crypto.plugins.ECCPrivateKey;
@@ -210,7 +209,7 @@ public class AccountViewModel extends UserViewModel {
         Map<String, Object> keyInfo = new HashMap<>();
         keyInfo.put("algorithm", algorithm);
         keyInfo.put("data", keyData);
-        PrivateKey privateKey = KeyFactory.getPrivateKey(keyInfo);
+        PrivateKey privateKey = PrivateKey.parse(keyInfo);
         if (privateKey == null) {
             return null;
         }
@@ -232,8 +231,10 @@ public class AccountViewModel extends UserViewModel {
 
         // generate ID
         ID identifier;
-        if (meta instanceof BTCMeta) {
-            identifier = ((BTCMeta) meta).generateID(network);
+        if (meta instanceof DefaultMeta) {
+            identifier = ((DefaultMeta) meta).generateID(network);
+        } else if (meta instanceof BTCMeta) {
+            identifier = ((BTCMeta) meta).generateID();
         } else {
             identifier = ((ETHMeta) meta).generateID();
         }
@@ -250,7 +251,7 @@ public class AccountViewModel extends UserViewModel {
         if (privateKey instanceof DecryptKey) {
             msgKey = null;
         } else {
-            PrivateKey rsaKey = KeyFactory.getPrivateKey(AsymmetricKey.RSA);
+            PrivateKey rsaKey = PrivateKey.generate(AsymmetricKey.RSA);
             if (!facebook.savePrivateKey(rsaKey, identifier, "P")) {
                 return null;
             }

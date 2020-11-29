@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.Content;
@@ -81,7 +80,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             List<ID> array = new ArrayList<>();
             ID identifier;
             while (cursor.moveToNext()) {
-                identifier = Entity.parseID(cursor.getString(0));
+                identifier = ID.parse(cursor.getString(0));
                 if (identifier == null) {
                     continue;
                 } else if (identifier.getType() == NetworkType.Station.value) {

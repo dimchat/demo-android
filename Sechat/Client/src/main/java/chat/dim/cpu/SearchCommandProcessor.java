@@ -27,7 +27,6 @@ package chat.dim.cpu;
 
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.notification.NotificationCenter;
@@ -45,7 +44,7 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     private Meta getMeta(ID identifier, Map<String, Object> dictionary) {
-        Meta meta = Entity.parseMeta(dictionary);
+        Meta meta = Meta.parse(dictionary);
         if (meta == null) {
             return null;
         }
@@ -65,7 +64,7 @@ public class SearchCommandProcessor extends CommandProcessor {
         ID identifier;
         Meta meta;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
-            identifier = Entity.parseID(entry.getKey());
+            identifier = ID.parse(entry.getKey());
             meta = getMeta(identifier, (Map<String, Object>) entry.getValue());
             if (meta == null) {
                 // TODO: meta error

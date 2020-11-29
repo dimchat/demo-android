@@ -31,7 +31,6 @@ import android.database.Cursor;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
@@ -127,7 +126,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
                     info.put("seed", seed);
                     info.put("fingerprint", Base64.encode(fp));
                 }
-                meta = Entity.parseMeta(info);
+                meta = Meta.parse(info);
             }
         }
         if (meta == null) {

@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
@@ -91,7 +90,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
         Amanuensis clerk = Amanuensis.getInstance();
         // get extra info
         String string = getIntent().getStringExtra("ID");
-        identifier = Entity.parseID(string);
+        identifier = ID.parse(string);
         assert identifier != null : "ID error: " + string;
         Conversation chatBox = clerk.getConversation(identifier);
 

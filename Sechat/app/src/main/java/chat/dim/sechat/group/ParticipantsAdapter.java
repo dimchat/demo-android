@@ -19,7 +19,6 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.Register;
 import chat.dim.User;
@@ -40,8 +39,8 @@ import chat.dim.ui.Alert;
 
 public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
-    public static final ID INVITE_BTN_ID = Entity.parseID("invite@anywhere");
-    public static final ID EXPEL_BTN_ID = Entity.parseID("expel@anywhere");
+    public static final ID INVITE_BTN_ID = ID.parse("invite@anywhere");
+    public static final ID EXPEL_BTN_ID = ID.parse("expel@anywhere");
 
     private final int resId;
     private final ID identifier;

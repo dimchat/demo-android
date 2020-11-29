@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import chat.dim.AddressNameService;
-import chat.dim.Entity;
 import chat.dim.Immortals;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
@@ -156,7 +155,7 @@ public class Facebook extends chat.dim.Facebook {
         if (id != null) {
             return id;
         }
-        return Entity.parseID(string);
+        return ID.parse(string);
     }
 
     //-------- Contacts

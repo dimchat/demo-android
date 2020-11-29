@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.filesys.Resources;
 import chat.dim.protocol.ID;
 
@@ -111,7 +110,7 @@ public final class Configuration {
         ID identifier;
         List<ID> contacts = new ArrayList<>();
         for (Object item : array) {
-            identifier = Entity.parseID(item);
+            identifier = ID.parse(item);
             if (identifier == null) {
                 continue;
             }

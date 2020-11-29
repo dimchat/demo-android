@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.MessageFactory;
 import chat.dim.dmtp.protocol.Message;
 import chat.dim.dmtp.values.BinaryValue;
 import chat.dim.dmtp.values.StringValue;
@@ -187,7 +186,7 @@ public class Utils {
             info.put("profile", JSON.decode(profile.getBytes()));
         }
 
-        return MessageFactory.getReliableMessage(info);
+        return ReliableMessage.parse(info);
     }
 
     private static Data KEYS_PREFIX = new Data("KEYS:".getBytes());

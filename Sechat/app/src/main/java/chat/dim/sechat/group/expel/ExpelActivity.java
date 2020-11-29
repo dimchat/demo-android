@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import chat.dim.Entity;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
@@ -27,7 +26,7 @@ public class ExpelActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         // get extra info
-        ID identifier = Entity.parseID(intent.getStringExtra("ID"));
+        ID identifier = ID.parse(intent.getStringExtra("ID"));
 
         if (savedInstanceState == null) {
             fragment = ExpelFragment.newInstance(identifier);

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.Callback;
-import chat.dim.MessageFactory;
 import chat.dim.User;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -150,8 +149,8 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         if (NetworkType.isGroup(receiver.getType())) {
             content.setGroup(receiver);
         }
-        Envelope env = MessageFactory.getEnvelope(sender, receiver);
-        InstantMessage iMsg = MessageFactory.getInstantMessage(env, content);
+        Envelope env = Envelope.create(sender, receiver, null);
+        InstantMessage iMsg = InstantMessage.create(env, content);
         sendMessage(iMsg);
     }
 

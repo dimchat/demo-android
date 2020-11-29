@@ -25,7 +25,6 @@
  */
 package chat.dim.model;
 
-import chat.dim.MessageFactory;
 import chat.dim.User;
 import chat.dim.common.Messenger;
 import chat.dim.protocol.Content;
@@ -86,8 +85,8 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
         User user = getFacebook().select(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message
-        Envelope env = MessageFactory.getEnvelope(user.identifier, sender);
-        InstantMessage iMsg = MessageFactory.getInstantMessage(env, res);
+        Envelope env = Envelope.create(user.identifier, sender, null);
+        InstantMessage iMsg = InstantMessage.create(env, res);
         // normal response
         getMessenger().sendMessage(iMsg, null, StarShip.SLOWER);
         // DON'T respond to station directly

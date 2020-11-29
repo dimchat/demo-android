@@ -32,7 +32,6 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.format.Base64;
 import chat.dim.mkm.BaseDocument;
 import chat.dim.protocol.Document;
@@ -120,14 +119,14 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
                 info.put("data", data);
                 info.put("signature", Base64.encode(signature));
 
-                doc = Entity.parseDocument(info);
+                doc = Document.parse(info);
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();
         }
         if (doc == null) {
             // 2.1. place an empty document for cache
-            doc = new BaseDocument(entity);
+            doc = new BaseDocument(entity, Document.ANY);
         }
 
         // 3. store into memory cache

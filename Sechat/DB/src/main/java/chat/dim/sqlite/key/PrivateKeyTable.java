@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.crypto.DecryptKey;
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
@@ -111,7 +110,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
                     info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
-                    key = KeyFactory.getPrivateKey(info);
+                    key = PrivateKey.parse(info);
                     if (key instanceof DecryptKey) {
                         keys.add((DecryptKey) key);
                     }
@@ -139,7 +138,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
                     info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
-                    key = KeyFactory.getPrivateKey(info);
+                    key = PrivateKey.parse(info);
                 }
             }
             // cache it

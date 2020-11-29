@@ -28,7 +28,6 @@ package chat.dim.network;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.crypto.KeyFactory;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -188,7 +187,7 @@ public final class FtpServer {
             // file not found
             return null;
         }
-        SymmetricKey key = KeyFactory.getSymmetricKey(password);
+        SymmetricKey key = SymmetricKey.parse(password);
         if (key == null) {
             // key error
             return null;
