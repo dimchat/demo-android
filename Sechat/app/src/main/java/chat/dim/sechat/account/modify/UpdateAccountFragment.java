@@ -22,7 +22,7 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.mkm.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

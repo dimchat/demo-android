@@ -25,10 +25,7 @@
  */
 package chat.dim.common;
 
-import java.util.Map;
-
-import chat.dim.CommandParser;
-import chat.dim.protocol.Command;
+import chat.dim.core.CommandFactory;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
@@ -80,38 +77,12 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     static {
-        // replace command parser
-        Command.parser = new CommandParser() {
+        // register command parsers
+        CommandFactory.register(SearchCommand.SEARCH, SearchCommand::new);
+        CommandFactory.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
 
-            @Override
-            protected Command parseCommand(Map<String, Object> cmd, String name) {
-                // parse core command first
-                Command core = super.parseCommand(cmd, name);
-                if (core != null) {
-                    return core;
-                }
-
-                // search command
-                if (SearchCommand.SEARCH.equals(name)) {
-                    return new SearchCommand(cmd);
-                }
-                if (SearchCommand.ONLINE_USERS.equals(name)) {
-                    return new SearchCommand(cmd);
-                }
-
-                // report command
-                if (ReportCommand.REPORT.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-                if (ReportCommand.ONLINE.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-                if (ReportCommand.OFFLINE.equals(name)) {
-                    return new ReportCommand(cmd);
-                }
-
-                return null;
-            }
-        };
+        CommandFactory.register(ReportCommand.REPORT, ReportCommand::new);
+        CommandFactory.register(ReportCommand.ONLINE, ReportCommand::new);
+        CommandFactory.register(ReportCommand.OFFLINE, ReportCommand::new);
     }
 }

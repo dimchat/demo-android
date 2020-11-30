@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import chat.dim.ethereum.Ethereum;
-import chat.dim.mkm.plugins.ETHAddress;
+import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
 import chat.dim.sechat.profile.ProfileViewModel;
 import chat.dim.threading.BackgroundThreads;

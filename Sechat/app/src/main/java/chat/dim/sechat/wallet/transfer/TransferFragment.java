@@ -33,7 +33,7 @@ import java.util.Map;
 import chat.dim.User;
 import chat.dim.ethereum.ERC20Wallet;
 import chat.dim.ethereum.ETHWallet;
-import chat.dim.mkm.plugins.ETHAddress;
+import chat.dim.mkm.ETHAddress;
 import chat.dim.model.Facebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;

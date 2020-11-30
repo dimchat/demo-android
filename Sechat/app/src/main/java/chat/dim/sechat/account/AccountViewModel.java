@@ -10,14 +10,13 @@ import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
-import chat.dim.crypto.plugins.ECCPrivateKey;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
-import chat.dim.mkm.plugins.BTCMeta;
-import chat.dim.mkm.plugins.DefaultMeta;
-import chat.dim.mkm.plugins.ETHMeta;
-import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.mkm.BTCMeta;
+import chat.dim.mkm.DefaultMeta;
+import chat.dim.mkm.ETHMeta;
+import chat.dim.mkm.UserProfile;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -81,7 +80,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         String pem;
-        if (privateKey instanceof ECCPrivateKey) {
+        if (privateKey.getAlgorithm().equals(AsymmetricKey.ECC)) {
             byte[] data = privateKey.getData();
             if (data == null) {
                 return null;

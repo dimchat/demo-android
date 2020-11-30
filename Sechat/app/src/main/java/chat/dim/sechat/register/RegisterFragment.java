@@ -18,7 +18,7 @@ import android.widget.TextView;
 import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.crypto.SignKey;
-import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.mkm.UserProfile;
 import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;

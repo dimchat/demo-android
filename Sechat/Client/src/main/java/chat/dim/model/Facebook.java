@@ -33,7 +33,7 @@ import java.util.Map;
 
 import chat.dim.GroupManager;
 import chat.dim.mkm.BroadcastAddress;
-import chat.dim.mkm.plugins.UserProfile;
+import chat.dim.mkm.UserProfile;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

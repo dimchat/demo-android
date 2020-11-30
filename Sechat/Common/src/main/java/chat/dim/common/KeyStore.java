@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.core.CipherKeyDelegate;
+import chat.dim.crypto.PlainKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.crypto.plugins.PlainKey;
 import chat.dim.database.MsgKeyTable;
 import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.ID;
