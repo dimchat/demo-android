@@ -47,7 +47,7 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         nc.addObserver(this, NotificationNames.HistoryUpdated);
         nc.addObserver(this, NotificationNames.MessageUpdated);
 
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
     }
 
     @Override

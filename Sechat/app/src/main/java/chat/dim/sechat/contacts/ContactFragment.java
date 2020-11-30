@@ -51,7 +51,7 @@ public class ContactFragment extends ListFragment<ContactViewAdapter, ContactLis
         };
         adapter = new ContactViewAdapter(dummyList, listener);
 
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
     }
 
     @Override

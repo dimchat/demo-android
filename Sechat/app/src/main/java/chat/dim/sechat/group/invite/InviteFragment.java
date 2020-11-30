@@ -77,7 +77,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         adapter = new CandidateViewAdapter(dummyList, listener);
         adapter.group = group;
 
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
     }
 
     void setFrom(ID identifier) {

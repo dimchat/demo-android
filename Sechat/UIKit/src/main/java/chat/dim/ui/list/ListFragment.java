@@ -25,11 +25,8 @@
  */
 package chat.dim.ui.list;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -39,6 +36,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import chat.dim.threading.MainThread;
 
 /**
  * A fragment representing a list of Items.
@@ -94,38 +93,20 @@ public class ListFragment<VA extends RecyclerViewAdapter, L extends DummyList> e
     }
 
     public void reloadData() {
-        if (isReloading) {
-            return;
+        Lock writeLock = dummyLock.writeLock();
+        writeLock.lock();
+        try {
+            if (!isReloading) {
+                isReloading = true;
+                dummyList.reloadData();
+                MainThread.call(this::onReloaded);
+            }
+        } finally {
+            isReloading = false;
+            writeLock.unlock();
         }
-        isReloading = true;
-
-        // reload data in background
-        dummyList.reloadData();
-
-        // notify foreground to refresh
-        Message msg = new Message();
-        msg.what = 0x9527;
-        msgHandler.sendMessage(msg);
     }
     protected void onReloaded() {
         adapter.notifyDataSetChanged();
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == 0x9527) {
-                Lock writeLock = dummyLock.writeLock();
-                writeLock.lock();
-                try {
-                    onReloaded();
-                } finally {
-                    writeLock.unlock();
-
-                    isReloading = false;
-                }
-            }
-        }
-    };
 }

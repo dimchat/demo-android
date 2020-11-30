@@ -43,6 +43,7 @@ import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.stargate.StarShip;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
@@ -222,7 +223,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         mViewModel.refreshProfile();
 
         dummyList.setViewModel(mViewModel);
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
 
         SechatApp.getInstance().setKeyboardListener(getActivity(), new OnKeyboardListener() {
             @Override

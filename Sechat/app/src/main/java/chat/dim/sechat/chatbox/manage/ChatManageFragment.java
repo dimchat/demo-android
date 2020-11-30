@@ -26,6 +26,7 @@ import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 
 public class ChatManageFragment extends Fragment {
@@ -80,6 +81,9 @@ public class ChatManageFragment extends Fragment {
 
     void reloadData() {
         participants = getParticipants();
+        MainThread.call(this::onReloaded);
+    }
+    protected void onReloaded() {
         adapter.notifyDataSetChanged();
     }
 

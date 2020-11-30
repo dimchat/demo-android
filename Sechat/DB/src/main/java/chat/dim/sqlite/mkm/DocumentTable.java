@@ -33,7 +33,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.format.Base64;
+import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.BaseDocument;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
@@ -102,6 +104,10 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         if (doc != null) {
             return doc;
         }
+        if (ID.isUser(entity)) {
+            // TODO: only support VISA document type now
+            type = Document.VISA;
+        }
 
         // 2. try from database
         String[] columns = {"data", "signature"};
@@ -109,24 +115,23 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         try (Cursor cursor = query(EntityDatabase.T_PROFILE, columns, "did=?", selectionArgs, null, null, null)) {
             String data;
             byte[] signature;
-            Map<String, Object> info;
             if (cursor.moveToNext()) {
                 data = cursor.getString(0);
                 signature = cursor.getBlob(1);
-
-                info = new HashMap<>();
-                info.put("ID", entity.toString());
-                info.put("data", data);
-                info.put("signature", Base64.encode(signature));
-
-                doc = Document.parse(info);
+                doc = Document.create(entity, type, data, Base64.encode(signature));
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();
         }
         if (doc == null) {
             // 2.1. place an empty document for cache
-            doc = new BaseDocument(entity, Document.ANY);
+            if (ID.isUser(entity)) {
+                doc = new BaseVisa(entity);
+            } else if (ID.isGroup(entity)) {
+                doc = new BaseBulletin(entity);
+            } else {
+                doc = new BaseDocument(entity, Document.ANY);
+            }
         }
 
         // 3. store into memory cache

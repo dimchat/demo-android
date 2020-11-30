@@ -1,10 +1,7 @@
 package chat.dim.sechat;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -30,6 +27,7 @@ import chat.dim.sechat.contacts.ContactFragment;
 import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sechat.register.RegisterActivity;
+import chat.dim.threading.MainThread;
 
 public class MainActivity extends AppCompatActivity implements Observer {
 
@@ -38,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public MainActivity() {
         super();
+        MainThread.prepare();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.ServerStateChanged);
         nc.addObserver(this, NotificationNames.GroupCreated);
@@ -62,9 +61,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         switch (name) {
             case NotificationNames.ServerStateChanged: {
                 serverState = (String) info.get("state");
-                Message msg = new Message();
-                msg.what = 9527;
-                msgHandler.sendMessage(msg);
+                MainThread.call(this::refreshTitle);
                 break;
             }
             case NotificationNames.GroupCreated:
@@ -76,30 +73,11 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 break;
             }
             case NotificationNames.AccountDeleted: {
-                Message msg = new Message();
-                msg.what = 9528;
-                msgHandler.sendMessage(msg);
+                MainThread.call(this::checkCurrentUser);
                 break;
             }
         }
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 9527: {
-                    refreshTitle();
-                    break;
-                }
-                case 9528: {
-                    checkCurrentUser();
-                    break;
-                }
-            }
-        }
-    };
 
     private User checkCurrentUser() {
         Facebook facebook = Facebook.getInstance();

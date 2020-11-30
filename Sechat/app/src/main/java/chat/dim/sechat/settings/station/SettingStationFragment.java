@@ -28,6 +28,7 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.settings.SettingsViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.Alert;
 import chat.dim.ui.list.ListFragment;
 
@@ -144,7 +145,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
         mViewModel = ViewModelProviders.of(this).get(SettingsViewModel.class);
         // TODO: Use the ViewModel
 
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
 
         addButton.setOnClickListener(v -> addStation());
     }

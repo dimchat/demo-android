@@ -25,9 +25,6 @@
  */
 package chat.dim.ui.grid;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
 import androidx.fragment.app.Fragment;
 import android.widget.GridView;
 
@@ -35,6 +32,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.threading.MainThread;
 import chat.dim.ui.list.DummyList;
 
 public class GridFragment<VA extends GridViewAdapter, L extends DummyList> extends Fragment {
@@ -59,35 +57,20 @@ public class GridFragment<VA extends GridViewAdapter, L extends DummyList> exten
     }
 
     public void reloadData() {
-        Message msg = new Message();
-        msg.what = 0x9528;
-        msgHandler.sendMessage(msg);
+        Lock writeLock = dummyLock.readLock();
+        writeLock.lock();
+        try {
+            if (!isReloading) {
+                isReloading = true;
+                dummyList.reloadData();
+                MainThread.call(this::onReloaded);
+            }
+        } finally {
+            isReloading = false;
+            writeLock.unlock();
+        }
     }
     protected void onReloaded() {
         adapter.notifyDataSetChanged();
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == 0x9528) {
-                if (isReloading) {
-                    return;
-                }
-                isReloading = true;
-
-                Lock writeLock = dummyLock.readLock();
-                writeLock.lock();
-                try {
-                    dummyList.reloadData();
-                    onReloaded();
-                } finally {
-                    writeLock.unlock();
-                }
-
-                isReloading = false;
-            }
-        }
-    };
 }

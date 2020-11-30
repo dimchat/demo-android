@@ -1,11 +1,8 @@
 package chat.dim.sechat.chatbox;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +23,7 @@ import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.chatbox.manage.ChatManageActivity;
 import chat.dim.threading.BackgroundThreads;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.image.ImagePickerActivity;
 
 public class ChatboxActivity extends ImagePickerActivity implements Observer {
@@ -111,19 +109,11 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
     }
 
     private void refresh() {
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
+        Amanuensis clerk = Amanuensis.getInstance();
+        Conversation chatBox = clerk.getConversation(identifier);
+        String title = chatBox.getTitle();
+        MainThread.call(() -> setTitle(title));
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Amanuensis clerk = Amanuensis.getInstance();
-            Conversation chatBox = clerk.getConversation(identifier);
-            setTitle(chatBox.getTitle());
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

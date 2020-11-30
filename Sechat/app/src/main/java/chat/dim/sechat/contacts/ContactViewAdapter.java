@@ -1,12 +1,9 @@
 package chat.dim.sechat.contacts;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +19,7 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
 import chat.dim.ui.list.RecyclerViewHolder;
@@ -84,27 +82,18 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
             if (name.equals(NotificationNames.ProfileUpdated)) {
                 ID user = (ID) info.get("ID");
                 if (user.equals(item.getIdentifier())) {
-                    Message msg = new Message();
-                    msgHandler.sendMessage(msg);
+                    MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
                 Facebook facebook = Facebook.getInstance();
                 String avatar = facebook.getAvatar(item.getIdentifier());
                 String path = (String) info.get("path");
                 if (avatar != null && avatar.equals(path)) {
-                    Message msg = new Message();
-                    msgHandler.sendMessage(msg);
+                    MainThread.call(this::refresh);
                 }
             }
         }
 
-        @SuppressLint("HandlerLeak")
-        private final Handler msgHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                refresh();
-            }
-        };
         private void refresh() {
             mTitleView.setText(item.getTitle());
             mDescView.setText(item.getDesc());

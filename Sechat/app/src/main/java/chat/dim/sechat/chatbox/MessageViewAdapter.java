@@ -1,12 +1,9 @@
 package chat.dim.sechat.chatbox;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,6 +40,7 @@ import chat.dim.sechat.contacts.ContactList;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
@@ -401,26 +399,12 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             assert name != null && info != null : "notification error: " + notification;
             String url = (String) info.get("URL");
             if (url != null && url.equals(downloadingURL)) {
-                Message msg = new Message();
                 if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                    msg.what = 0x9527;
+                    MainThread.call(this::onDownloadSuccess);
                 } else if (name.equals(NotificationNames.FileDownloadFailure)) {
-                    msg.what = 0x9528;
+                    MainThread.call(this::onDownloadFailure);
                 }
-                msgHandler.sendMessage(msg);
             }
         }
-
-        @SuppressLint("HandlerLeak")
-        private final Handler msgHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == 0x9527) {
-                    onDownloadSuccess();
-                } else if (msg.what == 0x9528) {
-                    onDownloadFailure();
-                }
-            }
-        };
     }
 }

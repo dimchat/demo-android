@@ -2,15 +2,12 @@ package chat.dim.sechat.wallet.receipt;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +29,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletFactory;
@@ -82,40 +80,13 @@ public class TransferReceiptFragment extends Fragment implements Observer {
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(Wallet.TransactionSuccess)) {
             this.info = info;
-            Message msg = new Message();
-            msg.what = 9527;
-            msgHandler.sendMessage(msg);
+            MainThread.call(this::refreshPage);
         } else if (name.equals(Wallet.TransactionError)) {
-            Message msg = new Message();
-            msg.what = 9528;
-            msgHandler.sendMessage(msg);
+            MainThread.call(() -> Alert.tips(getContext(), R.string.transfer_failed));
         } else if (name.equals(Wallet.TransactionWaiting)) {
-            Message msg = new Message();
-            msg.what = 9529;
-            msgHandler.sendMessage(msg);
+            MainThread.call(() -> Alert.tips(getContext(), "Waiting..."));
         }
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 9527: {
-                    refreshPage();
-                    break;
-                }
-                case 9528: {
-                    Alert.tips(getContext(), R.string.transfer_failed);
-                    break;
-                }
-                case 9529: {
-                    Alert.tips(getContext(), "Waiting...");
-                    break;
-                }
-            }
-        }
-    };
 
     public static TransferReceiptFragment newInstance(Map<String, Object> info) {
         WalletName walletName = WalletName.fromString((String) info.get("walletName"));

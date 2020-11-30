@@ -67,7 +67,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         adapter = new CandidateViewAdapter(dummyList, listener);
         adapter.group = group;
 
-        reloadData();
+        BackgroundThreads.rush(this::reloadData);
     }
 
     private final Set<ID> selected = new HashSet<>();

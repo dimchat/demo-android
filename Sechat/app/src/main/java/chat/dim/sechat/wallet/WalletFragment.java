@@ -2,15 +2,12 @@ package chat.dim.sechat.wallet;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +20,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.threading.MainThread;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletName;
 
@@ -59,20 +57,11 @@ public class WalletFragment extends Fragment implements Observer {
         if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (mViewModel.matchesWalletAddress(address)) {
-                Message msg = new Message();
-                msgHandler.sendMessage(msg);
+                MainThread.call(() -> refreshPage(false));
             }
             System.out.println("balance updated: " + info);
         }
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            refreshPage(false);
-        }
-    };
 
     public static WalletFragment newInstance(ID identifier) {
         WalletFragment fragment = new WalletFragment();

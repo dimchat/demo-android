@@ -2,7 +2,6 @@ package chat.dim.sechat.profile;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,8 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +30,7 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.wallet.transfer.TransferActivity;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.wallet.Wallet;
@@ -79,26 +77,16 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         if (name.equals(NotificationNames.ContactsUpdated)) {
             ID contact = (ID) info.get("ID");
             if (identifier.equals(contact)) {
-                Message msg = new Message();
-                msgHandler.sendMessage(msg);
+                MainThread.call(() -> refreshPage(false));
             }
         } else if (name.equals(Wallet.BalanceUpdated)) {
             String address = (String) info.get("address");
             if (mViewModel.matchesWalletAddress(address)) {
-                Message msg = new Message();
-                msgHandler.sendMessage(msg);
+                MainThread.call(() -> refreshPage(false));
             }
             System.out.println("balance updated: " + info);
         }
     }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            refreshPage(false);
-        }
-    };
 
     public static ProfileFragment newInstance(ID identifier) {
         ProfileFragment fragment = new ProfileFragment();

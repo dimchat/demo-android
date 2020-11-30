@@ -1,13 +1,10 @@
 package chat.dim.sechat.group;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import androidx.cardview.widget.CardView;
 
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +32,7 @@ import chat.dim.sechat.group.invite.InviteActivity;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
+import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 
 public class ParticipantsAdapter extends ArrayAdapter<ID> {
@@ -165,27 +163,17 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             if (name.equals(NotificationNames.ProfileUpdated)) {
                 ID user = (ID) info.get("ID");
                 if (identifier.equals(user)) {
-                    Message msg = new Message();
-                    msgHandler.sendMessage(msg);
+                    MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
                 Facebook facebook = Facebook.getInstance();
                 String avatar = facebook.getAvatar(identifier);
                 String path = (String) info.get("path");
                 if (avatar != null && avatar.equals(path)) {
-                    Message msg = new Message();
-                    msgHandler.sendMessage(msg);
+                    MainThread.call(this::refresh);
                 }
             }
         }
-
-        @SuppressLint("HandlerLeak")
-        private final Handler msgHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                refresh();
-            }
-        };
 
         private void refresh() {
             String nickname = UserViewModel.getName(identifier);

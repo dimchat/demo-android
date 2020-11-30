@@ -1,8 +1,5 @@
 package chat.dim.sechat.chatbox.manage;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +15,7 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
+import chat.dim.threading.MainThread;
 
 public class ChatManageActivity extends AppCompatActivity implements Observer {
 
@@ -46,7 +44,11 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
         if (name.equals(NotificationNames.MembersUpdated)) {
             ID group = (ID) info.get("group");
             if (fragment.identifier.equals(group)) {
-                refresh();
+                Amanuensis clerk = Amanuensis.getInstance();
+                Conversation chatBox = clerk.getConversation(fragment.identifier);
+                String title = chatBox.getTitle();
+                MainThread.call(() -> setTitle(title));
+                fragment.reloadData();
             }
         } else if (name.equals(NotificationNames.GroupCreated)) {
             ID from = (ID) info.get("from");
@@ -55,22 +57,6 @@ public class ChatManageActivity extends AppCompatActivity implements Observer {
             }
         }
     }
-
-    private void refresh() {
-        Message msg = new Message();
-        msgHandler.sendMessage(msg);
-    }
-
-    @SuppressLint("HandlerLeak")
-    private final Handler msgHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Amanuensis clerk = Amanuensis.getInstance();
-            Conversation chatBox = clerk.getConversation(fragment.identifier);
-            setTitle(chatBox.getTitle());
-            fragment.reloadData();
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
