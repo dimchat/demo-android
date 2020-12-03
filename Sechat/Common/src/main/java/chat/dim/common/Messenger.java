@@ -170,11 +170,11 @@ public abstract class Messenger extends chat.dim.Messenger {
         if (rMsg.getDelegate() == null) {
             rMsg.setDelegate(this);
         }
-        if (rMsg.getKey() != null) {
+        if (rMsg.getEncryptedKey() != null) {
             // 'key' exists
             return;
         }
-        Map<Object, Object> keys = rMsg.getKeys();
+        Map<String, Object> keys = rMsg.getEncryptedKeys();
         if (keys == null) {
             keys = new HashMap<>();
         } else if (keys.get("digest") != null) {

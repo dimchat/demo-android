@@ -12,7 +12,7 @@ import chat.dim.common.KeyStore;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
-import chat.dim.format.BaseCoder;
+import chat.dim.format.DataCoder;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
@@ -128,7 +128,7 @@ public final class SechatApp extends Application {
 
     static {
         // android.Base64
-        Base64.coder = new BaseCoder() {
+        Base64.coder = new DataCoder() {
             @Override
             public String encode(byte[] data) {
                 return android.util.Base64.encodeToString(data, android.util.Base64.DEFAULT);

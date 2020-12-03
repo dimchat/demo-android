@@ -30,6 +30,7 @@ import java.util.List;
 
 import chat.dim.Entity;
 import chat.dim.Group;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
@@ -60,11 +61,22 @@ public class Conversation {
     }
 
     public String getName() {
-        return entity.getName();
+        Document doc = entity.getDocument(Document.ANY);
+        if (doc != null) {
+            String name = doc.getName();
+            if (name != null) {
+                return name;
+            }
+        }
+        String name = entity.identifier.getName();
+        if (name != null) {
+            return name;
+        }
+        return entity.identifier.toString();
     }
 
     public String getTitle() {
-        String name = entity.getName();
+        String name = getName();
         ID identifier = entity.identifier;
         if (NetworkType.isGroup(identifier.getType())) {
             Group group = (Group) entity;
