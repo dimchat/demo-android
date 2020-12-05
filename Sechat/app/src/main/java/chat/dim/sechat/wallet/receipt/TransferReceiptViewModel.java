@@ -118,7 +118,7 @@ public class TransferReceiptViewModel extends ViewModel {
                 String hex = logs.get(0).getData();
                 BigInteger value = Numeric.toBigInt(hex);
                 if (wallet instanceof USDTWallet) {
-                    BigDecimal coins = ERC20Convert.fromMicroUSDT(value);
+                    BigDecimal coins = ERC20Convert.fromAbraham(value);
                     return String.format(Locale.CHINA, "%,f USDT", coins.doubleValue());
                 } else if (wallet instanceof DIMTWallet) {
                     BigDecimal coins = ERC20Convert.fromAlbert(value);

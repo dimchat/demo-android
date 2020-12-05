@@ -58,11 +58,11 @@ public class USDTWallet extends ERC20Wallet {
             balance = balance.substring(2);
         }
         BigInteger number = new BigInteger(balance, 16);
-        return ERC20Convert.fromMicroUSDT(number);
+        return ERC20Convert.fromAbraham(number);
     }
 
     @Override
     protected BigInteger toBalance(double coins) {
-        return ERC20Convert.toMicroUSDT(coins);
+        return ERC20Convert.toAbraham(coins);
     }
 }

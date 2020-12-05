@@ -25,7 +25,7 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
+import chat.dim.model.Messenger;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.MuteCommand;
@@ -36,6 +36,11 @@ public class AnyCommandProcessor extends CommandProcessor {
 
     public AnyCommandProcessor(Messenger messenger) {
         super(messenger);
+    }
+
+    @Override
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
     }
 
     @Override

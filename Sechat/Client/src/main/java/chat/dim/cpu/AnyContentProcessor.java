@@ -25,8 +25,8 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
 import chat.dim.common.Facebook;
+import chat.dim.model.Messenger;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -46,6 +46,11 @@ public class AnyContentProcessor extends ContentProcessor {
 
     public AnyContentProcessor(Messenger messenger) {
         super(messenger);
+    }
+
+    @Override
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
     }
 
     @Override

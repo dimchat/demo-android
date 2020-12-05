@@ -26,7 +26,6 @@
 package chat.dim.model;
 
 import chat.dim.User;
-import chat.dim.common.Messenger;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.protocol.Content;
@@ -50,7 +49,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
     @Override
     protected ContentProcessor newContentProcessor(chat.dim.Messenger messenger) {
-        return new AnyContentProcessor(messenger);
+        return new AnyContentProcessor((Messenger) messenger);
     }
 
     protected Facebook getFacebook() {

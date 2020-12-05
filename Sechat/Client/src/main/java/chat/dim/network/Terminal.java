@@ -123,7 +123,6 @@ public class Terminal implements StationDelegate {
     protected void setCurrentServer(Server server) {
         server.delegate = this;
         messenger.server = server;
-        messenger.setContext("server", server);
         currentServer = server;
     }
 

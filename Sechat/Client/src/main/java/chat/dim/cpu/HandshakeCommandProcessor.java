@@ -25,7 +25,7 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
+import chat.dim.model.Messenger;
 import chat.dim.network.Server;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
@@ -41,14 +41,16 @@ public class HandshakeCommandProcessor extends CommandProcessor {
 
     private Content success() {
         Log.info("handshake success!");
-        Server server = (Server) getContext("server");
+        Messenger messenger = (Messenger) getMessenger();
+        Server server = messenger.server;
         server.handshakeAccepted();
         return null;
     }
 
     private Content restart(String sessionKey) {
         Log.info("handshake again, session key: " + sessionKey);
-        Server server = (Server) getContext("server");
+        Messenger messenger = (Messenger) getMessenger();
+        Server server = messenger.server;
         server.handshakeAgain(sessionKey);
         return null;
     }

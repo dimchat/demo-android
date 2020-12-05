@@ -30,10 +30,10 @@ import java.math.BigInteger;
 
 public class ERC20Convert {
 
-    public static BigDecimal fromMicroUSDT(BigInteger number) {
+    public static BigDecimal fromAbraham(BigInteger number) {
         return from(number, Unit.USDT);
     }
-    public static BigInteger toMicroUSDT(double coins) {
+    public static BigInteger toAbraham(double coins) {
         BigDecimal money = to(new BigDecimal(coins), Unit.USDT);
         return money.toBigInteger();
     }
@@ -62,13 +62,13 @@ public class ERC20Convert {
         //
         //  Units of USDT
         //
-        MICRO_USDT("micro-usdt", 0),
+        ABRAHAM("abraham", 0),  // 0.000001 USDT
         USDT("usdt", 6),
 
         //
         //  Units of DIMT
         //
-        MOKY("moky", 0),
+        ALBERT("albert", 0),    // 0.000000000000000001 DIMT
         DIMT("dimt", 18);
 
         public final String name;
