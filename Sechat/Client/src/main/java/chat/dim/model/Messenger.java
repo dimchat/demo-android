@@ -35,11 +35,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.User;
-import chat.dim.cpu.CommandProcessor;
-import chat.dim.cpu.HandshakeCommandProcessor;
-import chat.dim.cpu.LoginCommandProcessor;
-import chat.dim.cpu.SearchCommandProcessor;
-import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.mkm.BroadcastAddress;
@@ -110,7 +105,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
                 if (rMsg == null) {
                     continue;
                 }
-                response = serializeMessage(rMsg);
+                response = getMessageProcessor().serializeMessage(rMsg);
                 if (response != null && response.length > 0) {
                     getDelegate().sendPackage(response, null, StarShip.SLOWER);
                 }
@@ -426,23 +421,5 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
         server.handshake(null);
         return true;
-    }
-
-    //-------- Send
-
-
-    static {
-        // register CPUs
-        CommandProcessor.register(Command.HANDSHAKE, HandshakeCommandProcessor.class);
-
-        CommandProcessor.register(Command.LOGIN, LoginCommandProcessor.class);
-
-        // storage (contacts, private_key)
-        CommandProcessor.register(StorageCommand.STORAGE, StorageCommandProcessor.class);
-        CommandProcessor.register(StorageCommand.CONTACTS, StorageCommandProcessor.class);
-        CommandProcessor.register(StorageCommand.PRIVATE_KEY, StorageCommandProcessor.class);
-
-        CommandProcessor.register(SearchCommand.SEARCH, SearchCommandProcessor.class);
-        CommandProcessor.register(SearchCommand.ONLINE_USERS, SearchCommandProcessor.class);
     }
 }
