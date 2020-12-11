@@ -27,7 +27,6 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.CandidateList;
 import chat.dim.sechat.group.CandidateViewAdapter;
@@ -82,7 +81,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
 
     void setFrom(ID identifier) {
         from = identifier;
-        if (NetworkType.isUser(identifier.getType())) {
+        if (ID.isUser(identifier)) {
             adapter.from = identifier;
             selected.add(identifier);
         }
@@ -115,7 +114,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         // invite group member(s)
         GroupManager gm = new GroupManager(identifier);
         if (gm.invite(new ArrayList<>(selected))) {
-            if (NetworkType.isUser(from.getType())) {
+            if (ID.isUser(from)) {
                 Map<String, Object> info = new HashMap<>();
                 info.put("ID", identifier);
                 info.put("from", from);

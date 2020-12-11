@@ -132,7 +132,7 @@ public class Register {
     }
 
     public UserProfile createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
-        assert NetworkType.isUser(identifier.getType()) : "ID error";
+        assert ID.isUser(identifier) : "ID error";
         assert privateKey != null : "private key not found";
         UserProfile profile = new UserProfile(identifier);
         profile.setName(name);

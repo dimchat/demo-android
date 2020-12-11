@@ -29,7 +29,6 @@ import chat.dim.model.Messenger;
 import chat.dim.network.Server;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
@@ -56,7 +55,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         assert content instanceof HandshakeCommand : "handshake command error: " + content;
         HandshakeCommand cmd = (HandshakeCommand) content;
         String message = cmd.message;

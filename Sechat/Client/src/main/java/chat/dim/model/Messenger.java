@@ -37,7 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
-import chat.dim.mkm.BroadcastAddress;
 import chat.dim.network.Server;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -208,7 +207,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
             // send keys again
             ID me = iMsg.getReceiver();
             ID group = content.getGroup();
-            SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group);
+            SymmetricKey key = getCipherKeyDelegate().getCipherKey(me, group, false);
             if (key != null) {
                 //key.put("reused", null);
                 key.remove("reused");
@@ -325,7 +324,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     @Override
     public boolean queryMeta(ID identifier) {
-        if (identifier.getAddress() instanceof BroadcastAddress) {
+        if (ID.isBroadcast(identifier)) {
             // broadcast ID has no meta
             return false;
         }
@@ -346,7 +345,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Observ
 
     @Override
     public boolean queryProfile(ID identifier) {
-        if (identifier.getAddress() instanceof BroadcastAddress) {
+        if (ID.isBroadcast(identifier)) {
             // broadcast ID has no profile
             return false;
         }

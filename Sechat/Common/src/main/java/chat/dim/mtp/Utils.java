@@ -54,7 +54,7 @@ public class Utils {
     @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
         Dictionary dict = (Dictionary) msg;
-        Map<String, Object> info = dict.copyMap();
+        Map<String, Object> info = dict.copyMap(false);
         //
         //  envelope
         //

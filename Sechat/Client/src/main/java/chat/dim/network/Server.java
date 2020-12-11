@@ -35,8 +35,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.CompletionHandler;
-import chat.dim.MessengerDelegate;
 import chat.dim.User;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
@@ -60,7 +58,7 @@ import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements MessengerDelegate, StarGate.Delegate, StateDelegate<ServerState> {
+public class Server extends Station implements Messenger.Delegate, StarGate.Delegate, StateDelegate<ServerState> {
 
     public final String name;
 
@@ -73,8 +71,6 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     final private ReadWriteLock starLock = new ReentrantReadWriteLock();
 
     private Map<String, Object> startOptions = null;
-
-    StationDelegate delegate = null;
 
     private boolean paused = false;
 
@@ -193,7 +189,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
         }
         Log.info("handshake accepted for user: " + currentUser);
         // call client
-        delegate.onHandshakeAccepted(session, this);
+        getDelegate().onHandshakeAccepted(session, this);
     }
 
     public void handshakeAgain(String sessionKey) {
@@ -340,7 +336,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     @Override
     public void onReceived(StarGate star, Package response) {
         Log.info("received " + response.getLength() + " bytes");
-        delegate.onReceivePackage(response.body.getBytes(), this);
+        getDelegate().onReceivePackage(response.body.getBytes(), this);
     }
 
     @Override
@@ -352,7 +348,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     @Override
     public void onSent(StarGate star, Package request, Error error) {
         Log.info("sent " + request.getLength() + " bytes");
-        CompletionHandler handler = null;
+        Messenger.CompletionHandler handler = null;
 
         byte[] requestData = request.body.getBytes();
         String key = RequestWrapper.getKey(requestData);
@@ -364,9 +360,9 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
 
         if (error == null) {
             // send success
-            delegate.didSendPackage(requestData, this);
+            getDelegate().didSendPackage(requestData, this);
         } else {
-            delegate.didFailToSendPackage(error, requestData, this);
+            getDelegate().didFailToSendPackage(error, requestData, this);
         }
 
         if (handler != null) {
@@ -407,7 +403,7 @@ public class Server extends Station implements MessengerDelegate, StarGate.Deleg
     }
 
     @Override
-    public boolean sendPackage(byte[] data, CompletionHandler handler, int priority) {
+    public boolean sendPackage(byte[] data, Messenger.CompletionHandler handler, int priority) {
         RequestWrapper wrapper = new RequestWrapper(priority, data, handler);
 
         ServerState state = getCurrentState();

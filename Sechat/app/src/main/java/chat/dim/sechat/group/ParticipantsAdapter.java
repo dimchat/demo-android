@@ -25,7 +25,6 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.expel.ExpelActivity;
 import chat.dim.sechat.group.invite.InviteActivity;
@@ -83,8 +82,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         }
 
         Group group;
-        if (NetworkType.isGroup(identifier.getType())) {
-            if (!GroupViewModel.existsMember(user.identifier, identifier)) {
+        if (ID.isGroup(identifier)) {
+            if (!GroupViewModel.containsMember(user.identifier, identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }

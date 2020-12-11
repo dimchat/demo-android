@@ -140,7 +140,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         mViewModel.setBalance(usdtBalance, WalletName.USDT_ERC20, queryBalance);
         mViewModel.setBalance(dimtBalance, WalletName.DIMT, queryBalance);
 
-        if (mViewModel.existsContact(identifier)) {
+        if (mViewModel.containsContact(identifier)) {
             messageButton.setVisibility(View.VISIBLE);
             remitButton.setVisibility(View.VISIBLE);
             removeButton.setVisibility(View.VISIBLE);

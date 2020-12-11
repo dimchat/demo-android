@@ -6,7 +6,6 @@ import java.util.List;
 
 import chat.dim.User;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -33,10 +32,10 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         List<ID> contacts = UserViewModel.getContacts(user.identifier);
         if (contacts != null) {
             for (ID member : contacts) {
-                if (!NetworkType.isUser(member.getType())) {
+                if (!ID.isUser(member)) {
                     continue;
                 }
-                if (GroupViewModel.existsMember(member, group)) {
+                if (GroupViewModel.containsMember(member, group)) {
                     // already exists
                     continue;
                 }

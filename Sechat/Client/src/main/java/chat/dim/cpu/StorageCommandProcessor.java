@@ -129,10 +129,10 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         assert content instanceof StorageCommand : "storage command error: " + content;
         StorageCommand cmd = (StorageCommand) content;
-        String title = cmd.title;
+        String title = cmd.getTitle();
         if (title.equals(StorageCommand.CONTACTS)) {
             return processContacts(cmd);
         } else if (title.equals(StorageCommand.PRIVATE_KEY)) {

@@ -44,7 +44,7 @@ import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.stargate.StarShip;
 
-public class Terminal implements StationDelegate {
+public class Terminal implements Station.Delegate {
 
     protected Facebook facebook = Facebook.getInstance();
     protected Messenger messenger = Messenger.getInstance();
@@ -121,7 +121,7 @@ public class Terminal implements StationDelegate {
     }
 
     protected void setCurrentServer(Server server) {
-        server.delegate = this;
+        server.setDelegate(this);
         messenger.server = server;
         currentServer = server;
     }
@@ -171,7 +171,7 @@ public class Terminal implements StationDelegate {
             }
             server = new Server(identifier, host, port, name);
             server.setDataSource(Facebook.getInstance());
-            server.delegate = this;
+            server.setDelegate(this);
             server.start(options);
             setCurrentServer(server);
         }
@@ -266,13 +266,13 @@ public class Terminal implements StationDelegate {
         }
     }
 
-    //---- StationDelegate
+    //---- Station Delegate
 
     @Override
     public void onReceivePackage(byte[] data, Station server) {
         byte[] response;
         try {
-            response = messenger.processPackage(data);
+            response = messenger.process(data);
         } catch (NullPointerException e) {
             e.printStackTrace();
             response = null;

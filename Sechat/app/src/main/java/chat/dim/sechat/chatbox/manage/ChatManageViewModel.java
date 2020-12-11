@@ -7,7 +7,6 @@ import chat.dim.GroupManager;
 import chat.dim.User;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -30,7 +29,7 @@ class ChatManageViewModel extends EntityViewModel {
 
     boolean isGroupAdmin() {
         ID identifier = getIdentifier();
-        if (identifier != null && NetworkType.isGroup(identifier.getType())) {
+        if (identifier != null && ID.isGroup(identifier)) {
             User user = UserViewModel.getCurrentUser();
             return GroupViewModel.isAdmin(user, identifier);
         }
@@ -40,9 +39,9 @@ class ChatManageViewModel extends EntityViewModel {
     List<ID> getParticipants(int count) {
         participants.clear();
 
-        if (NetworkType.isUser(identifier.getType())) {
+        if (ID.isUser(identifier)) {
             participants.add(identifier);
-        } else if (NetworkType.isGroup(identifier.getType())) {
+        } else if (ID.isGroup(identifier)) {
             ID owner = facebook.getOwner(identifier);
             if (owner != null) {
                 --count;

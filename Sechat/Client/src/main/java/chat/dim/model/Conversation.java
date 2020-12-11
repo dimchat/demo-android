@@ -54,7 +54,7 @@ public class Conversation {
 
     private byte getType(Entity entity) {
         ID identifier = entity.identifier;
-        if (NetworkType.isGroup(identifier.getType())) {
+        if (ID.isGroup(identifier)) {
             return GroupChat;
         }
         return PersonalChat;
@@ -78,7 +78,7 @@ public class Conversation {
     public String getTitle() {
         String name = getName();
         ID identifier = entity.identifier;
-        if (NetworkType.isGroup(identifier.getType())) {
+        if (ID.isGroup(identifier)) {
             Group group = (Group) entity;
             List<ID> members = group.getMembers();
             int count = (members == null) ? 0 : members.size();

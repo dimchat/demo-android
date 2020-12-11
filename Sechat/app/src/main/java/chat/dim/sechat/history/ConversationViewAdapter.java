@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
@@ -41,7 +40,7 @@ public class ConversationViewAdapter extends RecyclerViewAdapter<ConversationVie
         ConversationList.Item item = dummyList.getItem(position);
 
         ID identifier = item.getIdentifier();
-        if (NetworkType.isGroup(identifier.getType())) {
+        if (ID.isGroup(identifier)) {
             holder.userCard.setVisibility(View.GONE);
             holder.groupCard.setVisibility(View.VISIBLE);
             Bitmap logo = item.getLogo();

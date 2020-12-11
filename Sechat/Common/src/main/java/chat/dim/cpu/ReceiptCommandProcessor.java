@@ -27,7 +27,6 @@ package chat.dim.cpu;
 
 import chat.dim.Messenger;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 
@@ -38,7 +37,7 @@ public class ReceiptCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         assert content instanceof ReceiptCommand : "receipt command error: " + content;
         // no need to response receipt command
         return null;

@@ -25,12 +25,11 @@
  */
 package chat.dim.cpu;
 
+import chat.dim.Messenger;
 import chat.dim.common.Facebook;
-import chat.dim.model.Messenger;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
@@ -49,21 +48,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    protected Messenger getMessenger() {
-        return (Messenger) super.getMessenger();
-    }
-
-    @Override
-    protected Content.Processor<Content> newContentProcessor(int type) {
-        if (ContentType.COMMAND.equals(type)) {
-            return new AnyCommandProcessor(getMessenger());
-        }
-
-        return super.newContentProcessor(type);
-    }
-
-    @Override
-    protected Content unknown(Content content, ID sender, ReliableMessage rMsg) {
+    protected Content unknown(Content content, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video

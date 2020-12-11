@@ -26,8 +26,12 @@
 package chat.dim.model;
 
 import chat.dim.User;
-import chat.dim.cpu.AnyContentProcessor;
-import chat.dim.cpu.ContentProcessor;
+import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.HandshakeCommandProcessor;
+import chat.dim.cpu.LoginCommandProcessor;
+import chat.dim.cpu.SearchCommandProcessor;
+import chat.dim.cpu.StorageCommandProcessor;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.GroupCommand;
@@ -37,6 +41,8 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SearchCommand;
+import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
@@ -47,18 +53,13 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
         super(messenger);
     }
 
-    @Override
-    protected ContentProcessor newContentProcessor(chat.dim.Messenger messenger) {
-        return new AnyContentProcessor((Messenger) messenger);
-    }
-
     protected Facebook getFacebook() {
         return (Facebook) super.getFacebook();
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
-        Content res = super.process(content, sender, rMsg);
+    protected Content process(Content content, ReliableMessage rMsg) {
+        Content res = super.process(content, rMsg);
         if (res == null) {
             // respond nothing
             return null;
@@ -68,6 +69,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
             return res;
         }
 
+        ID sender = rMsg.getSender();
         if (res instanceof ReceiptCommand) {
             if (NetworkType.Station.equals(sender.getType())) {
                 // no need to respond receipt to station
@@ -88,7 +90,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
         // check receiver
         ID receiver = rMsg.getReceiver();
-        User user = getFacebook().select(receiver);
+        User user = getFacebook().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
         // pack message
         Envelope env = Envelope.create(user.identifier, sender, null);
@@ -97,5 +99,22 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
         getMessenger().sendMessage(iMsg, null, StarShip.SLOWER);
         // DON'T respond to station directly
         return null;
+    }
+
+    static {
+        // register command processors
+        CommandProcessor.register(Command.HANDSHAKE, new HandshakeCommandProcessor(null));
+        CommandProcessor.register(Command.LOGIN, new LoginCommandProcessor(null));
+
+        // storage (contacts, private_key)
+        StorageCommandProcessor storageProcessor = new StorageCommandProcessor(null);
+        CommandProcessor.register(StorageCommand.STORAGE, storageProcessor);
+        CommandProcessor.register(StorageCommand.CONTACTS, storageProcessor);
+        CommandProcessor.register(StorageCommand.PRIVATE_KEY, storageProcessor);
+
+        // search (online)
+        SearchCommandProcessor searchProcessor = new SearchCommandProcessor(null);
+        CommandProcessor.register(SearchCommand.SEARCH, searchProcessor);
+        CommandProcessor.register(SearchCommand.ONLINE_USERS, searchProcessor);
     }
 }

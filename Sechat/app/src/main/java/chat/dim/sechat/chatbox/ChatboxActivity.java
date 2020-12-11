@@ -18,7 +18,6 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.chatbox.manage.ChatManageActivity;
@@ -99,7 +98,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
                     .commitNow();
         }
 
-        if (NetworkType.isGroup(identifier.getType())) {
+        if (ID.isGroup(identifier)) {
             setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
             BackgroundThreads.rush(this::refresh);

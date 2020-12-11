@@ -40,7 +40,6 @@ import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Message;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
@@ -170,7 +169,7 @@ public final class ConversationDatabase {
         if (OK) {
             ID entity = chatBox.identifier;
             // FIXME: check for origin conversation
-            if (NetworkType.isUser(entity.getType())) {
+            if (ID.isUser(entity)) {
                 ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
                 Envelope env = receipt.getEnvelope();
                 if (env != null) {

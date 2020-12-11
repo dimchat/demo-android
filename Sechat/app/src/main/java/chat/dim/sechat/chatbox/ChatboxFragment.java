@@ -20,7 +20,6 @@ import android.widget.ImageButton;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.Callback;
 import chat.dim.User;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
@@ -37,7 +36,6 @@ import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
@@ -126,7 +124,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private void sendMessage(InstantMessage iMsg) {
         // prepare to send
-        Callback callback = (result, error) -> {
+        Messenger.Callback callback = (result, error) -> {
             // TODO: check sending status
         };
         Messenger messenger = Messenger.getInstance();
@@ -147,7 +145,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         // pack message content
         ID sender = user.identifier;
         ID receiver = chatBox.identifier;
-        if (NetworkType.isGroup(receiver.getType())) {
+        if (ID.isGroup(receiver)) {
             content.setGroup(receiver);
         }
         Envelope env = Envelope.create(sender, receiver, null);

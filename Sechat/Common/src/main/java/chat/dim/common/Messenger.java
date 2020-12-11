@@ -28,15 +28,12 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.Callback;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.group.InviteCommand;
@@ -65,7 +62,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     public boolean checkGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
-        if (group == null || group.getAddress() instanceof BroadcastAddress) {
+        if (group == null || ID.isBroadcast(group)) {
             // 1. personal message
             // 2. broadcast message
             return false;
@@ -94,8 +91,8 @@ public abstract class Messenger extends chat.dim.Messenger {
             } else {
                 return queryGroupInfo(group, sender);
             }
-        } else if (facebook.existsMember(sender, group)
-                || facebook.existsAssistant(sender, group)
+        } else if (facebook.containsMember(sender, group)
+                || facebook.containsAssistant(sender, group)
                 || facebook.isOwner(sender, group)) {
             // normal membership
             return false;
@@ -118,7 +115,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         Object reused = password.get("reused");
         if (reused != null) {
             ID receiver = iMsg.getReceiver();
-            if (NetworkType.isGroup(receiver.getType())) {
+            if (ID.isGroup(receiver)) {
                 // reuse key for grouped message
                 return null;
             }

@@ -42,7 +42,6 @@ import chat.dim.database.GroupTable;
 import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.UserTable;
-import chat.dim.mkm.BroadcastAddress;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -178,7 +177,7 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!verify(meta, entity)) {
+        if (!meta.matches(entity)) {
             // meta not match ID
             return false;
         }
@@ -225,7 +224,7 @@ public class Facebook extends chat.dim.Facebook {
         String username = identifier.getName();
         String nickname = getNickname(identifier);
         if (nickname != null && nickname.length() > 0) {
-            if (NetworkType.isUser(identifier.getType())) {
+            if (ID.isUser(identifier)) {
                 if (username != null && username.length() > 0) {
                     return nickname + " (" + username + ")";
                 }
@@ -254,7 +253,7 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (identifier.getAddress() instanceof BroadcastAddress) {
+        if (ID.isBroadcast(identifier)) {
             // broadcast ID has not meta
             return null;
         }

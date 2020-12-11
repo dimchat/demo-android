@@ -25,7 +25,7 @@
  */
 package chat.dim.network;
 
-import chat.dim.CompletionHandler;
+import chat.dim.Messenger;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
 
@@ -33,9 +33,9 @@ class RequestWrapper {
 
     final int priority;
     final byte[] data;
-    final CompletionHandler handler;
+    final Messenger.CompletionHandler handler;
 
-    RequestWrapper(int priority, byte[] payload, CompletionHandler callback) {
+    RequestWrapper(int priority, byte[] payload, Messenger.CompletionHandler callback) {
         super();
         this.priority = priority;
         this.data = payload;

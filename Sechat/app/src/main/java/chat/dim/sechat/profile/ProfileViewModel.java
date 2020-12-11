@@ -35,7 +35,7 @@ public class ProfileViewModel extends UserViewModel {
         return Uri.parse(avatar);
     }
 
-    boolean existsContact(ID contact) {
+    boolean containsContact(ID contact) {
         User user = getCurrentUser();
         if (user == null) {
             return false;

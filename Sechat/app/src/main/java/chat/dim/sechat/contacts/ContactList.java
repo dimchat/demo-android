@@ -13,7 +13,6 @@ import java.util.Map;
 import chat.dim.User;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
@@ -53,7 +52,7 @@ public class ContactList extends DummyList<ContactList.Item> {
                 };
                 Collections.sort(contacts, comparator);
                 for (ID identifier : contacts) {
-                    if (NetworkType.isGroup(identifier.getType())) {
+                    if (ID.isGroup(identifier)) {
                         // FIXME: where to show groups?
                         continue;
                     }
@@ -80,14 +79,14 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         Bitmap getAvatar() {
-            if (NetworkType.isGroup(identifier.getType())) {
+            if (ID.isGroup(identifier)) {
                 return GroupViewModel.getLogo(identifier);
             }
             return UserViewModel.getAvatar(identifier);
         }
 
         String getTitle() {
-            if (NetworkType.isGroup(identifier.getType())) {
+            if (ID.isGroup(identifier)) {
                 // TODO: show group title with format "group name (members count)"
                 return EntityViewModel.getName(identifier);
             }
@@ -95,7 +94,7 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getDesc() {
-            if (NetworkType.isGroup(identifier.getType())) {
+            if (ID.isGroup(identifier)) {
                 return null;
             }
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);

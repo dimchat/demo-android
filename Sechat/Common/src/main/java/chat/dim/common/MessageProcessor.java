@@ -28,16 +28,23 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.core.CipherKeyDelegate;
 import chat.dim.core.CommandFactory;
+import chat.dim.cpu.AnyContentProcessor;
+import chat.dim.cpu.BlockCommandProcessor;
+import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.ContentProcessor;
+import chat.dim.cpu.MuteCommandProcessor;
+import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
 import chat.dim.mtp.Utils;
+import chat.dim.protocol.BlockCommand;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
@@ -55,20 +62,17 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         super(messenger);
     }
 
+    @Override
+    protected ContentProcessor getContentProcessor() {
+        return new AnyContentProcessor(getMessenger());
+    }
+
     protected Messenger getMessenger() {
         return (Messenger) super.getMessenger();
     }
 
     protected Facebook getFacebook() {
         return (Facebook) super.getFacebook();
-    }
-
-    private CipherKeyDelegate getCipherKeyDelegate() {
-        return getMessenger().getCipherKeyDelegate();
-    }
-
-    private SymmetricKey getCipherKey(ID sender, ID receiver) {
-        return getCipherKeyDelegate().getCipherKey(sender, receiver);
     }
 
     @Override
@@ -96,14 +100,14 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             rMsg = Utils.deserializeMessage(data);
         }
         if (rMsg != null) {
-            rMsg.setDelegate(getDelegate());
+            rMsg.setDelegate(getMessageDelegate());
         }
         return rMsg;
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
         if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getDelegate());
+            rMsg.setDelegate(getMessageDelegate());
         }
         if (rMsg.getEncryptedKey() != null) {
             // 'key' exists
@@ -122,9 +126,9 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         ID group = rMsg.getGroup();
         if (group == null) {
             ID receiver = rMsg.getReceiver();
-            key = getCipherKey(sender, receiver);
+            key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
         } else {
-            key = getCipherKey(sender, group);
+            key = getCipherKeyDelegate().getCipherKey(sender, group, false);
         }
         // get key data
         byte[] data = key.getData();
@@ -148,10 +152,11 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         SecureMessage sMsg = super.encryptMessage(iMsg);
 
         ID receiver = iMsg.getReceiver();
-        if (NetworkType.isGroup(receiver.getType())) {
+        if (ID.isGroup(receiver)) {
             // reuse group message keys
             ID sender = iMsg.getSender();
-            SymmetricKey key = getCipherKey(sender, receiver);
+            SymmetricKey key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
+            assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
             key.put("reused", true);
         }
         // TODO: reuse personal message key?
@@ -160,7 +165,8 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     @Override
-    protected Content process(Content content, ID sender, ReliableMessage rMsg) {
+    protected Content process(Content content, ReliableMessage rMsg) {
+        ID sender = rMsg.getSender();
         if (getMessenger().checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();
@@ -169,7 +175,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             return null;
         }
         try {
-            return super.process(content, sender, rMsg);
+            return super.process(content, rMsg);
         } catch (NullPointerException e) {
             e.printStackTrace();
             String text = e.getMessage();
@@ -197,5 +203,10 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         CommandFactory.register(ReportCommand.REPORT, ReportCommand::new);
         CommandFactory.register(ReportCommand.ONLINE, ReportCommand::new);
         CommandFactory.register(ReportCommand.OFFLINE, ReportCommand::new);
+
+        // register command processors
+        CommandProcessor.register(Command.RECEIPT, new ReceiptCommandProcessor(null));
+        CommandProcessor.register(MuteCommand.MUTE, new MuteCommandProcessor(null));
+        CommandProcessor.register(BlockCommand.BLOCK, new BlockCommandProcessor(null));
     }
 }

@@ -43,7 +43,7 @@ public class LoginCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ID sender, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         assert content instanceof LoginCommand : "login command error: " + content;
         LoginCommand cmd = (LoginCommand) content;
 

@@ -117,14 +117,14 @@ public class GroupViewModel extends EntityViewModel {
         checkMembers(getIdentifier());
     }
 
-    public static boolean existsMember(ID member, ID group) {
+    public static boolean containsMember(ID member, ID group) {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.existsMember(member, group);
+        return facebook.containsMember(member, group);
     }
-    public boolean existsMember(ID member) {
-        return existsMember(member, getIdentifier());
+    public boolean containsMember(ID member) {
+        return containsMember(member, getIdentifier());
     }
 
     public static boolean addMember(ID member, ID group) {
