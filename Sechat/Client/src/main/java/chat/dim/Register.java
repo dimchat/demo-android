@@ -33,14 +33,15 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.mkm.BaseBulletin;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.mkm.DefaultMeta;
 import chat.dim.mkm.ETHMeta;
-import chat.dim.mkm.UserProfile;
 import chat.dim.model.Facebook;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
+import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
 import chat.dim.utils.Log;
 
@@ -78,7 +79,7 @@ public class Register {
         //
         //  Step 2. generate meta with private key (and meta seed)
         //
-        ETHMeta meta = ETHMeta.generate(privateKey, null);
+        ETHMeta meta = (ETHMeta) Meta.generate(MetaType.ETH.value, privateKey, null);
         //
         //  Step 3. generate ID with meta
         //
@@ -116,7 +117,7 @@ public class Register {
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForSignature(founder);
         // 2. generate meta
-        DefaultMeta meta = DefaultMeta.generate(privateKey, seed);
+        DefaultMeta meta = (DefaultMeta) Meta.generate(MetaType.Default.value, privateKey, seed);
         // 3. generate ID
         ID identifier = meta.generateID(NetworkType.Polylogue.value);
         // 4. generate profile
@@ -131,10 +132,10 @@ public class Register {
         return facebook.getGroup(identifier);
     }
 
-    public UserProfile createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
+    public BaseVisa createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
         assert ID.isUser(identifier) : "ID error";
         assert privateKey != null : "private key not found";
-        UserProfile profile = new UserProfile(identifier);
+        BaseVisa profile = new BaseVisa(identifier);
         profile.setName(name);
         profile.setAvatar(avatarUrl);
         profile.setKey(key);

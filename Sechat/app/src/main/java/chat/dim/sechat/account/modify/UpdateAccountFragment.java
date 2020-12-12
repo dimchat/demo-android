@@ -22,7 +22,7 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.UserProfile;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -129,8 +129,8 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String avatarURL = ftp.uploadAvatar(imageData, identifier);
-            if (profile instanceof UserProfile) {
-                ((UserProfile) profile).setAvatar(avatarURL);
+            if (profile instanceof BaseVisa) {
+                ((BaseVisa) profile).setAvatar(avatarURL);
             } else {
                 profile.setProperty("avatar", avatarURL);
             }

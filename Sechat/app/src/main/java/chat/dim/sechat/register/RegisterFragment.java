@@ -18,7 +18,7 @@ import android.widget.TextView;
 import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.crypto.SignKey;
-import chat.dim.mkm.UserProfile;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.model.Configuration;
 import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
@@ -161,8 +161,8 @@ public class RegisterFragment extends Fragment {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
-            if (profile instanceof UserProfile) {
-                ((UserProfile) profile).setAvatar(avatarURL);
+            if (profile instanceof BaseVisa) {
+                ((BaseVisa) profile).setAvatar(avatarURL);
             } else {
                 profile.setProperty("avatar", avatarURL);
             }

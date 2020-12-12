@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.GroupManager;
-import chat.dim.mkm.UserProfile;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -53,8 +53,8 @@ public final class Facebook extends chat.dim.common.Facebook {
         String url = null;
         Document profile = getDocument(identifier, Document.PROFILE);
         if (!isEmpty(profile)) {
-            if (profile instanceof UserProfile) {
-                url = ((UserProfile) profile).getAvatar();
+            if (profile instanceof BaseVisa) {
+                url = ((BaseVisa) profile).getAvatar();
             } else {
                 url = (String) profile.getProperty("avatar");
             }

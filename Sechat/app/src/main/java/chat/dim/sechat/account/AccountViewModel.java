@@ -14,9 +14,9 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BTCMeta;
+import chat.dim.mkm.BaseVisa;
 import chat.dim.mkm.DefaultMeta;
 import chat.dim.mkm.ETHMeta;
-import chat.dim.mkm.UserProfile;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -214,19 +214,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // generate meta
-        Meta meta;
-        if (metaVersion == MetaType.MKM.value) {
-            if (seed == null) {
-                seed = "dim";
-            }
-            meta = DefaultMeta.generate(privateKey, seed);
-        } else if (metaVersion == MetaType.BTC.value || metaVersion == MetaType.ExBTC.value) {
-            meta = BTCMeta.generate(privateKey, seed);
-        } else if (metaVersion == MetaType.ETH.value || metaVersion == MetaType.ExETH.value) {
-            meta = ETHMeta.generate(privateKey, seed);
-        } else {
-            throw new IllegalArgumentException("meta version not supported: " + metaVersion);
-        }
+        Meta meta = Meta.generate(metaVersion, privateKey, seed);
 
         // generate ID
         ID identifier;
@@ -264,7 +252,7 @@ public class AccountViewModel extends UserViewModel {
 
         // generate profile
         if (nickname != null || msgKey != null) {
-            UserProfile profile = new UserProfile(identifier);
+            BaseVisa profile = new BaseVisa(identifier);
             if (nickname != null && nickname.length() > 0) {
                 profile.setName(nickname);
             }
