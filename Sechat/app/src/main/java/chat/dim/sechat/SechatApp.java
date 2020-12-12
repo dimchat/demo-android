@@ -51,12 +51,15 @@ public final class SechatApp extends Application {
     }
 
     private void initDatabases() {
-        Facebook facebook = Facebook.getInstance();
-        Messenger messenger = Messenger.getInstance();
-
         // set context for databases
         Database.setContext(this);
         MainDatabase.setContext(this);
+
+        chat.dim.common.Facebook.ansTable = AddressNameTable.getInstance();
+
+        Facebook facebook = Facebook.getInstance();
+        Messenger messenger = Messenger.getInstance();
+
         EntityDatabase.facebook = facebook;
         MessageDatabase.messenger = messenger;
 
@@ -70,7 +73,6 @@ public final class SechatApp extends Application {
         facebook.userTable = UserTable.getInstance();
         facebook.contactTable = ContactTable.getInstance();
         facebook.groupTable = GroupTable.getInstance();
-        facebook.ansTable = AddressNameTable.getInstance();
 
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();

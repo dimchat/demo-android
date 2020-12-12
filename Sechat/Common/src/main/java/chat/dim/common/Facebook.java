@@ -42,6 +42,8 @@ import chat.dim.database.GroupTable;
 import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.UserTable;
+import chat.dim.mkm.Factories;
+import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -50,48 +52,16 @@ import chat.dim.protocol.NetworkType;
 public class Facebook extends chat.dim.Facebook {
     public Facebook() {
         super();
-
-        // ANS
-        ans = new AddressNameService() {
-            @Override
-            public ID identifier(String name) {
-                ID identifier = super.identifier(name);
-                if (identifier != null) {
-                    return identifier;
-                }
-                identifier = ansTable.getIdentifier(name);
-                if (identifier != null) {
-                    // FIXME: is reserved name?
-                    cache(name, identifier);
-                }
-                return identifier;
-            }
-
-            @Override
-            public boolean save(String name, ID identifier) {
-                if (!cache(name, identifier)) {
-                    return false;
-                }
-                if (identifier == null) {
-                    return ansTable.removeRecord(name);
-                } else {
-                    return ansTable.addRecord(identifier, name);
-                }
-            }
-        };
     }
 
     public static long EXPIRES = 30 * 60 * 1000;  // profile expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
 
-    private final AddressNameService ans;
     private Immortals immortals = new Immortals();
 
     public PrivateKeyTable privateTable = null;
     public MetaTable metaTable = null;
     public DocumentTable docsTable = null;
-
-    public AddressNameTable ansTable = null;
 
     public UserTable userTable = null;
     public GroupTable groupTable = null;
@@ -140,21 +110,6 @@ public class Facebook extends chat.dim.Facebook {
     public boolean removeUser(ID user) {
         users = null;
         return userTable.removeUser(user);
-    }
-
-    protected ID getID(Object identifier) {
-        if (identifier == null) {
-            return null;
-        } else if (identifier instanceof ID) {
-            return (ID) identifier;
-        }
-        // try ANS record
-        String string = (String) identifier;
-        ID id = ans.identifier(string);
-        if (id != null) {
-            return id;
-        }
-        return ID.parse(string);
     }
 
     //-------- Contacts
@@ -218,7 +173,7 @@ public class Facebook extends chat.dim.Facebook {
     //--------
 
     public String getUsername(Object string) {
-        return getUsername(getID(string));
+        return getUsername(ID.parse(string));
     }
     public String getUsername(ID identifier) {
         String username = identifier.getName();
@@ -238,7 +193,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     public String getNickname(Object identifier) {
-        return getNickname(getID(identifier));
+        return getNickname(ID.parse(identifier));
     }
     public String getNickname(ID identifier) {
         Document profile = getDocument(identifier, Document.ANY);
@@ -392,12 +347,67 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public List<ID> getAssistants(ID group) {
         // try ANS record
-        ID identifier = ans.identifier("assistant");
+        ID identifier = ID.parse("assistant");
         if (identifier == null) {
             return null;
         }
         List<ID> assistants = new ArrayList<>();
         assistants.add(identifier);
         return assistants;
+    }
+
+    // ANS
+    public static AddressNameTable ansTable = null;
+
+    private static final AddressNameService ans = new AddressNameService() {
+
+        @Override
+        public ID identifier(String name) {
+            ID identifier = super.identifier(name);
+            if (identifier != null) {
+                return identifier;
+            }
+            identifier = ansTable.getIdentifier(name);
+            if (identifier != null) {
+                // FIXME: is reserved name?
+                cache(name, identifier);
+            }
+            return identifier;
+        }
+
+        @Override
+        public boolean save(String name, ID identifier) {
+            if (!super.save(name, identifier)) {
+                return false;
+            }
+            if (identifier == null) {
+                return ansTable.removeRecord(name);
+            } else {
+                return ansTable.addRecord(identifier, name);
+            }
+        }
+    };
+
+    private static final ID.Factory identifierFactory = Factories.idFactory;
+
+    static {
+        Factories.idFactory = new ID.Factory() {
+
+            @Override
+            public ID createID(String name, Address address, String terminal) {
+                return identifierFactory.createID(name, address, terminal);
+            }
+
+            @Override
+            public ID parseID(String identifier) {
+                // try ANS record
+                ID id = ans.identifier(identifier);
+                if (id != null) {
+                    return id;
+                }
+                // parse by original factory
+                return identifierFactory.parseID(identifier);
+            }
+        };
     }
 }

@@ -88,7 +88,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         if (!super.saveDocument(profile)) {
             return false;
         }
-        ID entity = getID(profile.getIdentifier());
+        ID entity = profile.getIdentifier();
 
         Map<String, Object> info = new HashMap<>();
         info.put("ID", entity);
@@ -256,9 +256,9 @@ public final class Facebook extends chat.dim.common.Facebook {
     public List<ID> getAssistants(ID group) {
         List<ID> assistants = new ArrayList<>();
         // dev
-        assistants.add(getID("assistant@2PpB6iscuBjA15oTjAsiswoX9qis5V3c1Dq"));
+        assistants.add(ID.parse("assistant@2PpB6iscuBjA15oTjAsiswoX9qis5V3c1Dq"));
         // desktop.dim.chat
-        assistants.add(getID("assistant@4WBSiDzg9cpZGPqFrQ4bHcq4U5z9QAQLHS"));
+        assistants.add(ID.parse("assistant@4WBSiDzg9cpZGPqFrQ4bHcq4U5z9QAQLHS"));
         return assistants;
         //return super.getAssistants(group);
     }
