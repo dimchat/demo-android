@@ -189,7 +189,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         Log.info("handshake accepted for user: " + currentUser);
         // call client
-        getDelegate().onHandshakeAccepted(session, this);
+        getDelegate().onHandshakeAccepted(this);
     }
 
     public void handshakeAgain(String sessionKey) {

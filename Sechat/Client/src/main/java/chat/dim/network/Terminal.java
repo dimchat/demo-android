@@ -293,7 +293,7 @@ public class Terminal implements Station.Delegate {
     }
 
     @Override
-    public void onHandshakeAccepted(String session, Station server) {
+    public void onHandshakeAccepted(Station server) {
         User user = getCurrentUser();
         assert user != null : "current user not found";
 

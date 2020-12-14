@@ -124,9 +124,15 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
         return keys;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public PrivateKey getPrivateKeyForSignature(ID user) {
+        // TODO: support multi private keys
+        return getPrivateKeyForVisaSignature(user);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public PrivateKey getPrivateKeyForVisaSignature(ID user) {
         // get from memory cache
         PrivateKey key = signKeyTable.get(user);
         if (key == null) {
@@ -147,11 +153,5 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             }
         }
         return key;
-    }
-
-    @Override
-    public PrivateKey getPrivateKeyForVisaSignature(ID user) {
-        // TODO: support multi private keys
-        return getPrivateKeyForSignature(user);
     }
 }
