@@ -103,17 +103,17 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
     static {
         // register command processors
-        CommandProcessor.register(Command.HANDSHAKE, new HandshakeCommandProcessor(null));
-        CommandProcessor.register(Command.LOGIN, new LoginCommandProcessor(null));
+        CommandProcessor.register(Command.HANDSHAKE, new HandshakeCommandProcessor());
+        CommandProcessor.register(Command.LOGIN, new LoginCommandProcessor());
 
         // storage (contacts, private_key)
-        StorageCommandProcessor storageProcessor = new StorageCommandProcessor(null);
+        StorageCommandProcessor storageProcessor = new StorageCommandProcessor();
         CommandProcessor.register(StorageCommand.STORAGE, storageProcessor);
         CommandProcessor.register(StorageCommand.CONTACTS, storageProcessor);
         CommandProcessor.register(StorageCommand.PRIVATE_KEY, storageProcessor);
 
         // search (online)
-        SearchCommandProcessor searchProcessor = new SearchCommandProcessor(null);
+        SearchCommandProcessor searchProcessor = new SearchCommandProcessor();
         CommandProcessor.register(SearchCommand.SEARCH, searchProcessor);
         CommandProcessor.register(SearchCommand.ONLINE_USERS, searchProcessor);
     }

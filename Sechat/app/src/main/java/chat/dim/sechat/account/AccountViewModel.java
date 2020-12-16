@@ -13,10 +13,7 @@ import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
-import chat.dim.mkm.BTCMeta;
 import chat.dim.mkm.BaseVisa;
-import chat.dim.mkm.DefaultMeta;
-import chat.dim.mkm.ETHMeta;
 import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -51,11 +48,11 @@ public class AccountViewModel extends UserViewModel {
             return;
         }
         // get private key to sign the profile
-        SignKey privateKey = facebook.getPrivateKeyForSignature(identifier);
-        if (privateKey == null) {
+        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
+        if (sKey == null) {
             throw new NullPointerException("failed to get private key: " + identifier);
         }
-        profile.sign(privateKey);
+        profile.sign(sKey);
         // save signed profile
         if (!facebook.saveDocument(profile)) {
             return;
@@ -74,20 +71,20 @@ public class AccountViewModel extends UserViewModel {
             return null;
         }
         Meta meta = facebook.getMeta(identifier);
-        SignKey privateKey = facebook.getPrivateKeyForSignature(identifier);
-        if (meta == null || privateKey == null) {
+        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
+        if (meta == null || sKey == null) {
             return null;
         }
 
         String pem;
-        if (privateKey.getAlgorithm().equals(AsymmetricKey.ECC)) {
-            byte[] data = privateKey.getData();
+        if (sKey.getAlgorithm().equals(AsymmetricKey.ECC)) {
+            byte[] data = sKey.getData();
             if (data == null) {
                 return null;
             }
             pem = Hex.encode(data);
         } else {
-            pem = (String) privateKey.get("data");
+            pem = (String) sKey.get("data");
             if (pem == null) {
                 return null;
             }
@@ -115,7 +112,7 @@ public class AccountViewModel extends UserViewModel {
         info.put("data", pem);
 
         // key algorithm
-        String algorithm = (String) privateKey.get("algorithm");
+        String algorithm = (String) sKey.get("algorithm");
         if (algorithm != null && algorithm.length() > 0) {
             info.put("algorithm", algorithm);
         }
@@ -217,17 +214,7 @@ public class AccountViewModel extends UserViewModel {
         Meta meta = Meta.generate(metaVersion, privateKey, seed);
 
         // generate ID
-        ID identifier;
-        if (meta instanceof DefaultMeta) {
-            identifier = ((DefaultMeta) meta).generateID(network);
-        } else if (meta instanceof BTCMeta) {
-            identifier = ((BTCMeta) meta).generateID();
-        } else {
-            identifier = ((ETHMeta) meta).generateID();
-        }
-        if (identifier == null) {
-            return null;
-        }
+        ID identifier = meta.generateID(network, null);
 
         // save private key with user ID
         if (!facebook.savePrivateKey(privateKey, identifier, "M")) {

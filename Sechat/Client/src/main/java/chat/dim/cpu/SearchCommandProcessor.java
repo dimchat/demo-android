@@ -28,7 +28,6 @@ package chat.dim.cpu;
 import java.util.Map;
 
 import chat.dim.Facebook;
-import chat.dim.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Content;
@@ -39,8 +38,8 @@ import chat.dim.protocol.SearchCommand;
 
 public class SearchCommandProcessor extends CommandProcessor {
 
-    public SearchCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public SearchCommandProcessor() {
+        super();
     }
 
     private Meta getMeta(ID identifier, Map<String, Object> dictionary) {

@@ -210,7 +210,7 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Document getDocument(ID identifier, String type) {
         // try from database
         Document doc = super.getDocument(identifier, type);
-        if (isEmpty(doc)/* && isExpired(profile)*/) {
+        if (isExpired(doc)) {
             // update EXPIRES value
             long now = (new Date()).getTime();
             doc.put(EXPIRES_KEY, now + EXPIRES);
@@ -219,6 +219,25 @@ public final class Facebook extends chat.dim.common.Facebook {
             messenger.queryProfile(identifier);
         }
         return doc;
+    }
+
+    public boolean isExpired(Document profile) {
+        long now = (new Date()).getTime();
+        Number expires = (Number) profile.get(EXPIRES_KEY);
+        if (expires == null) {
+            // set expired time
+            profile.put(EXPIRES_KEY, now + EXPIRES);
+            return false;
+        }
+        return now > expires.longValue();
+    }
+
+    public boolean isSigned(Document profile) {
+        if (isEmpty(profile)) {
+            return false;
+        }
+        String base64 = (String) profile.get("signature");
+        return base64 != null && base64.length() > 0;
     }
 
     //-------- UserDataSource

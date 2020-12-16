@@ -27,7 +27,6 @@ package chat.dim.cpu;
 
 import java.util.Map;
 
-import chat.dim.Messenger;
 import chat.dim.database.LoginTable;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -38,8 +37,8 @@ import chat.dim.utils.Times;
 
 public class LoginCommandProcessor extends CommandProcessor {
 
-    public LoginCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public LoginCommandProcessor() {
+        super();
     }
 
     @Override

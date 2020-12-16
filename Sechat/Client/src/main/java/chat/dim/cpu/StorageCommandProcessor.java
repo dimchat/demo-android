@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Facebook;
-import chat.dim.Messenger;
 import chat.dim.User;
 import chat.dim.crypto.Password;
 import chat.dim.crypto.PrivateKey;
@@ -42,8 +41,8 @@ import chat.dim.protocol.StorageCommand;
 
 public class StorageCommandProcessor extends CommandProcessor {
 
-    public StorageCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public StorageCommandProcessor() {
+        super();
     }
 
     private Object decryptData(StorageCommand cmd, SymmetricKey password) {

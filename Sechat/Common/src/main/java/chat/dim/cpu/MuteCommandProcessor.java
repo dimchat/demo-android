@@ -27,15 +27,14 @@ package chat.dim.cpu;
 
 import java.util.List;
 
-import chat.dim.Messenger;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
 
 public class MuteCommandProcessor extends CommandProcessor {
 
-    public MuteCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public MuteCommandProcessor() {
+        super();
     }
 
     private Content getMuteList() {

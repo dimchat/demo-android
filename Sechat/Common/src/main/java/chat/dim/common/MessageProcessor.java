@@ -28,7 +28,6 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.core.CommandFactory;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;
@@ -60,11 +59,6 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
 
     public MessageProcessor(Messenger messenger) {
         super(messenger);
-    }
-
-    @Override
-    protected ContentProcessor getContentProcessor() {
-        return new AnyContentProcessor(getMessenger());
     }
 
     protected Messenger getMessenger() {
@@ -197,16 +191,19 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
 
     static {
         // register command parsers
-        CommandFactory.register(SearchCommand.SEARCH, SearchCommand::new);
-        CommandFactory.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
+        Command.register(SearchCommand.SEARCH, SearchCommand::new);
+        Command.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
 
-        CommandFactory.register(ReportCommand.REPORT, ReportCommand::new);
-        CommandFactory.register(ReportCommand.ONLINE, ReportCommand::new);
-        CommandFactory.register(ReportCommand.OFFLINE, ReportCommand::new);
+        Command.register(ReportCommand.REPORT, ReportCommand::new);
+        Command.register(ReportCommand.ONLINE, ReportCommand::new);
+        Command.register(ReportCommand.OFFLINE, ReportCommand::new);
+
+        // register content processors
+        ContentProcessor.register(0, new AnyContentProcessor());
 
         // register command processors
-        CommandProcessor.register(Command.RECEIPT, new ReceiptCommandProcessor(null));
-        CommandProcessor.register(MuteCommand.MUTE, new MuteCommandProcessor(null));
-        CommandProcessor.register(BlockCommand.BLOCK, new BlockCommandProcessor(null));
+        CommandProcessor.register(Command.RECEIPT, new ReceiptCommandProcessor());
+        CommandProcessor.register(MuteCommand.MUTE, new MuteCommandProcessor());
+        CommandProcessor.register(BlockCommand.BLOCK, new BlockCommandProcessor());
     }
 }

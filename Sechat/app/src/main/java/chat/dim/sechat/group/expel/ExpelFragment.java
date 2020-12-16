@@ -85,11 +85,11 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
             if (newName.length() > 0) {
                 User user = facebook.getCurrentUser();
                 assert user != null : "failed to get current user";
-                SignKey key = facebook.getPrivateKeyForSignature(user.identifier);
-                assert key != null : "failed to get private key: " + user.identifier;
+                SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.identifier);
+                assert sKey != null : "failed to get private key: " + user.identifier;
                 Document profile = new BaseBulletin(identifier);
                 profile.setName(newName);
-                profile.sign(key);
+                profile.sign(sKey);
                 facebook.saveDocument(profile);
             }
         }

@@ -34,8 +34,8 @@ import chat.dim.utils.Log;
 
 public class HandshakeCommandProcessor extends CommandProcessor {
 
-    public HandshakeCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public HandshakeCommandProcessor() {
+        super();
     }
 
     private Content success() {

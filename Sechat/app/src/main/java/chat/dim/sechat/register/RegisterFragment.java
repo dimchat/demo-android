@@ -166,9 +166,9 @@ public class RegisterFragment extends Fragment {
             } else {
                 profile.setProperty("avatar", avatarURL);
             }
-            SignKey sk = facebook.getPrivateKeyForSignature(user.identifier);
-            assert sk != null : "failed to get private key: " + user.identifier;
-            profile.sign(sk);
+            SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.identifier);
+            assert sKey != null : "failed to get private key: " + user.identifier;
+            profile.sign(sKey);
             facebook.saveDocument(profile);
         }
 

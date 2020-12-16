@@ -26,7 +26,6 @@
 package chat.dim.common;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import chat.dim.AddressNameService;
@@ -196,7 +195,7 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(ID.parse(identifier));
     }
     public String getNickname(ID identifier) {
-        Document profile = getDocument(identifier, Document.ANY);
+        Document profile = getDocument(identifier, "*");
         assert profile != null : "profile object should not be null: " + identifier;
         return profile.getName();
     }
@@ -243,27 +242,7 @@ public class Facebook extends chat.dim.Facebook {
             }
             assert profile != null : "profile object should not be null: " + identifier;
         }
-        isExpired(profile);
         return profile;
-    }
-
-    public boolean isSigned(Document profile) {
-        if (isEmpty(profile)) {
-            return false;
-        }
-        String base64 = (String) profile.get("signature");
-        return base64 != null && base64.length() > 0;
-    }
-
-    public boolean isExpired(Document profile) {
-        long now = (new Date()).getTime();
-        Number expires = (Number) profile.get(EXPIRES_KEY);
-        if (expires == null) {
-            // set expired time
-            profile.put(EXPIRES_KEY, now + EXPIRES);
-            return false;
-        }
-        return now > expires.longValue();
     }
 
     //-------- UserDataSource
@@ -287,10 +266,10 @@ public class Facebook extends chat.dim.Facebook {
             if (keys == null || keys.size() == 0) {
                 // DIMP v1.0:
                 //     decrypt key and the sign key are the same keys
-                SignKey key = getPrivateKeyForSignature(user);
-                if (key instanceof DecryptKey) {
+                SignKey sKey = getPrivateKeyForSignature(user);
+                if (sKey instanceof DecryptKey) {
                     keys = new ArrayList<>();
-                    keys.add((DecryptKey) key);
+                    keys.add((DecryptKey) sKey);
                 }
             }
         }

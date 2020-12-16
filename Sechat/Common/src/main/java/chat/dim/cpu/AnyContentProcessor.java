@@ -25,7 +25,6 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
 import chat.dim.common.Facebook;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
@@ -43,12 +42,12 @@ import chat.dim.protocol.VideoContent;
 
 public class AnyContentProcessor extends ContentProcessor {
 
-    public AnyContentProcessor(Messenger messenger) {
-        super(messenger);
+    public AnyContentProcessor() {
+        super();
     }
 
     @Override
-    protected Content unknown(Content content, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video

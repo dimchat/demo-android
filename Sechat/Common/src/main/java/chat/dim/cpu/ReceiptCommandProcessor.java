@@ -25,15 +25,14 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 
 public class ReceiptCommandProcessor extends CommandProcessor {
 
-    public ReceiptCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public ReceiptCommandProcessor() {
+        super();
     }
 
     @Override

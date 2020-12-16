@@ -79,10 +79,10 @@ public class EntityViewModel extends ViewModel {
 
 
     public static String getName(ID identifier) {
-        return getName(identifier, getDocument(identifier, Document.ANY));
+        return getName(identifier, getDocument(identifier, "*"));
     }
     public String getName() {
-        return getName(identifier, getDocument(Document.ANY));
+        return getName(identifier, getDocument("*"));
     }
 
     //
@@ -100,7 +100,7 @@ public class EntityViewModel extends ViewModel {
 
     public void refreshProfile() {
         BackgroundThreads.wait(() -> {
-            Document profile = getDocument(Document.ANY);
+            Document profile = getDocument("*");
             if (facebook.isEmpty(profile) || facebook.isExpired(profile)) {
                 Messenger messenger = Messenger.getInstance();
                 messenger.queryProfile(identifier);

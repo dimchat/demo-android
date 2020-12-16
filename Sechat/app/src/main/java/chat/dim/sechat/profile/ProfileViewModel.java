@@ -56,13 +56,13 @@ public class ProfileViewModel extends UserViewModel {
 
     public Wallet getWallet(WalletName name) {
         Facebook facebook = Facebook.getInstance();
-        SignKey privateKey = facebook.getPrivateKeyForSignature(identifier);
+        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
-            if (privateKey == null) {
+            if (sKey == null) {
                 return WalletFactory.getWallet(name, address);
             } else {
-                Credentials account = Credentials.create(Hex.encode(privateKey.getData()));
+                Credentials account = Credentials.create(Hex.encode(sKey.getData()));
                 return WalletFactory.getWallet(name, account);
             }
         }

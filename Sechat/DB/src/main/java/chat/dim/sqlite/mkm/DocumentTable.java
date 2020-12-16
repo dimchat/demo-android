@@ -68,7 +68,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     public boolean saveDocument(Document doc) {
         ID identifier = doc.getIdentifier();
         // 0. check duplicate record
-        if (getDocument(identifier, Document.ANY).containsKey("data")) {
+        if (getDocument(identifier, "*").containsKey("data")) {
             Log.info("entity document exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
@@ -131,7 +131,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
             } else if (ID.isGroup(entity)) {
                 doc = new BaseBulletin(entity);
             } else {
-                doc = new BaseDocument(entity, Document.ANY);
+                doc = new BaseDocument(entity, type);
             }
         }
 

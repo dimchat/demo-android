@@ -61,7 +61,7 @@ public class Conversation {
     }
 
     public String getName() {
-        Document doc = entity.getDocument(Document.ANY);
+        Document doc = entity.getDocument("*");
         if (doc != null) {
             String name = doc.getName();
             if (name != null) {
