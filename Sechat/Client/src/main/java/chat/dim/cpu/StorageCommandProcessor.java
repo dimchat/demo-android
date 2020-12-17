@@ -34,6 +34,7 @@ import chat.dim.crypto.Password;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
@@ -128,14 +129,14 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof StorageCommand : "storage command error: " + content;
-        StorageCommand cmd = (StorageCommand) content;
-        String title = cmd.getTitle();
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof StorageCommand : "storage command error: " + cmd;
+        StorageCommand sCmd = (StorageCommand) cmd;
+        String title = sCmd.getTitle();
         if (title.equals(StorageCommand.CONTACTS)) {
-            return processContacts(cmd);
+            return processContacts(sCmd);
         } else if (title.equals(StorageCommand.PRIVATE_KEY)) {
-            return processPrivateKey(cmd);
+            return processPrivateKey(sCmd);
         }
         throw new UnsupportedOperationException("Unsupported storage, title: " + title);
     }

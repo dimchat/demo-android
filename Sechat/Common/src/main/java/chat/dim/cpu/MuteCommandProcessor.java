@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import java.util.List;
 
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
@@ -48,10 +49,10 @@ public class MuteCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof MuteCommand : "mute command error: " + content;
-        MuteCommand cmd = (MuteCommand) content;
-        List list = cmd.getMuteList();
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof MuteCommand : "mute command error: " + cmd;
+        MuteCommand mCmd = (MuteCommand) cmd;
+        List list = mCmd.getMuteList();
         if (list == null) {
             return getMuteList();
         } else {

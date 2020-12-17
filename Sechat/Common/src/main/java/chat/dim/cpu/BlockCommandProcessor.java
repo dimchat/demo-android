@@ -28,6 +28,7 @@ package chat.dim.cpu;
 import java.util.List;
 
 import chat.dim.protocol.BlockCommand;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ReliableMessage;
 
@@ -48,10 +49,10 @@ public class BlockCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof BlockCommand : "block command error: " + content;
-        BlockCommand cmd = (BlockCommand) content;
-        List list = cmd.getBlockCList();
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof BlockCommand : "block command error: " + cmd;
+        BlockCommand bCmd = (BlockCommand) cmd;
+        List list = bCmd.getBlockCList();
         if (list == null) {
             return getBlockList();
         } else {

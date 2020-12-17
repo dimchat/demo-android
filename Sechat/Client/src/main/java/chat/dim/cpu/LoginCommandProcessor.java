@@ -28,6 +28,7 @@ package chat.dim.cpu;
 import java.util.Map;
 
 import chat.dim.database.LoginTable;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
@@ -42,15 +43,15 @@ public class LoginCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof LoginCommand : "login command error: " + content;
-        LoginCommand cmd = (LoginCommand) content;
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof LoginCommand : "login command error: " + cmd;
+        LoginCommand lCmd = (LoginCommand) cmd;
 
         // update contact's login status
-        loginTable.saveLoginCommand(cmd);
+        loginTable.saveLoginCommand(lCmd);
 
-        ID identifier = cmd.getIdentifier();
-        Map<String, Object> station = cmd.getStation();
+        ID identifier = lCmd.getIdentifier();
+        Map<String, Object> station = lCmd.getStation();
         Log.info("[" + Times.getTimeString(cmd.getTime()) + "] user (" + identifier + ") login: " + station);
 
         // no need to response login command

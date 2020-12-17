@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import chat.dim.model.Messenger;
 import chat.dim.network.Server;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ReliableMessage;
@@ -55,19 +56,19 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof HandshakeCommand : "handshake command error: " + content;
-        HandshakeCommand cmd = (HandshakeCommand) content;
-        String message = cmd.message;
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof HandshakeCommand : "handshake command error: " + cmd;
+        HandshakeCommand hCmd = (HandshakeCommand) cmd;
+        String message = hCmd.message;
         if ("DIM!".equals(message)) {
             // S -> C
             return success();
         } else if ("DIM?".equals(message)) {
             // S -> C
-            return restart(cmd.sessionKey);
+            return restart(hCmd.sessionKey);
         } else {
             // C -> S: Hello world!
-            throw new IllegalStateException("handshake command error: " + content);
+            throw new IllegalStateException("handshake command error: " + cmd);
         }
     }
 }

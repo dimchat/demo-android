@@ -30,6 +30,7 @@ import java.util.Map;
 import chat.dim.Facebook;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -74,13 +75,13 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        assert content instanceof SearchCommand : "search command error: " + content;
+    public Content execute(Command cmd, ReliableMessage rMsg) {
+        assert cmd instanceof SearchCommand : "search command error: " + cmd;
 
-        parse((SearchCommand) content);
+        parse((SearchCommand) cmd);
 
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.postNotification(NotificationNames.SearchUpdated, this, content);
+        nc.postNotification(NotificationNames.SearchUpdated, this, cmd);
 
         return null;
     }
