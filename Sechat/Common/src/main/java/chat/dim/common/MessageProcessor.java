@@ -81,7 +81,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             return false;
         }
         // check meta for new group ID
-        chat.dim.Facebook facebook = getFacebook();
+        Facebook facebook = getFacebook();
         Meta meta = facebook.getMeta(group);
         if (meta == null) {
             // NOTICE: if meta for group not found,

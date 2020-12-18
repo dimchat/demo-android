@@ -172,6 +172,23 @@ public class Facebook extends chat.dim.Facebook {
         return groupTable.removeGroup(group);
     }
 
+    public boolean containsMember(ID member, ID group) {
+        List<ID> members = getMembers(group);
+        if (members != null && members.contains(member)) {
+            return true;
+        }
+        ID owner = getOwner(group);
+        return owner != null && owner.equals(member);
+    }
+
+    public boolean containsAssistant(ID user, ID group) {
+        List<ID> assistants = getAssistants(group);
+        if (assistants == null) {
+            return false;
+        }
+        return assistants.contains(user);
+    }
+
     //--------
 
     public String getUsername(Object string) {
