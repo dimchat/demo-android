@@ -45,7 +45,8 @@ public class UserViewModel extends EntityViewModel {
 
     public static User getUser(Object identifier) {
         if (identifier == null) {
-            throw new NullPointerException("user ID empty");
+            //throw new NullPointerException("user ID empty");
+            return null;
         }
         return facebook.getUser(ID.parse(identifier));
     }
@@ -72,7 +73,8 @@ public class UserViewModel extends EntityViewModel {
 
     public static String getNickname(Object identifier) {
         if (identifier == null) {
-            throw new NullPointerException("user ID empty");
+            //throw new NullPointerException("user ID empty");
+            return null;
         }
         return facebook.getNickname(identifier);
     }
@@ -82,7 +84,8 @@ public class UserViewModel extends EntityViewModel {
 
     public static String getUsername(Object identifier) {
         if (identifier == null) {
-            throw new NullPointerException("user ID empty");
+            //throw new NullPointerException("user ID empty");
+            return null;
         }
         return facebook.getUsername(identifier);
     }
@@ -92,7 +95,8 @@ public class UserViewModel extends EntityViewModel {
 
     public static String getUserTitle(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("user ID empty");
+            //throw new NullPointerException("user ID empty");
+            return null;
         }
         return EntityViewModel.getName(identifier);
     }
@@ -105,7 +109,8 @@ public class UserViewModel extends EntityViewModel {
     //
     public static LoginCommand getLoginCommand(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("user ID empty");
+            //throw new NullPointerException("user ID empty");
+            return null;
         }
         LoginTable db = LoginTable.getInstance();
         return db.getLoginCommand(identifier);

@@ -25,8 +25,8 @@
  */
 package chat.dim.common;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
@@ -34,31 +34,22 @@ import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.MuteCommandProcessor;
 import chat.dim.cpu.ReceiptCommandProcessor;
-import chat.dim.crypto.SymmetricKey;
-import chat.dim.digest.SHA256;
-import chat.dim.format.Base64;
-import chat.dim.mtp.Utils;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
-import chat.dim.protocol.SecureMessage;
+import chat.dim.protocol.group.InviteCommand;
+import chat.dim.protocol.group.ResetCommand;
 
 public class MessageProcessor extends chat.dim.MessageProcessor {
 
-    public static final int MTP_JSON = 0x01;
-    public static final int MTP_DMTP = 0x02;
-
-    // Message Transfer Protocol
-    public int mtpFormat = MTP_DMTP;
-
-    public MessageProcessor(Messenger messenger) {
-        super(messenger);
+    public MessageProcessor(Facebook facebook, Messenger messenger, MessagePacker packer) {
+        super(facebook, messenger, packer);
     }
 
     protected Messenger getMessenger() {
@@ -69,99 +60,73 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         return (Facebook) super.getFacebook();
     }
 
-    @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
-        attachKeyDigest(rMsg);
-        if (mtpFormat == MTP_JSON) {
-            // JsON
-            return super.serializeMessage(rMsg);
+    // check whether group info empty
+    private boolean isEmpty(ID group) {
+        chat.dim.Facebook facebook = getFacebook();
+        List members = facebook.getMembers(group);
+        if (members == null || members.size() == 0) {
+            return true;
+        }
+        ID owner = facebook.getOwner(group);
+        return owner == null;
+    }
+
+    // check whether need to update group
+    public boolean checkGroup(Content content, ID sender) {
+        // Check if it is a group message, and whether the group members info needs update
+        ID group = content.getGroup();
+        if (group == null || ID.isBroadcast(group)) {
+            // 1. personal message
+            // 2. broadcast message
+            return false;
+        }
+        // check meta for new group ID
+        chat.dim.Facebook facebook = getFacebook();
+        Meta meta = facebook.getMeta(group);
+        if (meta == null) {
+            // NOTICE: if meta for group not found,
+            //         facebook should query it from DIM network automatically
+            // TODO: insert the message to a temporary queue to wait meta
+            //throw new NullPointerException("group meta not found: " + group);
+            return true;
+        }
+        // query group info
+        if (isEmpty(group)) {
+            // NOTICE: if the group info not found, and this is not an 'invite' command
+            //         query group info from the sender
+            if (content instanceof InviteCommand || content instanceof ResetCommand) {
+                // FIXME: can we trust this stranger?
+                //        may be we should keep this members list temporary,
+                //        and send 'query' to the owner immediately.
+                // TODO: check whether the members list is a full list,
+                //       it should contain the group owner(owner)
+                return false;
+            } else {
+                return getMessenger().queryGroupInfo(group, sender);
+            }
+        } else if (facebook.containsMember(sender, group)
+                || facebook.containsAssistant(sender, group)
+                || facebook.isOwner(sender, group)) {
+            // normal membership
+            return false;
         } else {
-            // D-MTP
-            return Utils.serializeMessage(rMsg);
-        }
-    }
 
-    @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
-        if (data == null || data.length < 2) {
-            return null;
+            // if assistants exists, query them
+            List<ID> assistants = facebook.getAssistants(group);
+            List<ID> admins = new ArrayList<>(assistants);
+            // if owner found, query it too
+            ID owner = facebook.getOwner(group);
+            if (owner != null && !admins.contains(owner)) {
+                admins.add(owner);
+            }
+            return getMessenger().queryGroupInfo(group, admins);
         }
-        ReliableMessage rMsg;
-        if (data[0] == '{') {
-            // JsON
-            rMsg = super.deserializeMessage(data);
-        } else { // D-MTP
-            rMsg = Utils.deserializeMessage(data);
-        }
-        if (rMsg != null) {
-            rMsg.setDelegate(getMessageDelegate());
-        }
-        return rMsg;
-    }
-
-    private void attachKeyDigest(ReliableMessage rMsg) {
-        if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getMessageDelegate());
-        }
-        if (rMsg.getEncryptedKey() != null) {
-            // 'key' exists
-            return;
-        }
-        Map<String, Object> keys = rMsg.getEncryptedKeys();
-        if (keys == null) {
-            keys = new HashMap<>();
-        } else if (keys.get("digest") != null) {
-            // key digest already exists
-            return;
-        }
-        // get key with direction
-        SymmetricKey key;
-        ID sender = rMsg.getSender();
-        ID group = rMsg.getGroup();
-        if (group == null) {
-            ID receiver = rMsg.getReceiver();
-            key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
-        } else {
-            key = getCipherKeyDelegate().getCipherKey(sender, group, false);
-        }
-        // get key data
-        byte[] data = key.getData();
-        if (data == null || data.length < 6) {
-            // broadcast message has no key
-            return;
-        }
-        // get digest
-        byte[] part = new byte[6];
-        System.arraycopy(data, data.length-6, part, 0, 6);
-        byte[] digest = SHA256.digest(part);
-        String base64 = Base64.encode(digest);
-        base64 = base64.trim();
-        int pos = base64.length() - 8;
-        keys.put("digest", base64.substring(pos));
-        rMsg.put("keys", keys);
-    }
-
-    @Override
-    public SecureMessage encryptMessage(InstantMessage iMsg) {
-        SecureMessage sMsg = super.encryptMessage(iMsg);
-
-        ID receiver = iMsg.getReceiver();
-        if (ID.isGroup(receiver)) {
-            // reuse group message keys
-            ID sender = iMsg.getSender();
-            SymmetricKey key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
-            assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
-            key.put("reused", true);
-        }
-        // TODO: reuse personal message key?
-
-        return sMsg;
     }
 
     @Override
     protected Content process(Content content, ReliableMessage rMsg) {
         ID sender = rMsg.getSender();
-        if (getMessenger().checkGroup(content, sender)) {
+        if (checkGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();
             rMsg.put("waiting", group);

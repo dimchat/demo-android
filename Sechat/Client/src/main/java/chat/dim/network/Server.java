@@ -124,11 +124,11 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         Envelope env = Envelope.create(currentUser.identifier, identifier, null);
         InstantMessage iMsg = InstantMessage.create(env, cmd);
         Messenger messenger = Messenger.getInstance();
-        SecureMessage sMsg = messenger.getMessageProcessor().encryptMessage(iMsg);
+        SecureMessage sMsg = messenger.encryptMessage(iMsg);
         if (sMsg == null) {
             throw new NullPointerException("failed to encrypt message: " + iMsg);
         }
-        ReliableMessage rMsg = messenger.getMessageProcessor().signMessage(sMsg);
+        ReliableMessage rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
             throw new NullPointerException("failed to sign message: " + sMsg);
         }
@@ -176,7 +176,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         // send out directly
         Messenger messenger = Messenger.getInstance();
-        byte[] data = messenger.getMessageProcessor().serializeMessage(rMsg);
+        byte[] data = messenger.serializeMessage(rMsg);
         send(data, StarShip.URGENT);
     }
 

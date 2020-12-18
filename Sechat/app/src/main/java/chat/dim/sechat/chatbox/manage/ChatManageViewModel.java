@@ -11,7 +11,7 @@ import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 
-class ChatManageViewModel extends EntityViewModel {
+public class ChatManageViewModel extends EntityViewModel {
 
     public static int MAX_ITEM_COUNT = 2 * 3 * 5;
 

@@ -26,6 +26,7 @@
 package chat.dim.model;
 
 import chat.dim.User;
+import chat.dim.common.MessagePacker;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.LoginCommandProcessor;
@@ -49,8 +50,8 @@ import chat.dim.utils.Log;
 
 public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
-    public MessageProcessor(Messenger messenger) {
-        super(messenger);
+    public MessageProcessor(Facebook facebook, Messenger messenger, MessagePacker packer) {
+        super(facebook, messenger, packer);
     }
 
     protected Facebook getFacebook() {

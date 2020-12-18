@@ -58,6 +58,9 @@ public class Times {
      * @return readable string
      */
     public static String getTimeString(Date now) {
+        if (now == null) {
+            return null;
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.set(Calendar.HOUR_OF_DAY, 0);

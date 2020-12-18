@@ -65,19 +65,22 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         }
 
         ID getIdentifier() {
+            if (account == null) {
+                return null;
+            }
             return account.identifier;
         }
 
         Bitmap getAvatar() {
-            return UserViewModel.getAvatar(account.identifier);
+            return UserViewModel.getAvatar(getIdentifier());
         }
 
         String getTitle() {
-            return UserViewModel.getUserTitle(account.identifier);
+            return UserViewModel.getUserTitle(getIdentifier());
         }
 
         String getDesc() {
-            return EntityViewModel.getAddressString(account.identifier);
+            return EntityViewModel.getAddressString(getIdentifier());
         }
     }
 }

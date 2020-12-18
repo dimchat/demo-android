@@ -29,9 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.AddressNameService;
+import chat.dim.Group;
 import chat.dim.Immortals;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
+import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
@@ -47,6 +49,7 @@ import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Visa;
 
 public class Facebook extends chat.dim.Facebook {
     public Facebook() {
@@ -142,7 +145,7 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveDocument(Document profile) {
-        if (!verify(profile)) {
+        if (!isValid(profile)) {
             // profile's signature not match
             return false;
         }
@@ -201,6 +204,47 @@ public class Facebook extends chat.dim.Facebook {
     }
     public String getGroupName(ID identifier) {
         return getNickname(identifier);
+    }
+
+    private boolean checkVisaKey(ID identifier) {
+        if (ID.isBroadcast(identifier)) {
+            return true;
+        }
+        Document doc = getDocument(identifier, Document.VISA);
+        if (doc instanceof Visa) {
+            EncryptKey key = ((Visa) doc).getKey();
+            if (key != null) {
+                return true;
+            }
+        }
+        Meta meta = getMeta(identifier);
+        if (meta == null) {
+            return false;
+        }
+        return meta.getKey() instanceof EncryptKey;
+    }
+
+    @Override
+    protected User createUser(ID identifier) {
+        if (checkVisaKey(identifier)) {
+            return super.createUser(identifier);
+        }
+        return null;
+    }
+
+    private boolean checkMeta(ID entity) {
+        if (ID.isBroadcast(entity)) {
+            return true;
+        }
+        return getMeta(entity) != null;
+    }
+
+    @Override
+    protected Group createGroup(ID identifier) {
+        if (checkMeta(identifier)) {
+            return super.createGroup(identifier);
+        }
+        return null;
     }
 
     //-------- EntityDataSource
@@ -320,19 +364,27 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public List<ID> getMembers(ID group) {
-        return groupTable.getMembers(group);
+        List<ID> members = groupTable.getMembers(group);
+        if (members != null && members.size() > 0) {
+            return members;
+        }
+        return super.getMembers(group);
     }
 
     @Override
     public List<ID> getAssistants(ID group) {
+        List<ID> assistants = super.getAssistants(group);
+        if (assistants != null && assistants.size() > 0) {
+            return assistants;
+        }
         // try ANS record
         ID identifier = ID.parse("assistant");
-        if (identifier == null) {
-            return null;
+        if (identifier != null) {
+            assistants = new ArrayList<>();
+            assistants.add(identifier);
+            return assistants;
         }
-        List<ID> assistants = new ArrayList<>();
-        assistants.add(identifier);
-        return assistants;
+        return null;
     }
 
     // ANS

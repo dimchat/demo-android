@@ -112,7 +112,7 @@ public class ContactList extends DummyList<ContactList.Item> {
                     return "Last login station: " + EntityViewModel.getName(sid);
                 }
             }
-            //return EntityViewModel.getAddressString(account.identifier);
+            //return EntityViewModel.getAddressString(identifier);
             return null;
         }
     }

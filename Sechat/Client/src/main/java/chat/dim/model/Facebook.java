@@ -210,7 +210,7 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Document getDocument(ID identifier, String type) {
         // try from database
         Document doc = super.getDocument(identifier, type);
-        if (isExpired(doc)) {
+        if (isEmpty(doc) || isExpired(doc)) {
             // update EXPIRES value
             long now = (new Date()).getTime();
             doc.put(EXPIRES_KEY, now + EXPIRES);
