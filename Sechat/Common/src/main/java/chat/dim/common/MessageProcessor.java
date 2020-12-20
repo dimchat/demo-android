@@ -72,7 +72,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     // check whether need to update group
-    public boolean checkGroup(Content content, ID sender) {
+    private boolean isWaitingGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
         if (group == null || ID.isBroadcast(group)) {
@@ -126,7 +126,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     @Override
     protected Content process(Content content, ReliableMessage rMsg) {
         ID sender = rMsg.getSender();
-        if (checkGroup(content, sender)) {
+        if (isWaitingGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();
             rMsg.put("waiting", group);

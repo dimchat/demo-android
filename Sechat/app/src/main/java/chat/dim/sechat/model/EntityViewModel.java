@@ -54,7 +54,8 @@ public class EntityViewModel extends ViewModel {
     //
     public static String getAddressString(ID identifier) {
         if (identifier == null) {
-            throw new NullPointerException("entity ID empty");
+            //throw new NullPointerException("entity ID empty");
+            return null;
         }
         return identifier.getAddress().toString();
     }
