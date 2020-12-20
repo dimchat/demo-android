@@ -92,7 +92,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             ID entity = (ID) info.get("ID");
             if (ID.isUser(entity)) {
                 // check user
-                if (facebook.getUser(entity) == null) {
+                if (facebook.getMeta(entity) == null) {
                     Log.error("user not ready yet: " + entity);
                     return;
                 }
