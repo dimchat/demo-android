@@ -62,17 +62,17 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
 
     public final String name;
 
-    private User currentUser = null;
-    public String session = null;
-
     private final StateMachine fsm;
 
     private StarGate star = null;
-    final private ReadWriteLock starLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock starLock = new ReentrantReadWriteLock();
 
     private Map<String, Object> startOptions = null;
 
     private boolean paused = false;
+
+    private User currentUser = null;
+    String sessionKey = null;
 
     Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
@@ -85,14 +85,13 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     public User getCurrentUser() {
         return currentUser;
     }
-
     public void setCurrentUser(User user) {
         if (user.equals(currentUser)) {
             return;
         }
         currentUser = user;
         // switch state for re-login
-        session = null;
+        sessionKey = null;
     }
 
     private ServerState getCurrentState() {
@@ -114,8 +113,6 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         return status;
     }
-
-    //---- slowly command for meta/profile
 
     private ReliableMessage packCommand(Command cmd) {
         if (currentUser == null) {
@@ -150,22 +147,28 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     }
 
     public void handshake(String newSession) {
+        if (currentUser == null) {
+            // current user not set yet
+            return;
+        }
         // check FSM state == 'Handshaking'
-//        ServerState state = getCurrentState();
-//        if (!StateMachine.handshakingState.equals(state.name)) {
-//            // FIXME: sometimes the connection state will be reset
-//            return;
-//        }
+        ServerState state = getCurrentState();
+        if (!state.equals(ServerState.HANDSHAKING)) {
+            // FIXME: sometimes the connection state will be reset
+            Log.error("server state not handshaking: " + state.name);
+            return;
+        }
         // check connection status == 'Connected'
         if (getStatus() != StarGate.Status.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
+            Log.error("server not connected");
             return;
         }
         if (newSession != null) {
-            session = newSession;
+            sessionKey = newSession;
         }
         // create handshake command
-        HandshakeCommand cmd = new HandshakeCommand(session);
+        HandshakeCommand cmd = new HandshakeCommand(sessionKey);
         setLastReceivedMessageTime(cmd);
         ReliableMessage rMsg = packCommand(cmd);
         // first handshake?
@@ -183,9 +186,10 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     public void handshakeAccepted() {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.name.equals(ServerState.HANDSHAKING)) {
+        if (!state.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
-            Log.error("server state error: " + state.name);
+            Log.error("server state not handshaking: " + state.name);
+            return;
         }
         Log.info("handshake accepted for user: " + currentUser);
         // call client
@@ -195,9 +199,10 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     public void handshakeAgain(String sessionKey) {
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.name.equals(ServerState.HANDSHAKING)) {
+        if (!state.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
-            Log.error("server state error: " + state.name);
+            Log.error("server state not handshaking: " + state.name);
+            return;
         }
         // new session key from station
         Log.info("handshake again with session: " + sessionKey);
@@ -303,10 +308,6 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         fsm.resume();
     }
 
-    public boolean isPaused() {
-        return paused;
-    }
-
     private void send(byte[] payload, int priority) {
         StarShip ship = new StarShip(priority, payload, this);
         Lock readLock = starLock.readLock();
@@ -385,7 +386,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         ServerState state;
         while (waitingList.size() > 0 && getStatus() == StarGate.Status.Connected) {
             state = getCurrentState();
-            if (state == null || !state.name.equals(ServerState.RUNNING)) {
+            if (!state.equals(ServerState.RUNNING)) {
                 break;
             }
             wrapper = waitingList.remove(0);
@@ -407,7 +408,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         RequestWrapper wrapper = new RequestWrapper(priority, data, handler);
 
         ServerState state = getCurrentState();
-        if (state == null || !state.name.equals(ServerState.RUNNING)) {
+        if (!state.equals(ServerState.RUNNING)) {
             waitingList.add(wrapper);
             return true;
         }

@@ -25,6 +25,7 @@
  */
 package chat.dim.client;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.model.MessageDataSource;
 import chat.dim.network.Server;
+import chat.dim.network.Terminal;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
@@ -42,7 +44,6 @@ import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
-import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.stargate.StarShip;
@@ -76,7 +77,21 @@ public final class Messenger extends chat.dim.common.Messenger {
         return new MessageProcessor(this);
     }
 
-    public Server server = null;
+    private WeakReference<Terminal> terminalRef = null;
+
+    public void setTerminal(Terminal client) {
+        terminalRef = new WeakReference<>(client);
+    }
+    private Terminal getTerminal() {
+        return terminalRef.get();
+    }
+
+    public Server getCurrentServer() {
+        return getTerminal().getCurrentServer();
+    }
+    public User getCurrentUser() {
+        return getTerminal().getCurrentUser();
+    }
 
     /**
      *  Pack and send command to station
@@ -86,6 +101,7 @@ public final class Messenger extends chat.dim.common.Messenger {
      */
     @Override
     public boolean sendCommand(Command cmd, int priority) {
+        Server server = getCurrentServer();
         if (server == null) {
             return false;
         }
@@ -95,10 +111,7 @@ public final class Messenger extends chat.dim.common.Messenger {
     @Override
     public boolean sendContent(ID sender, ID receiver, Content content, Messenger.Callback callback, int priority) {
         if (sender == null) {
-            if (server == null) {
-                return false;
-            }
-            User user = server.getCurrentUser();
+            User user = getCurrentUser();
             if (user == null) {
                 // FIXME: suspend message for waiting user login
                 return false;
@@ -123,19 +136,21 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     public void broadcastProfile(Document profile) {
-        User user = server.getCurrentUser();
-        if (user == null) {
-            // TODO: save the message content in waiting queue
-            throw new IllegalStateException("login first");
-        }
-        Facebook facebook = (Facebook) getFacebook();
-        ID identifier = profile.getIdentifier();
-        assert identifier.equals(user.identifier) : "profile error: " + profile;
         // check profile
+        Facebook facebook = getFacebook();
         if (facebook.isSigned(profile)) {
             profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         } else {
-            profile = null;
+            return;
+        }
+        User user = getCurrentUser();
+        if (user == null) {
+            // TODO: save the message content in waiting queue
+            throw new NullPointerException("login first");
+        }
+        ID identifier = profile.getIdentifier();
+        if (!user.identifier.equals(identifier)) {
+            throw new IllegalArgumentException("profile error: " + profile);
         }
         // pack and send profile to every contact
         Command cmd = new DocumentCommand(identifier, profile);
@@ -150,7 +165,7 @@ public final class Messenger extends chat.dim.common.Messenger {
     public boolean postProfile(Document profile, Meta meta) {
         ID identifier = profile.getIdentifier();
         // check profile
-        Facebook facebook = (Facebook) getFacebook();
+        Facebook facebook = getFacebook();
         if (facebook.isSigned(profile)) {
             profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         } else {
@@ -259,37 +274,5 @@ public final class Messenger extends chat.dim.common.Messenger {
             }
         }
         return checking;
-    }
-
-    public boolean queryOnlineUsers() {
-        Command cmd = new SearchCommand(SearchCommand.ONLINE_USERS);
-        return sendCommand(cmd, StarShip.NORMAL);
-    }
-
-    public boolean searchUsers(String keywords) {
-        Command cmd = new SearchCommand(keywords);
-        return sendCommand(cmd, StarShip.NORMAL);
-    }
-
-    public boolean login(User user) {
-        assert server != null : "server not connect yet";
-        if (user == null) {
-            user = getFacebook().getCurrentUser();
-            if (user == null) {
-                // user not found
-                return false;
-            }
-        }
-        if (user.equals(server.getCurrentUser())) {
-            // user not change
-            return true;
-        }
-        // clear session
-        server.session = null;
-
-        server.setCurrentUser(user);
-
-        server.handshake(null);
-        return true;
     }
 }

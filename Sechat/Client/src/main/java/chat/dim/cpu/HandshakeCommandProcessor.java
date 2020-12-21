@@ -42,7 +42,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     private Content success() {
         Log.info("handshake success!");
         Messenger messenger = (Messenger) getMessenger();
-        Server server = messenger.server;
+        Server server = messenger.getCurrentServer();
         server.handshakeAccepted();
         return null;
     }
@@ -50,7 +50,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     private Content restart(String sessionKey) {
         Log.info("handshake again, session key: " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();
-        Server server = messenger.server;
+        Server server = messenger.getCurrentServer();
         server.handshakeAgain(sessionKey);
         return null;
     }

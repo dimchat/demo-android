@@ -44,60 +44,43 @@ import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.stargate.StarShip;
 
-public class Terminal implements Station.Delegate {
-
-    protected Facebook facebook = Facebook.getInstance();
-    protected Messenger messenger = Messenger.getInstance();
+public abstract class Terminal implements Station.Delegate {
 
     private Server currentServer = null;
 
     public Terminal() {
         super();
+        Messenger messenger = Messenger.getInstance();
+        messenger.setTerminal(this);
     }
 
     public String getLanguage() {
         return Locale.getDefault().getLanguage();
     }
 
-    public String getDisplayName() {
-        // TODO: override me
-        return "DIM";
-    }
+    // "DIM"
+    public abstract String getDisplayName();
 
-    public String getVersionName() {
-        // TODO: override me
-        return "1.0.1";
-    }
+    // "1.0.1"
+    public abstract String getVersionName();
 
-    public String getSystemVersion() {
-        // TODO: override me
-        return "4.0";
-    }
+    // "4.0"
+    public abstract String getSystemVersion();
 
-    public String getSystemModel() {
-        // TODO: override me
-        return "HMS";
-    }
+    // "HMS"
+    public abstract String getSystemModel();
 
-    public String getSystemDevice() {
-        // TODO: override me
-        return "hammerhead";
-    }
+    // "hammerhead"
+    public abstract String getSystemDevice();
 
-    public String getDeviceBrand() {
-        // TODO: override me
-        return "HUAWEI";
-    }
+    // "HUAWEI"
+    public abstract String getDeviceBrand();
 
-    public String getDeviceBoard() {
-        // TODO: override me
-        return "hammerhead";
-    }
+    // "hammerhead"
+    public abstract String getDeviceBoard();
 
-    public String getDeviceManufacturer() {
-        // TODO: override me
-        return "HUAWEI";
-    }
+    // "HUAWEI"
+    public abstract String getDeviceManufacturer();
 
     /**
      *  format: "DIMP/1.0 (Linux; U; Android 4.1; zh-CN) DIMCoreKit/1.0 (Terminal, like WeChat) DIM-by-GSP/1.0.1"
@@ -116,24 +99,33 @@ public class Terminal implements Station.Delegate {
                 model, device, sysVersion, lang, appName, appVersion);
     }
 
-    protected Server getCurrentServer() {
+    public Server getCurrentServer() {
         return currentServer;
     }
-
-    protected void setCurrentServer(Server server) {
-        server.setDelegate(this);
-        messenger.server = server;
-        currentServer = server;
+    private void setCurrentServer(Server server) {
+        if (currentServer != server) {
+            if (currentServer != null) {
+                currentServer.end();
+            }
+            currentServer = server;
+        }
+    }
+    private boolean isNewServer(String host, int port) {
+        if (currentServer == null) {
+            return true;
+        }
+        if (currentServer.getPort() != port) {
+            return true;
+        }
+        String ip = currentServer.getHost();
+        return ip == null || !ip.equals(host);
     }
 
     public User getCurrentUser() {
-        return currentServer == null ? null : currentServer.getCurrentUser();
-    }
-
-    public void setCurrentUser(User user) {
-        if (currentServer != null) {
-            currentServer.setCurrentUser(user);
+        if (currentServer == null) {
+            return null;
         }
+        return currentServer.getCurrentUser();
     }
 
     //--------
@@ -164,12 +156,11 @@ public class Terminal implements Station.Delegate {
         // TODO: config FTP server
 
         // connect server
-        Server server = getCurrentServer();
-        if (server == null || server.getPort() != port || !server.getHost().equals(host)) {
-            if (server != null) {
-                server.end();
-            }
-            server = new Server(identifier, host, port, name);
+        if (isNewServer(host, port)) {
+            // disconnect old server
+            setCurrentServer(null);
+            // connect new server
+            Server server = new Server(identifier, host, port, name);
             server.setDataSource(Facebook.getInstance());
             server.setDelegate(this);
             server.start(options);
@@ -177,13 +168,18 @@ public class Terminal implements Station.Delegate {
         }
 
         // get user from database and login
-        messenger.login(null);
+        Facebook facebook = Facebook.getInstance();
+        User user = facebook.getCurrentUser();
+        if (user != null) {
+            currentServer.setCurrentUser(user);
+            currentServer.handshake(null);
+        }
     }
 
     public void startServer() {
         NetworkDatabase database = NetworkDatabase.getInstance();
         List<ProviderTable.ProviderInfo> providers = database.allProviders();
-        if (providers != null && providers.size() > 0) {
+        if (providers.size() > 0) {
             // choose the default sp
             ProviderTable.ProviderInfo sp = providers.get(0);
             List<ProviderTable.StationInfo> stations = database.allStations(sp.identifier);
@@ -211,10 +207,7 @@ public class Terminal implements Station.Delegate {
     }
 
     public void terminate() {
-        Server server = getCurrentServer();
-        if (server != null) {
-            server.end();
-        }
+        setCurrentServer(null);
     }
 
     private Date offlineTime = null;
@@ -226,6 +219,7 @@ public class Terminal implements Station.Delegate {
         if (offlineTime != null) {
             cmd.put("last_time", offlineTime.getTime() / 1000);
         }
+        Messenger messenger = Messenger.getInstance();
         messenger.sendCommand(cmd, StarShip.NORMAL);
     }
     private void reportOffline() {
@@ -236,33 +230,30 @@ public class Terminal implements Station.Delegate {
         // report client state
         Command cmd = new ReportCommand(ReportCommand.OFFLINE);
         cmd.put("time", offlineTime.getTime() / 1000);
+        Messenger messenger = Messenger.getInstance();
         messenger.sendCommand(cmd, StarShip.NORMAL);
     }
 
     public void enterBackground() {
         offlineTime = new Date();
-        Server server = getCurrentServer();
-        if (server != null) {
+        if (currentServer != null) {
             // report client state
             reportOffline();
 
             // pause the server
-            server.pause();
+            currentServer.pause();
         }
     }
 
     public void enterForeground() {
-        Server server = getCurrentServer();
-        if (server != null) {
+        if (currentServer != null) {
             // resume the server
-            server.resume();
+            currentServer.resume();
 
             // clear icon badge
 
             // try to activate the connection
-            if (server.getCurrentUser() != null) {
-                server.handshake(null);
-            }
+            currentServer.handshake(null);
         }
     }
 
@@ -272,6 +263,7 @@ public class Terminal implements Station.Delegate {
     public void onReceivePackage(byte[] data, Station server) {
         byte[] response;
         try {
+            Messenger messenger = Messenger.getInstance();
             response = messenger.process(data);
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -294,11 +286,13 @@ public class Terminal implements Station.Delegate {
 
     @Override
     public void onHandshakeAccepted(Station server) {
+        Messenger messenger = Messenger.getInstance();
         User user = getCurrentUser();
         assert user != null : "current user not found";
 
         // post current profile to station
         Document profile = user.getDocument(Document.PROFILE);
+        Facebook facebook = Facebook.getInstance();
         if (!facebook.isEmpty(profile)) {
             messenger.postProfile(profile, null);
         }

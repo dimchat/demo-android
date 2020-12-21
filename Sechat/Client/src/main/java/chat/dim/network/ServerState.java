@@ -50,6 +50,25 @@ public class ServerState extends State {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        String otherName;
+        if (other instanceof ServerState) {
+            otherName = ((ServerState) other).name;
+        } else {
+            assert other == null : "unknown server state: " + other;
+            return false;
+        }
+        return otherName.equals(name);
+    }
+
+    public boolean equals(String other) {
+        return name.equals(other);
+    }
+
+    @Override
     protected void onEnter(Machine machine) {
         // do nothing
         Log.info("onEnter: " + name + " state");

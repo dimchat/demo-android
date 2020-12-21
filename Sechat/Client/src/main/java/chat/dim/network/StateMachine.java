@@ -27,6 +27,7 @@ package chat.dim.network;
 
 import java.util.Date;
 
+import chat.dim.User;
 import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.Transition;
@@ -35,14 +36,11 @@ import chat.dim.stargate.StarGate;
 /**
  *  Server state machine
  */
-public class StateMachine extends AutoMachine<ServerState> {
-
-    private Server server;
+class StateMachine extends AutoMachine<ServerState> {
 
     StateMachine(Server server) {
         super(ServerState.DEFAULT);
 
-        this.server = server;
         setDelegate(server);
 
         // add states
@@ -55,9 +53,40 @@ public class StateMachine extends AutoMachine<ServerState> {
     }
 
     @Override
-    public void stop() {
-        super.stop();
-        server = null;
+    public ServerState getCurrentState() {
+        ServerState state = super.getCurrentState();
+        if (state == null) {
+            state = getState(ServerState.DEFAULT);
+        }
+        return state;
+    }
+
+    private Server getServer() {
+        return (Server) getDelegate();
+    }
+
+    private User getCurrentUser() {
+        Server server = getServer();
+        if (server == null) {
+            return null;
+        }
+        return server.getCurrentUser();
+    }
+
+    private StarGate.Status getStatus() {
+        Server server = getServer();
+        if (server == null) {
+            return StarGate.Status.Error;
+        }
+        return server.getStatus();
+    }
+
+    private String getSessionKey() {
+        Server server = getServer();
+        if (server == null) {
+            return null;
+        }
+        return server.sessionKey;
     }
 
     //---- States
@@ -69,10 +98,10 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.CONNECTING) {
             @Override
             protected boolean evaluate(Machine machine) {
-                if (server == null || server.getCurrentUser() == null) {
+                if (getCurrentUser() == null) {
                     return false;
                 }
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status == StarGate.Status.Connecting || status == StarGate.Status.Connected;
             }
         });
@@ -87,8 +116,8 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null && server.getCurrentUser() != null : "server/user error";
-                StarGate.Status status = server.getStatus();
+                assert getCurrentUser() != null : "server/user error";
+                StarGate.Status status = getStatus();
                 return status == StarGate.Status.Connected;
             }
         });
@@ -97,8 +126,7 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status == StarGate.Status.Error;
             }
         });
@@ -113,8 +141,7 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.HANDSHAKING) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
-                return server.getCurrentUser() != null;
+                return getCurrentUser() != null;
             }
         });
 
@@ -128,10 +155,9 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.RUNNING) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
                 // when current user changed, the server will clear this session, so
                 // if it's set again, it means handshake accepted
-                return server.session != null;
+                return getSessionKey() != null;
             }
         });
 
@@ -145,8 +171,7 @@ public class StateMachine extends AutoMachine<ServerState> {
                 if (now < expired) {
                     return false;
                 }
-                assert server != null : "server error";
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status == StarGate.Status.Connected;
             }
         });
@@ -155,8 +180,7 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status != StarGate.Status.Connected;
             }
         });
@@ -171,8 +195,7 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status != StarGate.Status.Connected;
             }
         });
@@ -181,9 +204,8 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
                 // user switched?
-                return server.session == null;
+                return getSessionKey() == null;
             }
         });
 
@@ -197,8 +219,7 @@ public class StateMachine extends AutoMachine<ServerState> {
         state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {
-                assert server != null : "server error";
-                StarGate.Status status = server.getStatus();
+                StarGate.Status status = getStatus();
                 return status != StarGate.Status.Error;
             }
         });
