@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.CipherKeyDelegate;
-import chat.dim.core.Packer;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
@@ -39,15 +38,15 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
-public class MessagePacker extends Packer {
+public class MessagePacker extends chat.dim.MessagePacker {
     public static final int MTP_JSON = 0x01;
     public static final int MTP_DMTP = 0x02;
 
     // Message Transfer Protocol
     public int mtpFormat = MTP_DMTP;
 
-    public MessagePacker(Facebook barrack, Messenger transceiver, KeyStore keyCache) {
-        super(barrack, transceiver, keyCache);
+    public MessagePacker(Messenger transceiver, KeyStore keyCache) {
+        super(transceiver, keyCache);
     }
 
     private SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {

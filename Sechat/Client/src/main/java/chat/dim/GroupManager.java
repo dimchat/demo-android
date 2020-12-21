@@ -210,13 +210,13 @@ public class GroupManager {
         // send to owner if not in member list
         ID owner = facebook.getOwner(group);
         if (owner != null && !members.contains(owner)) {
-            messenger.sendContent(cmd, owner, null, StarShip.NORMAL);
+            messenger.sendContent(null, owner, cmd, null, StarShip.NORMAL);
         }
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members != null) {
             for (ID receiver : members) {
-                messenger.sendContent(cmd, receiver, null, StarShip.NORMAL);
+                messenger.sendContent(null, receiver, cmd, null, StarShip.NORMAL);
             }
         }
     }

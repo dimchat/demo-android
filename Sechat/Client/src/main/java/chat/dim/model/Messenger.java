@@ -71,7 +71,7 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
     @Override
     protected MessageProcessor newMessageProcessor() {
-        return new MessageProcessor(getFacebook(), this, getMessagePacker());
+        return new MessageProcessor(this);
     }
 
     public Server server = null;
@@ -87,11 +87,27 @@ public final class Messenger extends chat.dim.common.Messenger {
         if (server == null) {
             return false;
         }
-        if (server.getCurrentUser() == null) {
-            // FIXME: suspend message for waiting user login
-            return false;
+        return sendContent(null, server.identifier, cmd, null, priority);
+    }
+
+    @Override
+    public boolean sendContent(ID sender, ID receiver, Content content, Messenger.Callback callback, int priority) {
+        if (sender == null) {
+            if (server == null) {
+                return false;
+            }
+            User user = server.getCurrentUser();
+            if (user == null) {
+                // FIXME: suspend message for waiting user login
+                return false;
+            }
+            sender = user.identifier;
         }
-        return sendContent(cmd, server.identifier, null, priority);
+        return super.sendContent(sender, receiver, content, callback, priority);
+    }
+
+    private boolean sendContent(ID receiver, Content content) {
+        return sendContent(null, receiver, content, null, StarShip.SLOWER);
     }
 
     /**
@@ -101,7 +117,7 @@ public final class Messenger extends chat.dim.common.Messenger {
      */
     public void broadcastContent(Content content) {
         content.setGroup(ID.EVERYONE);
-        sendContent(content, ID.EVERYONE, null, StarShip.SLOWER);
+        sendContent(ID.EVERYONE, content);
     }
 
     public void broadcastProfile(Document profile) {
@@ -124,7 +140,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID contact : contacts) {
-                sendContent(cmd, contact, null, StarShip.SLOWER);
+                sendContent(contact, cmd);
             }
         }
     }
@@ -236,7 +252,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         Command cmd = new QueryCommand(group);
         boolean checking = false;
         for (ID user : members) {
-            if (sendContent(cmd, user, null, StarShip.SLOWER)) {
+            if (sendContent(user, cmd)) {
                 checking = true;
             }
         }

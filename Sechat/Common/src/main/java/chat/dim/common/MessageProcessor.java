@@ -48,8 +48,8 @@ import chat.dim.protocol.group.ResetCommand;
 
 public class MessageProcessor extends chat.dim.MessageProcessor {
 
-    public MessageProcessor(Facebook facebook, Messenger messenger, MessagePacker packer) {
-        super(facebook, messenger, packer);
+    public MessageProcessor(Messenger messenger) {
+        super(messenger);
     }
 
     protected Messenger getMessenger() {
@@ -57,7 +57,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     protected Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
+        return getMessenger().getFacebook();
     }
 
     // check whether group info empty

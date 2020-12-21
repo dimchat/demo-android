@@ -58,7 +58,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
     @Override
     protected MessagePacker newMessagePacker() {
-        return new MessagePacker(getFacebook(), this, getKeyStore());
+        return new MessagePacker(this, getKeyStore());
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
     @Override
     protected MessageProcessor newMessageProcessor() {
-        return new MessageProcessor(getFacebook(), this, getMessagePacker());
+        return new MessageProcessor(this);
     }
 
     @Override
@@ -76,7 +76,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
     @Override
     protected MessageTransmitter newMessageTransmitter() {
-        return new MessageTransmitter(getFacebook(), this, getMessagePacker());
+        return new MessageTransmitter(this);
     }
 
     @Override

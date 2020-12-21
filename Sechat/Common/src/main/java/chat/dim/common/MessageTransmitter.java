@@ -32,8 +32,8 @@ import chat.dim.threading.BackgroundThreads;
 
 public class MessageTransmitter extends chat.dim.MessageTransmitter {
 
-    public MessageTransmitter(Facebook facebook, Messenger messenger, MessagePacker packer) {
-        super(facebook, messenger, packer);
+    public MessageTransmitter(Messenger messenger) {
+        super(messenger);
     }
 
     @Override
@@ -42,13 +42,13 @@ public class MessageTransmitter extends chat.dim.MessageTransmitter {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station
-                SecureMessage sMsg = getPacker().encryptMessage(iMsg);
+                SecureMessage sMsg = getMessagePacker().encryptMessage(iMsg);
                 if (sMsg == null) {
                     // public key not found?
                     return ;
                     //throw new NullPointerException("failed to encrypt message: " + iMsg);
                 }
-                ReliableMessage rMsg = getPacker().signMessage(sMsg);
+                ReliableMessage rMsg = getMessagePacker().signMessage(sMsg);
                 if (rMsg == null) {
                     // TODO: set iMsg.state = error
                     throw new NullPointerException("failed to sign message: " + sMsg);
