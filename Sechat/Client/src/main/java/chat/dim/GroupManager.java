@@ -27,8 +27,8 @@ package chat.dim;
 
 import java.util.List;
 
-import chat.dim.model.Facebook;
-import chat.dim.model.Messenger;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;

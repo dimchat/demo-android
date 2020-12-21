@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Locale;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.mkm.ETHAddress;
-import chat.dim.model.Facebook;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;

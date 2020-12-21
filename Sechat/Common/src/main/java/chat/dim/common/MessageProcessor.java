@@ -52,6 +52,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         super(messenger);
     }
 
+    @Override
     protected Messenger getMessenger() {
         return (Messenger) super.getMessenger();
     }
@@ -62,7 +63,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
 
     // check whether group info empty
     private boolean isEmpty(ID group) {
-        chat.dim.Facebook facebook = getFacebook();
+        Facebook facebook = getFacebook();
         List members = facebook.getMembers(group);
         if (members == null || members.size() == 0) {
             return true;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Messenger;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
@@ -14,7 +15,6 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseVisa;
-import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;

@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

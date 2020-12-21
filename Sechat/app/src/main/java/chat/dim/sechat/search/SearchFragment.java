@@ -11,7 +11,7 @@ import android.widget.SearchView;
 
 import java.util.Map;
 
-import chat.dim.model.Messenger;
+import chat.dim.client.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

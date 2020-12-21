@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.User;
-import chat.dim.model.Facebook;
+import chat.dim.client.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;

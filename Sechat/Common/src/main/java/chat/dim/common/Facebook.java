@@ -50,9 +50,6 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
 
 public class Facebook extends chat.dim.Facebook {
-    public Facebook() {
-        super();
-    }
 
     public static long EXPIRES = 30 * 60 * 1000;  // profile expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";

@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.model;
+package chat.dim.client;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +33,7 @@ import java.util.Map;
 
 import chat.dim.GroupManager;
 import chat.dim.mkm.BaseVisa;
+import chat.dim.model.Configuration;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

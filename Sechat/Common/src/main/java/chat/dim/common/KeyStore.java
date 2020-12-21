@@ -76,12 +76,16 @@ public final class KeyStore implements CipherKeyDelegate {
         }
         // try from database
         key = keyTable.getKey(sender, receiver);
-        if (key == null) {
+        if (key != null) {
+            // cache it
+            table.put(receiver, key);
+        } else if (generate) {
             // generate new key and store it
             key = SymmetricKey.generate(SymmetricKey.AES);
             keyTable.addKey(sender, receiver, key);
+            // cache it
+            table.put(receiver, key);
         }
-        table.put(receiver, key);
         return key;
     }
 

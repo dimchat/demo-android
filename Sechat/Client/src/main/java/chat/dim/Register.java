@@ -27,6 +27,8 @@ package chat.dim;
 
 import java.util.Random;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -34,8 +36,6 @@ import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.BaseVisa;
-import chat.dim.model.Facebook;
-import chat.dim.model.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;

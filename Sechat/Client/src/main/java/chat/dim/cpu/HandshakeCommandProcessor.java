@@ -25,7 +25,7 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.model.Messenger;
+import chat.dim.client.Messenger;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;

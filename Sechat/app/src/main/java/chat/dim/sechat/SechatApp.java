@@ -8,6 +8,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.common.KeyStore;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
@@ -16,8 +18,6 @@ import chat.dim.format.DataCoder;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Facebook;
-import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sqlite.Database;

@@ -33,6 +33,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.common.KeyStore;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.notification.Notification;

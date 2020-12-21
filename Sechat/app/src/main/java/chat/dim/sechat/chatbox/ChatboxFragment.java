@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Messenger;
 import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
-import chat.dim.model.Messenger;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;

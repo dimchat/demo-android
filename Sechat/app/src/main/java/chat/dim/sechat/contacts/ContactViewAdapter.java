@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.model.Facebook;
+import chat.dim.client.Facebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

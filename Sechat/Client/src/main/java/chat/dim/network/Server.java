@@ -36,11 +36,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.User;
+import chat.dim.client.Messenger;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.model.Messenger;
 import chat.dim.mtp.protocol.Package;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

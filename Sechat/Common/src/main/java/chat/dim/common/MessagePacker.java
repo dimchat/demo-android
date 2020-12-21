@@ -45,13 +45,13 @@ public class MessagePacker extends chat.dim.MessagePacker {
     // Message Transfer Protocol
     public int mtpFormat = MTP_DMTP;
 
-    public MessagePacker(Messenger transceiver, KeyStore keyCache) {
-        super(transceiver, keyCache);
+    public MessagePacker(Messenger transceiver) {
+        super(transceiver, KeyStore.getInstance());
     }
 
-    private SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {
+    private SymmetricKey getCipherKey(ID sender, ID receiver) {
         CipherKeyDelegate delegate = getCipherKeyDelegate();
-        return delegate.getCipherKey(sender, receiver, generate);
+        return delegate.getCipherKey(sender, receiver, false);
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
@@ -75,9 +75,9 @@ public class MessagePacker extends chat.dim.MessagePacker {
         ID group = rMsg.getGroup();
         if (group == null) {
             ID receiver = rMsg.getReceiver();
-            key = getCipherKey(sender, receiver, false);
+            key = getCipherKey(sender, receiver);
         } else {
-            key = getCipherKey(sender, group, false);
+            key = getCipherKey(sender, group);
         }
         // get key data
         byte[] data = key.getData();
@@ -113,17 +113,12 @@ public class MessagePacker extends chat.dim.MessagePacker {
         if (data == null || data.length < 2) {
             return null;
         }
-        ReliableMessage rMsg;
         if (data[0] == '{') {
             // JsON
-            rMsg = super.deserializeMessage(data);
+            return super.deserializeMessage(data);
         } else { // D-MTP
-            rMsg = Utils.deserializeMessage(data);
+            return Utils.deserializeMessage(data);
         }
-        if (rMsg != null) {
-            rMsg.setDelegate(getMessageDelegate());
-        }
-        return rMsg;
     }
 
     @Override
@@ -134,7 +129,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         if (ID.isGroup(receiver)) {
             // reuse group message keys
             ID sender = iMsg.getSender();
-            SymmetricKey key = getCipherKey(sender, receiver, false);
+            SymmetricKey key = getCipherKey(sender, receiver);
             assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
             key.put("reused", true);
         }

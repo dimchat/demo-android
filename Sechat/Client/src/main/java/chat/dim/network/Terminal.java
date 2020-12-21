@@ -33,9 +33,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
-import chat.dim.model.Facebook;
-import chat.dim.model.Messenger;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Document;

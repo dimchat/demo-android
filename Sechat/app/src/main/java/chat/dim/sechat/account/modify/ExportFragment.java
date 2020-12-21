@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.model.Messenger;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;

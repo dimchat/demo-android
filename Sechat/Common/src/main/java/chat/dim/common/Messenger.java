@@ -45,20 +45,13 @@ public abstract class Messenger extends chat.dim.Messenger {
         return (Facebook) super.getFacebook();
     }
 
-    public void setKeyStore(KeyStore cipherKeyDelegate) {
-        setCipherKeyDelegate(cipherKeyDelegate);
-    }
-    protected KeyStore getKeyStore() {
-        return (KeyStore) getCipherKeyDelegate();
-    }
-
     @Override
     protected MessagePacker getMessagePacker() {
         return (MessagePacker) super.getMessagePacker();
     }
     @Override
     protected MessagePacker newMessagePacker() {
-        return new MessagePacker(this, getKeyStore());
+        return new MessagePacker(this);
     }
 
     @Override
@@ -103,17 +96,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     //  Interfaces for Sending Commands
     //
 
-    public boolean queryMeta(ID identifier) {
-        return false;
-    }
+    public abstract boolean queryMeta(ID identifier);
 
-    public boolean queryProfile(ID identifier) {
-        return false;
-    }
+    public abstract boolean queryProfile(ID identifier);
 
-    public boolean queryGroupInfo(ID group, List<ID> members) {
-        return false;
-    }
+    public abstract boolean queryGroupInfo(ID group, List<ID> members);
 
     public boolean queryGroupInfo(ID group, ID member) {
         List<ID> array = new ArrayList<>();
@@ -121,7 +108,5 @@ public abstract class Messenger extends chat.dim.Messenger {
         return queryGroupInfo(group, array);
     }
 
-    public boolean sendCommand(Command cmd, int priority) {
-        return false;
-    }
+    public abstract boolean sendCommand(Command cmd, int priority);
 }

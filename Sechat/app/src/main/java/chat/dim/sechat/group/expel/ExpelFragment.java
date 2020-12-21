@@ -18,9 +18,9 @@ import java.util.Set;
 
 import chat.dim.GroupManager;
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
-import chat.dim.model.Facebook;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;

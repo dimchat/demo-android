@@ -27,8 +27,8 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
-import chat.dim.model.Facebook;
-import chat.dim.model.Messenger;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.threading.BackgroundThreads;

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.client.Facebook;
 import chat.dim.database.ProviderTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
@@ -40,6 +41,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 
 public final class NetworkDatabase {
+
     private static final NetworkDatabase ourInstance = new NetworkDatabase();
     public static NetworkDatabase getInstance() { return ourInstance; }
     private NetworkDatabase() {

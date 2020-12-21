@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
@@ -44,6 +45,7 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
 public final class ConversationDatabase {
+
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
     public static ConversationDatabase getInstance() { return ourInstance; }
     private ConversationDatabase() {

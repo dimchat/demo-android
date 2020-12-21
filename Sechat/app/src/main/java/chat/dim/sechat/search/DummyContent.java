@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.model.Facebook;
+import chat.dim.client.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.model.EntityViewModel;

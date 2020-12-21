@@ -18,7 +18,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.User;
-import chat.dim.model.Facebook;
+import chat.dim.client.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;

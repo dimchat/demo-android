@@ -17,10 +17,10 @@ import android.widget.TextView;
 
 import chat.dim.Register;
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseVisa;
 import chat.dim.model.Configuration;
-import chat.dim.model.Facebook;
 import chat.dim.network.FtpServer;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;

@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.model;
+package chat.dim.client;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +33,7 @@ import java.util.Map;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.model.MessageDataSource;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -48,6 +49,7 @@ import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger {
+
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
     private Messenger()  {

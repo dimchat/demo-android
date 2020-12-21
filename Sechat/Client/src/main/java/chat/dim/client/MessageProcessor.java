@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.model;
+package chat.dim.client;
 
 import chat.dim.User;
 import chat.dim.cpu.CommandProcessor;
@@ -51,10 +51,6 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
     public MessageProcessor(Messenger messenger) {
         super(messenger);
-    }
-
-    protected Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
     }
 
     @Override

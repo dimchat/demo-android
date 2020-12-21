@@ -130,7 +130,7 @@ public final class UserTable extends DataTable implements chat.dim.database.User
         update(EntityDatabase.T_USER, values, "uid!=?", whereArgs);
 
         if (isUserExists(user)) {
-            values.put("chosen", 0);
+            values.put("chosen", 1);
             update(EntityDatabase.T_USER, values, "uid=?", whereArgs);
             current = user;
         } else {

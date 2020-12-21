@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import chat.dim.model.Facebook;
+import chat.dim.client.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 
