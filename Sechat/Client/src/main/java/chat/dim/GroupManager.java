@@ -25,6 +25,7 @@
  */
 package chat.dim;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.client.Facebook;
@@ -54,6 +55,22 @@ public class GroupManager {
         this.group = group;
     }
 
+    // send command to current station
+    private static void sendGroupCommand(Command cmd) {
+        messenger.sendCommand(cmd, StarShip.NORMAL);
+    }
+    private static void sendGroupCommand(Command cmd, ID receiver) {
+        messenger.sendContent(null, receiver, cmd, null, StarShip.NORMAL);
+    }
+    private static void sendGroupCommand(Command cmd, List<ID> members) {
+        if (members == null) {
+            return;
+        }
+        for (ID receiver : members) {
+            sendGroupCommand(cmd, receiver);
+        }
+    }
+
     /**
      *  Invite new members to this group
      *  (only existed member/assistant can do this)
@@ -62,34 +79,55 @@ public class GroupManager {
      * @return true on success
      */
     public boolean invite(List<ID> newMembers) {
-        Command cmd;
-        // 1. send group info to all
+        ID owner = facebook.getOwner(group);
+        List<ID> bots = facebook.getAssistants(group);
+        List<ID> members = facebook.getMembers(group);
+        if (members == null) {
+            members = new ArrayList<>();
+        }
+        int count = members.size();
+
+        // 0. build 'meta/profile' command
         Meta meta = facebook.getMeta(group);
-        assert meta != null : "failed to get meta for group: " + group;
+        if (meta == null) {
+            throw new NullPointerException("failed to get meta for group: " + group);
+        }
         Document profile = facebook.getDocument(group, Document.BULLETIN);
+        Command cmd;
         if (facebook.isEmpty(profile)) {
             // empty profile
             cmd = new MetaCommand(group, meta);
         } else {
             cmd = new DocumentCommand(group, meta, profile);
         }
-        messenger.sendCommand(cmd, StarShip.NORMAL);         // to current station
-        broadcastGroupCommand(cmd, group);  // to existed relationship
-        sendGroupCommand(cmd, newMembers);  // to new members
 
-        // 2. send 'INVITE' command with new members to existed relationship
-        cmd = new InviteCommand(group, newMembers);
-        broadcastGroupCommand(cmd, group);
-
-        // 3. update local storage
-        if (!addMembers(newMembers, group)) {
-            return false;
+        if (count <= 2) { // new group?
+            // 1. send 'meta/profile' to station and bots
+            sendGroupCommand(cmd);              // to current station
+            sendGroupCommand(cmd, bots);        // to group assistants
+            // 2. update local storage
+            members = addMembers(newMembers, group);
+            // 3. send 'invite' command with all members to all members
+            cmd = new InviteCommand(group, members);
+            sendGroupCommand(cmd, bots);        // to group assistants
+            sendGroupCommand(cmd, members);     // to new members
+        } else {
+            // 1. send 'meta/profile' to station, bots and all members
+            sendGroupCommand(cmd);              // to current station
+            sendGroupCommand(cmd, bots);        // to group assistants
+            //sendGroupCommand(cmd, members);     // to old members
+            sendGroupCommand(cmd, newMembers);  // to new members
+            // 2. send 'invite' command with new members to old members
+            cmd = new InviteCommand(group, newMembers);
+            sendGroupCommand(cmd, bots);        // to group assistants
+            sendGroupCommand(cmd, members);     // to new members
+            // 3. update local storage
+            members = addMembers(newMembers, group);
+            // 4. send 'invite' command with all members to new members
+            cmd = new InviteCommand(group, members);
+            sendGroupCommand(cmd, newMembers);  // to new members
         }
-        List<ID> members = facebook.getMembers(group);
 
-        // 4. send 'INVITE' command with all members to new members
-        cmd = new InviteCommand(group, members);
-        sendGroupCommand(cmd, newMembers);
         return true;
     }
 
@@ -102,31 +140,32 @@ public class GroupManager {
      */
     public boolean expel(List<ID> outMembers) {
         ID owner = facebook.getOwner(group);
-        List<ID> assistants = facebook.getAssistants(group);
+        List<ID> bots = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
-        assert owner != null : "failed to get owner of group: " + group;
-        assert assistants != null : "failed to get assistants for group: " + group;
-        assert members != null : "failed to get members of group: " + group;
+        if (members == null) {
+            members = new ArrayList<>();
+        }
 
         // 0. check members list
-        for (ID ass : assistants) {
-            if (outMembers.contains(ass)) {
-                throw new RuntimeException("Cannot expel group assistant: " + ass);
+        for (ID assistant : bots) {
+            if (outMembers.contains(assistant)) {
+                throw new RuntimeException("Cannot expel group assistant: " + assistant);
             }
         }
         if (outMembers.contains(owner)) {
             throw new RuntimeException("Cannot expel group owner: " + owner);
         }
 
-        // 1. update local storage
-        if (!removeMembers(outMembers, group)) {
-            return false;
+        // 1. send 'expel' command to all members
+        Command cmd = new ExpelCommand(group, outMembers);
+        sendGroupCommand(cmd, bots);        // to assistants
+        sendGroupCommand(cmd, members);     // to existed members
+        if (owner != null && !members.contains(owner)) {
+            sendGroupCommand(cmd, owner);   // to owner
         }
 
-        // 2. send 'EXPEL' command to existed relationship
-        Command cmd = new ExpelCommand(group, outMembers);
-        broadcastGroupCommand(cmd, group);
-        return true;
+        // 2. update local storage
+        return removeMembers(outMembers, group);
     }
 
     /**
@@ -140,15 +179,29 @@ public class GroupManager {
         if (user == null) {
             throw new NullPointerException("failed to get current user");
         }
-        // 0. check members list
+
         ID owner = facebook.getOwner(group);
+        List<ID> bots = facebook.getAssistants(group);
+        List<ID> members = facebook.getMembers(group);
+        if (members == null) {
+            members = new ArrayList<>();
+        }
+
+        // 0. check members list
+        if (bots.contains(user.identifier)) {
+            throw new RuntimeException("Group assistant cannot quit: " + user.identifier);
+        }
         if (user.identifier.equals(owner)) {
             throw new RuntimeException("Group owner cannot quit: " + owner);
         }
 
         // 1. send 'quit' command to all members
         Command cmd = new QuitCommand(group);
-        broadcastGroupCommand(cmd, group);
+        sendGroupCommand(cmd, bots);        // to assistants
+        sendGroupCommand(cmd, members);     // to existed members
+        if (owner != null && !members.contains(owner)) {
+            sendGroupCommand(cmd, owner);   // to owner
+        }
 
         // 2. update local storage
         return facebook.removeGroup(group);
@@ -167,7 +220,7 @@ public class GroupManager {
 
     //-------- local storage
 
-    private static boolean addMembers(List<ID> newMembers, ID group) {
+    private static List<ID> addMembers(List<ID> newMembers, ID group) {
         List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
@@ -178,10 +231,10 @@ public class GroupManager {
             members.add(member);
             ++count;
         }
-        if (count == 0) {
-            return false;
+        if (count > 0) {
+            facebook.saveMembers(members, group);
         }
-        return facebook.saveMembers(members, group);
+        return members;
     }
     private static boolean removeMembers(List<ID> outMembers, ID group) {
         List<ID> members = facebook.getMembers(group);
@@ -198,26 +251,5 @@ public class GroupManager {
             return false;
         }
         return facebook.saveMembers(members, group);
-    }
-
-    private static void broadcastGroupCommand(Command cmd, ID group) {
-        // broadcast to assistants
-        List<ID> assistants = facebook.getAssistants(group);
-        sendGroupCommand(cmd, assistants);
-        // broadcast to all members
-        List<ID> members = facebook.getMembers(group);
-        sendGroupCommand(cmd, members);
-        // send to owner if not in member list
-        ID owner = facebook.getOwner(group);
-        if (owner != null && !members.contains(owner)) {
-            messenger.sendContent(null, owner, cmd, null, StarShip.NORMAL);
-        }
-    }
-    private static void sendGroupCommand(Command cmd, List<ID> members) {
-        if (members != null) {
-            for (ID receiver : members) {
-                messenger.sendContent(null, receiver, cmd, null, StarShip.NORMAL);
-            }
-        }
     }
 }

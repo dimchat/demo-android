@@ -190,6 +190,9 @@ public class Images {
         return tiles(bitmaps, size.width, size.height, first.getConfig());
     }
     public static Bitmap tiles(List<Bitmap> bitmaps, Size size) {
+        if (bitmaps.size() == 0) {
+            return null;
+        }
         Bitmap first = bitmaps.get(0);
         return tiles(bitmaps, size.width, size.height, first.getConfig());
     }
@@ -217,6 +220,7 @@ public class Images {
         switch (count) {
             case 1: {
                 drawBitmap(canvas, tiles, 0, width, height, w, h, -1, -1, +0, +0); // center
+                break;
             }
             case 2: {
                 drawBitmap(canvas, tiles, 0, width, height, w, h, -2, -1, -1, +0); // left

@@ -256,6 +256,9 @@ public final class Messenger extends chat.dim.common.Messenger {
             // this group contains all users
             return false;
         }
+        if (members.size() == 0) {
+            return false;
+        }
 
         // check for duplicated querying
         long now = (new Date()).getTime();
