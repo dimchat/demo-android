@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.User;
 import chat.dim.model.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
@@ -57,18 +56,15 @@ public class DummyContent extends DummyList<DummyContent.Item> {
      */
     static class Item implements DummyItem {
 
-        private final User account;
+        private final ID identifier;
 
         Item(Object id) {
             super();
-            account = facebook.getUser(ID.parse(id));
+            identifier = ID.parse(id);
         }
 
         ID getIdentifier() {
-            if (account == null) {
-                return null;
-            }
-            return account.identifier;
+            return identifier;
         }
 
         Bitmap getAvatar() {

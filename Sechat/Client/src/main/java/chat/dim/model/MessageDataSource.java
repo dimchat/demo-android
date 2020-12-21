@@ -33,7 +33,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.User;
 import chat.dim.common.KeyStore;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.notification.Notification;
@@ -92,7 +91,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             ID entity = (ID) info.get("ID");
             if (ID.isUser(entity)) {
                 // check user
-                if (facebook.getMeta(entity) == null) {
+                if (facebook.getPublicKeyForEncryption(entity) == null) {
                     Log.error("user not ready yet: " + entity);
                     return;
                 }

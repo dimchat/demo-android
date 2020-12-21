@@ -52,7 +52,8 @@ public final class Amanuensis {
             entity = facebook.getGroup(identifier);
         }
         if (entity == null) {
-            throw new NullPointerException("failed to create conversation:" + identifier);
+            //throw new NullPointerException("failed to create conversation:" + identifier);
+            return null;
         }
         Conversation chatBox = new Conversation(entity);
         chatBox.database = database;

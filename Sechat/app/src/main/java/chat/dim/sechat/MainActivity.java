@@ -1,5 +1,6 @@
 package chat.dim.sechat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,6 +29,7 @@ import chat.dim.sechat.history.ConversationFragment;
 import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sechat.register.RegisterActivity;
 import chat.dim.threading.MainThread;
+import chat.dim.ui.Alert;
 
 public class MainActivity extends AppCompatActivity implements Observer {
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             case NotificationNames.StartChat: {
                 ID entity = (ID) info.get("ID");
                 if (entity != null) {
-                    startChat(entity);
+                    startChat(entity, this);
                 }
                 break;
             }
@@ -91,11 +93,25 @@ public class MainActivity extends AppCompatActivity implements Observer {
         return user;
     }
 
-    private void startChat(ID entity) {
+    public static void startChat(ID entity, Context context) {
+        Facebook facebook = Facebook.getInstance();
+        if (ID.isUser(entity)) {
+            if (facebook.getUser(entity) == null) {
+                Alert.tips(context, "User not ready");
+                return;
+            }
+        } else if (ID.isGroup(entity)) {
+            if (facebook.getGroup(entity) == null) {
+                Alert.tips(context, "Group not ready");
+                return;
+            }
+        } else {
+            throw new IllegalArgumentException("unknown entity: " + entity);
+        }
         Intent intent = new Intent();
-        intent.setClass(this, ChatboxActivity.class);
+        intent.setClass(context, ChatboxActivity.class);
         intent.putExtra("ID", entity.toString());
-        startActivity(intent);
+        context.startActivity(intent);
     }
 
     private void refreshTitle() {

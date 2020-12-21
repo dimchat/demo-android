@@ -87,6 +87,10 @@ public final class Messenger extends chat.dim.common.Messenger {
         if (server == null) {
             return false;
         }
+        if (server.getCurrentUser() == null) {
+            // FIXME: suspend message for waiting user login
+            return false;
+        }
         return sendContent(cmd, server.identifier, null, priority);
     }
 

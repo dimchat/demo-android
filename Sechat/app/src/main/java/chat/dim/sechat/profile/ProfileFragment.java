@@ -27,8 +27,8 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
+import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.wallet.transfer.TransferActivity;
 import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
@@ -113,7 +113,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
 
         imageView.setOnClickListener(v -> showAvatar());
 
-        messageButton.setOnClickListener(v -> startChat());
+        messageButton.setOnClickListener(v -> Client.getInstance().startChat(identifier));
         remitButton.setOnClickListener(v -> remitMoney());
         removeButton.setOnClickListener(v -> removeContact());
         addButton.setOnClickListener(v -> addContact());
@@ -164,20 +164,12 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     private void addContact() {
         mViewModel.addContact(identifier);
         // open chat box
-        startChat();
+        Client.getInstance().startChat(identifier);
     }
 
     private void removeContact() {
         mViewModel.removeContact(identifier);
         close();
-    }
-
-    private void startChat() {
-        assert getContext() != null : "fragment context error";
-        Intent intent = new Intent();
-        intent.setClass(getContext(), ChatboxActivity.class);
-        intent.putExtra("ID", identifier.toString());
-        startActivity(intent);
     }
 
     private void remitMoney() {

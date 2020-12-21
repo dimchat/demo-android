@@ -33,7 +33,6 @@ import chat.dim.Group;
 import chat.dim.Immortals;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
-import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.database.AddressNameTable;
@@ -49,7 +48,6 @@ import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.NetworkType;
-import chat.dim.protocol.Visa;
 
 public class Facebook extends chat.dim.Facebook {
     public Facebook() {
@@ -223,45 +221,27 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(identifier);
     }
 
-    private boolean checkVisaKey(ID identifier) {
-        if (ID.isBroadcast(identifier)) {
-            return true;
-        }
-        Document doc = getDocument(identifier, Document.VISA);
-        if (doc instanceof Visa) {
-            EncryptKey key = ((Visa) doc).getKey();
-            if (key != null) {
-                return true;
-            }
-        }
-        Meta meta = getMeta(identifier);
-        if (meta == null) {
-            return false;
-        }
-        return meta.getKey() instanceof EncryptKey;
-    }
-
     @Override
     protected User createUser(ID identifier) {
-        if (checkVisaKey(identifier)) {
-            return super.createUser(identifier);
+        if (isWaitingMeta(identifier)) {
+            return null;
         }
-        return null;
+        return super.createUser(identifier);
     }
 
-    private boolean checkMeta(ID entity) {
+    private boolean isWaitingMeta(ID entity) {
         if (ID.isBroadcast(entity)) {
-            return true;
+            return false;
         }
-        return getMeta(entity) != null;
+        return getMeta(entity) == null;
     }
 
     @Override
     protected Group createGroup(ID identifier) {
-        if (checkMeta(identifier)) {
-            return super.createGroup(identifier);
+        if (isWaitingMeta(identifier)) {
+            return null;
         }
-        return null;
+        return super.createGroup(identifier);
     }
 
     //-------- EntityDataSource
