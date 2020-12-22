@@ -110,7 +110,7 @@ public class GroupManager {
             // 3. send 'invite' command with all members to all members
             cmd = new InviteCommand(group, members);
             sendGroupCommand(cmd, bots);        // to group assistants
-            sendGroupCommand(cmd, members);     // to new members
+            sendGroupCommand(cmd, members);     // to all members
         } else {
             // 1. send 'meta/profile' to station, bots and all members
             sendGroupCommand(cmd);              // to current station
@@ -120,7 +120,7 @@ public class GroupManager {
             // 2. send 'invite' command with new members to old members
             cmd = new InviteCommand(group, newMembers);
             sendGroupCommand(cmd, bots);        // to group assistants
-            sendGroupCommand(cmd, members);     // to new members
+            sendGroupCommand(cmd, members);     // to old members
             // 3. update local storage
             members = addMembers(newMembers, group);
             // 4. send 'invite' command with all members to new members

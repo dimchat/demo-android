@@ -204,7 +204,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     private final Map<ID, Long> metaQueryTime = new HashMap<>();
     private final Map<ID, Long> profileQueryTime = new HashMap<>();
-    private final Map<ID, Long> groupQueryTime = new HashMap<>();
+    private final Map<ID, Map<ID, Long>> groupQueryTimes = new HashMap<>();
 
     private static final int QUERY_INTERVAL = 120 * 1000;  // query interval (2 minutes)
 
@@ -252,7 +252,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean queryGroupInfo(ID group, List<ID> members) {
-        if (group.equals(ID.EVERYONE)) {
+        if (ID.isBroadcast(group)) {
             // this group contains all users
             return false;
         }
@@ -260,18 +260,26 @@ public final class Messenger extends chat.dim.common.Messenger {
             return false;
         }
 
-        // check for duplicated querying
-        long now = (new Date()).getTime();
-        Number expires = groupQueryTime.get(group);
-        if (expires != null && now < expires.longValue()) {
-            return false;
+        Map<ID, Long> times = groupQueryTimes.get(group);
+        if (times == null) {
+            times = new HashMap<>();
+            groupQueryTimes.put(group, times);
         }
-        groupQueryTime.put(group, now + QUERY_INTERVAL);
+        long now = (new Date()).getTime();
 
         // query from members
         Command cmd = new QueryCommand(group);
         boolean checking = false;
+        Number expires;
         for (ID user : members) {
+            // check for duplicated querying
+            expires = times.get(user);
+            if (expires != null && now < expires.longValue()) {
+                continue;
+            }
+            times.put(user, now + QUERY_INTERVAL);
+            Log.info("querying group: " + group + " from: " + user);
+
             if (sendContent(user, cmd)) {
                 checking = true;
             }
