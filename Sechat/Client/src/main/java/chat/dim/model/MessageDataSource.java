@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
@@ -80,16 +77,15 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
     }
 
     private final Map<ID, List<ReliableMessage>> incomingMessages = new HashMap<>();
-    private final ReadWriteLock incomingMessageLock = new ReentrantReadWriteLock();
+    private final Map<ID, List<InstantMessage>> outgoingMessages = new HashMap<>();
 
     @Override
     public void onReceiveNotification(Notification notification) {
-        Messenger messenger = Messenger.getInstance();
-        Facebook facebook = Facebook.getInstance();
         String name = notification.name;
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.ProfileUpdated)) {
+            Facebook facebook = Facebook.getInstance();
             ID entity = (ID) info.get("ID");
             if (ID.isUser(entity)) {
                 // check user
@@ -97,54 +93,30 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
                     Log.error("user not ready yet: " + entity);
                     return;
                 }
-            } else {
-                return;
             }
+            Messenger messenger = Messenger.getInstance();
 
-            // purge incoming messages waiting for this ID's meta
-            ReliableMessage rMsg;
-            byte[] response;
-            while ((rMsg = getIncomingMessage(entity)) != null) {
-                rMsg = messenger.process(rMsg);
-                if (rMsg == null) {
-                    continue;
-                }
-                response = messenger.serializeMessage(rMsg);
-                if (response != null && response.length > 0) {
-                    messenger.sendPackage(response, null, StarShip.SLOWER);
+            // processing incoming messages
+            List<ReliableMessage> incoming = incomingMessages.remove(entity);
+            if (incoming != null) {
+                ReliableMessage res;
+                for (ReliableMessage item : incoming) {
+                    res = messenger.process(item);
+                    if (res == null) {
+                        continue;
+                    }
+                    messenger.sendMessage(res, null, StarShip.SLOWER);
                 }
             }
-        }
-    }
 
-    private void addIncomingMessage(ReliableMessage rMsg, ID waiting) {
-        Lock writeLock = incomingMessageLock.writeLock();
-        writeLock.lock();
-        try {
-            List<ReliableMessage> messages = incomingMessages.get(waiting);
-            if (messages == null) {
-                messages = new ArrayList<>();
-                incomingMessages.put(waiting, messages);
+            // processing outgoing messages
+            List<InstantMessage> outgoing = outgoingMessages.remove(entity);
+            if (outgoing != null) {
+                for (InstantMessage item : outgoing) {
+                    messenger.sendMessage(item, null, StarShip.SLOWER);
+                }
             }
-            messages.add(rMsg);
-        } finally {
-            writeLock.unlock();
         }
-    }
-    private ReliableMessage getIncomingMessage(ID waiting) {
-        ReliableMessage rMsg = null;
-        Lock writeLock = incomingMessageLock.writeLock();
-        writeLock.lock();
-        try {
-            List<ReliableMessage> messages = incomingMessages.get(waiting);
-            if (messages != null && messages.size() > 0) {
-                Log.info("==== processing incoming message(s): " + messages.size() + ", " + waiting);
-                rMsg = messages.remove(0);
-            }
-        } finally {
-            writeLock.unlock();
-        }
-        return rMsg;
     }
 
     @Override
@@ -221,15 +193,38 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         // save this message in a queue waiting sender's meta response
         ID waiting = (ID) rMsg.get("waiting");
         if (waiting == null) {
-            waiting = rMsg.getSender();
+            waiting = rMsg.getGroup();
+            if (waiting == null) {
+                waiting = rMsg.getSender();
+            }
         } else {
             rMsg.remove("waiting");
         }
-        addIncomingMessage(rMsg, waiting);
+        List<ReliableMessage> list = incomingMessages.get(waiting);
+        if (list == null) {
+            list = new ArrayList<>();
+            incomingMessages.put(waiting, list);
+        }
+        list.add(rMsg);
     }
 
     @Override
     public void suspendMessage(InstantMessage iMsg) {
-        // TODO: save this message in a queue waiting receiver's meta response
+        // save this message in a queue waiting receiver's meta response
+        ID waiting = (ID) iMsg.get("waiting");
+        if (waiting == null) {
+            waiting = iMsg.getGroup();
+            if (waiting == null) {
+                waiting = iMsg.getSender();
+            }
+        } else {
+            iMsg.remove("waiting");
+        }
+        List<InstantMessage> list = outgoingMessages.get(waiting);
+        if (list == null) {
+            list = new ArrayList<>();
+            outgoingMessages.put(waiting, list);
+        }
+        list.add(iMsg);
     }
 }

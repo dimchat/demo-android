@@ -34,7 +34,6 @@ import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -43,7 +42,6 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
-import chat.dim.protocol.group.QueryCommand;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
@@ -72,16 +70,6 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
                 return null;
             }
             Log.info("receipt to sender: " + sender);
-        }
-
-        if (content instanceof QueryCommand) {
-            if (res instanceof GroupCommand) {
-                String name = getFacebook().getNickname(sender);
-                if (name == null || name.length() == 0) {
-                    name = sender.toString();
-                }
-                res.put("text", name + " is querying group info, responded.");
-            }
         }
 
         // check receiver
