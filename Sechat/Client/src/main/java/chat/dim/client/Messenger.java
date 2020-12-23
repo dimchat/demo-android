@@ -73,7 +73,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         return (MessageProcessor) super.getMessageProcessor();
     }
     @Override
-    protected MessageProcessor newMessageProcessor() {
+    protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
     }
 

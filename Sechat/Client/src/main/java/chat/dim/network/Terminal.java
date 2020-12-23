@@ -214,8 +214,6 @@ public abstract class Terminal implements Station.Delegate {
 
     private void reportOnline() {
         Command cmd = new ReportCommand(ReportCommand.ONLINE);
-        Date now = new Date();
-        cmd.put("time", now.getTime() / 1000);
         if (offlineTime != null) {
             cmd.put("last_time", offlineTime.getTime() / 1000);
         }
@@ -227,15 +225,13 @@ public abstract class Terminal implements Station.Delegate {
         if (user == null) {
             return;
         }
-        // report client state
         Command cmd = new ReportCommand(ReportCommand.OFFLINE);
-        cmd.put("time", offlineTime.getTime() / 1000);
+        offlineTime = cmd.getTime();
         Messenger messenger = Messenger.getInstance();
         messenger.sendCommand(cmd, StarShip.NORMAL);
     }
 
     public void enterBackground() {
-        offlineTime = new Date();
         if (currentServer != null) {
             // report client state
             reportOffline();

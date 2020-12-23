@@ -46,7 +46,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
     public int mtpFormat = MTP_DMTP;
 
     public MessagePacker(Messenger transceiver) {
-        super(transceiver, KeyStore.getInstance());
+        super(transceiver);
     }
 
     private SymmetricKey getCipherKey(ID sender, ID receiver) {

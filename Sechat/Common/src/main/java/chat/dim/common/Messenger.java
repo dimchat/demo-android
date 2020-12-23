@@ -50,7 +50,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return (MessagePacker) super.getMessagePacker();
     }
     @Override
-    protected MessagePacker newMessagePacker() {
+    protected MessagePacker createMessagePacker() {
         return new MessagePacker(this);
     }
 
@@ -59,7 +59,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return (MessageProcessor) super.getMessageProcessor();
     }
     @Override
-    protected MessageProcessor newMessageProcessor() {
+    protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
     }
 
@@ -68,7 +68,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return (MessageTransmitter) super.getMessageTransmitter();
     }
     @Override
-    protected MessageTransmitter newMessageTransmitter() {
+    protected MessageTransmitter createMessageTransmitter() {
         return new MessageTransmitter(this);
     }
 
