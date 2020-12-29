@@ -28,7 +28,6 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.CipherKeyDelegate;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
@@ -47,11 +46,6 @@ public class MessagePacker extends chat.dim.MessagePacker {
 
     public MessagePacker(Messenger transceiver) {
         super(transceiver);
-    }
-
-    private SymmetricKey getCipherKey(ID sender, ID receiver) {
-        CipherKeyDelegate delegate = getCipherKeyDelegate();
-        return delegate.getCipherKey(sender, receiver, false);
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
@@ -75,9 +69,9 @@ public class MessagePacker extends chat.dim.MessagePacker {
         ID group = rMsg.getGroup();
         if (group == null) {
             ID receiver = rMsg.getReceiver();
-            key = getCipherKey(sender, receiver);
+            key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
         } else {
-            key = getCipherKey(sender, group);
+            key = getCipherKeyDelegate().getCipherKey(sender, group, false);
         }
         // get key data
         byte[] data = key.getData();
@@ -129,7 +123,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         if (ID.isGroup(receiver)) {
             // reuse group message keys
             ID sender = iMsg.getSender();
-            SymmetricKey key = getCipherKey(sender, receiver);
+            SymmetricKey key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
             assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
             key.put("reused", true);
         }

@@ -33,7 +33,7 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.CipherKeyDelegate;
+import chat.dim.core.CipherKeyDelegate;
 import chat.dim.crypto.PlainKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.MsgKeyTable;
