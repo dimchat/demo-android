@@ -65,7 +65,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
         ID sender = rMsg.getSender();
         if (res instanceof ReceiptCommand) {
-            if (NetworkType.Station.equals(sender.getType())) {
+            if (NetworkType.STATION.equals(sender.getType())) {
                 // no need to respond receipt to station
                 return null;
             }

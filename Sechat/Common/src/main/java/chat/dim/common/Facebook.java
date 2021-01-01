@@ -253,7 +253,7 @@ public class Facebook extends chat.dim.Facebook {
         Meta meta = metaTable.getMeta(identifier);
         if (meta == null || meta.getKey() == null) {
             // try from immortals
-            if (identifier.getType() == NetworkType.Main.value) {
+            if (identifier.getType() == NetworkType.MAIN.value) {
                 meta = immortals.getMeta(identifier);
                 if (meta != null) {
                     metaTable.saveMeta(meta, identifier);
@@ -271,7 +271,7 @@ public class Facebook extends chat.dim.Facebook {
         Document profile = docsTable.getDocument(identifier, type);
         if (isEmpty(profile)) {
             // try from immortals
-            if (identifier.getType() == NetworkType.Main.value) {
+            if (identifier.getType() == NetworkType.MAIN.value) {
                 Document tai = immortals.getDocument(identifier, type);
                 if (tai != null) {
                     docsTable.saveDocument(tai);

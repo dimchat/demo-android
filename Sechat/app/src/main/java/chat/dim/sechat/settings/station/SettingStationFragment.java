@@ -153,7 +153,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     private void addStation() {
         String sid = newSID.getText().toString();
         ID identifier = ID.parse(sid);
-        if (identifier == null || !NetworkType.Station.equals(identifier.getType())) {
+        if (identifier == null || !NetworkType.STATION.equals(identifier.getType())) {
             Alert.tips(getContext(), "Station ID error: " + sid);
             return;
         }

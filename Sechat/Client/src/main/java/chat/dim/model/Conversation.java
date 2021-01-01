@@ -36,8 +36,8 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
 
 public class Conversation {
-    public static byte PersonalChat = NetworkType.Main.value;
-    public static byte GroupChat = NetworkType.Group.value;
+    public static byte PersonalChat = NetworkType.MAIN.value;
+    public static byte GroupChat = NetworkType.GROUP.value;
 
     private final Entity entity;
     public final ID identifier;

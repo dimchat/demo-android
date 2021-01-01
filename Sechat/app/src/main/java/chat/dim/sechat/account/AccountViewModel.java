@@ -172,7 +172,7 @@ public class AccountViewModel extends UserViewModel {
             version = ((Number) value).intValue();
         }
         if (version == 0) {
-            version = MetaType.Default.value;
+            version = MetaType.DEFAULT.value;
         }
 
         // ID.type
@@ -185,7 +185,7 @@ public class AccountViewModel extends UserViewModel {
             network = ((Number) value).byteValue();
         }
         if (network == 0) {
-            network = NetworkType.Main.value;
+            network = NetworkType.MAIN.value;
         }
 
         // ID.seed

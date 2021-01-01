@@ -78,7 +78,7 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
         try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 owner = ID.parse(cursor.getString(0));
-                if (owner == null && group.getType() == NetworkType.Polylogue.value) {
+                if (owner == null && group.getType() == NetworkType.POLYLOGUE.value) {
                     // Polylogue's owner is its founder
                     owner = ID.parse(cursor.getString(1));
                 }

@@ -53,7 +53,7 @@ public class Register {
     private PrivateKey privateKey = null; // user private key
 
     public Register() {
-        this(NetworkType.Main);
+        this(NetworkType.MAIN);
     }
 
     public Register(NetworkType type) {
@@ -81,7 +81,7 @@ public class Register {
         //
         //  Step 3. generate ID with meta
         //
-        ID identifier = meta.generateID(NetworkType.Main.value, null);
+        ID identifier = meta.generateID(NetworkType.MAIN.value, null);
         //
         //  Step 4. generate profile with ID and sign with private key
         //
@@ -115,9 +115,9 @@ public class Register {
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForVisaSignature(founder);
         // 2. generate meta
-        Meta meta = Meta.generate(MetaType.Default.value, privateKey, seed);
+        Meta meta = Meta.generate(MetaType.DEFAULT.value, privateKey, seed);
         // 3. generate ID
-        ID identifier = meta.generateID(NetworkType.Polylogue.value, null);
+        ID identifier = meta.generateID(NetworkType.POLYLOGUE.value, null);
         // 4. generate profile
         Document profile = createGroupProfile(identifier, name);
         // 5. save meta & profile in local storage
@@ -170,7 +170,7 @@ public class Register {
         //userRegister.upload(user.identifier, user.getMeta(), user.getDocument());
 
         // 2. create group
-        Register groupRegister = new Register(NetworkType.Polylogue);
+        Register groupRegister = new Register(NetworkType.POLYLOGUE);
         Group group = groupRegister.createGroup(user.identifier, "DIM Group");
         Log.info("group: " + group);
         //groupRegister.upload(group.identifier, group.getMeta(), group.getDocument());

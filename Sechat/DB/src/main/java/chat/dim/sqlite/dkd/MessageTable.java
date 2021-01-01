@@ -83,7 +83,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
                 identifier = ID.parse(cursor.getString(0));
                 if (identifier == null) {
                     continue;
-                } else if (identifier.getType() == NetworkType.Station.value) {
+                } else if (identifier.getType() == NetworkType.STATION.value) {
                     // TODO: set flag to ignore message from station
                     continue;
                 }
