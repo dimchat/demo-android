@@ -111,7 +111,6 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             // normal membership
             return false;
         } else {
-
             // if assistants exists, query them
             List<ID> assistants = facebook.getAssistants(group);
             List<ID> admins = new ArrayList<>(assistants);
@@ -125,7 +124,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     @Override
-    protected Content process(Content content, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         ID sender = rMsg.getSender();
         if (isWaitingGroup(content, sender)) {
             // save this message in a queue to wait group meta response

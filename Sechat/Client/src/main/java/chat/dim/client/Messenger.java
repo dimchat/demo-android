@@ -55,17 +55,28 @@ public final class Messenger extends chat.dim.common.Messenger {
     public static Messenger getInstance() { return ourInstance; }
     private Messenger()  {
         super();
-
-        // set Facebook as Entity Delegate
-        setEntityDelegate(Facebook.getInstance());
-
-        // set Data Source
-        setDataSource(MessageDataSource.getInstance());
     }
 
     @Override
     public Facebook getFacebook() {
         return (Facebook) super.getFacebook();
+    }
+    @Override
+    protected Facebook createFacebook() {
+        return Facebook.getInstance();
+    }
+
+    @Override
+    protected DataSource getDataSource() {
+        DataSource delegate = super.getDataSource();
+        if (delegate == null) {
+            delegate = createDataSource();
+            setDataSource(delegate);
+        }
+        return delegate;
+    }
+    protected DataSource createDataSource() {
+        return MessageDataSource.getInstance();
     }
 
     @Override
@@ -99,7 +110,6 @@ public final class Messenger extends chat.dim.common.Messenger {
      * @param cmd - command should be sent to station
      * @return true on success
      */
-    @Override
     public boolean sendCommand(Command cmd, int priority) {
         Server server = getCurrentServer();
         if (server == null) {

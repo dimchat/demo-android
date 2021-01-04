@@ -52,7 +52,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
     }
 
     @Override
-    protected Content process(Content content, ReliableMessage rMsg) {
+    public Content process(Content content, ReliableMessage rMsg) {
         Content res = super.process(content, rMsg);
         if (res == null) {
             // respond nothing

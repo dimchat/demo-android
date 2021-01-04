@@ -28,8 +28,8 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.core.CipherKeyDelegate;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 
@@ -37,36 +37,40 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     public Messenger()  {
         super();
-        setCipherKeyDelegate(KeyStore.getInstance());
     }
 
     @Override
     public Facebook getFacebook() {
         return (Facebook) super.getFacebook();
     }
+    @Override
+    protected Facebook createFacebook() {
+        return new Facebook();
+    }
 
     @Override
-    protected MessagePacker getMessagePacker() {
-        return (MessagePacker) super.getMessagePacker();
+    protected CipherKeyDelegate getCipherKeyDelegate() {
+        CipherKeyDelegate keyCache = super.getCipherKeyDelegate();
+        if (keyCache == null) {
+            keyCache = createCipherKeyDelegate();
+            setCipherKeyDelegate(keyCache);
+        }
+        return keyCache;
     }
+    protected CipherKeyDelegate createCipherKeyDelegate() {
+        return KeyStore.getInstance();
+    }
+
     @Override
     protected MessagePacker createMessagePacker() {
         return new MessagePacker(this);
     }
 
     @Override
-    protected MessageProcessor getMessageProcessor() {
-        return (MessageProcessor) super.getMessageProcessor();
-    }
-    @Override
     protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
     }
 
-    @Override
-    protected MessageTransmitter getMessageTransmitter() {
-        return (MessageTransmitter) super.getMessageTransmitter();
-    }
     @Override
     protected MessageTransmitter createMessageTransmitter() {
         return new MessageTransmitter(this);
@@ -107,6 +111,4 @@ public abstract class Messenger extends chat.dim.Messenger {
         array.add(member);
         return queryGroupInfo(group, array);
     }
-
-    public abstract boolean sendCommand(Command cmd, int priority);
 }

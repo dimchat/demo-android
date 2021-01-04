@@ -44,13 +44,13 @@ public class MessagePacker extends chat.dim.MessagePacker {
     // Message Transfer Protocol
     public int mtpFormat = MTP_DMTP;
 
-    public MessagePacker(Messenger transceiver) {
-        super(transceiver);
+    public MessagePacker(Messenger messenger) {
+        super(messenger);
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
         if (rMsg.getDelegate() == null) {
-            rMsg.setDelegate(getMessageDelegate());
+            rMsg.setDelegate(getMessenger());
         }
         if (rMsg.getEncryptedKey() != null) {
             // 'key' exists
