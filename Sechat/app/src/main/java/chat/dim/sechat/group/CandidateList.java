@@ -32,7 +32,7 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         List<ID> contacts = UserViewModel.getContacts(user.identifier);
         if (contacts != null) {
             for (ID member : contacts) {
-                if (!ID.isUser(member)) {
+                if (!member.isUser()) {
                     continue;
                 }
                 if (GroupViewModel.containsMember(member, group)) {

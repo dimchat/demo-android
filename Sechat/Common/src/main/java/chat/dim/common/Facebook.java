@@ -193,7 +193,7 @@ public class Facebook extends chat.dim.Facebook {
         String username = identifier.getName();
         String nickname = getNickname(identifier);
         if (nickname != null && nickname.length() > 0) {
-            if (ID.isUser(identifier)) {
+            if (identifier.isUser()) {
                 if (username != null && username.length() > 0) {
                     return nickname + " (" + username + ")";
                 }
@@ -227,7 +227,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     private boolean isWaitingMeta(ID entity) {
-        if (ID.isBroadcast(entity)) {
+        if (entity.isBroadcast()) {
             return false;
         }
         return getMeta(entity) == null;
@@ -245,7 +245,7 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (ID.isBroadcast(identifier)) {
+        if (identifier.isBroadcast()) {
             // broadcast ID has not meta
             return null;
         }

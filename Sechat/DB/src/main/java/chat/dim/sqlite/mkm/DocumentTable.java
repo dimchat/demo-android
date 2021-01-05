@@ -105,7 +105,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         if (doc != null) {
             return doc;
         }
-        if (ID.isUser(entity)) {
+        if (entity.isUser()) {
             // TODO: only support VISA document type now
             type = Document.VISA;
         }
@@ -126,9 +126,9 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         }
         if (doc == null) {
             // 2.1. place an empty document for cache
-            if (ID.isUser(entity)) {
+            if (entity.isUser()) {
                 doc = new BaseVisa(entity);
-            } else if (ID.isGroup(entity)) {
+            } else if (entity.isGroup()) {
                 doc = new BaseBulletin(entity);
             } else {
                 doc = new BaseDocument(entity, type);

@@ -76,7 +76,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     private boolean isWaitingGroup(Content content, ID sender) {
         // Check if it is a group message, and whether the group members info needs update
         ID group = content.getGroup();
-        if (group == null || ID.isBroadcast(group)) {
+        if (group == null || group.isBroadcast()) {
             // 1. personal message
             // 2. broadcast message
             return false;

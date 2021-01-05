@@ -81,7 +81,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         Object reused = password.get("reused");
         if (reused != null) {
             ID receiver = iMsg.getReceiver();
-            if (ID.isGroup(receiver)) {
+            if (receiver.isGroup()) {
                 // reuse key for grouped message
                 return null;
             }

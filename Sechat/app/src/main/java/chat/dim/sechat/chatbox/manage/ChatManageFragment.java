@@ -46,7 +46,7 @@ public class ChatManageFragment extends Fragment {
     private List<ID> participants = null;
 
     public static ChatManageFragment newInstance(ID identifier) {
-        if (ID.isGroup(identifier)) {
+        if (identifier.isGroup()) {
             GroupViewModel.checkMembers(identifier);
         }
 
@@ -144,7 +144,7 @@ public class ChatManageFragment extends Fragment {
     }
 
     private boolean canQuit() {
-        if (!ID.isGroup(identifier)) {
+        if (!identifier.isGroup()) {
             return false;
         }
         Facebook facebook = Facebook.getInstance();

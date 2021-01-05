@@ -52,7 +52,7 @@ public class ContactList extends DummyList<ContactList.Item> {
                 };
                 Collections.sort(contacts, comparator);
                 for (ID identifier : contacts) {
-                    if (ID.isGroup(identifier)) {
+                    if (identifier.isGroup()) {
                         // FIXME: where to show groups?
                         continue;
                     }
@@ -79,14 +79,14 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         Bitmap getAvatar() {
-            if (ID.isGroup(identifier)) {
+            if (identifier.isGroup()) {
                 return GroupViewModel.getLogo(identifier);
             }
             return UserViewModel.getAvatar(identifier);
         }
 
         String getTitle() {
-            if (ID.isGroup(identifier)) {
+            if (identifier.isGroup()) {
                 // TODO: show group title with format "group name (members count)"
                 return EntityViewModel.getName(identifier);
             }
@@ -94,7 +94,7 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getDesc() {
-            if (ID.isGroup(identifier)) {
+            if (identifier.isGroup()) {
                 return null;
             }
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);

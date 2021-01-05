@@ -31,7 +31,7 @@ public class MembersFragment extends Fragment {
     private List<ID> participants = null;
 
     public static MembersFragment newInstance(ID identifier) {
-        if (ID.isGroup(identifier)) {
+        if (identifier.isGroup()) {
             GroupViewModel.checkMembers(identifier);
         }
 
@@ -41,7 +41,7 @@ public class MembersFragment extends Fragment {
     }
 
     private boolean isGroupAdmin() {
-        if (identifier != null && ID.isGroup(identifier)) {
+        if (identifier != null && identifier.isGroup()) {
             User user = UserViewModel.getCurrentUser();
             return GroupViewModel.isAdmin(user, identifier);
         }

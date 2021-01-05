@@ -82,7 +82,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         }
 
         Group group;
-        if (ID.isGroup(identifier)) {
+        if (identifier.isGroup()) {
             if (!GroupViewModel.containsMember(user.identifier, identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;

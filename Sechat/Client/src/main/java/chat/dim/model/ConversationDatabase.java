@@ -171,7 +171,7 @@ public final class ConversationDatabase {
         if (OK) {
             ID entity = chatBox.identifier;
             // FIXME: check for origin conversation
-            if (ID.isUser(entity)) {
+            if (entity.isUser()) {
                 ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
                 Envelope env = receipt.getEnvelope();
                 if (env != null) {

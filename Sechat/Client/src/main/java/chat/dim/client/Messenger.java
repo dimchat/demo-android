@@ -220,7 +220,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean queryMeta(ID identifier) {
-        if (ID.isBroadcast(identifier)) {
+        if (identifier.isBroadcast()) {
             // broadcast ID has no meta
             return false;
         }
@@ -241,7 +241,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean queryProfile(ID identifier) {
-        if (ID.isBroadcast(identifier)) {
+        if (identifier.isBroadcast()) {
             // broadcast ID has no profile
             return false;
         }
@@ -262,7 +262,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     @Override
     public boolean queryGroupInfo(ID group, List<ID> members) {
-        if (ID.isBroadcast(group)) {
+        if (group.isBroadcast()) {
             // this group contains all users
             return false;
         }

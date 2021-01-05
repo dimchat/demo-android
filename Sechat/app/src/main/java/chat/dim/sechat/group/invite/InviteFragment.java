@@ -81,7 +81,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
 
     void setFrom(ID identifier) {
         from = identifier;
-        if (ID.isUser(identifier)) {
+        if (identifier.isUser()) {
             adapter.from = identifier;
             selected.add(identifier);
         }
@@ -114,7 +114,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         // invite group member(s)
         GroupManager gm = new GroupManager(identifier);
         if (gm.invite(new ArrayList<>(selected))) {
-            if (ID.isUser(from)) {
+            if (from.isUser()) {
                 Map<String, Object> info = new HashMap<>();
                 info.put("ID", identifier);
                 info.put("from", from);

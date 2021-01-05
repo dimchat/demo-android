@@ -29,7 +29,7 @@ public class ChatManageViewModel extends EntityViewModel {
 
     boolean isGroupAdmin() {
         ID identifier = getIdentifier();
-        if (identifier != null && ID.isGroup(identifier)) {
+        if (identifier != null && identifier.isGroup()) {
             User user = UserViewModel.getCurrentUser();
             return GroupViewModel.isAdmin(user, identifier);
         }
@@ -39,9 +39,9 @@ public class ChatManageViewModel extends EntityViewModel {
     List<ID> getParticipants(int count) {
         participants.clear();
 
-        if (ID.isUser(identifier)) {
+        if (identifier.isUser()) {
             participants.add(identifier);
-        } else if (ID.isGroup(identifier)) {
+        } else if (identifier.isGroup()) {
             ID owner = facebook.getOwner(identifier);
             if (owner != null) {
                 --count;

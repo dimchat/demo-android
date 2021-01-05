@@ -193,7 +193,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (ID.isBroadcast(identifier)) {
+        if (identifier.isBroadcast()) {
             // broadcast ID has not meta
             return null;
         }

@@ -120,7 +120,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         SecureMessage sMsg = super.encryptMessage(iMsg);
 
         ID receiver = iMsg.getReceiver();
-        if (ID.isGroup(receiver)) {
+        if (receiver.isGroup()) {
             // reuse group message keys
             ID sender = iMsg.getSender();
             SymmetricKey key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);

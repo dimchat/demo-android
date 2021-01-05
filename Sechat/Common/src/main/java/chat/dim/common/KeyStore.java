@@ -58,7 +58,7 @@ public final class KeyStore implements CipherKeyDelegate {
 
     @Override
     public SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {
-        if (ID.isBroadcast(receiver)) {
+        if (receiver.isBroadcast()) {
             // broadcast message has no key
             return PlainKey.getInstance();
         }
@@ -91,7 +91,7 @@ public final class KeyStore implements CipherKeyDelegate {
 
     @Override
     public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
-        if (ID.isBroadcast(receiver)) {
+        if (receiver.isBroadcast()) {
             // broadcast message has no key
             return;
         }

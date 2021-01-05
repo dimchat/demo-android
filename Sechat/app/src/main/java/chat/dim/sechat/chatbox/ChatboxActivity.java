@@ -98,7 +98,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
                     .commitNow();
         }
 
-        if (ID.isGroup(identifier)) {
+        if (identifier.isGroup()) {
             setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
             BackgroundThreads.rush(this::refresh);

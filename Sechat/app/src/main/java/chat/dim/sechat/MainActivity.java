@@ -95,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
     public static void startChat(ID entity, Context context) {
         Facebook facebook = Facebook.getInstance();
-        if (ID.isUser(entity)) {
+        if (entity.isUser()) {
             if (facebook.getUser(entity) == null) {
                 Alert.tips(context, "User not ready");
                 return;
             }
-        } else if (ID.isGroup(entity)) {
+        } else if (entity.isGroup()) {
             if (facebook.getGroup(entity) == null) {
                 Alert.tips(context, "Group not ready");
                 return;

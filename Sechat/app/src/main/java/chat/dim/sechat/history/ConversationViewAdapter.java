@@ -40,7 +40,7 @@ public class ConversationViewAdapter extends RecyclerViewAdapter<ConversationVie
         ConversationList.Item item = dummyList.getItem(position);
 
         ID identifier = item.getIdentifier();
-        if (ID.isGroup(identifier)) {
+        if (identifier.isGroup()) {
             holder.userCard.setVisibility(View.GONE);
             holder.groupCard.setVisibility(View.VISIBLE);
             Bitmap logo = item.getLogo();

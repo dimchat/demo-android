@@ -47,9 +47,9 @@ public final class Amanuensis {
         Facebook facebook = Facebook.getInstance();
         // create directly if we can find the entity
         Entity entity = null;
-        if (ID.isUser(identifier)) {
+        if (identifier.isUser()) {
             entity = facebook.getUser(identifier);
-        } else if (ID.isGroup(identifier)) {
+        } else if (identifier.isGroup()) {
             entity = facebook.getGroup(identifier);
         }
         if (entity == null) {
@@ -64,7 +64,7 @@ public final class Amanuensis {
     private Conversation getConversation(InstantMessage iMsg) {
         // check receiver
         ID receiver = iMsg.getReceiver();
-        if (ID.isGroup(receiver)) {
+        if (receiver.isGroup()) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }

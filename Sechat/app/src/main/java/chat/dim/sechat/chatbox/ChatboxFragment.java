@@ -145,7 +145,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         // pack message content
         ID sender = user.identifier;
         ID receiver = chatBox.identifier;
-        if (ID.isGroup(receiver)) {
+        if (receiver.isGroup()) {
             content.setGroup(receiver);
         }
         Envelope env = Envelope.create(sender, receiver, null);

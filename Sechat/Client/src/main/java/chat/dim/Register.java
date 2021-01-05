@@ -131,7 +131,7 @@ public class Register {
     }
 
     public BaseVisa createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
-        assert ID.isUser(identifier) : "ID error";
+        assert identifier.isUser() : "ID error";
         assert privateKey != null : "private key not found";
         BaseVisa profile = new BaseVisa(identifier);
         profile.setName(name);
