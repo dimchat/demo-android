@@ -29,9 +29,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.core.CipherKeyDelegate;
+import chat.dim.cpu.AnyContentProcessor;
+import chat.dim.cpu.BlockCommandProcessor;
+import chat.dim.cpu.CommandProcessor;
+import chat.dim.cpu.ContentProcessor;
+import chat.dim.cpu.MuteCommandProcessor;
+import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.protocol.BlockCommand;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.ReportCommand;
+import chat.dim.protocol.SearchCommand;
 
 public abstract class Messenger extends chat.dim.Messenger {
 
@@ -110,5 +121,27 @@ public abstract class Messenger extends chat.dim.Messenger {
         List<ID> array = new ArrayList<>();
         array.add(member);
         return queryGroupInfo(group, array);
+    }
+
+    static {
+        // load factories & processors from SDK
+        MessageProcessor.registerAllFactories();
+        MessageProcessor.registerAllProcessors();
+
+        // register command parsers
+        Command.register(SearchCommand.SEARCH, SearchCommand::new);
+        Command.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
+
+        Command.register(ReportCommand.REPORT, ReportCommand::new);
+        Command.register(ReportCommand.ONLINE, ReportCommand::new);
+        Command.register(ReportCommand.OFFLINE, ReportCommand::new);
+
+        // register content processors
+        ContentProcessor.register(0, new AnyContentProcessor());
+
+        // register command processors
+        CommandProcessor.register(Command.RECEIPT, new ReceiptCommandProcessor());
+        CommandProcessor.register(MuteCommand.MUTE, new MuteCommandProcessor());
+        CommandProcessor.register(BlockCommand.BLOCK, new BlockCommandProcessor());
     }
 }

@@ -28,21 +28,10 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.cpu.AnyContentProcessor;
-import chat.dim.cpu.BlockCommandProcessor;
-import chat.dim.cpu.CommandProcessor;
-import chat.dim.cpu.ContentProcessor;
-import chat.dim.cpu.MuteCommandProcessor;
-import chat.dim.cpu.ReceiptCommandProcessor;
-import chat.dim.protocol.BlockCommand;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.ReportCommand;
-import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
 
@@ -152,23 +141,5 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             }
             return null;
         }
-    }
-
-    static {
-        // register command parsers
-        Command.register(SearchCommand.SEARCH, SearchCommand::new);
-        Command.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
-
-        Command.register(ReportCommand.REPORT, ReportCommand::new);
-        Command.register(ReportCommand.ONLINE, ReportCommand::new);
-        Command.register(ReportCommand.OFFLINE, ReportCommand::new);
-
-        // register content processors
-        ContentProcessor.register(0, new AnyContentProcessor());
-
-        // register command processors
-        CommandProcessor.register(Command.RECEIPT, new ReceiptCommandProcessor());
-        CommandProcessor.register(MuteCommand.MUTE, new MuteCommandProcessor());
-        CommandProcessor.register(BlockCommand.BLOCK, new BlockCommandProcessor());
     }
 }

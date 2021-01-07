@@ -416,6 +416,10 @@ public class Facebook extends chat.dim.Facebook {
     private static final ID.Factory identifierFactory = Factories.idFactory;
 
     static {
+
+        // load plugins
+        chat.dim.Plugins.registerAllPlugins();
+
         Factories.idFactory = new ID.Factory() {
 
             @Override

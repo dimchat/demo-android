@@ -80,10 +80,6 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
-    protected MessageProcessor getMessageProcessor() {
-        return (MessageProcessor) super.getMessageProcessor();
-    }
-    @Override
     protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
     }
