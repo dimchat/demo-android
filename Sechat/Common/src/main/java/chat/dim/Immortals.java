@@ -67,7 +67,7 @@ public final class Immortals implements User.DataSource {
     private Map<String, ID>     idMap         = new HashMap<>();
     private Map<ID, PrivateKey> privateKeyMap = new HashMap<>();
     private Map<ID, Meta>       metaMap       = new HashMap<>();
-    private Map<ID, Document>   profileMap    = new HashMap<>();
+    private Map<ID, Visa>       visaMap       = new HashMap<>();
     private Map<ID, User>       userMap       = new HashMap<>();
 
     public Immortals() {
@@ -105,10 +105,10 @@ public final class Immortals implements User.DataSource {
         PrivateKey key = loadPrivateKey(identifier.getName() + "_secret.js");
         OK = cache(key, identifier);
         assert OK : "private key error: " + key;
-        // load profile for ID
-        Document profile = loadProfile(identifier.getName() + "_profile.js");
-        OK = cache(profile, identifier);
-        assert OK : "profile error: " + profile;
+        // load visa for ID
+        Visa visa = loadVisa(identifier.getName() + "_profile.js");
+        OK = cache(visa, identifier);
+        assert OK : "visa error: " + visa;
     }
 
     @SuppressWarnings("unchecked")
@@ -124,10 +124,10 @@ public final class Immortals implements User.DataSource {
     }
 
     @SuppressWarnings("unchecked")
-    private Document loadProfile(String filename) throws IOException {
+    private Visa loadVisa(String filename) throws IOException {
         Map dict = loadJSON(filename);
-        Document profile = Document.parse(dict);
-        assert profile != null : "failed to load profile: " + filename + ", " + dict;
+        Visa visa = (Visa) Document.parse(dict);
+        assert visa != null : "failed to load visa: " + filename + ", " + dict;
         // copy 'name'
         Object name = dict.get("name");
         if (name == null) {
@@ -135,11 +135,11 @@ public final class Immortals implements User.DataSource {
             if (names instanceof List) {
                 List array = (List) names;
                 if (array.size() > 0) {
-                    profile.setProperty("name", array.get(0));
+                    visa.setProperty("name", array.get(0));
                 }
             }
         } else {
-            profile.setProperty("name", name);
+            visa.setProperty("name", name);
         }
         // copy 'avatar'
         Object avatar = dict.get("avatar");
@@ -148,23 +148,23 @@ public final class Immortals implements User.DataSource {
             if (photos instanceof List) {
                 List array = (List) photos;
                 if (array.size() > 0) {
-                    profile.setProperty("avatar", array.get(0));
+                    visa.setProperty("avatar", array.get(0));
                 }
             }
         } else {
-            profile.setProperty("avatar", avatar);
+            visa.setProperty("avatar", avatar);
         }
         // sign
-        byte[] s = sign(profile);
-        assert s != null : "failed to sign profile: " + profile;
-        return profile;
+        byte[] s = sign(visa);
+        assert s != null : "failed to sign visa: " + visa;
+        return visa;
     }
 
-    private byte[] sign(Document profile) {
-        ID identifier = getID(profile.getIdentifier());
+    private byte[] sign(Visa visa) {
+        ID identifier = getID(visa.getIdentifier());
         SignKey key = getPrivateKeyForVisaSignature(identifier);
         assert key != null : "failed to get private key for signature: " + identifier;
-        return profile.sign(key);
+        return visa.sign(key);
     }
 
     //-------- cache
@@ -185,10 +185,10 @@ public final class Immortals implements User.DataSource {
         return true;
     }
 
-    private boolean cache(Document profile, ID identifier) {
-        assert profile.isValid() : "profile not valid: " + profile;
-        assert identifier.equals(profile.getIdentifier()) : "profile not match: " + identifier + ", " + profile;
-        profileMap.put(identifier, profile);
+    private boolean cache(Visa visa, ID identifier) {
+        assert visa.isValid() : "visa not valid: " + visa;
+        assert identifier.equals(visa.getIdentifier()) : "visa not match: " + identifier + ", " + visa;
+        visaMap.put(identifier, visa);
         return true;
     }
 
@@ -234,7 +234,7 @@ public final class Immortals implements User.DataSource {
 
     @Override
     public Document getDocument(ID identifier, String type) {
-        return profileMap.get(identifier);
+        return visaMap.get(identifier);
     }
 
     //-------- UserDataSource
@@ -254,24 +254,41 @@ public final class Immortals implements User.DataSource {
         return contacts;
     }
 
+    private EncryptKey getVisaKey(ID user) {
+        Document doc = getDocument(user, Document.VISA);
+        if (doc instanceof Visa) {
+            Visa visa = (Visa) doc;
+            if (visa.isValid()) {
+                return visa.getKey();
+            }
+        }
+        return null;
+    }
+    private VerifyKey getMetaKey(ID user) {
+        Meta meta = getMeta(user);
+        if (meta == null) {
+            //throw new NullPointerException("failed to get meta for ID: " + user);
+            return null;
+        }
+        return meta.getKey();
+    }
+
     @Override
     public EncryptKey getPublicKeyForEncryption(ID user) {
         // 1. get key from visa
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
-            EncryptKey key = ((Visa) doc).getKey();
-            if (key != null) {
-                return key;
-            }
+        EncryptKey visaKey = getVisaKey(user);
+        if (visaKey != null) {
+            // if visa.key exists, use it for encryption
+            return visaKey;
         }
         // 2. get key from meta
-        Meta meta = getMeta(user);
-        if (meta != null) {
-            Object key = meta.getKey();
-            if (key instanceof EncryptKey) {
-                return (EncryptKey) key;
-            }
+        VerifyKey metaKey = getMetaKey(user);
+        if (metaKey instanceof EncryptKey) {
+            // if profile.key not exists and meta.key is encrypt key,
+            // use it for encryption
+            return (EncryptKey) metaKey;
         }
+        //throw new NullPointerException("failed to get encrypt key for user: " + user);
         return null;
     }
 
@@ -279,22 +296,20 @@ public final class Immortals implements User.DataSource {
     public List<VerifyKey> getPublicKeysForVerification(ID user) {
         List<VerifyKey> keys = new ArrayList<>();
         // 1. get key from visa
-        Document doc = getDocument(user, Document.VISA);
-        if (doc instanceof Visa) {
-            Object key = ((Visa) doc).getKey();
-            if (key instanceof VerifyKey) {
-                // the sender may use communication key to sign message.data,
-                // so try to verify it with visa.key here
-                keys.add((VerifyKey) key);
-            }
+        EncryptKey visaKey = getVisaKey(user);
+        if (visaKey instanceof VerifyKey) {
+            // the sender may use communication key to sign message.data,
+            // so try to verify it with visa.key here
+            keys.add((VerifyKey) visaKey);
         }
         // 2. get key from meta
-        Meta meta = getMeta(user);
-        if (meta != null) {
+        VerifyKey metaKey = getMetaKey(user);
+        if (metaKey != null) {
             // the sender may use identity key to sign message.data,
             // try to verify it with meta.key
-            keys.add(meta.getKey());
+            keys.add(metaKey);
         }
+        assert keys.size() > 0 : "failed to get verify key for user: " + user;
         return keys;
     }
 

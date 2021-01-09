@@ -200,7 +200,7 @@ public abstract class Terminal implements Station.Delegate {
         //
         startServer();
 
-        // TODO: notice("ProfileUpdated")
+        // TODO: notice("DocumentUpdated")
 
         // APNs?
         // Icon badge?
@@ -286,11 +286,11 @@ public abstract class Terminal implements Station.Delegate {
         User user = getCurrentUser();
         assert user != null : "current user not found";
 
-        // post current profile to station
-        Document profile = user.getDocument(Document.PROFILE);
+        // post current document to station
+        Document doc = user.getDocument("*");
         Facebook facebook = Facebook.getInstance();
-        if (!facebook.isEmpty(profile)) {
-            messenger.postProfile(profile, null);
+        if (!facebook.isEmpty(doc)) {
+            messenger.postDocument(doc, null);
         }
 
         // report client state

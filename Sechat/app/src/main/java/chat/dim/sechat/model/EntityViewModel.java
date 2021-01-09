@@ -66,8 +66,8 @@ public class EntityViewModel extends ViewModel {
     //
     //  Name string
     //
-    private static String getName(ID identifier, Document profile) {
-        String name = profile.getName();
+    private static String getName(ID identifier, Document doc) {
+        String name = doc.getName();
         if (name != null) {
             return name;
         }
@@ -99,12 +99,12 @@ public class EntityViewModel extends ViewModel {
         return getDocument(getIdentifier(), type);
     }
 
-    public void refreshProfile() {
+    public void refreshDocument() {
         BackgroundThreads.wait(() -> {
-            Document profile = getDocument("*");
-            if (facebook.isEmpty(profile) || facebook.isExpired(profile)) {
+            Document doc = getDocument("*");
+            if (facebook.isEmpty(doc) || facebook.isExpired(doc)) {
                 Messenger messenger = Messenger.getInstance();
-                messenger.queryProfile(identifier);
+                messenger.queryDocument(identifier);
             }
         });
     }

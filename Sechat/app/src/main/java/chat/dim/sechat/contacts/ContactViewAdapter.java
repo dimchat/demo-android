@@ -62,14 +62,14 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
             mDescView = view.findViewById(R.id.desc);
 
             NotificationCenter nc = NotificationCenter.getInstance();
-            nc.addObserver(this, NotificationNames.ProfileUpdated);
+            nc.addObserver(this, NotificationNames.DocumentUpdated);
             nc.addObserver(this, NotificationNames.FileDownloadSuccess);
         }
 
         @Override
         public void finalize() throws Throwable {
             NotificationCenter nc = NotificationCenter.getInstance();
-            nc.removeObserver(this, NotificationNames.ProfileUpdated);
+            nc.removeObserver(this, NotificationNames.DocumentUpdated);
             nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
             super.finalize();
         }
@@ -79,7 +79,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
             String name = notification.name;
             Map info = notification.userInfo;
             assert name != null && info != null : "notification error: " + notification;
-            if (name.equals(NotificationNames.ProfileUpdated)) {
+            if (name.equals(NotificationNames.DocumentUpdated)) {
                 ID user = (ID) info.get("ID");
                 if (user.equals(item.getIdentifier())) {
                     MainThread.call(this::refresh);

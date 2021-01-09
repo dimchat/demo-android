@@ -19,12 +19,11 @@ import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
-import chat.dim.mkm.BaseVisa;
 import chat.dim.model.Configuration;
 import chat.dim.network.FtpServer;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
+import chat.dim.protocol.Visa;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.Alert;
@@ -152,7 +151,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
         Meta meta = user.getMeta();
-        Document profile = user.getDocument(Document.VISA);
+        Visa visa = user.getVisa();
 
         Facebook facebook = Facebook.getInstance();
 
@@ -161,22 +160,18 @@ public class RegisterFragment extends Fragment {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
-            if (profile instanceof BaseVisa) {
-                ((BaseVisa) profile).setAvatar(avatarURL);
-            } else {
-                profile.setProperty("avatar", avatarURL);
-            }
+            visa.setAvatar(avatarURL);
             SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.identifier);
             assert sKey != null : "failed to get private key: " + user.identifier;
-            profile.sign(sKey);
-            facebook.saveDocument(profile);
+            visa.sign(sKey);
+            facebook.saveDocument(visa);
         }
 
         // 3. set current user
         facebook.setCurrentUser(user);
 
-        // 4. upload meta & profile to DIM station
-        userRegister.upload(user.identifier, meta, profile);
+        // 4. upload meta & visa to DIM station
+        userRegister.upload(user.identifier, meta, visa);
 
         // 5. show main activity
         checkUser();

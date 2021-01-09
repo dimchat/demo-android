@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.GroupManager;
-import chat.dim.mkm.BaseVisa;
 import chat.dim.model.Configuration;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
@@ -40,6 +39,7 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
+import chat.dim.protocol.Visa;
 import chat.dim.utils.Log;
 
 public final class Facebook extends chat.dim.common.Facebook {
@@ -52,12 +52,12 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     public String getAvatar(ID identifier) {
         String url = null;
-        Document profile = getDocument(identifier, Document.PROFILE);
-        if (!isEmpty(profile)) {
-            if (profile instanceof BaseVisa) {
-                url = ((BaseVisa) profile).getAvatar();
+        Document doc = getDocument(identifier, "*");
+        if (!isEmpty(doc)) {
+            if (doc instanceof Visa) {
+                url = ((Visa) doc).getAvatar();
             } else {
-                url = (String) profile.getProperty("avatar");
+                url = (String) doc.getProperty("avatar");
             }
         }
         if (url == null || url.length() == 0) {
@@ -82,19 +82,19 @@ public final class Facebook extends chat.dim.common.Facebook {
         return true;
     }
 
-    //-------- Profile
+    //-------- Document
 
     @Override
-    public boolean saveDocument(Document profile) {
-        if (!super.saveDocument(profile)) {
+    public boolean saveDocument(Document doc) {
+        if (!super.saveDocument(doc)) {
             return false;
         }
-        ID entity = profile.getIdentifier();
+        ID entity = doc.getIdentifier();
 
         Map<String, Object> info = new HashMap<>();
         info.put("ID", entity);
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.postNotification(NotificationNames.ProfileUpdated, this, info);
+        nc.postNotification(NotificationNames.DocumentUpdated, this, info);
         return true;
     }
 
@@ -217,27 +217,27 @@ public final class Facebook extends chat.dim.common.Facebook {
             doc.put(EXPIRES_KEY, now + EXPIRES);
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
-            messenger.queryProfile(identifier);
+            messenger.queryDocument(identifier);
         }
         return doc;
     }
 
-    public boolean isExpired(Document profile) {
+    public boolean isExpired(Document doc) {
         long now = (new Date()).getTime();
-        Number expires = (Number) profile.get(EXPIRES_KEY);
+        Number expires = (Number) doc.get(EXPIRES_KEY);
         if (expires == null) {
             // set expired time
-            profile.put(EXPIRES_KEY, now + EXPIRES);
+            doc.put(EXPIRES_KEY, now + EXPIRES);
             return false;
         }
         return now > expires.longValue();
     }
 
-    public boolean isSigned(Document profile) {
-        if (isEmpty(profile)) {
+    public boolean isSigned(Document doc) {
+        if (isEmpty(doc)) {
             return false;
         }
-        String base64 = (String) profile.get("signature");
+        String base64 = (String) doc.get("signature");
         return base64 != null && base64.length() > 0;
     }
 

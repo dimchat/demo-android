@@ -51,7 +51,7 @@ import chat.dim.protocol.NetworkType;
 
 public class Facebook extends chat.dim.Facebook {
 
-    public static long EXPIRES = 30 * 60 * 1000;  // profile expires (30 minutes)
+    public static long EXPIRES = 30 * 60 * 1000;  // document expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
 
     private Immortals immortals = new Immortals();
@@ -136,16 +136,16 @@ public class Facebook extends chat.dim.Facebook {
         return metaTable.saveMeta(meta, entity);
     }
 
-    //-------- Profile
+    //-------- Document
 
     @Override
-    public boolean saveDocument(Document profile) {
-        if (!isValid(profile)) {
-            // profile's signature not match
+    public boolean saveDocument(Document doc) {
+        if (!isValid(doc)) {
+            // document's signature not match
             return false;
         }
-        profile.remove(EXPIRES_KEY);
-        return docsTable.saveDocument(profile);
+        doc.remove(EXPIRES_KEY);
+        return docsTable.saveDocument(doc);
     }
 
     //-------- Relationship
@@ -210,9 +210,9 @@ public class Facebook extends chat.dim.Facebook {
         return getNickname(ID.parse(identifier));
     }
     public String getNickname(ID identifier) {
-        Document profile = getDocument(identifier, "*");
-        assert profile != null : "profile object should not be null: " + identifier;
-        return profile.getName();
+        Document doc = getDocument(identifier, "*");
+        assert doc != null : "document object should not be null: " + identifier;
+        return doc.getName();
     }
     public String getGroupName(ID identifier) {
         return getNickname(identifier);
@@ -268,8 +268,8 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public Document getDocument(ID identifier, String type) {
         // try from database
-        Document profile = docsTable.getDocument(identifier, type);
-        if (isEmpty(profile)) {
+        Document doc = docsTable.getDocument(identifier, type);
+        if (isEmpty(doc)) {
             // try from immortals
             if (identifier.getType() == NetworkType.MAIN.value) {
                 Document tai = immortals.getDocument(identifier, type);
@@ -278,9 +278,9 @@ public class Facebook extends chat.dim.Facebook {
                     return tai;
                 }
             }
-            assert profile != null : "profile object should not be null: " + identifier;
+            assert doc != null : "document object should not be null: " + identifier;
         }
-        return profile;
+        return doc;
     }
 
     //-------- UserDataSource

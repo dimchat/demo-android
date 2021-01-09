@@ -15,11 +15,11 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseVisa;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Visa;
 import chat.dim.sechat.model.UserViewModel;
 
 public class AccountViewModel extends UserViewModel {
@@ -42,27 +42,27 @@ public class AccountViewModel extends UserViewModel {
         return user.getContacts();
     }
 
-    public void updateProfile(Document profile) {
+    public void updateVisa(Visa visa) {
         ID identifier = getIdentifier();
-        if (identifier == null || !identifier.equals(profile.getIdentifier())) {
+        if (identifier == null || !identifier.equals(visa.getIdentifier())) {
             return;
         }
-        // get private key to sign the profile
+        // get private key to sign the visa document
         SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
         if (sKey == null) {
             throw new NullPointerException("failed to get private key: " + identifier);
         }
-        profile.sign(sKey);
-        // save signed profile
-        if (!facebook.saveDocument(profile)) {
+        visa.sign(sKey);
+        // save signed visa document
+        if (!facebook.saveDocument(visa)) {
             return;
         }
         Messenger messenger = Messenger.getInstance();
         // upload to server
         Meta meta = facebook.getMeta(identifier);
-        messenger.postProfile(profile, meta);
+        messenger.postDocument(visa, meta);
         // broadcast to all contacts
-        messenger.broadcastProfile(profile);
+        messenger.broadcastVisa(visa);
     }
 
     public String serializePrivateInfo() {
@@ -194,7 +194,7 @@ public class AccountViewModel extends UserViewModel {
             seed = (String) info.get("username");
         }
 
-        // profile.name
+        // visa.name
         String nickname = (String) info.get("nickname");
 
         return savePrivateInfo(base64, algorithm, version, network, seed, nickname);
@@ -237,19 +237,19 @@ public class AccountViewModel extends UserViewModel {
             return null;
         }
 
-        // generate profile
+        // generate visa
         if (nickname != null || msgKey != null) {
-            BaseVisa profile = new BaseVisa(identifier);
+            BaseVisa visa = new BaseVisa(identifier);
             if (nickname != null && nickname.length() > 0) {
-                profile.setName(nickname);
+                visa.setName(nickname);
             }
             if (msgKey != null) {
-                profile.setKey(msgKey);
+                visa.setKey(msgKey);
             }
-            if (profile.sign(privateKey) == null) {
+            if (visa.sign(privateKey) == null) {
                 return null;
             }
-            if (!facebook.saveDocument(profile)) {
+            if (!facebook.saveDocument(visa)) {
                 return null;
             }
         }

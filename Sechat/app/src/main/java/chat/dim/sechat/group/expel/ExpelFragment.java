@@ -21,7 +21,7 @@ import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
-import chat.dim.protocol.Document;
+import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.CandidateViewAdapter;
@@ -87,10 +87,10 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
                 assert user != null : "failed to get current user";
                 SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.identifier);
                 assert sKey != null : "failed to get private key: " + user.identifier;
-                Document profile = new BaseBulletin(identifier);
-                profile.setName(newName);
-                profile.sign(sKey);
-                facebook.saveDocument(profile);
+                Bulletin bulletin = new BaseBulletin(identifier);
+                bulletin.setName(newName);
+                bulletin.sign(sKey);
+                facebook.saveDocument(bulletin);
             }
         }
 

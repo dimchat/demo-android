@@ -22,12 +22,11 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.mkm.BaseVisa;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.Visa;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.account.AccountViewModel;
@@ -121,28 +120,24 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         if (identifier == null) {
             throw new NullPointerException("current user ID empty");
         }
-        Document profile = mViewModel.getDocument(Document.PROFILE);
-        assert profile != null : "profile object should not be null: " + identifier;
+        Visa visa = (Visa) mViewModel.getDocument("*");
+        assert visa != null : "visa object should not be null: " + identifier;
 
         // upload avatar
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String avatarURL = ftp.uploadAvatar(imageData, identifier);
-            if (profile instanceof BaseVisa) {
-                ((BaseVisa) profile).setAvatar(avatarURL);
-            } else {
-                profile.setProperty("avatar", avatarURL);
-            }
+            visa.setAvatar(avatarURL);
         }
 
         // update nickname
         String nickname = nicknameText.getText().toString();
         if (nickname.length() > 0) {
-            profile.setName(nickname);
+            visa.setName(nickname);
         }
 
-        mViewModel.updateProfile(profile);
+        mViewModel.updateVisa(visa);
 
         Alert.tips(getActivity(), R.string.account_saved);
     }

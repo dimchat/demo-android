@@ -19,9 +19,9 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
+import chat.dim.protocol.Visa;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
@@ -192,13 +192,13 @@ public class MainActivity extends AppCompatActivity implements Observer {
             if (meta == null) {
                 throw new NullPointerException("failed to get user meta: " + user);
             }
-            Document profile = user.getDocument(Document.PROFILE);
-            // check profile
+            Visa visa = user.getVisa();
+            // check visa
             Facebook facebook = Facebook.getInstance();
-            if (facebook.isSigned(profile)) {
-                profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+            if (facebook.isSigned(visa)) {
+                visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
                 Messenger messenger = Messenger.getInstance();
-                messenger.postProfile(profile, meta);
+                messenger.postDocument(visa, meta);
             }
             //将用户地址设为别名
             JPushManager.getInstance().setAlias(user.identifier.getAddress().toString());

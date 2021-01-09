@@ -52,7 +52,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.SearchUpdated);
-        nc.addObserver(this, NotificationNames.ProfileUpdated);
+        nc.addObserver(this, NotificationNames.DocumentUpdated);
         nc.addObserver(this, NotificationNames.FileDownloadSuccess);
     }
 
@@ -60,7 +60,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.SearchUpdated);
-        nc.removeObserver(this, NotificationNames.ProfileUpdated);
+        nc.removeObserver(this, NotificationNames.DocumentUpdated);
         nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
         super.onDestroy();
     }
@@ -75,7 +75,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
                 dummyList.response = (SearchCommand) info;
             }
             reloadData();
-        } else if (name.equals(NotificationNames.ProfileUpdated)) {
+        } else if (name.equals(NotificationNames.DocumentUpdated)) {
             // TODO: filter for dummy list
             reloadData();
         } else if (name.equals(NotificationNames.FileDownloadSuccess)) {

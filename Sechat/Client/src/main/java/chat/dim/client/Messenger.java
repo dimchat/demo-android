@@ -141,11 +141,11 @@ public final class Messenger extends chat.dim.common.Messenger {
         sendContent(ID.EVERYONE, content);
     }
 
-    public void broadcastProfile(Document profile) {
-        // check profile
+    public void broadcastVisa(Document doc) {
+        // check user document
         Facebook facebook = getFacebook();
-        if (facebook.isSigned(profile)) {
-            profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        if (facebook.isSigned(doc)) {
+            doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         } else {
             return;
         }
@@ -154,12 +154,12 @@ public final class Messenger extends chat.dim.common.Messenger {
             // TODO: save the message content in waiting queue
             throw new NullPointerException("login first");
         }
-        ID identifier = profile.getIdentifier();
+        ID identifier = doc.getIdentifier();
         if (!user.identifier.equals(identifier)) {
-            throw new IllegalArgumentException("profile error: " + profile);
+            throw new IllegalArgumentException("document error: " + doc);
         }
-        // pack and send profile to every contact
-        Command cmd = new DocumentCommand(identifier, profile);
+        // pack and send user document to every contact
+        Command cmd = new DocumentCommand(identifier, doc);
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID contact : contacts) {
@@ -168,16 +168,16 @@ public final class Messenger extends chat.dim.common.Messenger {
         }
     }
 
-    public boolean postProfile(Document profile, Meta meta) {
-        ID identifier = profile.getIdentifier();
-        // check profile
+    public boolean postDocument(Document doc, Meta meta) {
+        ID identifier = doc.getIdentifier();
+        // check user document
         Facebook facebook = getFacebook();
-        if (facebook.isSigned(profile)) {
-            profile.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        if (facebook.isSigned(doc)) {
+            doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         } else {
-            profile = null;
+            doc = null;
         }
-        Command cmd = new DocumentCommand(identifier, meta, profile);
+        Command cmd = new DocumentCommand(identifier, meta, doc);
         return sendCommand(cmd, StarShip.SLOWER);
     }
 
@@ -209,7 +209,7 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     private final Map<ID, Long> metaQueryTime = new HashMap<>();
-    private final Map<ID, Long> profileQueryTime = new HashMap<>();
+    private final Map<ID, Long> documentQueryTime = new HashMap<>();
     private final Map<ID, Map<ID, Long>> groupQueryTimes = new HashMap<>();
 
     private static final int QUERY_INTERVAL = 120 * 1000;  // query interval (2 minutes)
@@ -236,20 +236,20 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
-    public boolean queryProfile(ID identifier) {
+    public boolean queryDocument(ID identifier) {
         if (identifier.isBroadcast()) {
-            // broadcast ID has no profile
+            // broadcast ID has no document
             return false;
         }
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number expires = profileQueryTime.get(identifier);
+        Number expires = documentQueryTime.get(identifier);
         if (expires != null && now < expires.longValue()) {
             return false;
         }
-        profileQueryTime.put(identifier, now + QUERY_INTERVAL);
-        Log.info("querying profile: " + identifier);
+        documentQueryTime.put(identifier, now + QUERY_INTERVAL);
+        Log.info("querying entity document: " + identifier);
 
         // query from DIM network
         Command cmd = new DocumentCommand(identifier);

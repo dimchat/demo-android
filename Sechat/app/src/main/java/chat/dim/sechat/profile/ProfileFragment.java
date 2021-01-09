@@ -227,7 +227,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
 
         mViewModel.setIdentifier(identifier);
-        mViewModel.refreshProfile();
+        mViewModel.refreshDocument();
 
         refreshPage(true);
     }

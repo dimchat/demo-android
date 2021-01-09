@@ -63,12 +63,13 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     //  chat.dim.database.UserTable
     //
 
-    // TODO: support multi profiles
+    // TODO: support multi documents
     @Override
     public boolean saveDocument(Document doc) {
         ID identifier = doc.getIdentifier();
         // 0. check duplicate record
-        if (getDocument(identifier, "*").containsKey("data")) {
+        Document old = getDocument(identifier, "*");
+        if (old != null && old.containsKey("data")) {
             Log.info("entity document exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
@@ -103,6 +104,11 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         // 1. try from memory cache
         Document doc = docsTable.get(entity.toString());
         if (doc != null) {
+            // check empty document
+            String json = (String) doc.get("data");
+            if (json == null || json.length() == 0) {
+                return null;
+            }
             return doc;
         }
         if (entity.isUser()) {

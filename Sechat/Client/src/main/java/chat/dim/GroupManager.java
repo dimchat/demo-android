@@ -87,22 +87,22 @@ public class GroupManager {
         }
         int count = members.size();
 
-        // 0. build 'meta/profile' command
+        // 0. build 'meta/visa' command
         Meta meta = facebook.getMeta(group);
         if (meta == null) {
             throw new NullPointerException("failed to get meta for group: " + group);
         }
-        Document profile = facebook.getDocument(group, Document.BULLETIN);
+        Document doc = facebook.getDocument(group, "*");
         Command cmd;
-        if (facebook.isEmpty(profile)) {
-            // empty profile
+        if (facebook.isEmpty(doc)) {
+            // empty document
             cmd = new MetaCommand(group, meta);
         } else {
-            cmd = new DocumentCommand(group, meta, profile);
+            cmd = new DocumentCommand(group, meta, doc);
         }
 
         if (count <= 2) { // new group?
-            // 1. send 'meta/profile' to station and bots
+            // 1. send 'meta/document' to station and bots
             sendGroupCommand(cmd);              // to current station
             sendGroupCommand(cmd, bots);        // to group assistants
             // 2. update local storage
@@ -112,7 +112,7 @@ public class GroupManager {
             sendGroupCommand(cmd, bots);        // to group assistants
             sendGroupCommand(cmd, members);     // to all members
         } else {
-            // 1. send 'meta/profile' to station, bots and all members
+            // 1. send 'meta/document' to station, bots and all members
             sendGroupCommand(cmd);              // to current station
             sendGroupCommand(cmd, bots);        // to group assistants
             //sendGroupCommand(cmd, members);     // to old members

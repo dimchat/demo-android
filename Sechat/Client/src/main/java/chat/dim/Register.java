@@ -36,11 +36,13 @@ import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.BaseVisa;
+import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.NetworkType;
+import chat.dim.protocol.Visa;
 import chat.dim.utils.Log;
 
 /**
@@ -48,17 +50,9 @@ import chat.dim.utils.Log;
  */
 public class Register {
 
-    private final NetworkType network; // user type (Main: 0x08)
-
     private PrivateKey privateKey = null; // user private key
 
     public Register() {
-        this(NetworkType.MAIN);
-    }
-
-    public Register(NetworkType type) {
-        super();
-        network = type;
     }
 
     /**
@@ -83,17 +77,17 @@ public class Register {
         //
         ID identifier = meta.generateID(NetworkType.MAIN.value, null);
         //
-        //  Step 4. generate profile with ID and sign with private key
+        //  Step 4. generate visa with ID and sign with private key
         //
         PrivateKey priKey = PrivateKey.generate(AsymmetricKey.RSA);
         PublicKey msgKey = priKey.getPublicKey();
-        Document profile = createUserProfile(identifier, name, avatar, (EncryptKey) msgKey);
-        // 5. save private key, meta & profile in local storage
+        Visa visa = createUserDocument(identifier, name, avatar, (EncryptKey) msgKey);
+        // 5. save private key, meta & visa in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
         facebook.savePrivateKey(privateKey, identifier, PrivateKeyTable.META);
         facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.PROFILE);
-        facebook.saveDocument(profile);
+        facebook.saveDocument(visa);
         // 6. create user
         return facebook.getUser(identifier);
     }
@@ -118,43 +112,43 @@ public class Register {
         Meta meta = Meta.generate(MetaType.DEFAULT.value, privateKey, seed);
         // 3. generate ID
         ID identifier = meta.generateID(NetworkType.POLYLOGUE.value, null);
-        // 4. generate profile
-        Document profile = createGroupProfile(identifier, name);
-        // 5. save meta & profile in local storage
+        // 4. generate document
+        Bulletin bulletin = createGroupDocument(identifier, name);
+        // 5. save meta & bulletin in local storage
         //    don't forget to upload them onto the DIM station
         facebook.saveMeta(meta, identifier);
-        facebook.saveDocument(profile);
+        facebook.saveDocument(bulletin);
         // 6. add founder as first member
         facebook.addMember(founder, identifier);
         // 7. create group
         return facebook.getGroup(identifier);
     }
 
-    public BaseVisa createUserProfile(ID identifier, String name, String avatarUrl, EncryptKey key) {
+    public Visa createUserDocument(ID identifier, String name, String avatarUrl, EncryptKey key) {
         assert identifier.isUser() : "ID error";
         assert privateKey != null : "private key not found";
-        BaseVisa profile = new BaseVisa(identifier);
-        profile.setName(name);
-        profile.setAvatar(avatarUrl);
-        profile.setKey(key);
-        profile.sign(privateKey);
-        return profile;
+        BaseVisa visa = new BaseVisa(identifier);
+        visa.setName(name);
+        visa.setAvatar(avatarUrl);
+        visa.setKey(key);
+        visa.sign(privateKey);
+        return visa;
     }
-    public BaseBulletin createGroupProfile(ID identifier, String name) {
+    public Bulletin createGroupDocument(ID identifier, String name) {
         assert identifier != null : "ID error";
-        assert privateKey != null : "profile not found";
-        BaseBulletin profile = new BaseBulletin(identifier);
-        profile.setName(name);
-        profile.sign(privateKey);
-        return profile;
+        assert privateKey != null : "private key not found";
+        BaseBulletin bulletin = new BaseBulletin(identifier);
+        bulletin.setName(name);
+        bulletin.sign(privateKey);
+        return bulletin;
     }
 
-    // upload meta & profile for ID
-    public boolean upload(ID identifier, Meta meta, Document profile) {
+    // upload meta & document for ID
+    public boolean upload(ID identifier, Meta meta, Document doc) {
         assert identifier != null : "ID error";
-        assert identifier.equals(profile.getIdentifier()) : "profile ID not match";
+        assert identifier.equals(doc.getIdentifier()) : "document ID not match";
         Messenger messenger = Messenger.getInstance();
-        return messenger.postProfile(profile, meta);
+        return messenger.postDocument(doc, meta);
     }
 
     /**
@@ -170,7 +164,7 @@ public class Register {
         //userRegister.upload(user.identifier, user.getMeta(), user.getDocument());
 
         // 2. create group
-        Register groupRegister = new Register(NetworkType.POLYLOGUE);
+        Register groupRegister = new Register();
         Group group = groupRegister.createGroup(user.identifier, "DIM Group");
         Log.info("group: " + group);
         //groupRegister.upload(group.identifier, group.getMeta(), group.getDocument());

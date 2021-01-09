@@ -65,14 +65,14 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MetaSaved);
-        nc.addObserver(this, NotificationNames.ProfileUpdated);
+        nc.addObserver(this, NotificationNames.DocumentUpdated);
     }
 
     @Override
     public void finalize() throws Throwable {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.MetaSaved);
-        nc.removeObserver(this, NotificationNames.ProfileUpdated);
+        nc.removeObserver(this, NotificationNames.DocumentUpdated);
         super.finalize();
     }
 
@@ -84,7 +84,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         String name = notification.name;
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
-        if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.ProfileUpdated)) {
+        if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
             Facebook facebook = Facebook.getInstance();
             ID entity = (ID) info.get("ID");
             if (entity.isUser()) {
@@ -143,8 +143,8 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             return true;
         }
         if (content instanceof MetaCommand) {
-            // meta & profile command will be checked and saved by CPUs
-            // no need to save meta & profile command here
+            // meta & document command will be checked and saved by CPUs
+            // no need to save meta & document command here
             return true;
         }
         if (content instanceof MuteCommand || content instanceof BlockCommand) {

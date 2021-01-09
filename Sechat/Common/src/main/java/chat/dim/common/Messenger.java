@@ -113,7 +113,7 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     public abstract boolean queryMeta(ID identifier);
 
-    public abstract boolean queryProfile(ID identifier);
+    public abstract boolean queryDocument(ID identifier);
 
     public abstract boolean queryGroupInfo(ID group, List<ID> members);
 

@@ -37,9 +37,7 @@ public class NotificationNames {
     public static final String AccountDeleted = "AccountDeleted";
 
     public static final String MetaSaved = "MetaSaved";
-
-    public static final String ProfileUpdated = "ProfileUpdated";
-
+    public static final String DocumentUpdated = "DocumentUpdated";
     public static final String ContactsUpdated = "ContactsUpdated";
 
     public static final String GroupCreated = "GroupCreated";
