@@ -42,12 +42,12 @@ public class ChatManageViewModel extends EntityViewModel {
         if (identifier.isUser()) {
             participants.add(identifier);
         } else if (identifier.isGroup()) {
-            ID owner = facebook.getOwner(identifier);
+            ID owner = getFacebook().getOwner(identifier);
             if (owner != null) {
                 --count;
                 participants.add(owner);
             }
-            List<ID> members = facebook.getMembers(identifier);
+            List<ID> members = getFacebook().getMembers(identifier);
             if (members != null) {
                 for (ID item : members) {
                     if (participants.contains(item)) {

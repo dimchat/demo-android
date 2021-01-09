@@ -49,7 +49,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.getGroup(group);
+        return getFacebook().getGroup(group);
     }
     public Group getGroup() {
         return getGroup(getIdentifier());
@@ -63,10 +63,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.getOwner(group);
-    }
-    public ID getOwner() {
-        return getOwner(getIdentifier());
+        return getFacebook().getOwner(group);
     }
 
     public static String getOwnerName(ID group) {
@@ -84,10 +81,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.isOwner(user, group);
-    }
-    public boolean isAdmin(ID user) {
-        return isAdmin(user, getIdentifier());
+        return getFacebook().isOwner(user, group);
     }
 
     public static boolean isAdmin(User user, ID group) {
@@ -95,9 +89,6 @@ public class GroupViewModel extends EntityViewModel {
             return false;
         }
         return isAdmin(user.identifier, group);
-    }
-    public boolean isAdmin(User user) {
-        return isAdmin(user, getIdentifier());
     }
 
     //
@@ -108,40 +99,24 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        List<ID> members = facebook.getMembers(group);
+        List<ID> members = getFacebook().getMembers(group);
         if (members == null || members.size() < 1) {
             BackgroundThreads.wait(() -> (new GroupManager(group)).query());
         }
-    }
-    public void checkMembers() {
-        checkMembers(getIdentifier());
     }
 
     public static boolean containsMember(ID member, ID group) {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.containsMember(member, group);
-    }
-    public boolean containsMember(ID member) {
-        return containsMember(member, getIdentifier());
-    }
-
-    public static boolean addMember(ID member, ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return facebook.addMember(member, group);
-    }
-    public boolean addMember(ID member) {
-        return addMember(member, getIdentifier());
+        return getFacebook().containsMember(member, group);
     }
 
     public static List<ID> getMembers(ID group) {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        return facebook.getMembers(group);
+        return getFacebook().getMembers(group);
     }
     public List<ID> getMembers() {
         return getMembers(getIdentifier());
@@ -155,7 +130,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        List<ID> members = facebook.getMembers(group);
+        List<ID> members = getFacebook().getMembers(group);
         if (members == null || members.size() < 1) {
             return null;
         }
@@ -200,9 +175,6 @@ public class GroupViewModel extends EntityViewModel {
             }
         });
         return path;
-    }
-    public String refreshLogo() {
-        return refreshLogo(getIdentifier());
     }
 
     public static Bitmap getLogo(ID group) {

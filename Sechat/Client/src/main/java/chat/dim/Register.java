@@ -63,7 +63,7 @@ public class Register {
      * @return User object
      */
     public User createUser(String name, String avatar) {
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         //
         //  Step 1. generate private key (with asymmetric algorithm)
         //
@@ -105,7 +105,7 @@ public class Register {
         return createGroup(founder, name, "Group-" + r);
     }
     public Group createGroup(ID founder, String name, String seed) {
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForVisaSignature(founder);
         // 2. generate meta

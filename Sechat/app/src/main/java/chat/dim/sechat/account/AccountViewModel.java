@@ -35,7 +35,7 @@ public class AccountViewModel extends UserViewModel {
     }
 
     public List<ID> getContacts() {
-        User user = facebook.getCurrentUser();
+        User user = getFacebook().getCurrentUser();
         if (user == null) {
             return null;
         }
@@ -48,18 +48,18 @@ public class AccountViewModel extends UserViewModel {
             return;
         }
         // get private key to sign the visa document
-        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
+        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
         if (sKey == null) {
             throw new NullPointerException("failed to get private key: " + identifier);
         }
         visa.sign(sKey);
         // save signed visa document
-        if (!facebook.saveDocument(visa)) {
+        if (!getFacebook().saveDocument(visa)) {
             return;
         }
         Messenger messenger = Messenger.getInstance();
         // upload to server
-        Meta meta = facebook.getMeta(identifier);
+        Meta meta = getFacebook().getMeta(identifier);
         messenger.postDocument(visa, meta);
         // broadcast to all contacts
         messenger.broadcastVisa(visa);
@@ -70,8 +70,8 @@ public class AccountViewModel extends UserViewModel {
         if (identifier == null) {
             return null;
         }
-        Meta meta = facebook.getMeta(identifier);
-        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
+        Meta meta = getFacebook().getMeta(identifier);
+        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
         if (meta == null || sKey == null) {
             return null;
         }
@@ -124,7 +124,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // nickname
-        String nickname = facebook.getNickname(identifier);
+        String nickname = getFacebook().getNickname(identifier);
         if (nickname != null && nickname.length() > 0) {
             info.put("nickname", nickname);
         }
@@ -217,7 +217,7 @@ public class AccountViewModel extends UserViewModel {
         ID identifier = meta.generateID(network, null);
 
         // save private key with user ID
-        if (!facebook.savePrivateKey(privateKey, identifier, "M")) {
+        if (!getFacebook().savePrivateKey(privateKey, identifier, "M")) {
             return null;
         }
 
@@ -226,14 +226,14 @@ public class AccountViewModel extends UserViewModel {
             msgKey = null;
         } else {
             PrivateKey rsaKey = PrivateKey.generate(AsymmetricKey.RSA);
-            if (!facebook.savePrivateKey(rsaKey, identifier, "P")) {
+            if (!getFacebook().savePrivateKey(rsaKey, identifier, "P")) {
                 return null;
             }
             msgKey = (EncryptKey) rsaKey.getPublicKey();
         }
 
         // save meta with user ID
-        if (!facebook.saveMeta(meta, identifier)) {
+        if (!getFacebook().saveMeta(meta, identifier)) {
             return null;
         }
 
@@ -249,7 +249,7 @@ public class AccountViewModel extends UserViewModel {
             if (visa.sign(privateKey) == null) {
                 return null;
             }
-            if (!facebook.saveDocument(visa)) {
+            if (!getFacebook().saveDocument(visa)) {
                 return null;
             }
         }
@@ -260,7 +260,7 @@ public class AccountViewModel extends UserViewModel {
 
     public ID removeCurrentUser() {
         ID current = identifier;
-        if (facebook.removeUser(current)) {
+        if (getFacebook().removeUser(current)) {
             identifier = null;
         }
         return current;

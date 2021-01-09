@@ -155,20 +155,20 @@ public abstract class Terminal implements Station.Delegate {
 
         // TODO: config FTP server
 
+        Facebook facebook = Messenger.getInstance().getFacebook();
         // connect server
         if (isNewServer(host, port)) {
             // disconnect old server
             setCurrentServer(null);
             // connect new server
             Server server = new Server(identifier, host, port, name);
-            server.setDataSource(Facebook.getInstance());
+            server.setDataSource(facebook);
             server.setDelegate(this);
             server.start(options);
             setCurrentServer(server);
         }
 
         // get user from database and login
-        Facebook facebook = Facebook.getInstance();
         User user = facebook.getCurrentUser();
         if (user != null) {
             currentServer.setCurrentUser(user);
@@ -288,7 +288,7 @@ public abstract class Terminal implements Station.Delegate {
 
         // post current document to station
         Document doc = user.getDocument("*");
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = messenger.getFacebook();
         if (!facebook.isEmpty(doc)) {
             messenger.postDocument(doc, null);
         }

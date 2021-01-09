@@ -28,6 +28,7 @@ package chat.dim.model;
 import chat.dim.Entity;
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 
@@ -37,14 +38,11 @@ public final class Amanuensis {
     public static Amanuensis getInstance() { return ourInstance; }
     private Amanuensis() {
         super();
-        database = ConversationDatabase.getInstance();
     }
-
-    public final ConversationDatabase database;
 
     // conversation factory
     public Conversation getConversation(ID identifier) {
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         // create directly if we can find the entity
         Entity entity = null;
         if (identifier.isUser()) {
@@ -57,7 +55,7 @@ public final class Amanuensis {
             return null;
         }
         Conversation chatBox = new Conversation(entity);
-        chatBox.database = database;
+        chatBox.database = ConversationDatabase.getInstance();
         return chatBox;
     }
 
@@ -75,7 +73,7 @@ public final class Amanuensis {
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         ID sender = iMsg.getSender();
         User user = facebook.getCurrentUser();
         if (sender.equals(user.identifier)) {

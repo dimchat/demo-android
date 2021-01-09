@@ -40,7 +40,7 @@ import chat.dim.ui.image.Images;
 public class UserViewModel extends EntityViewModel {
 
     public static User getCurrentUser() {
-        return facebook.getCurrentUser();
+        return getFacebook().getCurrentUser();
     }
 
     public static User getUser(Object identifier) {
@@ -48,7 +48,7 @@ public class UserViewModel extends EntityViewModel {
             //throw new NullPointerException("user ID empty");
             return null;
         }
-        return facebook.getUser(ID.parse(identifier));
+        return getFacebook().getUser(ID.parse(identifier));
     }
     public User getUser() {
         return getUser(getIdentifier());
@@ -56,7 +56,7 @@ public class UserViewModel extends EntityViewModel {
 
     public static Bitmap getAvatar(ID identifier) {
         if (identifier != null) {
-            String avatar = facebook.getAvatar(identifier);
+            String avatar = getFacebook().getAvatar(identifier);
             if (avatar != null) {
                 try {
                     return Images.bitmapFromPath(avatar, new Images.Size(128, 128));
@@ -76,7 +76,7 @@ public class UserViewModel extends EntityViewModel {
             //throw new NullPointerException("user ID empty");
             return null;
         }
-        return facebook.getNickname(identifier);
+        return getFacebook().getNickname(identifier);
     }
     public String getNickname() {
         return getNickname(getIdentifier());
@@ -87,7 +87,7 @@ public class UserViewModel extends EntityViewModel {
             //throw new NullPointerException("user ID empty");
             return null;
         }
-        return facebook.getUsername(identifier);
+        return getFacebook().getUsername(identifier);
     }
     public String getUsername() {
         return getUsername(getIdentifier());
@@ -124,7 +124,7 @@ public class UserViewModel extends EntityViewModel {
         if (user == null) {
             throw new NullPointerException("user ID empty");
         }
-        return facebook.getContacts(user);
+        return getFacebook().getContacts(user);
     }
     public List<ID> getContacts() {
         User user = getCurrentUser();
@@ -139,7 +139,7 @@ public class UserViewModel extends EntityViewModel {
         if (user == null) {
             throw new NullPointerException("current user not set");
         }
-        return facebook.addContact(contact, user.identifier);
+        return getFacebook().addContact(contact, user.identifier);
     }
 
     public boolean removeContact(ID contact) {
@@ -147,6 +147,6 @@ public class UserViewModel extends EntityViewModel {
         if (user == null) {
             throw new NullPointerException("current user not set");
         }
-        return facebook.removeContact(contact, user.identifier);
+        return getFacebook().removeContact(contact, user.identifier);
     }
 }

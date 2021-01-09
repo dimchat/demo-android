@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.ui.list.Listener;
@@ -64,9 +65,8 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
         super.onBindViewHolder(holder, position);
     }
 
-    private static Facebook facebook = Facebook.getInstance();
-
     private boolean isForbidden(ID identifier) {
+        Facebook facebook = Messenger.getInstance().getFacebook();
         if (facebook.isOwner(identifier, group)) {
             return true;
         }

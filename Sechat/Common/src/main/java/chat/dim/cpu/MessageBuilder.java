@@ -29,9 +29,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.protocol.AudioContent;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.FileContent;
 import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.PageContent;
+import chat.dim.protocol.TextContent;
+import chat.dim.protocol.VideoContent;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
@@ -39,15 +47,67 @@ import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
 import chat.dim.utils.Strings;
 
-class MessageBuilder {
+public abstract class MessageBuilder {
 
-    private static String getUsername(Object string) {
-        return AnyContentProcessor.facebook.getUsername(string);
+    protected abstract String getUsername(Object string);
+
+    public String getContentText(Content content) {
+        String text = (String) content.get("text");
+        if (text != null) {
+            return text;
+        }
+        if (content instanceof TextContent) {
+            // Text
+            return ((TextContent) content).getText();
+        } else if (content instanceof FileContent) {
+            // File: Image, Audio, Video
+            if (content instanceof ImageContent) {
+                ImageContent image = (ImageContent) content;
+                text = String.format("[Image:%s]", image.getFilename());
+            } else if (content instanceof AudioContent) {
+                AudioContent audio = (AudioContent) content;
+                text = String.format("[Voice:%s]", audio.getFilename());
+            } else if (content instanceof VideoContent) {
+                VideoContent video = (VideoContent) content;
+                text = String.format("[Movie:%s]", video.getFilename());
+            } else {
+                FileContent file = (FileContent) content;
+                text = String.format("[File:%s]", file.getFilename());
+            }
+        } else if (content instanceof PageContent) {
+            // Web page
+            PageContent page = (PageContent) content;
+            text = String.format("[URL:%s]", page.getURL());
+        } else {
+            text = String.format("Current version doesn't support this message type: %s", content.getType());
+        }
+        // store message text
+        content.put("text", text);
+        return text;
+    }
+
+    public String getCommandText(Command cmd, ID commander) {
+        String text = (String) cmd.get("text");
+        if (text != null) {
+            return text;
+        }
+        if (cmd instanceof GroupCommand) {
+            text = getGroupCommandText((GroupCommand) cmd, commander);
+            //} else if (cmd instanceof HistoryCommand) {
+            // TODO: process history command
+        } else if (cmd instanceof LoginCommand) {
+            text = getLoginCommandText((LoginCommand) cmd, commander);
+        } else {
+            text = String.format("Current version doesn't support this command: %s", cmd.getCommand());
+        }
+        // store message text
+        cmd.put("text", text);
+        return text;
     }
 
     //-------- System commands
 
-    static String getLoginCommandText(LoginCommand cmd, ID commander) {
+    private String getLoginCommandText(LoginCommand cmd, ID commander) {
         assert commander != null : "commander error";
         ID identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
@@ -58,7 +118,7 @@ class MessageBuilder {
 
     //-------- Group Commands
 
-    static String getGroupCommandText(GroupCommand cmd, ID commander) {
+    private String getGroupCommandText(GroupCommand cmd, ID commander) {
         if (cmd instanceof InviteCommand) {
             return getInviteCommandText((InviteCommand) cmd, commander);
         }
@@ -77,7 +137,7 @@ class MessageBuilder {
         return String.format("unsupported group command: %s", cmd);
     }
 
-    private static String getInviteCommandText(InviteCommand cmd, ID commander) {
+    private String getInviteCommandText(InviteCommand cmd, ID commander) {
         List addedList = (List) cmd.get("added");
         if (addedList == null) {
             addedList = new ArrayList();
@@ -90,7 +150,7 @@ class MessageBuilder {
         return String.format("%s has invited members: %s", getUsername(commander), string);
     }
 
-    private static String getExpelCommandText(ExpelCommand cmd, ID commander) {
+    private String getExpelCommandText(ExpelCommand cmd, ID commander) {
         List removedList = (List) cmd.get("removed");
         if (removedList == null) {
             removedList = new ArrayList();
@@ -103,12 +163,12 @@ class MessageBuilder {
         return String.format("%s has removed members: %s", getUsername(commander), string);
     }
 
-    private static String getQuitCommandText(QuitCommand cmd, ID commander) {
+    private String getQuitCommandText(QuitCommand cmd, ID commander) {
         assert cmd.getGroup() != null : "quit command error: " + cmd;
         return String.format("%s has quit group chat.", getUsername(commander));
     }
 
-    private static String getResetCommandText(ResetCommand cmd, ID commander) {
+    private String getResetCommandText(ResetCommand cmd, ID commander) {
         List addedList = (List) cmd.get("added");
         List removedList = (List) cmd.get("removed");
 
@@ -130,7 +190,7 @@ class MessageBuilder {
         return String.format("%s has updated members %s", getUsername(commander), string);
     }
 
-    private static String getQueryCommandText(QueryCommand cmd, ID commander) {
+    private String getQueryCommandText(QueryCommand cmd, ID commander) {
         assert cmd.getGroup() != null : "quit command error: " + cmd;
         return String.format("%s was querying group info, responding...", getUsername(commander));
     }

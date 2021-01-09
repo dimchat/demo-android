@@ -19,6 +19,7 @@ import java.util.Set;
 import chat.dim.GroupManager;
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.protocol.Bulletin;
@@ -78,7 +79,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         }
 
         // save group name
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         String oldName = facebook.getGroupName(identifier);
         String newName = groupName.getText().toString();
         if (oldName == null || !oldName.equals(newName)) {

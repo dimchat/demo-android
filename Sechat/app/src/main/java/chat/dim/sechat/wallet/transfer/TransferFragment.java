@@ -27,6 +27,7 @@ import java.util.Map;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.ethereum.ERC20Wallet;
 import chat.dim.ethereum.ETHWallet;
 import chat.dim.mkm.ETHAddress;
@@ -152,7 +153,7 @@ public class TransferFragment extends Fragment implements Observer {
         mViewModel = ViewModelProviders.of(this).get(WalletViewModel.class);
         // TODO: Use the ViewModel
 
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         mViewModel.setIdentifier(user.identifier);
 

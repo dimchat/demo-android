@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.wallet.WalletName;
@@ -23,12 +24,12 @@ public class TransferActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Facebook facebook = Facebook.getInstance();
         // get extra info
         String wallet = getIntent().getStringExtra("wallet");
         String string = getIntent().getStringExtra("ID");
         ID identifier = ID.parse(string);
 
+        Facebook facebook = Messenger.getInstance().getFacebook();
         String title = String.format("%s %s %s", wallet, getText(R.string.transfer), facebook.getUsername(identifier));
         setTitle(title);
 

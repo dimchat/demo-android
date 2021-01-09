@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.User;
-import chat.dim.client.Facebook;
 import chat.dim.io.Resources;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
@@ -71,7 +70,7 @@ public class ChatboxViewModel extends EntityViewModel {
             return MsgType.RECEIVED;
         }
 
-        List<User> users = Facebook.getInstance().getLocalUsers();
+        List<User> users = getFacebook().getLocalUsers();
         for (User user : users) {
             if (user.identifier.equals(sender)) {
                 return MsgType.SENT;

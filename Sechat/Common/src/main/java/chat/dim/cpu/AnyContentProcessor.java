@@ -25,15 +25,11 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.common.Facebook;
 import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
-import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
-import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.PageContent;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
@@ -93,64 +89,4 @@ public class AnyContentProcessor extends ContentProcessor {
         receipt.put("signature", signature);
         return receipt;
     }
-
-    //
-    //  Text Builder
-    //
-
-    public static String getContentText(Content content) {
-        String text = (String) content.get("text");
-        if (text != null) {
-            return text;
-        }
-        if (content instanceof TextContent) {
-            // Text
-            return ((TextContent) content).getText();
-        } else if (content instanceof FileContent) {
-            // File: Image, Audio, Video
-            if (content instanceof ImageContent) {
-                ImageContent image = (ImageContent) content;
-                text = String.format("[Image:%s]", image.getFilename());
-            } else if (content instanceof AudioContent) {
-                AudioContent audio = (AudioContent) content;
-                text = String.format("[Voice:%s]", audio.getFilename());
-            } else if (content instanceof VideoContent) {
-                VideoContent video = (VideoContent) content;
-                text = String.format("[Movie:%s]", video.getFilename());
-            } else {
-                FileContent file = (FileContent) content;
-                text = String.format("[File:%s]", file.getFilename());
-            }
-        } else if (content instanceof PageContent) {
-            // Web page
-            PageContent page = (PageContent) content;
-            text = String.format("[URL:%s]", page.getURL());
-        } else {
-            text = String.format("Current version doesn't support this message type: %s", content.getType());
-        }
-        // store message text
-        content.put("text", text);
-        return text;
-    }
-
-    public static String getCommandText(Command cmd, ID commander) {
-        String text = (String) cmd.get("text");
-        if (text != null) {
-            return text;
-        }
-        if (cmd instanceof GroupCommand) {
-            text = MessageBuilder.getGroupCommandText((GroupCommand) cmd, commander);
-            //} else if (cmd instanceof HistoryCommand) {
-            // TODO: process history command
-        } else if (cmd instanceof LoginCommand) {
-            text = MessageBuilder.getLoginCommandText((LoginCommand) cmd, commander);
-        } else {
-            text = String.format("Current version doesn't support this command: %s", cmd.getCommand());
-        }
-        // store message text
-        cmd.put("text", text);
-        return text;
-    }
-
-    public static Facebook facebook = null;
 }

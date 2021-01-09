@@ -20,6 +20,7 @@ import chat.dim.Group;
 import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -165,7 +166,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
                     MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                Facebook facebook = Facebook.getInstance();
+                Facebook facebook = Messenger.getInstance().getFacebook();
                 String avatar = facebook.getAvatar(identifier);
                 String path = (String) info.get("path");
                 if (avatar != null && avatar.equals(path)) {

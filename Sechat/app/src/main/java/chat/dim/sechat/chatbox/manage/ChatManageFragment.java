@@ -19,6 +19,7 @@ import java.util.List;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;
@@ -147,7 +148,7 @@ public class ChatManageFragment extends Fragment {
         if (!identifier.isGroup()) {
             return false;
         }
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
         boolean isMember = facebook.containsMember(user.identifier, identifier);

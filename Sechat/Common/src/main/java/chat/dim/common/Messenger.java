@@ -60,15 +60,15 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected CipherKeyDelegate getCipherKeyDelegate() {
+    public CipherKeyDelegate getCipherKeyDelegate() {
         CipherKeyDelegate keyCache = super.getCipherKeyDelegate();
         if (keyCache == null) {
-            keyCache = createCipherKeyDelegate();
+            keyCache = getKeyStore();
             setCipherKeyDelegate(keyCache);
         }
         return keyCache;
     }
-    protected CipherKeyDelegate createCipherKeyDelegate() {
+    public KeyStore getKeyStore() {
         return KeyStore.getInstance();
     }
 

@@ -46,21 +46,25 @@ import chat.dim.stargate.StarShip;
  */
 public class GroupManager {
 
-    private static Facebook facebook = Facebook.getInstance();
-    private static Messenger messenger = Messenger.getInstance();
-
     private final ID group;
 
     public GroupManager(ID group) {
         this.group = group;
     }
 
+    private static Messenger getMessenger() {
+        return Messenger.getInstance();
+    }
+    private static Facebook getFacebook() {
+        return getMessenger().getFacebook();
+    }
+
     // send command to current station
     private static void sendGroupCommand(Command cmd) {
-        messenger.sendCommand(cmd, StarShip.NORMAL);
+        getMessenger().sendCommand(cmd, StarShip.NORMAL);
     }
     private static void sendGroupCommand(Command cmd, ID receiver) {
-        messenger.sendContent(null, receiver, cmd, null, StarShip.NORMAL);
+        getMessenger().sendContent(null, receiver, cmd, null, StarShip.NORMAL);
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members == null) {
@@ -79,7 +83,7 @@ public class GroupManager {
      * @return true on success
      */
     public boolean invite(List<ID> newMembers) {
-        ID owner = facebook.getOwner(group);
+        Facebook facebook = getFacebook();
         List<ID> bots = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
         if (members == null) {
@@ -139,6 +143,7 @@ public class GroupManager {
      * @return true on success
      */
     public boolean expel(List<ID> outMembers) {
+        Facebook facebook = getFacebook();
         ID owner = facebook.getOwner(group);
         List<ID> bots = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
@@ -175,6 +180,7 @@ public class GroupManager {
      * @return true on success
      */
     public boolean quit() {
+        Facebook facebook = getFacebook();
         User user = facebook.getCurrentUser();
         if (user == null) {
             throw new NullPointerException("failed to get current user");
@@ -213,15 +219,15 @@ public class GroupManager {
      * @return false on error
      */
     public boolean query() {
-        List<ID> assistants = facebook.getAssistants(group);
+        List<ID> assistants = getFacebook().getAssistants(group);
         assert assistants != null : "failed to get assistants for group: " + group;
-        return messenger.queryGroupInfo(group, assistants);
+        return getMessenger().queryGroupInfo(group, assistants);
     }
 
     //-------- local storage
 
     private static List<ID> addMembers(List<ID> newMembers, ID group) {
-        List<ID> members = facebook.getMembers(group);
+        List<ID> members = getFacebook().getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
         for (ID member : newMembers) {
@@ -232,12 +238,12 @@ public class GroupManager {
             ++count;
         }
         if (count > 0) {
-            facebook.saveMembers(members, group);
+            getFacebook().saveMembers(members, group);
         }
         return members;
     }
     private static boolean removeMembers(List<ID> outMembers, ID group) {
-        List<ID> members = facebook.getMembers(group);
+        List<ID> members = getFacebook().getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
         for (ID member : outMembers) {
@@ -250,6 +256,6 @@ public class GroupManager {
         if (count == 0) {
             return false;
         }
-        return facebook.saveMembers(members, group);
+        return getFacebook().saveMembers(members, group);
     }
 }

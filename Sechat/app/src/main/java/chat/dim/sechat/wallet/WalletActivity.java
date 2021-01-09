@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.sechat.R;
 
 public class WalletActivity extends AppCompatActivity {
@@ -22,7 +23,7 @@ public class WalletActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
 
         if (savedInstanceState == null) {

@@ -35,7 +35,13 @@ import chat.dim.threading.BackgroundThreads;
 
 public class EntityViewModel extends ViewModel {
 
-    protected static Facebook facebook = Facebook.getInstance();
+    public static Messenger getMessenger() {
+        return Messenger.getInstance();
+    }
+
+    public static Facebook getFacebook() {
+        return getMessenger().getFacebook();
+    }
 
     protected ID identifier = null;
 
@@ -93,7 +99,7 @@ public class EntityViewModel extends ViewModel {
         if (identifier == null) {
             throw new NullPointerException("entity ID empty");
         }
-        return facebook.getDocument(identifier, type);
+        return getFacebook().getDocument(identifier, type);
     }
     public Document getDocument(String type) {
         return getDocument(getIdentifier(), type);
@@ -102,9 +108,8 @@ public class EntityViewModel extends ViewModel {
     public void refreshDocument() {
         BackgroundThreads.wait(() -> {
             Document doc = getDocument("*");
-            if (facebook.isEmpty(doc) || facebook.isExpired(doc)) {
-                Messenger messenger = Messenger.getInstance();
-                messenger.queryDocument(identifier);
+            if (getFacebook().isEmpty(doc) || getFacebook().isExpired(doc)) {
+                getMessenger().queryDocument(identifier);
             }
         });
     }

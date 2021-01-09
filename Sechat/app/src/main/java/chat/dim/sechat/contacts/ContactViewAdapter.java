@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -85,7 +86,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
                     MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                Facebook facebook = Facebook.getInstance();
+                Facebook facebook = Messenger.getInstance().getFacebook();
                 String avatar = facebook.getAvatar(item.getIdentifier());
                 String path = (String) info.get("path");
                 if (avatar != null && avatar.equals(path)) {

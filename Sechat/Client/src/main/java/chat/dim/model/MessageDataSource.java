@@ -32,7 +32,6 @@ import java.util.Map;
 
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
-import chat.dim.common.KeyStore;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -85,7 +84,8 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
-            Facebook facebook = Facebook.getInstance();
+            Messenger messenger = Messenger.getInstance();
+            Facebook facebook = messenger.getFacebook();
             ID entity = (ID) info.get("ID");
             if (entity.isUser()) {
                 // check user
@@ -94,7 +94,6 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
                     return;
                 }
             }
-            Messenger messenger = Messenger.getInstance();
 
             // processing incoming messages
             List<ReliableMessage> incoming = incomingMessages.remove(entity);
@@ -167,8 +166,8 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             // send keys again
             ID me = iMsg.getReceiver();
             ID group = content.getGroup();
-            KeyStore keyStore = KeyStore.getInstance();
-            SymmetricKey key = keyStore.getCipherKey(me, group, false);
+            Messenger messenger = Messenger.getInstance();
+            SymmetricKey key = messenger.getCipherKeyDelegate().getCipherKey(me, group, false);
             if (key != null) {
                 //key.put("reused", null);
                 key.remove("reused");

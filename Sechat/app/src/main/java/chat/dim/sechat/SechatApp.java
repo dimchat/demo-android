@@ -10,7 +10,6 @@ import java.util.Map;
 
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
-import chat.dim.common.KeyStore;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
@@ -57,8 +56,8 @@ public final class SechatApp extends Application {
 
         chat.dim.common.Facebook.ansTable = AddressNameTable.getInstance();
 
-        Facebook facebook = Facebook.getInstance();
         Messenger messenger = Messenger.getInstance();
+        Facebook facebook = messenger.getFacebook();
 
         EntityDatabase.facebook = facebook;
         MessageDatabase.messenger = messenger;
@@ -77,8 +76,7 @@ public final class SechatApp extends Application {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
 
-        KeyStore keyStore = KeyStore.getInstance();
-        keyStore.keyTable = MsgKeyTable.getInstance();
+        messenger.getKeyStore().keyTable = MsgKeyTable.getInstance();
 
         LoginCommandProcessor.loginTable = LoginTable.getInstance();
     }

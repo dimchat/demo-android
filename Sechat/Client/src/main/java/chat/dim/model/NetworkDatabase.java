@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resources;
@@ -157,7 +158,7 @@ public final class NetworkDatabase {
     @SuppressWarnings("unchecked")
     private ProviderTable.ProviderInfo defaultProviderInfo() {
 
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         Map<String, Object> spConfig = Configuration.getInstance().getDefaultProvider();
 
         ID sp = ID.parse(spConfig.get("ID"));

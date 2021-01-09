@@ -31,12 +31,11 @@ import java.util.Map;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
-import chat.dim.cpu.AnyContentProcessor;
+import chat.dim.client.Messenger;
+import chat.dim.cpu.MessageBuilder;
 import chat.dim.database.MessageTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.Command;
-import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -44,13 +43,12 @@ import chat.dim.protocol.Message;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.utils.Times;
 
-public final class ConversationDatabase {
+public final class ConversationDatabase extends MessageBuilder {
 
     private static final ConversationDatabase ourInstance = new ConversationDatabase();
     public static ConversationDatabase getInstance() { return ourInstance; }
     private ConversationDatabase() {
         super();
-        AnyContentProcessor.facebook = Facebook.getInstance();
     }
 
     public MessageTable messageTable = null;
@@ -63,12 +61,13 @@ public final class ConversationDatabase {
         return Times.getTimeString(time);
     }
 
-    public String getContentText(Content content) {
-        return AnyContentProcessor.getContentText(content);
+    private Facebook getFacebook() {
+        return Messenger.getInstance().getFacebook();
     }
 
-    public String getCommandText(Command cmd, ID sender) {
-        return AnyContentProcessor.getCommandText(cmd, sender);
+    @Override
+    protected String getUsername(Object string) {
+        return getFacebook().getUsername(ID.parse(string));
     }
 
     //-------- ConversationDataSource
@@ -123,7 +122,7 @@ public final class ConversationDatabase {
     }
 
     public InstantMessage lastReceivedMessage() {
-        User user = Facebook.getInstance().getCurrentUser();
+        User user = getFacebook().getCurrentUser();
         if (user == null) {
             return null;
         }

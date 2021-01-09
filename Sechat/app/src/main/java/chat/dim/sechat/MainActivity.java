@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     private User checkCurrentUser() {
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         if (user == null) {
             // show register
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     public static void startChat(ID entity, Context context) {
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
         if (entity.isUser()) {
             if (facebook.getUser(entity) == null) {
                 Alert.tips(context, "User not ready");
@@ -194,10 +194,10 @@ public class MainActivity extends AppCompatActivity implements Observer {
             }
             Visa visa = user.getVisa();
             // check visa
-            Facebook facebook = Facebook.getInstance();
+            Messenger messenger = Messenger.getInstance();
+            Facebook facebook = messenger.getFacebook();
             if (facebook.isSigned(visa)) {
                 visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
-                Messenger messenger = Messenger.getInstance();
                 messenger.postDocument(visa, meta);
             }
             //将用户地址设为别名

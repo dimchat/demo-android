@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 
 import chat.dim.User;
-import chat.dim.client.Facebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.mkm.ETHAddress;
@@ -28,7 +27,7 @@ public class ProfileViewModel extends UserViewModel {
         if (identifier == null) {
             throw new NullPointerException("ID not set");
         }
-        String avatar = facebook.getAvatar(identifier);
+        String avatar = getFacebook().getAvatar(identifier);
         if (avatar == null) {
             return null;
         }
@@ -40,7 +39,7 @@ public class ProfileViewModel extends UserViewModel {
         if (user == null) {
             return false;
         }
-        List<ID> contacts = facebook.getContacts(user.identifier);
+        List<ID> contacts = getFacebook().getContacts(user.identifier);
         if (contacts == null) {
             return false;
         }
@@ -55,8 +54,7 @@ public class ProfileViewModel extends UserViewModel {
     }
 
     public Wallet getWallet(WalletName name) {
-        Facebook facebook = Facebook.getInstance();
-        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
+        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
         Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             if (sKey == null) {

@@ -18,6 +18,7 @@ import android.widget.TextView;
 import chat.dim.Register;
 import chat.dim.User;
 import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.model.Configuration;
 import chat.dim.network.FtpServer;
@@ -153,7 +154,7 @@ public class RegisterFragment extends Fragment {
         Meta meta = user.getMeta();
         Visa visa = user.getVisa();
 
-        Facebook facebook = Facebook.getInstance();
+        Facebook facebook = Messenger.getInstance().getFacebook();
 
         // 2. upload avatar
         if (avatarImage != null) {

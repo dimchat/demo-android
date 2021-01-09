@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.model.EntityViewModel;
@@ -19,8 +18,6 @@ import chat.dim.ui.list.DummyList;
  * TODO: Replace all uses of this class before publishing your app.
  */
 public class DummyContent extends DummyList<DummyContent.Item> {
-
-    private static Facebook facebook = Facebook.getInstance();
 
     public SearchCommand response = null;
 

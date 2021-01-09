@@ -70,7 +70,8 @@ public class ImportFragment extends Fragment {
             return;
         }
 
-        Facebook facebook = Facebook.getInstance();
+        Messenger messenger = Messenger.getInstance();
+        Facebook facebook = messenger.getFacebook();
         User user = facebook.getUser(identifier);
         if (user == null) {
             Alert.tips(activity, R.string.register_account_error);
@@ -78,7 +79,6 @@ public class ImportFragment extends Fragment {
         }
         facebook.setCurrentUser(user);
 
-        Messenger messenger = Messenger.getInstance();
         messenger.queryContacts();
 
         activity.close();
