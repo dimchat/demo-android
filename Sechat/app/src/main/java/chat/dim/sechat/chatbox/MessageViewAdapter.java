@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.http.HTTPClient;
 import chat.dim.model.ConversationDatabase;
@@ -37,7 +39,6 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.ContactList;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.threading.MainThread;
@@ -192,8 +193,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showImage(InstantMessage iMsg, Context context) {
         if (iMsg.getContent() instanceof ImageContent) {
+            Facebook facebook = Messenger.getInstance().getFacebook();
             ImageContent content = (ImageContent) iMsg.getContent();
-            showImage(content.getFilename(), UserViewModel.getUsername(iMsg.getSender()), context);
+            showImage(content.getFilename(), facebook.getName(iMsg.getSender()), context);
         }
     }
 
@@ -234,7 +236,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         // name
         if (viewHolder.nameView != null) {
-            String name = EntityViewModel.getName(sender);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            String name = facebook.getName(sender);
             viewHolder.nameView.setText(name);
         }
 

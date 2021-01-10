@@ -24,7 +24,6 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
@@ -124,7 +123,8 @@ public class ChatManageFragment extends Fragment {
             quitGroupButton.setVisibility(View.GONE);
         }
 
-        nameTextView.setText(EntityViewModel.getName(identifier));
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        nameTextView.setText(facebook.getName(identifier));
         addressTextView.setText(identifier.getAddress().toString());
     }
 

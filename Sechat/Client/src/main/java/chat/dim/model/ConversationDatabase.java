@@ -66,8 +66,8 @@ public final class ConversationDatabase extends MessageBuilder {
     }
 
     @Override
-    protected String getUsername(Object string) {
-        return getFacebook().getUsername(ID.parse(string));
+    protected String getName(ID identifier) {
+        return getFacebook().getName(identifier);
     }
 
     //-------- ConversationDataSource

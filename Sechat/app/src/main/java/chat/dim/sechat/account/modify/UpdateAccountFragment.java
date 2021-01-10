@@ -94,7 +94,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         cardView.setOnClickListener(v -> activity.startImagePicker());
 
         // nickname
-        String nickname = mViewModel.getNickname();
+        String nickname = mViewModel.getName();
         nicknameText.setText(nickname);
         if (nickname != null) {
             getActivity().setTitle(nickname);

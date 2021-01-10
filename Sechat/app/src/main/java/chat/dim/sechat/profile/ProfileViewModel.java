@@ -35,7 +35,7 @@ public class ProfileViewModel extends UserViewModel {
     }
 
     boolean containsContact(ID contact) {
-        User user = getCurrentUser();
+        User user = getUser();
         if (user == null) {
             return false;
         }
@@ -54,8 +54,8 @@ public class ProfileViewModel extends UserViewModel {
     }
 
     public Wallet getWallet(WalletName name) {
-        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
-        Address address = identifier.getAddress();
+        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(getIdentifier());
+        Address address = getIdentifier().getAddress();
         if (address instanceof ETHAddress) {
             if (sKey == null) {
                 return WalletFactory.getWallet(name, address);

@@ -1,7 +1,6 @@
 package chat.dim.sechat.account;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.User;
@@ -15,6 +14,7 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseVisa;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
@@ -24,22 +24,15 @@ import chat.dim.sechat.model.UserViewModel;
 
 public class AccountViewModel extends UserViewModel {
 
-    public ID getIdentifier() {
-        if (identifier == null) {
-            User user = getCurrentUser();
-            if (user != null) {
-                identifier = user.identifier;
-            }
-        }
-        return identifier;
-    }
-
-    public List<ID> getContacts() {
-        User user = getFacebook().getCurrentUser();
+    @Override
+    public User getUser() {
+        User user = super.getUser();
         if (user == null) {
-            return null;
+            user = getFacebook().getCurrentUser();
+            assert user != null : "failed to get current user";
+            setEntity(user);
         }
-        return user.getContacts();
+        return user;
     }
 
     public void updateVisa(Visa visa) {
@@ -124,9 +117,9 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // nickname
-        String nickname = getFacebook().getNickname(identifier);
-        if (nickname != null && nickname.length() > 0) {
-            info.put("nickname", nickname);
+        Document doc = getFacebook().getDocument(identifier, "*");
+        if (doc != null) {
+            info.put("nickname", doc.getName());
         }
 
         byte[] data = JSON.encode(info);
@@ -259,9 +252,9 @@ public class AccountViewModel extends UserViewModel {
     }
 
     public ID removeCurrentUser() {
-        ID current = identifier;
+        ID current = getIdentifier();
         if (getFacebook().removeUser(current)) {
-            identifier = null;
+            setEntity(null);
         }
         return current;
     }

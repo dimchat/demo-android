@@ -7,8 +7,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.sechat.R;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
 import chat.dim.ui.list.RecyclerViewHolder;
@@ -31,9 +32,10 @@ public class StationViewAdapter extends RecyclerViewAdapter<StationViewAdapter.V
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         StationList.Item item = dummyList.getItem(position);
 
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        String name = facebook.getName(item.identifier);
         String host = item.host;
         String port = "" + item.port;
-        String name = EntityViewModel.getName(item.identifier);
 
         holder.hostView.setText(host);
         holder.portView.setText(port);

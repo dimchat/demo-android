@@ -80,7 +80,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
 
         // save group name
         Facebook facebook = Messenger.getInstance().getFacebook();
-        String oldName = facebook.getGroupName(identifier);
+        String oldName = facebook.getName(identifier);
         String newName = groupName.getText().toString();
         if (oldName == null || !oldName.equals(newName)) {
             if (newName.length() > 0) {

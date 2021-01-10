@@ -90,6 +90,7 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
         identifier = ID.parse(string);
         assert identifier != null : "ID error: " + string;
         Conversation chatBox = clerk.getConversation(identifier);
+        assert chatBox != null : "chat bot error: " + identifier;
 
         if (savedInstanceState == null) {
             chatboxFragment = ChatboxFragment.newInstance(chatBox);
@@ -98,18 +99,17 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
                     .commitNow();
         }
 
+        setTitle(chatBox.getTitle());
         if (identifier.isGroup()) {
-            setTitle(chatBox.getName() + " (...)");
             // refresh group title in background
             BackgroundThreads.rush(this::refresh);
-        } else {
-            setTitle(chatBox.getName());
         }
     }
 
     private void refresh() {
         Amanuensis clerk = Amanuensis.getInstance();
         Conversation chatBox = clerk.getConversation(identifier);
+        assert chatBox != null : "chat bot error: " + identifier;
         String title = chatBox.getTitle();
         MainThread.call(() -> setTitle(title));
     }

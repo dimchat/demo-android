@@ -33,7 +33,7 @@ public class StationViewModel extends UserViewModel {
                 return null;
             }
         }
-        return getName(spid);
+        return getFacebook().getName(spid);
     }
 
     public static ProviderTable.StationInfo getCurrentStationInfo() {
@@ -54,7 +54,7 @@ public class StationViewModel extends UserViewModel {
         if (info == null || info.identifier == null) {
             return null;
         }
-        return getName(info.identifier);
+        return getFacebook().getName(info.identifier);
     }
 
     static List<ProviderTable.StationInfo> getStations(ID sp) {
@@ -87,7 +87,7 @@ public class StationViewModel extends UserViewModel {
             }
         }
         stations = null;
-        return database.addStation(sp, station, host, port, getName(station), 0);
+        return database.addStation(sp, station, host, port, getFacebook().getName(station), 0);
     }
 
     static boolean chooseStation(ID station) {

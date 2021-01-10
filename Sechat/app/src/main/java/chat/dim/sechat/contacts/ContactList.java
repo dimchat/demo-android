@@ -11,9 +11,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
@@ -34,17 +35,18 @@ public class ContactList extends DummyList<ContactList.Item> {
     public synchronized void reloadData() {
         clearItems();
 
-        User user = UserViewModel.getCurrentUser();
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
         if (user != null) {
-            List<ID> contacts = UserViewModel.getContacts(user.identifier);
+            List<ID> contacts = user.getContacts();
             if (contacts != null) {
                 // sort by nickname
                 Comparator<ID> comparator = (uid1, uid2) -> {
-                    String name1 = EntityViewModel.getName(uid1);
+                    String name1 = facebook.getName(uid1);
                     if (name1 == null) {
                         name1 = "";
                     }
-                    String name2 = EntityViewModel.getName(uid2);
+                    String name2 = facebook.getName(uid2);
                     if (name2 == null) {
                         name2 = "";
                     }
@@ -86,11 +88,9 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getTitle() {
-            if (identifier.isGroup()) {
-                // TODO: show group title with format "group name (members count)"
-                return EntityViewModel.getName(identifier);
-            }
-            return UserViewModel.getUserTitle(identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            // TODO: show group title with format "group name (members count)"
+            return facebook.getName(identifier);
         }
 
         String getDesc() {
@@ -99,17 +99,18 @@ public class ContactList extends DummyList<ContactList.Item> {
             }
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
             if (cmd != null) {
+                Facebook facebook = Messenger.getInstance().getFacebook();
                 Map<String, Object> info = cmd.getStation();
                 ID sid = ID.parse(info.get("ID"));
                 Date time = cmd.getTime();
                 if (time != null) {
                     if (sid != null) {
-                        return "Last login [" + Times.getTimeString(time) + "]: " + EntityViewModel.getName(sid);
+                        return "Last login [" + Times.getTimeString(time) + "]: " + facebook.getName(sid);
                     } else {
                         return "Last login [" + Times.getTimeString(time) + "]";
                     }
                 } else if (sid != null) {
-                    return "Last login station: " + EntityViewModel.getName(sid);
+                    return "Last login station: " + facebook.getName(sid);
                 }
             }
             //return EntityViewModel.getAddressString(identifier);

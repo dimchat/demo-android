@@ -184,38 +184,21 @@ public class Facebook extends chat.dim.Facebook {
         return assistants.contains(user);
     }
 
-    //--------
-
-    public String getUsername(Object string) {
-        return getUsername(ID.parse(string));
-    }
-    public String getUsername(ID identifier) {
-        String username = identifier.getName();
-        String nickname = getNickname(identifier);
-        if (nickname != null && nickname.length() > 0) {
-            if (identifier.isUser()) {
-                if (username != null && username.length() > 0) {
-                    return nickname + " (" + username + ")";
-                }
-            }
-            return nickname;
-        } else if (username != null && username.length() > 0) {
-            return username;
-        }
-        // ID only contains address: BTC, ETH, ...
-        return identifier.getAddress().toString();
-    }
-
-    public String getNickname(Object identifier) {
-        return getNickname(ID.parse(identifier));
-    }
-    public String getNickname(ID identifier) {
+    public String getName(ID identifier) {
+        // get name from document
         Document doc = getDocument(identifier, "*");
-        assert doc != null : "document object should not be null: " + identifier;
-        return doc.getName();
-    }
-    public String getGroupName(ID identifier) {
-        return getNickname(identifier);
+        if (doc != null) {
+            String name = doc.getName();
+            if (name != null && name.length() > 0) {
+                return name;
+            }
+        }
+        // get name from ID
+        String name = identifier.getName();
+        if (name == null || name.length() == 0) {
+            name = identifier.getAddress().toString();
+        }
+        return name;
     }
 
     @Override

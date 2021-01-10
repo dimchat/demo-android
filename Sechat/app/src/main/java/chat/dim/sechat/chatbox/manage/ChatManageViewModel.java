@@ -5,11 +5,11 @@ import java.util.List;
 
 import chat.dim.GroupManager;
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.EntityViewModel;
-import chat.dim.sechat.model.GroupViewModel;
-import chat.dim.sechat.model.UserViewModel;
 
 public class ChatManageViewModel extends EntityViewModel {
 
@@ -30,8 +30,9 @@ public class ChatManageViewModel extends EntityViewModel {
     boolean isGroupAdmin() {
         ID identifier = getIdentifier();
         if (identifier != null && identifier.isGroup()) {
-            User user = UserViewModel.getCurrentUser();
-            return GroupViewModel.isAdmin(user, identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            User user = facebook.getCurrentUser();
+            return facebook.isOwner(user.identifier, identifier);
         }
         return false;
     }
@@ -39,6 +40,7 @@ public class ChatManageViewModel extends EntityViewModel {
     List<ID> getParticipants(int count) {
         participants.clear();
 
+        ID identifier = getIdentifier();
         if (identifier.isUser()) {
             participants.add(identifier);
         } else if (identifier.isGroup()) {

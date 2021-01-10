@@ -26,7 +26,7 @@ public class ProfileActivity extends AppCompatActivity {
         // get extra info
         String string = getIntent().getStringExtra("ID");
         ID identifier = ID.parse(string);
-        setTitle(facebook.getUsername(identifier));
+        setTitle(facebook.getName(identifier));
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

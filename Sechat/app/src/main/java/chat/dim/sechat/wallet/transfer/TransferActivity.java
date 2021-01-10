@@ -30,7 +30,7 @@ public class TransferActivity extends AppCompatActivity {
         ID identifier = ID.parse(string);
 
         Facebook facebook = Messenger.getInstance().getFacebook();
-        String title = String.format("%s %s %s", wallet, getText(R.string.transfer), facebook.getUsername(identifier));
+        String title = String.format("%s %s %s", wallet, getText(R.string.transfer), facebook.getName(identifier));
         setTitle(title);
 
         if (savedInstanceState == null) {

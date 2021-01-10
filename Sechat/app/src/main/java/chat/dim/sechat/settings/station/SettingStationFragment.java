@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.Map;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -25,7 +27,6 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.settings.SettingsViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.threading.BackgroundThreads;
@@ -109,9 +110,10 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     }
 
     private void showCurrentStation(ProviderTable.StationInfo stationInfo) {
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        String name = facebook.getName(stationInfo.identifier);
         String host = stationInfo.host;
         String port = "" + stationInfo.port;
-        String name = EntityViewModel.getName(stationInfo.identifier);
 
         currentHost.setText(host);
         currentPort.setText(port);

@@ -30,7 +30,8 @@ import java.util.List;
 
 import chat.dim.Entity;
 import chat.dim.Group;
-import chat.dim.protocol.Document;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
@@ -60,28 +61,17 @@ public class Conversation {
         return PersonalChat;
     }
 
-    public String getName() {
-        Document doc = entity.getDocument("*");
-        if (doc != null) {
-            String name = doc.getName();
-            if (name != null) {
-                return name;
-            }
-        }
-        String name = entity.identifier.getName();
-        if (name != null) {
-            return name;
-        }
-        return entity.identifier.toString();
-    }
-
     public String getTitle() {
-        String name = getName();
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        String name = facebook.getName(entity.identifier);
         ID identifier = entity.identifier;
         if (identifier.isGroup()) {
             Group group = (Group) entity;
             List<ID> members = group.getMembers();
             int count = (members == null) ? 0 : members.size();
+            if (count == 0) {
+                return name + " (...)";
+            }
             // Group: "yyy (123)"
             return name + " (" + count + ")";
         }

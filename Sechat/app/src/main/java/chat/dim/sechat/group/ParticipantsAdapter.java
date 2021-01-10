@@ -29,7 +29,6 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.expel.ExpelActivity;
 import chat.dim.sechat.group.invite.InviteActivity;
-import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.threading.MainThread;
@@ -76,7 +75,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void invite() {
-        User user = UserViewModel.getCurrentUser();
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
             return;
@@ -84,11 +84,11 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         Group group;
         if (identifier.isGroup()) {
-            if (!GroupViewModel.containsMember(user.identifier, identifier)) {
+            if (!facebook.containsMember(user.identifier, identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
-            group = GroupViewModel.getGroup(identifier);
+            group = facebook.getGroup(identifier);
         } else {
             Register register = new Register();
             group = register.createGroup(user.identifier, "Sophon Shield");
@@ -104,13 +104,14 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void expel() {
-        User user = UserViewModel.getCurrentUser();
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
             return;
         }
 
-        if (!GroupViewModel.isAdmin(user, identifier)) {
+        if (!facebook.isOwner(user.identifier, identifier)) {
             Alert.tips(getContext(), "You are not admin of this group: " + identifier);
             return;
         }
@@ -176,7 +177,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         }
 
         private void refresh() {
-            String nickname = UserViewModel.getName(identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            String nickname = facebook.getName(identifier);
             nameView.setText(nickname);
 
             Bitmap avatar = UserViewModel.getAvatar(identifier);

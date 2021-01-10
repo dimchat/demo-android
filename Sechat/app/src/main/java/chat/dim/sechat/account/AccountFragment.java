@@ -76,7 +76,7 @@ public class AccountFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(AccountViewModel.class);
 
-        nameView.setText(mViewModel.getUserTitle());
+        nameView.setText(mViewModel.getName());
         descView.setText(mViewModel.getAddressString());
 
         avatarView.setImageBitmap(mViewModel.getAvatar());

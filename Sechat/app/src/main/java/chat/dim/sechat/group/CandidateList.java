@@ -5,9 +5,9 @@ import android.graphics.Bitmap;
 import java.util.List;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
-import chat.dim.sechat.model.EntityViewModel;
-import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
@@ -25,17 +25,18 @@ public class CandidateList extends DummyList<CandidateList.Item> {
     public synchronized void reloadData() {
         clearItems();
 
-        User user = UserViewModel.getCurrentUser();
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
         if (user == null) {
             return;
         }
-        List<ID> contacts = UserViewModel.getContacts(user.identifier);
+        List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID member : contacts) {
                 if (!member.isUser()) {
                     continue;
                 }
-                if (GroupViewModel.containsMember(member, group)) {
+                if (facebook.containsMember(member, group)) {
                     // already exists
                     continue;
                 }
@@ -65,11 +66,8 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         }
 
         String getTitle() {
-            return UserViewModel.getUserTitle(identifier);
-        }
-
-        String getDesc() {
-            return EntityViewModel.getAddressString(identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            return facebook.getName(identifier);
         }
     }
 }

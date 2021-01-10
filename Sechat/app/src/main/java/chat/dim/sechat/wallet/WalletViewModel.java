@@ -37,7 +37,7 @@ public class WalletViewModel extends ProfileViewModel {
         return gasPrice;
     }
     public double getGasPrice(WalletName name) {
-        Address address = identifier.getAddress();
+        Address address = getIdentifier().getAddress();
         if (address instanceof ETHAddress) {
             return getGasPrice();
         }
@@ -45,7 +45,7 @@ public class WalletViewModel extends ProfileViewModel {
     }
 
     public long getGasLimit(WalletName name) {
-        Address address = identifier.getAddress();
+        Address address = getIdentifier().getAddress();
         if (address instanceof ETHAddress) {
             if (name.equals(WalletName.ETH)) {
                 return 21_000;

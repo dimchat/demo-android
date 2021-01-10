@@ -14,10 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.model.GroupViewModel;
-import chat.dim.sechat.model.UserViewModel;
 import chat.dim.threading.MainThread;
 
 public class MembersFragment extends Fragment {
@@ -42,8 +43,10 @@ public class MembersFragment extends Fragment {
 
     private boolean isGroupAdmin() {
         if (identifier != null && identifier.isGroup()) {
-            User user = UserViewModel.getCurrentUser();
-            return GroupViewModel.isAdmin(user, identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            User user = facebook.getCurrentUser();
+            // TODO: check for administrators
+            return facebook.isOwner(user.identifier, identifier);
         }
         return false;
     }

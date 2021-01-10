@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
@@ -13,7 +15,6 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.ui.list.DummyItem;
@@ -80,7 +81,8 @@ public class ConversationList extends DummyList<ConversationList.Item> {
         }
 
         String getTitle() {
-            return EntityViewModel.getName(chatBox.identifier);
+            Facebook facebook = Messenger.getInstance().getFacebook();
+            return facebook.getName(chatBox.identifier);
         }
 
         String getTime() {

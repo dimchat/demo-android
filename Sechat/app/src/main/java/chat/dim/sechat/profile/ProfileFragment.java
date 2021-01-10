@@ -22,6 +22,8 @@ import android.widget.TextView;
 import java.util.Map;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -156,27 +158,32 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     private void showAvatar() {
         Uri avatar = mViewModel.getAvatarUri();
         if (avatar != null) {
-            String name = mViewModel.getUsername();
+            String name = mViewModel.getName();
             ImageViewerActivity.show(getActivity(), avatar, name);
         }
     }
 
     private void addContact() {
-        mViewModel.addContact(identifier);
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
+        facebook.addContact(identifier, user.identifier);
         // open chat box
         Client.getInstance().startChat(identifier);
     }
 
     private void removeContact() {
-        mViewModel.removeContact(identifier);
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
+        facebook.removeContact(identifier, user.identifier);
         close();
     }
 
     private void remitMoney() {
-        User user = ProfileViewModel.getCurrentUser();
-        if (user == null) {
-            throw new NullPointerException("failed to get current user");
-        }
+        Facebook facebook = Messenger.getInstance().getFacebook();
+        User user = facebook.getCurrentUser();
+        assert user != null : "failed to get current user";
         if (user.identifier.equals(identifier)) {
             Alert.tips(getContext(), R.string.remit_self);
             return;

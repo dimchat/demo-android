@@ -34,9 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.GroupManager;
-import chat.dim.User;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.SechatApp;
@@ -45,50 +45,25 @@ import chat.dim.ui.image.Images;
 
 public class GroupViewModel extends EntityViewModel {
 
-    public static Group getGroup(ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return getFacebook().getGroup(group);
+    @Override
+    protected Entity getEntity() {
+        return getGroup();
     }
     public Group getGroup() {
-        return getGroup(getIdentifier());
+        Entity entity = super.getEntity();
+        if (entity instanceof Group) {
+            return (Group) entity;
+        }
+        return null;
     }
 
     //
     //  Administrators
     //
 
-    public static ID getOwner(ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return getFacebook().getOwner(group);
-    }
-
-    public static String getOwnerName(ID group) {
-        ID owner = getOwner(group);
-        if (owner == null) {
-            return null;
-        }
-        return UserViewModel.getUserTitle(owner);
-    }
     public String getOwnerName() {
-        return getOwnerName(getIdentifier());
-    }
-
-    public static boolean isAdmin(ID user, ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return getFacebook().isOwner(user, group);
-    }
-
-    public static boolean isAdmin(User user, ID group) {
-        if (user == null) {
-            return false;
-        }
-        return isAdmin(user.identifier, group);
+        ID owner = getFacebook().getOwner(getIdentifier());
+        return getFacebook().getName(owner);
     }
 
     //
@@ -96,30 +71,14 @@ public class GroupViewModel extends EntityViewModel {
     //
 
     public static void checkMembers(ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
         List<ID> members = getFacebook().getMembers(group);
         if (members == null || members.size() < 1) {
             BackgroundThreads.wait(() -> (new GroupManager(group)).query());
         }
     }
 
-    public static boolean containsMember(ID member, ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return getFacebook().containsMember(member, group);
-    }
-
-    public static List<ID> getMembers(ID group) {
-        if (group == null) {
-            throw new NullPointerException("group ID empty");
-        }
-        return getFacebook().getMembers(group);
-    }
     public List<ID> getMembers() {
-        return getMembers(getIdentifier());
+        return getFacebook().getMembers(getIdentifier());
     }
 
     //

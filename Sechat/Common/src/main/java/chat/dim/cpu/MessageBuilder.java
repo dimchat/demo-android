@@ -49,7 +49,7 @@ import chat.dim.utils.Strings;
 
 public abstract class MessageBuilder {
 
-    protected abstract String getUsername(Object string);
+    protected abstract String getName(ID identifier);
 
     public String getContentText(Content content) {
         String text = (String) content.get("text");
@@ -111,7 +111,7 @@ public abstract class MessageBuilder {
         assert commander != null : "commander error";
         ID identifier = cmd.getIdentifier();
         Map<String, Object> station = cmd.getStation();
-        return String.format("%s login: %s", getUsername(identifier), station);
+        return String.format("%s login: %s", getName(identifier), station);
     }
 
     //...
@@ -137,61 +137,68 @@ public abstract class MessageBuilder {
         return String.format("unsupported group command: %s", cmd);
     }
 
+    @SuppressWarnings("unchecked")
     private String getInviteCommandText(InviteCommand cmd, ID commander) {
-        List addedList = (List) cmd.get("added");
+        List<String> addedList = (List<String>) cmd.get("added");
         if (addedList == null) {
-            addedList = new ArrayList();
+            addedList = new ArrayList<>();
         }
+        List<ID> members = ID.convert(addedList);
         List<String> names = new ArrayList<>();
-        for (Object item : addedList) {
-            names.add(getUsername(item));
+        for (ID item : members) {
+            names.add(getName(item));
         }
         String string = Strings.join(names, ", ");
-        return String.format("%s has invited members: %s", getUsername(commander), string);
+        return String.format("%s has invited members: %s", getName(commander), string);
     }
 
+    @SuppressWarnings("unchecked")
     private String getExpelCommandText(ExpelCommand cmd, ID commander) {
-        List removedList = (List) cmd.get("removed");
+        List<String> removedList = (List<String>) cmd.get("removed");
         if (removedList == null) {
-            removedList = new ArrayList();
+            removedList = new ArrayList<>();
         }
+        List<ID> members = ID.convert(removedList);
         List<String> names = new ArrayList<>();
-        for (Object item : removedList) {
-            names.add(getUsername(item));
+        for (ID item : members) {
+            names.add(getName(item));
         }
         String string = Strings.join(names, ", ");
-        return String.format("%s has removed members: %s", getUsername(commander), string);
+        return String.format("%s has removed members: %s", getName(commander), string);
     }
 
     private String getQuitCommandText(QuitCommand cmd, ID commander) {
         assert cmd.getGroup() != null : "quit command error: " + cmd;
-        return String.format("%s has quit group chat.", getUsername(commander));
+        return String.format("%s has quit group chat.", getName(commander));
     }
 
+    @SuppressWarnings("unchecked")
     private String getResetCommandText(ResetCommand cmd, ID commander) {
-        List addedList = (List) cmd.get("added");
-        List removedList = (List) cmd.get("removed");
+        List<String> addedList = (List<String>) cmd.get("added");
+        List<String> removedList = (List<String>) cmd.get("removed");
 
         String string = "";
         if (removedList != null && removedList.size() > 0) {
+            List<ID> members = ID.convert(removedList);
             List<String> names = new ArrayList<>();
-            for (Object item : removedList) {
-                names.add(getUsername(item));
+            for (ID item : members) {
+                names.add(getName(item));
             }
             string = string + ", removed: " + Strings.join(names, ", ");
         }
         if (addedList != null && addedList.size() > 0) {
+            List<ID> members = ID.convert(addedList);
             List<String> names = new ArrayList<>();
-            for (Object item : addedList) {
-                names.add(getUsername(item));
+            for (ID item : members) {
+                names.add(getName(item));
             }
             string = string + ", added: " + Strings.join(names, ", ");
         }
-        return String.format("%s has updated members %s", getUsername(commander), string);
+        return String.format("%s has updated members %s", getName(commander), string);
     }
 
     private String getQueryCommandText(QueryCommand cmd, ID commander) {
         assert cmd.getGroup() != null : "quit command error: " + cmd;
-        return String.format("%s was querying group info, responding...", getUsername(commander));
+        return String.format("%s was querying group info, responding...", getName(commander));
     }
 }

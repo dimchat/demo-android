@@ -27,6 +27,7 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
+import chat.dim.Entity;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.protocol.Document;
@@ -38,78 +39,52 @@ public class EntityViewModel extends ViewModel {
     public static Messenger getMessenger() {
         return Messenger.getInstance();
     }
-
     public static Facebook getFacebook() {
         return getMessenger().getFacebook();
     }
 
-    protected ID identifier = null;
+    private Entity entity = null;
+
+    protected void setEntity(Entity entity) {
+        this.entity = entity;
+    }
+    protected Entity getEntity() {
+        return entity;
+    }
 
     //
-    //  ID
+    //  create entity by ID
     //
-    public ID getIdentifier() {
-        return identifier;
-    }
     public void setIdentifier(ID identifier) {
-        this.identifier = identifier;
+        if (identifier.isGroup()) {
+            setEntity(getFacebook().getGroup(identifier));
+        } else if (identifier.isUser()) {
+            setEntity(getFacebook().getUser(identifier));
+        } else {
+            throw new NullPointerException("ID error: " + identifier);
+        }
+    }
+    public ID getIdentifier() {
+        return getEntity().identifier;
     }
 
-    //
-    //  Address string
-    //
-    public static String getAddressString(ID identifier) {
-        if (identifier == null) {
-            //throw new NullPointerException("entity ID empty");
-            return null;
-        }
-        return identifier.getAddress().toString();
-    }
     public String getAddressString() {
-        return getAddressString(getIdentifier());
+        return getIdentifier().getAddress().toString();
     }
 
-    //
-    //  Name string
-    //
-    private static String getName(ID identifier, Document doc) {
-        String name = doc.getName();
-        if (name != null) {
-            return name;
-        }
-        name = identifier.getName();
-        if (name != null) {
-            return name;
-        }
-        return identifier.toString();
-    }
-
-
-    public static String getName(ID identifier) {
-        return getName(identifier, getDocument(identifier, "*"));
-    }
     public String getName() {
-        return getName(identifier, getDocument("*"));
+        return getFacebook().getName(getIdentifier());
     }
 
-    //
-    //  Entity Document
-    //
-    public static Document getDocument(ID identifier, String type) {
-        if (identifier == null) {
-            throw new NullPointerException("entity ID empty");
-        }
-        return getFacebook().getDocument(identifier, type);
-    }
     public Document getDocument(String type) {
-        return getDocument(getIdentifier(), type);
+        return getFacebook().getDocument(getIdentifier(), type);
     }
 
     public void refreshDocument() {
         BackgroundThreads.wait(() -> {
             Document doc = getDocument("*");
             if (doc == null || getFacebook().isExpired(doc)) {
-                getMessenger().queryDocument(identifier);
+                getMessenger().queryDocument(getIdentifier());
             }
         });
     }
