@@ -35,6 +35,8 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
+import chat.dim.mkm.BaseMeta;
+import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
@@ -58,16 +60,28 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
     // memory caches
     private Map<ID, Meta> metaTable = new HashMap<>();
 
+    private final Meta empty = new BaseMeta(null) {
+        @Override
+        public Address generateAddress(byte type) {
+            return null;
+        }
+    };
+
     //
     //  chat.dim.database.UserTable
     //
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
+        if (!meta.matches(entity)) {
+            Log.error("meta not match ID: " + entity + ", " + meta);
+            return false;
+        }
         // 0. check duplicate record
-        if (getMeta(entity) != null) {
+        Meta old = getMeta(entity);
+        if (old != null) {
             // meta won't change, no need to update
-            Log.info("meta exists: " + entity);
+            Log.info("meta already exists: " + entity);
             return true;
         }
         VerifyKey key = meta.getKey();
@@ -96,45 +110,47 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
     public Meta getMeta(ID entity) {
         // 1. try from memory cache
         Meta meta = metaTable.get(entity);
-        if (meta != null) {
-            return meta;
-        }
-
-        // 2. try from database
-        String[] columns = {"version", "pk", "seed", "fingerprint"};
-        String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
-            int version;
-            String pk;
-            byte[] data;
-            Map<String, Object> key;
-            String seed;
-            byte[] fp;
-            Map<String, Object> info;
-            if (cursor.moveToNext()) {
-                version = cursor.getInt(0);
-                pk = cursor.getString(1);
-                data = UTF8.encode(pk);
-                key = (Map<String, Object>) JSON.decode(data);
-
-                info = new HashMap<>();
-                info.put("version", version);
-                info.put("key", key);
-                if (MetaType.hasSeed(version)) {
-                    seed = cursor.getString(2);
-                    fp = cursor.getBlob(3);
-                    info.put("seed", seed);
-                    info.put("fingerprint", Base64.encode(fp));
-                }
-                meta = Meta.parse(info);
-            }
-        }
         if (meta == null) {
+            // 2. try from database
+            String[] columns = {"version", "pk", "seed", "fingerprint"};
+            String[] selectionArgs = {entity.toString()};
+            try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
+                int version;
+                String pk;
+                byte[] data;
+                Map<String, Object> key;
+                String seed;
+                byte[] fp;
+                Map<String, Object> info;
+                if (cursor.moveToNext()) {
+                    version = cursor.getInt(0);
+                    pk = cursor.getString(1);
+                    data = UTF8.encode(pk);
+                    key = (Map<String, Object>) JSON.decode(data);
+
+                    info = new HashMap<>();
+                    info.put("version", version);
+                    info.put("key", key);
+                    if (MetaType.hasSeed(version)) {
+                        seed = cursor.getString(2);
+                        fp = cursor.getBlob(3);
+                        info.put("seed", seed);
+                        info.put("fingerprint", Base64.encode(fp));
+                    }
+                    meta = Meta.parse(info);
+                }
+            }
+            if (meta == null) {
+                // 2.1. place an empty meta for cache
+                meta = empty;
+            }
+
+            // 3. store into memory cache
+            metaTable.put(entity, meta);
+        }
+        if (meta == empty) {
             return null;
         }
-
-        // 3. store into memory cache
-        metaTable.put(entity, meta);
         return meta;
     }
 }

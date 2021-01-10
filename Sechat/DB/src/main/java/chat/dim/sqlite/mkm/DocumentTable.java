@@ -34,9 +34,7 @@ import java.util.Map;
 
 import chat.dim.format.Base64;
 import chat.dim.format.UTF8;
-import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.BaseDocument;
-import chat.dim.mkm.BaseVisa;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
@@ -59,6 +57,8 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     // memory caches
     private Map<String, Document> docsTable = new HashMap<>();
 
+    private final Document empty = new BaseDocument(ID.ANYONE, Document.PROFILE);
+
     //
     //  chat.dim.database.UserTable
     //
@@ -66,29 +66,27 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     // TODO: support multi documents
     @Override
     public boolean saveDocument(Document doc) {
+        if (!doc.isValid()) {
+            Log.error("document not valid: " + doc);
+            return false;
+        }
         ID identifier = doc.getIdentifier();
+
         // 0. check duplicate record
-        Document old = getDocument(identifier, "*");
-        if (old != null && old.containsKey("data")) {
+        Document old = getDocument(identifier, doc.getType());
+        if (old != null) {
             Log.info("entity document exists, update it: " + identifier);
             String[] whereArgs = {identifier.toString()};
             delete(EntityDatabase.T_PROFILE, "did=?", whereArgs);
         }
-
         String data = (String) doc.get("data");
         String base64 = (String) doc.get("signature");
-        byte[] signature;
-        if (base64 != null) {
-            signature = Base64.decode(base64);
-        } else {
-            signature = null;
-        }
 
         // 1. save into database
         ContentValues values = new ContentValues();
         values.put("did", identifier.toString());
         values.put("data", data);
-        values.put("signature", signature);
+        values.put("signature", Base64.decode(base64));
         if (insert(EntityDatabase.T_PROFILE, null, values) < 0) {
             return false;
         }
@@ -103,46 +101,32 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     public Document getDocument(ID entity, String type) {
         // 1. try from memory cache
         Document doc = docsTable.get(entity.toString());
-        if (doc != null) {
-            // check empty document
-            String json = (String) doc.get("data");
-            if (json == null || json.length() == 0) {
-                return null;
-            }
-            return doc;
-        }
-        if (entity.isUser()) {
-            // TODO: only support VISA document type now
-            type = Document.VISA;
-        }
-
-        // 2. try from database
-        String[] columns = {"data", "signature"};
-        String[] selectionArgs = {entity.toString()};
-        try (Cursor cursor = query(EntityDatabase.T_PROFILE, columns, "did=?", selectionArgs, null, null, null)) {
-            String data;
-            byte[] signature;
-            if (cursor.moveToNext()) {
-                data = cursor.getString(0);
-                signature = cursor.getBlob(1);
-                doc = Document.create(type, entity, UTF8.encode(data), signature);
-            }
-        } catch (SQLiteCantOpenDatabaseException e) {
-            e.printStackTrace();
-        }
         if (doc == null) {
-            // 2.1. place an empty document for cache
-            if (entity.isUser()) {
-                doc = new BaseVisa(entity);
-            } else if (entity.isGroup()) {
-                doc = new BaseBulletin(entity);
-            } else {
-                doc = new BaseDocument(entity, type);
+            // 2. try from database
+            String[] columns = {"data", "signature"};
+            String[] selectionArgs = {entity.toString()};
+            try (Cursor cursor = query(EntityDatabase.T_PROFILE, columns, "did=?", selectionArgs, null, null, null)) {
+                String data;
+                byte[] signature;
+                if (cursor.moveToNext()) {
+                    data = cursor.getString(0);
+                    signature = cursor.getBlob(1);
+                    doc = Document.create(type, entity, UTF8.encode(data), signature);
+                }
+            } catch (SQLiteCantOpenDatabaseException e) {
+                e.printStackTrace();
             }
-        }
+            if (doc == null) {
+                // 2.1. place an empty document for cache
+                doc = empty;
+            }
 
-        // 3. store into memory cache
-        docsTable.put(entity.toString(), doc);
+            // 3. store into memory cache
+            docsTable.put(entity.toString(), doc);
+        }
+        if (doc == empty) {
+            return null;
+        }
         return doc;
     }
 }

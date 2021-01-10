@@ -251,16 +251,14 @@ public class Facebook extends chat.dim.Facebook {
         }
         // try from database
         Meta meta = metaTable.getMeta(identifier);
-        if (meta == null || meta.getKey() == null) {
-            // try from immortals
+        if (meta == null) {
             if (identifier.getType() == NetworkType.MAIN.value) {
+                // try from immortals
                 meta = immortals.getMeta(identifier);
                 if (meta != null) {
                     metaTable.saveMeta(meta, identifier);
-                    return meta;
                 }
             }
-            meta = null;
         }
         return meta;
     }
@@ -269,16 +267,14 @@ public class Facebook extends chat.dim.Facebook {
     public Document getDocument(ID identifier, String type) {
         // try from database
         Document doc = docsTable.getDocument(identifier, type);
-        if (isEmpty(doc)) {
-            // try from immortals
+        if (doc == null) {
             if (identifier.getType() == NetworkType.MAIN.value) {
-                Document tai = immortals.getDocument(identifier, type);
-                if (tai != null) {
-                    docsTable.saveDocument(tai);
-                    return tai;
+                // try from immortals
+                doc = immortals.getDocument(identifier, type);
+                if (doc != null) {
+                    docsTable.saveDocument(doc);
                 }
             }
-            assert doc != null : "document object should not be null: " + identifier;
         }
         return doc;
     }

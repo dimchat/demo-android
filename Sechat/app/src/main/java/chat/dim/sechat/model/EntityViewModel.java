@@ -108,7 +108,7 @@ public class EntityViewModel extends ViewModel {
     public void refreshDocument() {
         BackgroundThreads.wait(() -> {
             Document doc = getDocument("*");
-            if (getFacebook().isEmpty(doc) || getFacebook().isExpired(doc)) {
+            if (doc == null || getFacebook().isExpired(doc)) {
                 getMessenger().queryDocument(identifier);
             }
         });

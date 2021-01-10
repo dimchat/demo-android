@@ -53,7 +53,7 @@ public final class Facebook extends chat.dim.common.Facebook {
     public String getAvatar(ID identifier) {
         String url = null;
         Document doc = getDocument(identifier, "*");
-        if (!isEmpty(doc)) {
+        if (doc != null) {
             if (doc instanceof Visa) {
                 url = ((Visa) doc).getAvatar();
             } else {
@@ -211,10 +211,12 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Document getDocument(ID identifier, String type) {
         // try from database
         Document doc = super.getDocument(identifier, type);
-        if (isEmpty(doc) || isExpired(doc)) {
-            // update EXPIRES value
-            long now = (new Date()).getTime();
-            doc.put(EXPIRES_KEY, now + EXPIRES);
+        if (doc == null || isExpired(doc)) {
+            if (doc != null) {
+                // update EXPIRES value
+                long now = (new Date()).getTime();
+                doc.put(EXPIRES_KEY, now + EXPIRES);
+            }
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
             messenger.queryDocument(identifier);
@@ -231,14 +233,6 @@ public final class Facebook extends chat.dim.common.Facebook {
             return false;
         }
         return now > expires.longValue();
-    }
-
-    public boolean isSigned(Document doc) {
-        if (isEmpty(doc)) {
-            return false;
-        }
-        String base64 = (String) doc.get("signature");
-        return base64 != null && base64.length() > 0;
     }
 
     //-------- UserDataSource

@@ -45,6 +45,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.StorageCommand;
+import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
@@ -141,25 +142,19 @@ public final class Messenger extends chat.dim.common.Messenger {
         sendContent(ID.EVERYONE, content);
     }
 
-    public void broadcastVisa(Document doc) {
-        // check user document
-        Facebook facebook = getFacebook();
-        if (facebook.isSigned(doc)) {
-            doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
-        } else {
-            return;
-        }
+    public void broadcastVisa(Visa visa) {
         User user = getCurrentUser();
         if (user == null) {
             // TODO: save the message content in waiting queue
             throw new NullPointerException("login first");
         }
-        ID identifier = doc.getIdentifier();
+        ID identifier = visa.getIdentifier();
         if (!user.identifier.equals(identifier)) {
-            throw new IllegalArgumentException("document error: " + doc);
+            throw new IllegalArgumentException("visa document error: " + visa);
         }
+        visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         // pack and send user document to every contact
-        Command cmd = new DocumentCommand(identifier, doc);
+        Command cmd = new DocumentCommand(identifier, visa);
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
             for (ID contact : contacts) {
@@ -169,15 +164,8 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     public boolean postDocument(Document doc, Meta meta) {
-        ID identifier = doc.getIdentifier();
-        // check user document
-        Facebook facebook = getFacebook();
-        if (facebook.isSigned(doc)) {
-            doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
-        } else {
-            doc = null;
-        }
-        Command cmd = new DocumentCommand(identifier, meta, doc);
+        doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+        Command cmd = new DocumentCommand(doc.getIdentifier(), meta, doc);
         return sendCommand(cmd, StarShip.SLOWER);
     }
 

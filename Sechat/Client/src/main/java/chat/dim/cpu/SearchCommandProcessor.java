@@ -43,17 +43,6 @@ public class SearchCommandProcessor extends CommandProcessor {
         super();
     }
 
-    private Meta getMeta(ID identifier, Map<String, Object> dictionary) {
-        Meta meta = Meta.parse(dictionary);
-        if (meta == null) {
-            return null;
-        }
-        if (meta.matches(identifier)) {
-            return meta;
-        }
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
     private void parse(SearchCommand cmd) {
         Map<String, Object> results = cmd.getResults();
@@ -65,8 +54,8 @@ public class SearchCommandProcessor extends CommandProcessor {
         Meta meta;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
             identifier = ID.parse(entry.getKey());
-            meta = getMeta(identifier, (Map<String, Object>) entry.getValue());
-            if (meta == null) {
+            meta = Meta.parse((Map<String, Object>) entry.getValue());
+            if (identifier == null || meta == null || !meta.matches(identifier)) {
                 // TODO: meta error
                 continue;
             }

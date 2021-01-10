@@ -193,11 +193,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
                 throw new NullPointerException("failed to get user meta: " + user);
             }
             Visa visa = user.getVisa();
-            // check visa
-            Messenger messenger = Messenger.getInstance();
-            Facebook facebook = messenger.getFacebook();
-            if (facebook.isSigned(visa)) {
-                visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
+            if (visa != null) {
+                Messenger messenger = Messenger.getInstance();
                 messenger.postDocument(visa, meta);
             }
             //将用户地址设为别名

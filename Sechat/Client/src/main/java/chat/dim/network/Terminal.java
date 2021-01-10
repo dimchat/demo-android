@@ -38,7 +38,6 @@ import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.Command;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.ReportCommand;
@@ -282,16 +281,8 @@ public abstract class Terminal implements Station.Delegate {
 
     @Override
     public void onHandshakeAccepted(Station server) {
-        Messenger messenger = Messenger.getInstance();
         User user = getCurrentUser();
         assert user != null : "current user not found";
-
-        // post current document to station
-        Document doc = user.getDocument("*");
-        Facebook facebook = messenger.getFacebook();
-        if (!facebook.isEmpty(doc)) {
-            messenger.postDocument(doc, null);
-        }
 
         // report client state
         reportOnline();
@@ -301,6 +292,7 @@ public abstract class Terminal implements Station.Delegate {
         login.setAgent(getUserAgent());
         login.setStation(server);
         // TODO: set provider
+        Messenger messenger = Messenger.getInstance();
         messenger.broadcastContent(login);
     }
 }

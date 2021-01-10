@@ -98,7 +98,7 @@ public class GroupManager {
         }
         Document doc = facebook.getDocument(group, "*");
         Command cmd;
-        if (facebook.isEmpty(doc)) {
+        if (doc == null) {
             // empty document
             cmd = new MetaCommand(group, meta);
         } else {
