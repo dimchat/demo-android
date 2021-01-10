@@ -86,7 +86,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
             Messenger messenger = Messenger.getInstance();
             Facebook facebook = messenger.getFacebook();
-            ID entity = (ID) info.get("ID");
+            ID entity = ID.parse(info.get("ID"));
             if (entity.isUser()) {
                 // check user
                 if (facebook.getPublicKeyForEncryption(entity) == null) {

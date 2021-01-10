@@ -129,10 +129,6 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matches(entity)) {
-            // meta not match ID
-            return false;
-        }
         return metaTable.saveMeta(meta, entity);
     }
 
@@ -140,10 +136,6 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveDocument(Document doc) {
-        if (!isValid(doc)) {
-            // document's signature not match
-            return false;
-        }
         doc.remove(EXPIRES_KEY);
         return docsTable.saveDocument(doc);
     }

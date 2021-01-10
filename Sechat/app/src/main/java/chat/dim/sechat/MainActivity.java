@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
             }
             case NotificationNames.GroupCreated:
             case NotificationNames.StartChat: {
-                ID entity = (ID) info.get("ID");
+                ID entity = ID.parse(info.get("ID"));
                 if (entity != null) {
                     startChat(entity, this);
                 }

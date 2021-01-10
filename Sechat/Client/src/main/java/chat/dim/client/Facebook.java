@@ -76,7 +76,8 @@ public final class Facebook extends chat.dim.common.Facebook {
         }
 
         Map<String, Object> info = new HashMap<>();
-        info.put("ID", entity);
+        info.put("ID", entity.toString());
+        info.put("meta", meta.getMap());
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.MetaSaved, this, info);
         return true;
@@ -89,10 +90,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         if (!super.saveDocument(doc)) {
             return false;
         }
-        ID entity = doc.getIdentifier();
-
-        Map<String, Object> info = new HashMap<>();
-        info.put("ID", entity);
+        Map<String, Object> info = doc.getMap();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.DocumentUpdated, this, info);
         return true;
