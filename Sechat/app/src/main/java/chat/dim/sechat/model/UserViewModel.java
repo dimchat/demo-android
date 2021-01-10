@@ -26,8 +26,10 @@
 package chat.dim.sechat.model;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 
 import java.io.IOException;
+import java.util.List;
 
 import chat.dim.Entity;
 import chat.dim.User;
@@ -52,20 +54,38 @@ public class UserViewModel extends EntityViewModel {
     }
 
     public static Bitmap getAvatar(ID identifier) {
-        if (identifier != null) {
-            String avatar = getFacebook().getAvatar(identifier);
-            if (avatar != null) {
-                try {
-                    return Images.bitmapFromPath(avatar, new Images.Size(128, 128));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        String avatar = getFacebook().getAvatar(identifier);
+        if (avatar != null) {
+            try {
+                return Images.bitmapFromPath(avatar, new Images.Size(128, 128));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return SechatApp.getInstance().getIcon();
     }
     public Bitmap getAvatar() {
         return getAvatar(getIdentifier());
+    }
+
+    public Uri getAvatarUri() {
+        String avatar = getFacebook().getAvatar(getIdentifier());
+        if (avatar == null) {
+            return null;
+        }
+        return Uri.parse(avatar);
+    }
+
+    public boolean containsContact(ID contact) {
+        User user = getFacebook().getCurrentUser();
+        if (user == null) {
+            return false;
+        }
+        List<ID> contacts = getFacebook().getContacts(user.identifier);
+        if (contacts == null) {
+            return false;
+        }
+        return contacts.contains(contact);
     }
 
     //

@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.User;
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
 import chat.dim.ethereum.ERC20Wallet;
 import chat.dim.ethereum.ETHWallet;
 import chat.dim.mkm.ETHAddress;
@@ -151,15 +148,13 @@ public class TransferFragment extends Fragment implements Observer {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(WalletViewModel.class);
-        // TODO: Use the ViewModel
+        mViewModel.setIdentifier(identifier);
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
-        User user = facebook.getCurrentUser();
-        mViewModel.setIdentifier(user.identifier);
+        // TODO: Use the ViewModel
 
         mViewModel.setBalance(balanceView, walletName, true);
 
-        toAddress.setText(identifier.getAddress().toString());
+        toAddress.setText(mViewModel.getAddressString());
 
         double gasPrice = mViewModel.getGasPrice(walletName);
         priceView.setText(String.format(Locale.CHINA, "%.2f", gasPrice));

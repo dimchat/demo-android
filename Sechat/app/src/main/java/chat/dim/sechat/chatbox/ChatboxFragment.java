@@ -216,7 +216,6 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ChatboxViewModel.class);
-
         mViewModel.setIdentifier(chatBox.identifier);
         mViewModel.refreshDocument();
 

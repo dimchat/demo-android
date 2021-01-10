@@ -232,7 +232,6 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
-
         mViewModel.setIdentifier(identifier);
         mViewModel.refreshDocument();
 

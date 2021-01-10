@@ -57,28 +57,20 @@ public class GroupViewModel extends EntityViewModel {
         return null;
     }
 
-    //
-    //  Administrators
-    //
-
     public String getOwnerName() {
-        ID owner = getFacebook().getOwner(getIdentifier());
+        ID owner = getGroup().getOwner();
         return getFacebook().getName(owner);
     }
 
-    //
-    //  Members
-    //
-
-    public static void checkMembers(ID group) {
-        List<ID> members = getFacebook().getMembers(group);
-        if (members == null || members.size() < 1) {
-            BackgroundThreads.wait(() -> (new GroupManager(group)).query());
-        }
+    public List<ID> getMembers() {
+        return getGroup().getMembers();
     }
 
-    public List<ID> getMembers() {
-        return getFacebook().getMembers(getIdentifier());
+    public void checkMembers() {
+        List<ID> members = getMembers();
+        if (members == null || members.size() < 1) {
+            BackgroundThreads.wait(() -> (new GroupManager(getIdentifier())).query());
+        }
     }
 
     //

@@ -32,10 +32,6 @@ public class MembersFragment extends Fragment {
     private List<ID> participants = null;
 
     public static MembersFragment newInstance(ID identifier) {
-        if (identifier.isGroup()) {
-            GroupViewModel.checkMembers(identifier);
-        }
-
         MembersFragment fragment = new MembersFragment();
         fragment.identifier = identifier;
         return fragment;
@@ -91,6 +87,7 @@ public class MembersFragment extends Fragment {
         mViewModel.setIdentifier(identifier);
 
         // TODO: Use the ViewModel
+        mViewModel.checkMembers();
 
         // participants
         participants = getParticipants();

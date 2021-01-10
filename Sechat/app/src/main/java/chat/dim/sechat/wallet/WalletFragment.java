@@ -94,9 +94,9 @@ public class WalletFragment extends Fragment implements Observer {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(WalletViewModel.class);
-        // TODO: Use the ViewModel
-
         mViewModel.setIdentifier(identifier);
+
+        // TODO: Use the ViewModel
 
         addressView.setText(mViewModel.getAddressString());
 

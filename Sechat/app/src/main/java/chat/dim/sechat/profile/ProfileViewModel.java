@@ -1,50 +1,22 @@
 package chat.dim.sechat.profile;
 
 import android.graphics.Color;
-import android.net.Uri;
 import android.widget.TextView;
 
 import org.web3j.crypto.Credentials;
 
-import java.util.List;
 import java.util.Locale;
 
-import chat.dim.User;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
-import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletFactory;
 import chat.dim.wallet.WalletName;
 
 public class ProfileViewModel extends UserViewModel {
-
-    Uri getAvatarUri() {
-        ID identifier = getIdentifier();
-        if (identifier == null) {
-            throw new NullPointerException("ID not set");
-        }
-        String avatar = getFacebook().getAvatar(identifier);
-        if (avatar == null) {
-            return null;
-        }
-        return Uri.parse(avatar);
-    }
-
-    boolean containsContact(ID contact) {
-        User user = getUser();
-        if (user == null) {
-            return false;
-        }
-        List<ID> contacts = getFacebook().getContacts(user.identifier);
-        if (contacts == null) {
-            return false;
-        }
-        return contacts.contains(contact);
-    }
 
     //
     //  ETH wallets

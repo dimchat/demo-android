@@ -24,7 +24,6 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.sechat.group.MembersActivity;
 import chat.dim.sechat.group.ParticipantsAdapter;
-import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 
@@ -46,10 +45,6 @@ public class ChatManageFragment extends Fragment {
     private List<ID> participants = null;
 
     public static ChatManageFragment newInstance(ID identifier) {
-        if (identifier.isGroup()) {
-            GroupViewModel.checkMembers(identifier);
-        }
-
         ChatManageFragment fragment = new ChatManageFragment();
         fragment.identifier = identifier;
         return fragment;
@@ -123,9 +118,8 @@ public class ChatManageFragment extends Fragment {
             quitGroupButton.setVisibility(View.GONE);
         }
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
-        nameTextView.setText(facebook.getName(identifier));
-        addressTextView.setText(identifier.getAddress().toString());
+        nameTextView.setText(mViewModel.getName());
+        addressTextView.setText(mViewModel.getAddressString());
     }
 
     private void showMembers() {
