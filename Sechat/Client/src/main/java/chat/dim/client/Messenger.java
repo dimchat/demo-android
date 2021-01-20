@@ -36,21 +36,25 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.model.MessageDataSource;
 import chat.dim.network.Server;
+import chat.dim.network.ServerDelegate;
+import chat.dim.network.Station;
 import chat.dim.network.Terminal;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
-public final class Messenger extends chat.dim.common.Messenger {
+public final class Messenger extends chat.dim.common.Messenger implements ServerDelegate {
 
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
@@ -279,5 +283,68 @@ public final class Messenger extends chat.dim.common.Messenger {
             }
         }
         return checking;
+    }
+
+    private Date offlineTime = null;
+
+    public void reportOnline() {
+        Command cmd = new ReportCommand(ReportCommand.ONLINE);
+        if (offlineTime != null) {
+            cmd.put("last_time", offlineTime.getTime() / 1000);
+        }
+        sendCommand(cmd, StarShip.NORMAL);
+    }
+    public void reportOffline() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        Command cmd = new ReportCommand(ReportCommand.OFFLINE);
+        offlineTime = cmd.getTime();
+        sendCommand(cmd, StarShip.NORMAL);
+    }
+
+    //---- Server Delegate
+
+    @Override
+    public void onReceivePackage(byte[] data, Station server) {
+        byte[] response;
+        try {
+            Messenger messenger = Messenger.getInstance();
+            response = messenger.process(data);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            response = null;
+        }
+        if (response != null && response.length > 0) {
+            getCurrentServer().sendPackage(response, null, StarShip.SLOWER);
+        }
+    }
+
+    @Override
+    public void didSendPackage(byte[] data, Station server) {
+        // TODO: mark it sent
+    }
+
+    @Override
+    public void didFailToSendPackage(Error error, byte[] data, Station server) {
+        // TODO: resend it
+    }
+
+    @Override
+    public void onHandshakeAccepted(Station server) {
+        User user = getCurrentUser();
+        assert user != null : "current user not found";
+
+        // report client state
+        reportOnline();
+
+        // broadcast login command
+        LoginCommand login = new LoginCommand(user.identifier);
+        login.setAgent(getTerminal().getUserAgent());
+        login.setStation(server);
+        // TODO: set provider
+        Messenger messenger = Messenger.getInstance();
+        messenger.broadcastContent(login);
     }
 }

@@ -26,6 +26,7 @@
 package chat.dim.common;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import chat.dim.AddressNameService;
@@ -138,6 +139,24 @@ public class Facebook extends chat.dim.Facebook {
     public boolean saveDocument(Document doc) {
         doc.remove(EXPIRES_KEY);
         return docsTable.saveDocument(doc);
+    }
+
+    public boolean isExpired(Document doc, boolean reset) {
+        long now = (new Date()).getTime();
+        Number expires = (Number) doc.get(EXPIRES_KEY);
+        if (expires == null) {
+            // set expired time
+            doc.put(EXPIRES_KEY, now + EXPIRES);
+            return false;
+        }
+        if (now > expires.longValue()) {
+            if (reset) {
+                // update expired time
+                doc.put(EXPIRES_KEY, now + EXPIRES);
+            }
+            return true;
+        }
+        return false;
     }
 
     //-------- Relationship

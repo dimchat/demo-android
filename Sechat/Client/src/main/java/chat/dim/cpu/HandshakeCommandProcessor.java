@@ -51,7 +51,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         Log.info("handshake again, session key: " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();
         Server server = messenger.getCurrentServer();
-        server.handshakeAgain(sessionKey);
+        server.handshake(sessionKey);
         return null;
     }
 

@@ -26,6 +26,7 @@
 package chat.dim.network;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -72,12 +73,25 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     private User currentUser = null;
     String sessionKey = null;
 
+    private WeakReference<ServerDelegate> delegateRef = null;
+
     Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
         name = title;
         // connection state machine
         fsm = new StateMachine(this);
         fsm.start();
+    }
+
+    public ServerDelegate getDelegate() {
+        if (delegateRef == null) {
+            return null;
+        }
+        return delegateRef.get();
+    }
+
+    public void setDelegate(ServerDelegate delegate) {
+        delegateRef = new WeakReference<>(delegate);
     }
 
     public User getCurrentUser() {
@@ -144,7 +158,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
     }
 
-    public void handshake(String newSession) {
+    public void handshake(String session) {
         if (currentUser == null) {
             // current user not set yet
             return;
@@ -162,8 +176,8 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
             Log.error("server not connected");
             return;
         }
-        if (newSession != null) {
-            sessionKey = newSession;
+        if (session != null) {
+            sessionKey = session;
         }
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(sessionKey);
@@ -192,19 +206,6 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         Log.info("handshake accepted for user: " + currentUser);
         // call client
         getDelegate().onHandshakeAccepted(this);
-    }
-
-    public void handshakeAgain(String sessionKey) {
-        // check FSM state == 'Handshaking'
-        ServerState state = getCurrentState();
-        if (!state.equals(ServerState.HANDSHAKING)) {
-            // FIXME: sometimes the connection state will be reset
-            Log.error("server state not handshaking: " + state.name);
-            return;
-        }
-        // new session key from station
-        Log.info("handshake again with session: " + sessionKey);
-        handshake(sessionKey);
     }
 
     //--------

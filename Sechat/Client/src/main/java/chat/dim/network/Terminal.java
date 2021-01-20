@@ -26,7 +26,6 @@
 package chat.dim.network;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -37,13 +36,9 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.model.NetworkDatabase;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.LoginCommand;
-import chat.dim.protocol.ReportCommand;
-import chat.dim.stargate.StarShip;
 
-public abstract class Terminal implements Station.Delegate {
+public abstract class Terminal {
 
     private Server currentServer = null;
 
@@ -154,7 +149,9 @@ public abstract class Terminal implements Station.Delegate {
 
         // TODO: config FTP server
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        Messenger messenger = Messenger.getInstance();
+        Facebook facebook = messenger.getFacebook();
+
         // connect server
         if (isNewServer(host, port)) {
             // disconnect old server
@@ -162,7 +159,7 @@ public abstract class Terminal implements Station.Delegate {
             // connect new server
             Server server = new Server(identifier, host, port, name);
             server.setDataSource(facebook);
-            server.setDelegate(this);
+            server.setDelegate(messenger);
             server.start(options);
             setCurrentServer(server);
         }
@@ -209,31 +206,11 @@ public abstract class Terminal implements Station.Delegate {
         setCurrentServer(null);
     }
 
-    private Date offlineTime = null;
-
-    private void reportOnline() {
-        Command cmd = new ReportCommand(ReportCommand.ONLINE);
-        if (offlineTime != null) {
-            cmd.put("last_time", offlineTime.getTime() / 1000);
-        }
-        Messenger messenger = Messenger.getInstance();
-        messenger.sendCommand(cmd, StarShip.NORMAL);
-    }
-    private void reportOffline() {
-        User user = getCurrentUser();
-        if (user == null) {
-            return;
-        }
-        Command cmd = new ReportCommand(ReportCommand.OFFLINE);
-        offlineTime = cmd.getTime();
-        Messenger messenger = Messenger.getInstance();
-        messenger.sendCommand(cmd, StarShip.NORMAL);
-    }
-
     public void enterBackground() {
         if (currentServer != null) {
             // report client state
-            reportOffline();
+            Messenger messenger = Messenger.getInstance();
+            messenger.reportOffline();
 
             // pause the server
             currentServer.pause();
@@ -250,49 +227,5 @@ public abstract class Terminal implements Station.Delegate {
             // try to activate the connection
             currentServer.handshake(null);
         }
-    }
-
-    //---- Station Delegate
-
-    @Override
-    public void onReceivePackage(byte[] data, Station server) {
-        byte[] response;
-        try {
-            Messenger messenger = Messenger.getInstance();
-            response = messenger.process(data);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            response = null;
-        }
-        if (response != null && response.length > 0) {
-            currentServer.sendPackage(response, null, StarShip.SLOWER);
-        }
-    }
-
-    @Override
-    public void didSendPackage(byte[] data, Station server) {
-        // TODO: mark it sent
-    }
-
-    @Override
-    public void didFailToSendPackage(Error error, byte[] data, Station server) {
-        // TODO: resend it
-    }
-
-    @Override
-    public void onHandshakeAccepted(Station server) {
-        User user = getCurrentUser();
-        assert user != null : "current user not found";
-
-        // report client state
-        reportOnline();
-
-        // broadcast login command
-        LoginCommand login = new LoginCommand(user.identifier);
-        login.setAgent(getUserAgent());
-        login.setStation(server);
-        // TODO: set provider
-        Messenger messenger = Messenger.getInstance();
-        messenger.broadcastContent(login);
     }
 }

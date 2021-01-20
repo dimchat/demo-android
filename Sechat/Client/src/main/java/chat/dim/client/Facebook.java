@@ -26,7 +26,6 @@
 package chat.dim.client;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,13 +190,13 @@ public final class Facebook extends chat.dim.common.Facebook {
 
     @Override
     public Meta getMeta(ID identifier) {
-        if (identifier.isBroadcast()) {
-            // broadcast ID has not meta
-            return null;
-        }
         // try from database
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
+            if (identifier.isBroadcast()) {
+                // broadcast ID has not meta
+                return null;
+            }
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
             messenger.queryMeta(identifier);
@@ -209,28 +208,12 @@ public final class Facebook extends chat.dim.common.Facebook {
     public Document getDocument(ID identifier, String type) {
         // try from database
         Document doc = super.getDocument(identifier, type);
-        if (doc == null || isExpired(doc)) {
-            if (doc != null) {
-                // update EXPIRES value
-                long now = (new Date()).getTime();
-                doc.put(EXPIRES_KEY, now + EXPIRES);
-            }
+        if (doc == null || isExpired(doc, true)) {
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
             messenger.queryDocument(identifier);
         }
         return doc;
-    }
-
-    public boolean isExpired(Document doc) {
-        long now = (new Date()).getTime();
-        Number expires = (Number) doc.get(EXPIRES_KEY);
-        if (expires == null) {
-            // set expired time
-            doc.put(EXPIRES_KEY, now + EXPIRES);
-            return false;
-        }
-        return now > expires.longValue();
     }
 
     //-------- UserDataSource
