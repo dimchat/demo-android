@@ -288,6 +288,10 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     private Date offlineTime = null;
 
     public void reportOnline() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return;
+        }
         Command cmd = new ReportCommand(ReportCommand.ONLINE);
         if (offlineTime != null) {
             cmd.put("last_time", offlineTime.getTime() / 1000);
@@ -335,9 +339,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     public void onHandshakeAccepted(Station server) {
         User user = getCurrentUser();
         assert user != null : "current user not found";
-
-        // report client state
-        reportOnline();
 
         // broadcast login command
         LoginCommand login = new LoginCommand(user.identifier);

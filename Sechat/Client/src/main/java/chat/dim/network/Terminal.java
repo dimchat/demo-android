@@ -226,6 +226,10 @@ public abstract class Terminal {
 
             // try to activate the connection
             currentServer.handshake(null);
+
+            // report client state
+            Messenger messenger = Messenger.getInstance();
+            messenger.reportOnline();
         }
     }
 }
