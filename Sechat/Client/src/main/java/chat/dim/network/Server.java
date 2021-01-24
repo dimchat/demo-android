@@ -476,11 +476,19 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
 
     @Override
     public void pauseState(ServerState state, Machine machine) {
-
+        /* TODO: reuse session key?
+        if (ServerState.RUNNING.equals(state.name)) {
+            // save old session key for re-login
+            oldSession = sessionKey;
+        }
+         */
     }
 
     @Override
     public void resumeState(ServerState state, Machine machine) {
-
+        if (ServerState.RUNNING.equals(state.name)) {
+            // switch state for re-login
+            sessionKey = null;
+        }
     }
 }

@@ -222,14 +222,11 @@ public abstract class Terminal {
             // resume the server
             currentServer.resume();
 
-            // clear icon badge
-
-            // try to activate the connection
-            currentServer.handshake(null);
-
             // report client state
             Messenger messenger = Messenger.getInstance();
             messenger.reportOnline();
+
+            // TODO: clear icon badge
         }
     }
 }
