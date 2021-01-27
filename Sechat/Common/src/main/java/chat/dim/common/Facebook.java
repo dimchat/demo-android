@@ -137,6 +137,10 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveDocument(Document doc) {
+        Meta meta = getMeta(doc.getIdentifier());
+        if (meta == null || !doc.verify(meta.getKey())) {
+            return false;
+        }
         doc.remove(EXPIRES_KEY);
         return docsTable.saveDocument(doc);
     }
