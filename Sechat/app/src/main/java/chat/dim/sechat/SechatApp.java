@@ -18,7 +18,7 @@ import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.NetworkDatabase;
-import chat.dim.sechat.push.jpush.JPushManager;
+//import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sqlite.Database;
 import chat.dim.sqlite.ans.AddressNameTable;
 import chat.dim.sqlite.dim.LoginTable;
@@ -87,8 +87,8 @@ public final class SechatApp extends Application {
 
         initDatabases();
 
-        //初始化推送
-        JPushManager.getInstance().init(this, BuildConfig.DEBUG);
+//        //初始化推送
+//        JPushManager.getInstance().init(this, BuildConfig.DEBUG);
     }
 
     @Override
