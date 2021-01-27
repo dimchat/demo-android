@@ -11,6 +11,7 @@ import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.wallet.Wallet;
 import chat.dim.wallet.WalletFactory;
@@ -22,12 +23,20 @@ public class ProfileViewModel extends UserViewModel {
     //  ETH wallets
     //
     public boolean matchesWalletAddress(String address) {
-        return getIdentifier().getAddress().toString().equalsIgnoreCase(address);
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return false;
+        }
+        return identifier.getAddress().toString().equalsIgnoreCase(address);
     }
 
     public Wallet getWallet(WalletName name) {
-        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(getIdentifier());
-        Address address = getIdentifier().getAddress();
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
+        Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             if (sKey == null) {
                 return WalletFactory.getWallet(name, address);

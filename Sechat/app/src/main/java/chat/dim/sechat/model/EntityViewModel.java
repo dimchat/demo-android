@@ -65,19 +65,35 @@ public class EntityViewModel extends ViewModel {
         }
     }
     public ID getIdentifier() {
-        return getEntity().identifier;
+        Entity entity = getEntity();
+        if (entity == null) {
+            return null;
+        }
+        return entity.identifier;
     }
 
     public String getAddressString() {
-        return getIdentifier().getAddress().toString();
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        return identifier.getAddress().toString();
     }
 
     public String getName() {
-        return getFacebook().getName(getIdentifier());
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        return getFacebook().getName(identifier);
     }
 
     public Document getDocument(String type) {
-        return getFacebook().getDocument(getIdentifier(), type);
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        return getFacebook().getDocument(identifier, type);
     }
 
     public void refreshDocument() {

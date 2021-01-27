@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import chat.dim.ethereum.Ethereum;
 import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
+import chat.dim.protocol.ID;
 import chat.dim.sechat.profile.ProfileViewModel;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.utils.Log;
@@ -37,7 +38,11 @@ public class WalletViewModel extends ProfileViewModel {
         return gasPrice;
     }
     public double getGasPrice(WalletName name) {
-        Address address = getIdentifier().getAddress();
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return 0;
+        }
+        Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             return getGasPrice();
         }
@@ -45,7 +50,11 @@ public class WalletViewModel extends ProfileViewModel {
     }
 
     public long getGasLimit(WalletName name) {
-        Address address = getIdentifier().getAddress();
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return 0;
+        }
+        Address address = identifier.getAddress();
         if (address instanceof ETHAddress) {
             if (name.equals(WalletName.ETH)) {
                 return 21_000;

@@ -58,15 +58,27 @@ public class GroupViewModel extends EntityViewModel {
     }
 
     public String getOwnerName() {
-        ID owner = getGroup().getOwner();
+        Group group = getGroup();
+        if (group == null) {
+            return null;
+        }
+        ID owner = group.getOwner();
         return getFacebook().getName(owner);
     }
 
     public List<ID> getMembers() {
-        return getGroup().getMembers();
+        Group group = getGroup();
+        if (group == null) {
+            return null;
+        }
+        return group.getMembers();
     }
 
     public void checkMembers() {
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return;
+        }
         List<ID> members = getMembers();
         if (members == null || members.size() < 1) {
             BackgroundThreads.wait(() -> (new GroupManager(getIdentifier())).query());

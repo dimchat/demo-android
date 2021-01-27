@@ -65,11 +65,19 @@ public class UserViewModel extends EntityViewModel {
         return SechatApp.getInstance().getIcon();
     }
     public Bitmap getAvatar() {
-        return getAvatar(getIdentifier());
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        return getAvatar(identifier);
     }
 
     public Uri getAvatarUri() {
-        String avatar = getFacebook().getAvatar(getIdentifier());
+        ID identifier = getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        String avatar = getFacebook().getAvatar(identifier);
         if (avatar == null) {
             return null;
         }
