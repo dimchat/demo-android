@@ -25,8 +25,7 @@
  */
 package chat.dim.network;
 
-// FIXME: Station.Delegate will be deprecated after SDK v0.5.15
-public interface ServerDelegate extends Station.Delegate {
+public interface ServerDelegate {
 
     /**
      *  Received a new data package from the station

@@ -201,7 +201,6 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         if (!state.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
             Log.error("server state not handshaking: " + state.name);
-            return;
         }
         Log.info("handshake accepted for user: " + currentUser);
         // call client
