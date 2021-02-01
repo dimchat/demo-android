@@ -42,13 +42,13 @@ public class MessageTransmitter extends chat.dim.MessageTransmitter {
             @Override
             public void run() {
                 // Send message (secured + certified) to target station
-                SecureMessage sMsg = getPacker().encryptMessage(iMsg);
+                SecureMessage sMsg = getMessenger().encryptMessage(iMsg);
                 if (sMsg == null) {
                     // public key not found?
                     return ;
                     //throw new NullPointerException("failed to encrypt message: " + iMsg);
                 }
-                ReliableMessage rMsg = getPacker().signMessage(sMsg);
+                ReliableMessage rMsg = getMessenger().signMessage(sMsg);
                 if (rMsg == null) {
                     // TODO: set iMsg.state = error
                     throw new NullPointerException("failed to sign message: " + sMsg);

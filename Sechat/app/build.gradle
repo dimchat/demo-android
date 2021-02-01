@@ -59,7 +59,7 @@ dependencies {
 
     implementation project(':BlockChain')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.5.15'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.5.16'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.2'
     implementation group: 'chat.dim', name: 'StarGate', version: '0.2.5'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'

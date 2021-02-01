@@ -69,9 +69,9 @@ public class MessagePacker extends chat.dim.MessagePacker {
         ID group = rMsg.getGroup();
         if (group == null) {
             ID receiver = rMsg.getReceiver();
-            key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
+            key = getMessenger().getCipherKey(sender, receiver, false);
         } else {
-            key = getCipherKeyDelegate().getCipherKey(sender, group, false);
+            key = getMessenger().getCipherKey(sender, group, false);
         }
         // get key data
         byte[] data = key.getData();
@@ -123,7 +123,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         if (receiver.isGroup()) {
             // reuse group message keys
             ID sender = iMsg.getSender();
-            SymmetricKey key = getCipherKeyDelegate().getCipherKey(sender, receiver, false);
+            SymmetricKey key = getMessenger().getCipherKey(sender, receiver, false);
             assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
             key.put("reused", true);
         }
