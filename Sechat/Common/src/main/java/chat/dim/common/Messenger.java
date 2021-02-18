@@ -28,7 +28,7 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.core.CipherKeyDelegate;
+import chat.dim.CipherKeyDelegate;
 import chat.dim.cpu.AnyContentProcessor;
 import chat.dim.cpu.BlockCommandProcessor;
 import chat.dim.cpu.CommandProcessor;

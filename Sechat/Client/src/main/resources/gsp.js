@@ -8,8 +8,8 @@
     "CA": {},
 
     "stations": [
-        {"name": "dimchat-gz", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "134.175.87.98", "port": 9394}
-        {"name": "dimchat-prod", "ID": "gsp-s003@x2oNDzjDWbJMNDpCfKkU7dnHyJerd447Jh", "host": "203.195.224.155", "port": 9394}
+        {"name": "test", "ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "106.52.25.169", "port": 9394}
+        {"name": "prod", "ID": "gsp-s003@x2oNDzjDWbJMNDpCfKkU7dnHyJerd447Jh", "host": "203.195.224.155", "port": 9394}
     ],
 
     "APIs": {

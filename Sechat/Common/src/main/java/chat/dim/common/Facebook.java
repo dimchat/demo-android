@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 import chat.dim.AddressNameService;
+import chat.dim.Anonymous;
 import chat.dim.Group;
 import chat.dim.Immortals;
 import chat.dim.User;
@@ -209,11 +210,7 @@ public class Facebook extends chat.dim.Facebook {
             }
         }
         // get name from ID
-        String name = identifier.getName();
-        if (name == null || name.length() == 0) {
-            name = identifier.getAddress().toString();
-        }
-        return name;
+        return Anonymous.getName(identifier);
     }
 
     @Override
