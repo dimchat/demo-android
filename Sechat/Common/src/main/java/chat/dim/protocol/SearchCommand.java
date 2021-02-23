@@ -65,12 +65,12 @@ public class SearchCommand extends Command {
      * @return ID string list
      */
     @SuppressWarnings("unchecked")
-    public List<String> getUsers() {
+    public List<ID> getUsers() {
         List<String> users = (List) get("users");
         if (users == null) {
             return null;
         }
-        return users;
+        return ID.convert(users);
     }
 
     /**

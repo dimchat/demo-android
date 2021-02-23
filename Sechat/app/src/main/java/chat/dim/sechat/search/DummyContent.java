@@ -34,17 +34,12 @@ public class DummyContent extends DummyList<DummyContent.Item> {
         if (response == null) {
             return;
         }
-        List<String> users = response.getUsers();
+        List<ID> users = response.getUsers();
         if (users == null || users.size() == 0) {
             return;
         }
 
-        ID identifier;
-        for (String item : users) {
-            identifier = ID.parse(item);
-            if (identifier == null) {
-                continue;
-            }
+        for (ID identifier : users) {
             addItem(new Item(identifier));
         }
     }

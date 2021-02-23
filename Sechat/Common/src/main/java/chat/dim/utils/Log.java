@@ -25,7 +25,7 @@
  */
 package chat.dim.utils;
 
-public class Log {
+public final class Log {
 
     public static void info(String msg) {
         StackTraceElement[] traces = Thread.currentThread().getStackTrace();

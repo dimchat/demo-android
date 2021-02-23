@@ -40,7 +40,7 @@ import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 
-public class Anonymous {
+public final class Anonymous {
 
     public static String getName(ID identifier) {
         String name = identifier.getName();

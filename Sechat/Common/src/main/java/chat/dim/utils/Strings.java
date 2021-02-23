@@ -27,7 +27,7 @@ package chat.dim.utils;
 
 import java.util.List;
 
-public class Strings {
+public final class Strings {
 
     /**
      *  Join all string items to a string with separator

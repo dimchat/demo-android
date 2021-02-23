@@ -91,7 +91,7 @@ public class Facebook extends chat.dim.Facebook {
     public User getCurrentUser() {
         ID uid = userTable.getCurrentUser();
         if (uid == null) {
-            return null;
+            return super.getCurrentUser();
         }
         return getUser(uid);
     }
@@ -138,8 +138,7 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public boolean saveDocument(Document doc) {
-        Meta meta = getMeta(doc.getIdentifier());
-        if (meta == null || !doc.verify(meta.getKey())) {
+        if (!checkDocument(doc)) {
             return false;
         }
         doc.remove(EXPIRES_KEY);

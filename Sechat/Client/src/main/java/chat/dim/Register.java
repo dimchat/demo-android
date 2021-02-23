@@ -48,7 +48,7 @@ import chat.dim.utils.Log;
 /**
  *  This is for generating user account, or creating group
  */
-public class Register {
+public final class Register {
 
     private PrivateKey privateKey = null; // user private key
 

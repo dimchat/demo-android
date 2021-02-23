@@ -25,7 +25,7 @@
  */
 package chat.dim.threading;
 
-public class BackgroundThreads {
+public final class BackgroundThreads {
 
     //
     //  Tasks

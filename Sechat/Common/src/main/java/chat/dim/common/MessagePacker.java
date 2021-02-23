@@ -28,6 +28,7 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.crypto.PlainKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
@@ -73,11 +74,18 @@ public class MessagePacker extends chat.dim.MessagePacker {
         } else {
             key = getMessenger().getCipherKey(sender, group, false);
         }
+        if (key == null) {
+            // broadcast message has no key
+            return;
+        }
         // get key data
         byte[] data = key.getData();
         if (data == null || data.length < 6) {
-            // broadcast message has no key
-            return;
+            if (key.getAlgorithm().equalsIgnoreCase("PLAIN")) {
+                // broadcast message has no key
+                return;
+            }
+            throw new NullPointerException("key data error: " + key.toString());
         }
         // get digest
         byte[] part = new byte[6];

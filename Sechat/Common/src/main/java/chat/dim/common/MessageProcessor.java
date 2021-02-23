@@ -100,7 +100,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             // normal membership
             return false;
         } else {
-            // if assistants exists, query them
+            // if assistants exist, query them
             List<ID> assistants = facebook.getAssistants(group);
             List<ID> admins = new ArrayList<>(assistants);
             // if owner found, query it too

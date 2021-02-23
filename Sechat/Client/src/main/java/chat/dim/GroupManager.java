@@ -44,7 +44,7 @@ import chat.dim.stargate.StarShip;
 /**
  *  This is for sending group message, or managing group members
  */
-public class GroupManager {
+public final class GroupManager {
 
     private final ID group;
 
