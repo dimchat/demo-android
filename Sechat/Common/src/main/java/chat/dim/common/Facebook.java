@@ -56,7 +56,7 @@ public class Facebook extends chat.dim.Facebook {
     public static long EXPIRES = 30 * 60 * 1000;  // document expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
 
-    private Immortals immortals = new Immortals();
+    private final Immortals immortals = new Immortals();
 
     public PrivateKeyTable privateTable = null;
     public MetaTable metaTable = null;

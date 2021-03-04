@@ -28,15 +28,18 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.crypto.PlainKey;
+import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
 import chat.dim.mtp.Utils;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
+import chat.dim.protocol.Visa;
 
 public class MessagePacker extends chat.dim.MessagePacker {
     public static final int MTP_JSON = 0x01;
@@ -138,5 +141,29 @@ public class MessagePacker extends chat.dim.MessagePacker {
         // TODO: reuse personal message key?
 
         return sMsg;
+    }
+
+    @Override
+    public InstantMessage decryptMessage(SecureMessage sMsg) {
+        try {
+            return super.decryptMessage(sMsg);
+        } catch (NullPointerException e) {
+            // check exception thrown by DKD: chat.dim.dkd.EncryptedMessage.decrypt()
+            if (e.getMessage().contains("failed to decrypt key in msg: ")) {
+                // visa.key not updated?
+                User user = getFacebook().getCurrentUser();
+                Visa visa = user.getVisa();
+                if (visa == null || !visa.isValid()) {
+                    // FIXME: user visa not found?
+                    throw new NullPointerException("user visa error: " + user.identifier);
+                }
+                Command cmd = DocumentCommand.response(user.identifier, visa);
+                getMessenger().sendContent(user.identifier, sMsg.getSender(), cmd, null, 0);
+            } else {
+                // FIXME: message error?
+                throw e;
+            }
+            return null;
+        }
     }
 }

@@ -50,7 +50,7 @@ public final class KeyStore implements CipherKeyDelegate {
     public MsgKeyTable keyTable = null;
 
     // memory caches
-    private Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
+    private final Map<ID, Map<ID, SymmetricKey>> keyMap = new HashMap<>();
 
     //
     //  CipherKeyDelegate
