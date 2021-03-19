@@ -89,7 +89,9 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         SearchCommand cmd = new SearchCommand(keywords);
         Messenger messenger = Messenger.getInstance();
-        return messenger.sendCommand(cmd, StarShip.NORMAL);
+//        return messenger.sendCommand(cmd, StarShip.NORMAL);
+        ID bot = ID.parse("archivist@anywhere");
+        return messenger.sendContent(null, bot, cmd, null, StarShip.NORMAL);
     }
 
     @Override

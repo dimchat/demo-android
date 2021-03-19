@@ -111,6 +111,7 @@ public final class GroupManager {
             sendGroupCommand(cmd, bots);        // to group assistants
             // 2. update local storage
             members = addMembers(newMembers, group);
+            sendGroupCommand(cmd, members);     // to all members
             // 3. send 'invite' command with all members to all members
             cmd = new InviteCommand(group, members);
             sendGroupCommand(cmd, bots);        // to group assistants
