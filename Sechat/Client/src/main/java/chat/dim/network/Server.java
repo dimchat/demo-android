@@ -103,7 +103,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         currentUser = user;
         // switch state for re-login
-        sessionKey = null;
+        fsm.setSessionKey(null);
     }
 
     private ServerState getCurrentState() {
@@ -176,9 +176,12 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
             Log.error("server not connected");
             return;
         }
+
         if (session != null) {
             sessionKey = session;
         }
+        fsm.setSessionKey(null);
+
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(sessionKey);
         setLastReceivedMessageTime(cmd);
@@ -203,6 +206,9 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
             Log.error("server state not handshaking: " + state.name);
         }
         Log.info("handshake accepted for user: " + currentUser);
+
+        fsm.setSessionKey(sessionKey);
+
         // call client
         getDelegate().onHandshakeAccepted(this);
     }
@@ -487,7 +493,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     public void resumeState(ServerState state, Machine machine) {
         if (ServerState.RUNNING.equals(state.name)) {
             // switch state for re-login
-            sessionKey = null;
+            fsm.setSessionKey(null);
         }
     }
 }

@@ -38,6 +38,8 @@ import chat.dim.stargate.StarGate;
  */
 class StateMachine extends AutoMachine<ServerState> {
 
+    private String sessionKey = null;
+
     StateMachine(Server server) {
         super(ServerState.DEFAULT);
 
@@ -82,11 +84,10 @@ class StateMachine extends AutoMachine<ServerState> {
     }
 
     private String getSessionKey() {
-        Server server = getServer();
-        if (server == null) {
-            return null;
-        }
-        return server.sessionKey;
+        return sessionKey;
+    }
+    public void setSessionKey(String session) {
+        sessionKey = session;
     }
 
     //---- States
