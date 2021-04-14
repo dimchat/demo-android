@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.User;
+import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
@@ -130,6 +131,12 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         if (currentUser == null) {
             throw new NullPointerException("current user not set");
         }
+
+        Facebook facebook = Facebook.getInstance();
+        if (facebook.getPublicKeyForEncryption(identifier) == null) {
+            cmd.setGroup(ID.EVERYONE);
+        }
+
         Envelope env = Envelope.create(currentUser.identifier, identifier, null);
         InstantMessage iMsg = InstantMessage.create(env, cmd);
         Messenger messenger = Messenger.getInstance();

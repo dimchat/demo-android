@@ -149,7 +149,7 @@ public final class NetworkDatabase {
             String path = Paths.appendPathComponent(identifier.getAddress().toString(), "meta.js");
             Object meta = Resources.loadJSON(path);
             return Meta.parse((Map<String, Object>) meta);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
             return null;
         }
