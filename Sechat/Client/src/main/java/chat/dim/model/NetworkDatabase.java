@@ -25,7 +25,6 @@
  */
 package chat.dim.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +33,9 @@ import java.util.Map;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
-import chat.dim.filesys.Paths;
-import chat.dim.filesys.Resources;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
 
 public final class NetworkDatabase {
 
@@ -144,18 +140,6 @@ public final class NetworkDatabase {
     }
 
     @SuppressWarnings("unchecked")
-    private static Meta loadMeta(ID identifier) {
-        try {
-            String path = Paths.appendPathComponent(identifier.getAddress().toString(), "meta.js");
-            Object meta = Resources.loadJSON(path);
-            return Meta.parse((Map<String, Object>) meta);
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
     private ProviderTable.ProviderInfo defaultProviderInfo() {
 
         Facebook facebook = Messenger.getInstance().getFacebook();
@@ -170,7 +154,6 @@ public final class NetworkDatabase {
         ID sid;
         String host;
         int port;
-        Meta meta;
 
         int chosen = 1;
 
@@ -181,11 +164,6 @@ public final class NetworkDatabase {
             name = (String) item.get("name");
             addStation(sp, sid, host, port, name, chosen);
             chosen = 0;
-
-            meta = loadMeta(sid);
-            if (meta != null) {
-                facebook.saveMeta(meta, sid);
-            }
         }
 
         return new ProviderTable.ProviderInfo(sp, name, url, 1);

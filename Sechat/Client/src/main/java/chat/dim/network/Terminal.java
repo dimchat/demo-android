@@ -172,7 +172,7 @@ public abstract class Terminal {
         }
     }
 
-    public void startServer() {
+    private void startServer() {
         NetworkDatabase database = NetworkDatabase.getInstance();
         List<ProviderTable.ProviderInfo> providers = database.allProviders();
         if (providers.size() > 0) {

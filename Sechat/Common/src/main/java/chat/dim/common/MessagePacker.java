@@ -46,7 +46,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
     public static final int MTP_DMTP = 0x02;
 
     // Message Transfer Protocol
-    public int mtpFormat = MTP_DMTP;
+    public int mtpFormat = MTP_JSON;
 
     public MessagePacker(Messenger messenger) {
         super(messenger);

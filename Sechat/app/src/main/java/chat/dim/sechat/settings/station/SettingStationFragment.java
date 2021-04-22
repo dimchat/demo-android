@@ -65,11 +65,25 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
         nc.addObserver(this, NotificationNames.ServiceProviderUpdated);
     }
 
+    private static void _sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onDestroy() {
+        Messenger messenger = Messenger.getInstance();
+        messenger.reportOffline();
+
+        _sleep(2000);
+
         // reconnect to new station
         Client client = Client.getInstance();
-        client.startServer();
+        client.launch(null);
+        client.enterForeground();
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.ServiceProviderUpdated);
