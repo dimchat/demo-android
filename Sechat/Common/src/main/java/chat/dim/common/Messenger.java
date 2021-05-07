@@ -25,6 +25,8 @@
  */
 package chat.dim.common;
 
+import com.alibaba.fastjson.JSONException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +40,13 @@ import chat.dim.cpu.ReceiptCommandProcessor;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
+import chat.dim.protocol.SecureMessage;
 
 public abstract class Messenger extends chat.dim.Messenger {
 
@@ -112,7 +116,17 @@ public abstract class Messenger extends chat.dim.Messenger {
         return data;
     }
 
-    //
+    @Override
+    public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
+        try {
+            return super.deserializeContent(data, password, sMsg);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+        //
     //  Interfaces for Sending Commands
     //
 
