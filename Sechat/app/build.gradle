@@ -63,6 +63,8 @@ dependencies {
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.3'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 
+    implementation group: 'chat.dim', name: 'StarGate', version: '0.2.9'
+
     implementation 'org.web3j:core:4.6.0-android'
 
     implementation 'androidx.appcompat:appcompat:1.2.0'

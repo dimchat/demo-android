@@ -1,9 +1,4 @@
 /* license: https://mit-license.org
- *
- *  Star Gate: Interfaces for network connection
- *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -30,58 +25,53 @@
  */
 package chat.dim.network;
 
-import java.net.Socket;
+import chat.dim.common.Messenger;
+import chat.dim.stargate.Gate;
+import chat.dim.stargate.Ship;
+import chat.dim.stargate.StarShip;
 
-import chat.dim.stargate.Docker;
-import chat.dim.stargate.StarGate;
-import chat.dim.tcp.ActiveConnection;
-import chat.dim.tcp.BaseConnection;
+public class Session extends BaseSession {
 
-public class StarTrek extends StarGate {
+    private final MTPDocker docker;
 
-    private final BaseConnection baseConnection;
-
-    public StarTrek(BaseConnection conn) {
-        super(conn);
-        baseConnection = conn;
-    }
-
-    public static StarGate createGate(Socket socket) {
-        BaseConnection conn = new BaseConnection(socket);
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
-    }
-    public static StarGate createGate(String host, int port) {
-        ActiveConnection conn = new ActiveConnection(host, port);
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
-    }
-    public static StarGate createGate(String host, int port, Socket socket) {
-        ActiveConnection conn = new ActiveConnection(host, port, socket);
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
-    }
-
-    @Override
-    protected Docker createDocker() {
-        if (MTPDocker.check(connection)) {
-            return new MTPDocker(this);
-        }
-        return null;
+    public Session(String host, int port, Messenger transceiver) {
+        super(host, port, transceiver);
+        docker = new MTPDocker(gate);
+        gate.setDocker(docker);
     }
 
     @Override
     public void setup() {
-        new Thread(baseConnection).start();
+        setActive(true);
         super.setup();
     }
 
     @Override
     public void finish() {
+        setActive(false);
         super.finish();
-        baseConnection.stop();
+    }
+
+    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
+        if (!isActive()) {
+            return false;
+        }
+        StarShip ship = docker.pack(payload, priority, delegate);
+        return gate.parkShip(ship);
+    }
+
+    //
+    //  Gate Delegate
+    //
+
+    @Override
+    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
+        super.onStatusChanged(gate, oldStatus, newStatus);
+        if (newStatus.equals(Gate.Status.Connected)) {
+            Messenger.Delegate delegate = getMessenger().getDelegate();
+            if (delegate instanceof Server) {
+                ((Server) delegate).handshake(null);
+            }
+        }
     }
 }

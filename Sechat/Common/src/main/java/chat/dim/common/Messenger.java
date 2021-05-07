@@ -51,6 +51,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
+    public Delegate getDelegate() {
+        return super.getDelegate();
+    }
+
+    @Override
     public Facebook getFacebook() {
         return (Facebook) super.getFacebook();
     }

@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.channel;
+package chat.dim.network;
 
 import java.util.ArrayList;
 import java.util.List;

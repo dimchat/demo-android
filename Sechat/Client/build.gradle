@@ -4,13 +4,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':Common')
+    implementation project(':Connection')
 
     implementation group: 'chat.dim', name: 'SDK', version: '0.5.18'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.3'
 
     implementation group: 'chat.dim', name: 'StarGate', version: '0.2.9'
 
-    implementation group: 'chat.dim', name: 'MTP', version: '0.1.1'
     implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
     implementation group: 'chat.dim', name: 'FSM', version: '0.1.2'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'

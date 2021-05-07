@@ -23,9 +23,10 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.channel;
+package chat.dim.network;
 
 import java.lang.ref.WeakReference;
+import java.net.Socket;
 
 import chat.dim.common.Messenger;
 import chat.dim.protocol.ReliableMessage;
@@ -46,14 +47,21 @@ public class BaseSession extends Thread implements Gate.Delegate {
     private boolean active;
     private boolean running;
 
-    public BaseSession(StarGate starGate, Messenger transceiver) {
+    private BaseSession(StarGate starGate, Messenger transceiver) {
         super();
         gate = starGate;
+        gate.setDelegate(this);
         messengerRef = new WeakReference<>(transceiver);
         queue = new MessageQueue();
         // session status
         active = false;
         running = false;
+    }
+    public BaseSession(String host, int port, Messenger transceiver) {
+        this(StarTrek.createGate(host, port), transceiver);
+    }
+    public BaseSession(Socket socket, Messenger transceiver) {
+        this(StarTrek.createGate(socket), transceiver);
     }
 
     private void flush() {
@@ -172,14 +180,6 @@ public class BaseSession extends Thread implements Gate.Delegate {
             wrapper.fail();
         }
         return true;
-    }
-
-    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
-        if (isActive()) {
-            return gate.send(payload, priority, delegate);
-        } else {
-            return false;
-        }
     }
 
     public boolean push(ReliableMessage rMsg) {

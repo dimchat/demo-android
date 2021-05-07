@@ -27,23 +27,18 @@ package chat.dim.network;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.common.MessageTransmitter;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
-import chat.dim.mtp.protocol.Package;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
@@ -56,30 +51,27 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.stargate.Gate;
 import chat.dim.stargate.Ship;
-import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements Messenger.Delegate, StarGate.Delegate, StateDelegate<ServerState> {
+public class Server extends Station implements Messenger.Delegate, StateDelegate<ServerState> {
+
+    private User currentUser = null;
+
+    private boolean paused = false;
+
+    String sessionKey = null;
+    private final Session session;
 
     public final String name;
 
     private final StateMachine fsm;
 
-    private StarGate star = null;
-    private final ReadWriteLock starLock = new ReentrantReadWriteLock();
-
-    private Map<String, Object> startOptions = null;
-
-    private boolean paused = false;
-
-    private User currentUser = null;
-    String sessionKey = null;
-
     private WeakReference<ServerDelegate> delegateRef = null;
 
     Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
+        session = new Session(host, port, Messenger.getInstance());
         name = title;
         // connection state machine
         fsm = new StateMachine(this);
@@ -113,20 +105,8 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         return fsm.getCurrentState();
     }
 
-    StarGate.Status getStatus() {
-        StarGate.Status status;
-        Lock readLock = starLock.readLock();
-        readLock.lock();
-        try {
-            if (star == null) {
-                status = StarGate.Status.Error;
-            } else {
-                status = star.getStatus();
-            }
-        } finally {
-            readLock.unlock();
-        }
-        return status;
+    Gate.Status getStatus() {
+        return session.gate.getStatus();
     }
 
     private ReliableMessage packCommand(Command cmd) {
@@ -167,7 +147,7 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
     }
 
-    public void handshake(String session) {
+    public void handshake(String newSessionKey) {
         if (currentUser == null) {
             // current user not set yet
             return;
@@ -180,14 +160,14 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
             return;
         }
         // check connection status == 'Connected'
-        if (getStatus() != StarGate.Status.Connected) {
+        if (getStatus() != Gate.Status.Connected) {
             // FIXME: sometimes the connection will be lost while handshaking
             Log.error("server not connected");
             return;
         }
 
-        if (session != null) {
-            sessionKey = session;
+        if (newSessionKey != null) {
+            sessionKey = newSessionKey;
         }
         fsm.setSessionKey(null);
 
@@ -204,7 +184,8 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         // send out directly
         Messenger messenger = Messenger.getInstance();
         byte[] data = messenger.serializeMessage(rMsg);
-        send(data, StarShip.URGENT);
+        // Urgent Command
+        session.send(data, StarShip.URGENT, null);
     }
 
     public void handshakeAccepted() {
@@ -231,53 +212,18 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
 
         // fsm.changeState(fsm.defaultStateName);
 
-        if (options == null) {
-            options = new HashMap<>();
-            options.put("host", getHost());
-            options.put("port", getPort());
-        } else {
-            if (options.get("host") == null) {
-                options.put("host", getHost());
-            }
-            if (options.get("port") == null) {
-                options.put("port", getPort());
-            }
-        }
-        startOptions = options;
-
-        Lock writeLock = starLock.writeLock();
-        writeLock.lock();
-        try {
-            if (star == null) {
-                setStar(new StarGate(this));
-            }
-            Log.info("launching with options: " + options);
-            star.launch(options);
-
+        if (!session.isRunning()) {
             // TODO: post notification "StationConnecting"
-        } finally {
-            writeLock.unlock();
+            session.start();
         }
 
         // TODO: let the subclass to create StarGate
     }
 
-    private void setStar(StarGate newStar) {
-        Lock writeLock = starLock.writeLock();
-        writeLock.lock();
-        try {
-            if (star != null) {
-                star.disconnect();
-                star.terminate();
-            }
-            star = newStar;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
     void end() {
-        setStar(null);
+        if (session.isRunning()) {
+            session.close();
+        }
 
         fsm.stop();
     }
@@ -285,16 +231,6 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
     void pause() {
         if (paused) {
             return;
-        }
-
-        Lock readLock = starLock.readLock();
-        readLock.lock();
-        try {
-            if (star != null) {
-                star.enterBackground();
-            }
-        } finally {
-            readLock.unlock();
         }
 
         fsm.pause();
@@ -308,127 +244,102 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         paused = false;
 
-        Lock readLock = starLock.readLock();
-        readLock.lock();
-        try {
-            if (star != null) {
-                star.enterForeground();
-            }
-        } finally {
-            readLock.unlock();
-        }
-
         fsm.resume();
     }
 
-    private void send(byte[] payload, int priority) {
-        StarShip ship = new StarShip(priority, payload, this);
-        Lock readLock = starLock.readLock();
-        readLock.lock();
-        try {
-            if (star != null) {
-                star.send(ship);
-            }
-        } finally {
-            readLock.unlock();
-        }
-    }
+//    //-------- Gate Delegate
+//
+//    @Override
+//    public byte[] onReceived(Gate gate, Ship ship) {
+//        byte[] payload = ship.getPayload();
+//        Log.info("received " + payload.length + " bytes");
+//        getDelegate().onReceivePackage(payload, this);
+//    }
+//
+//    @Override
+//    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
+//        Log.info("status changed: " + oldStatus + " -> " + newStatus);
+//        fsm.tick();
+//    }
 
-    private void restart() {
-        if (startOptions == null) {
-            return;
-        }
-        setStar(new StarGate(this));
-        Log.info("restart with options: " + startOptions);
-        star.launch(startOptions);
+//    @Override
+//    public void onSent(StarGate star, Package request, Error error) {
+//        Log.info("sent " + request.getLength() + " bytes");
+//        Messenger.CompletionHandler handler = null;
+//
+//        byte[] requestData = request.body.getBytes();
+//        String key = RequestWrapper.getKey(requestData);
+//        RequestWrapper wrapper = sendingTable.get(key);
+//        if (wrapper != null) {
+//            handler = wrapper.handler;
+//            sendingTable.remove(key);
+//        }
+//
+//        if (error == null) {
+//            // send success
+//            getDelegate().didSendPackage(requestData, this);
+//        } else {
+//            getDelegate().didFailToSendPackage(error, requestData, this);
+//        }
+//
+//        if (handler != null) {
+//            // tell the handler to do the resending job
+//            if (error == null) {
+//                handler.onSuccess();
+//            } else {
+//                handler.onFailed(error);
+//            }
+//        }
+//    }
 
-        // TODO: post notification "StationConnecting"
-    }
-
-    //-------- Gate Delegate
-
-    @Override
-    public byte[] onReceived(Gate gate, Ship ship) {
-        byte[] payload = ship.getPayload();
-        Log.info("received " + payload.length + " bytes");
-        getDelegate().onReceivePackage(payload, this);
-    }
-
-    @Override
-    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
-        Log.info("status changed: " + oldStatus + " -> " + newStatus);
-        fsm.tick();
-    }
-
-    @Override
-    public void onSent(StarGate star, Package request, Error error) {
-        Log.info("sent " + request.getLength() + " bytes");
-        Messenger.CompletionHandler handler = null;
-
-        byte[] requestData = request.body.getBytes();
-        String key = RequestWrapper.getKey(requestData);
-        RequestWrapper wrapper = sendingTable.get(key);
-        if (wrapper != null) {
-            handler = wrapper.handler;
-            sendingTable.remove(key);
-        }
-
-        if (error == null) {
-            // send success
-            getDelegate().didSendPackage(requestData, this);
-        } else {
-            getDelegate().didFailToSendPackage(error, requestData, this);
-        }
-
-        if (handler != null) {
-            // tell the handler to do the resending job
-            if (error == null) {
-                handler.onSuccess();
-            } else {
-                handler.onFailed(error);
-            }
-        }
-    }
-
-    //---- MessengerDelegate
-
-    private List<RequestWrapper> waitingList = new ArrayList<>();
-    private Map<String, RequestWrapper> sendingTable = new HashMap<>();
-
-    private void sendAllWaiting() {
-        RequestWrapper wrapper;
-        ServerState state;
-        while (waitingList.size() > 0 && getStatus() == StarGate.Status.Connected) {
-            state = getCurrentState();
-            if (!state.equals(ServerState.RUNNING)) {
-                break;
-            }
-            wrapper = waitingList.remove(0);
-            send(wrapper);
-        }
-    }
-
-    private void send(RequestWrapper wrapper) {
-        send(wrapper.data, wrapper.priority);
-
-        if (wrapper.handler != null) {
-            String key = RequestWrapper.getKey(wrapper.data);
-            sendingTable.put(key, wrapper);
-        }
-    }
+//    //---- MessengerDelegate
+//
+//    private List<RequestWrapper> waitingList = new ArrayList<>();
+//    private Map<String, RequestWrapper> sendingTable = new HashMap<>();
+//
+//    private void sendAllWaiting() {
+//        RequestWrapper wrapper;
+//        ServerState state;
+//        while (waitingList.size() > 0 && getStatus() == Gate.Status.Connected) {
+//            state = getCurrentState();
+//            if (!state.equals(ServerState.RUNNING)) {
+//                break;
+//            }
+//            wrapper = waitingList.remove(0);
+//            send(wrapper);
+//        }
+//    }
+//
+//    private void send(RequestWrapper wrapper) {
+//        send(wrapper.data, wrapper.priority);
+//
+//        if (wrapper.handler != null) {
+//            String key = RequestWrapper.getKey(wrapper.data);
+//            sendingTable.put(key, wrapper);
+//        }
+//    }
 
     @Override
     public boolean sendPackage(byte[] data, Messenger.CompletionHandler handler, int priority) {
-        RequestWrapper wrapper = new RequestWrapper(priority, data, handler);
-
-        ServerState state = getCurrentState();
-        if (!state.equals(ServerState.RUNNING)) {
-            waitingList.add(wrapper);
-            return true;
+        Ship.Delegate delegate = null;
+        if (handler instanceof MessageTransmitter.CompletionHandler) {
+            Messenger.Callback callback = ((MessageTransmitter.CompletionHandler) handler).callback;
+            if (callback instanceof Ship.Delegate) {
+                delegate = (Ship.Delegate) callback;
+            }
         }
 
-        send(wrapper);
-        return true;
+        if (session.send(data, priority, delegate)) {
+            if (handler != null) {
+                handler.onSuccess();
+            }
+            return true;
+        } else {
+            if (handler != null) {
+                handler.onFailed(new Error("Server error: failed to send data package"));
+            }
+            return false;
+        }
     }
 
     @Override
@@ -473,13 +384,11 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
                 break;
             }
             case ServerState.RUNNING: {
-                // send all packages waiting
-                sendAllWaiting();
+                // TODO: send all packages waiting?
                 break;
             }
             case ServerState.ERROR: {
-                // reconnect
-                restart();
+                // TODO: reconnect?
                 break;
             }
         }
