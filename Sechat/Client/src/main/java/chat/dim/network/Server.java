@@ -54,6 +54,8 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
+import chat.dim.stargate.Gate;
+import chat.dim.stargate.Ship;
 import chat.dim.stargate.StarGate;
 import chat.dim.stargate.StarShip;
 import chat.dim.utils.Log;
@@ -172,9 +174,9 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         }
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.equals(ServerState.HANDSHAKING)) {
+        if (!state.equals(ServerState.CONNECTED) && !state.equals(ServerState.HANDSHAKING)) {
             // FIXME: sometimes the connection state will be reset
-            Log.error("server state not handshaking: " + state.name);
+            Log.error("server state not for handshaking: " + state.name);
             return;
         }
         // check connection status == 'Connected'
@@ -343,16 +345,17 @@ public class Server extends Station implements Messenger.Delegate, StarGate.Dele
         // TODO: post notification "StationConnecting"
     }
 
-    //-------- StarDelegate
+    //-------- Gate Delegate
 
     @Override
-    public void onReceived(StarGate star, Package response) {
-        Log.info("received " + response.getLength() + " bytes");
-        getDelegate().onReceivePackage(response.body.getBytes(), this);
+    public byte[] onReceived(Gate gate, Ship ship) {
+        byte[] payload = ship.getPayload();
+        Log.info("received " + payload.length + " bytes");
+        getDelegate().onReceivePackage(payload, this);
     }
 
     @Override
-    public void onStatusChanged(StarGate star, StarGate.Status oldStatus, StarGate.Status newStatus) {
+    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
         Log.info("status changed: " + oldStatus + " -> " + newStatus);
         fsm.tick();
     }

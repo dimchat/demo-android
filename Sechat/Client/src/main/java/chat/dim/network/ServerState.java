@@ -41,12 +41,12 @@ public class ServerState extends State {
     public static final String ERROR       = "error";
 
     public final String name;
-    public Date time;
+    public Date enterTime;
 
     ServerState(String name) {
         super();
         this.name = name;
-        this.time = null;
+        this.enterTime = null;
     }
 
     @Override
@@ -72,11 +72,12 @@ public class ServerState extends State {
     protected void onEnter(Machine machine) {
         // do nothing
         Log.info("onEnter: " + name + " state");
-        this.time = new Date();
+        this.enterTime = new Date();
     }
 
     @Override
     protected void onExit(Machine machine) {
+        this.enterTime = null;
     }
 
     @Override

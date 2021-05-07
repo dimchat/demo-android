@@ -123,6 +123,14 @@ public abstract class Messenger extends chat.dim.Messenger {
         return queryGroupInfo(group, array);
     }
 
+    //
+    //  Events
+    //
+
+    public void onConnected() {
+
+    }
+
     static {
         // load factories & processors from SDK
         MessageProcessor.registerAllFactories();

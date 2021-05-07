@@ -167,7 +167,12 @@ class StateMachine extends AutoMachine<ServerState> {
             @Override
             protected boolean evaluate(Machine machine) {
                 ServerState state = (ServerState) machine.getCurrentState();
-                long expired = state.time.getTime() + 120 * 1000;
+                Date enterTime = state.enterTime;
+                if (enterTime == null) {
+                    // not enter yet
+                    return false;
+                }
+                long expired = enterTime.getTime() + 120 * 1000;
                 long now = (new Date()).getTime();
                 if (now < expired) {
                     return false;
