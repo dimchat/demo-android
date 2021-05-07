@@ -1,3 +1,5 @@
+package chat.dim;
+
 import java.util.Arrays;
 import java.util.Random;
 

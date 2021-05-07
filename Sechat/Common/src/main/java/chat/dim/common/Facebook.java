@@ -32,7 +32,6 @@ import java.util.List;
 import chat.dim.AddressNameService;
 import chat.dim.Anonymous;
 import chat.dim.Group;
-import chat.dim.Immortals;
 import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -49,14 +48,11 @@ import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.NetworkType;
 
 public class Facebook extends chat.dim.Facebook {
 
     public static long EXPIRES = 30 * 60 * 1000;  // document expires (30 minutes)
     public static final String EXPIRES_KEY = "expires";
-
-    private final Immortals immortals = new Immortals();
 
     public PrivateKeyTable privateTable = null;
     public MetaTable metaTable = null;
@@ -244,61 +240,34 @@ public class Facebook extends chat.dim.Facebook {
             return null;
         }
         // try from database
-        Meta meta = metaTable.getMeta(identifier);
-        if (meta == null) {
-            if (identifier.getType() == NetworkType.MAIN.value) {
-                // try from immortals
-                meta = immortals.getMeta(identifier);
-                if (meta != null) {
-                    metaTable.saveMeta(meta, identifier);
-                }
-            }
-        }
-        return meta;
+        return metaTable.getMeta(identifier);
     }
 
     @Override
     public Document getDocument(ID identifier, String type) {
         // try from database
-        Document doc = docsTable.getDocument(identifier, type);
-        if (doc == null) {
-            if (identifier.getType() == NetworkType.MAIN.value) {
-                // try from immortals
-                doc = immortals.getDocument(identifier, type);
-                if (doc != null) {
-                    docsTable.saveDocument(doc);
-                }
-            }
-        }
-        return doc;
+        return docsTable.getDocument(identifier, type);
     }
 
     //-------- UserDataSource
 
     @Override
     public List<ID> getContacts(ID user) {
-        List<ID> contacts = contactTable.getContacts(user);
-        if (contacts == null || contacts.size() == 0) {
-            // try immortals
-            contacts = immortals.getContacts(user);
-        }
-        return contacts;
+        // try from database
+        return contactTable.getContacts(user);
     }
 
     @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
+        // try from database
         List<DecryptKey> keys = privateTable.getPrivateKeysForDecryption(user);
         if (keys == null || keys.size() == 0) {
-            // try immortals
-            keys = immortals.getPrivateKeysForDecryption(user);
-            if (keys == null || keys.size() == 0) {
-                // DIMP v1.0:
-                //     decrypt key and the sign key are the same keys
-                SignKey sKey = getPrivateKeyForSignature(user);
-                if (sKey instanceof DecryptKey) {
-                    keys = new ArrayList<>();
-                    keys.add((DecryptKey) sKey);
-                }
+            // DIMP v1.0:
+            //     decrypt key and the sign key are the same keys
+            SignKey sKey = getPrivateKeyForSignature(user);
+            if (sKey instanceof DecryptKey) {
+                keys = new ArrayList<>();
+                keys.add((DecryptKey) sKey);
             }
         }
         return keys;
@@ -306,22 +275,14 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     public SignKey getPrivateKeyForSignature(ID user) {
-        SignKey key = privateTable.getPrivateKeyForSignature(user);
-        if (key == null) {
-            // try immortals
-            key = immortals.getPrivateKeyForSignature(user);
-        }
-        return key;
+        // try from database
+        return privateTable.getPrivateKeyForSignature(user);
     }
 
     @Override
     public SignKey getPrivateKeyForVisaSignature(ID user) {
-        SignKey key = privateTable.getPrivateKeyForVisaSignature(user);
-        if (key == null) {
-            // try immortals
-            key = immortals.getPrivateKeyForVisaSignature(user);
-        }
-        return key;
+        // try from database
+        return privateTable.getPrivateKeyForVisaSignature(user);
     }
 
     //-------- GroupDataSource
