@@ -164,6 +164,10 @@ public class MessagePacker extends chat.dim.MessagePacker {
                 throw e;
             }
             return null;
+        } catch (Exception e) {
+            // FIXME: cipher text error?
+            e.printStackTrace();
+            return null;
         }
     }
 }

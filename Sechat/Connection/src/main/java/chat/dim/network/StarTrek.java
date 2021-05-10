@@ -31,6 +31,9 @@
 package chat.dim.network;
 
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.stargate.Docker;
 import chat.dim.stargate.StarGate;
@@ -39,49 +42,71 @@ import chat.dim.tcp.BaseConnection;
 
 public class StarTrek extends StarGate {
 
-    private final BaseConnection baseConnection;
+    private final ReadWriteLock sendLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock receiveLock = new ReentrantReadWriteLock();
 
     public StarTrek(BaseConnection conn) {
         super(conn);
-        baseConnection = conn;
     }
 
-    public static StarGate createGate(Socket socket) {
-        BaseConnection conn = new BaseConnection(socket);
+    private static StarGate createGate(BaseConnection conn) {
         StarGate gate = new StarTrek(conn);
         conn.setDelegate(gate);
         return gate;
+    }
+    public static StarGate createGate(Socket socket) {
+        return createGate(new BaseConnection(socket));
     }
     public static StarGate createGate(String host, int port) {
-        ActiveConnection conn = new ActiveConnection(host, port);
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
+        return createGate(new ActiveConnection(host, port));
     }
     public static StarGate createGate(String host, int port, Socket socket) {
-        ActiveConnection conn = new ActiveConnection(host, port, socket);
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
+        return createGate(new ActiveConnection(host, port, socket));
     }
 
     @Override
     protected Docker createDocker() {
-        if (MTPDocker.check(connection)) {
+        if (MTPDocker.check(this)) {
             return new MTPDocker(this);
         }
         return null;
     }
 
     @Override
+    public boolean send(byte[] pack) {
+        boolean ok;
+        Lock writeLock = sendLock.writeLock();
+        writeLock.lock();
+        try {
+            ok = super.send(pack);
+        } finally {
+            writeLock.unlock();
+        }
+        return ok;
+    }
+
+    @Override
+    public byte[] receive(int length, boolean remove) {
+        byte[] data;
+        Lock writeLock = receiveLock.writeLock();
+        writeLock.lock();
+        try {
+            data = super.receive(length, remove);
+        } finally {
+            writeLock.unlock();
+        }
+        return data;
+    }
+
+    @Override
     public void setup() {
-        new Thread(baseConnection).start();
+        new Thread((BaseConnection) connection).start();
         super.setup();
     }
 
     @Override
     public void finish() {
         super.finish();
-        baseConnection.stop();
+        ((BaseConnection) connection).stop();
     }
 }
