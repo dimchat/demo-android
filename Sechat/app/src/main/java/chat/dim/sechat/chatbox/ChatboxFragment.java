@@ -40,7 +40,6 @@ import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
-import chat.dim.stargate.StarShip;
 import chat.dim.threading.BackgroundThreads;
 import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.Images;
@@ -128,7 +127,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             // TODO: check sending status
         };
         Messenger messenger = Messenger.getInstance();
-        if (!messenger.sendMessage(iMsg, callback, StarShip.NORMAL)) {
+        if (!messenger.sendMessage(iMsg, callback, 0)) {
             throw new RuntimeException("failed to send message: " + iMsg);
         }
     }

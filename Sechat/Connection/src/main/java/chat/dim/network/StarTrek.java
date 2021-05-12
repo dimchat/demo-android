@@ -1,6 +1,6 @@
 /* license: https://mit-license.org
  *
- *  Star Gate: Interfaces for network connection
+ *  Star Gate: Network Connection Module
  *
  *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
@@ -31,58 +31,32 @@
 package chat.dim.network;
 
 import java.net.Socket;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.stargate.StarGate;
+import chat.dim.stargate.LockedGate;
+import chat.dim.startrek.StarGate;
 import chat.dim.tcp.ActiveConnection;
 import chat.dim.tcp.BaseConnection;
+import chat.dim.tcp.Connection;
 
-public class StarTrek extends TCPGate {
+public final class StarTrek extends LockedGate {
 
-    public StarTrek(BaseConnection conn) {
+    public StarTrek(Connection conn) {
         super(conn);
-        conn.setDelegate(this);
     }
 
+    private static StarGate createGate(BaseConnection conn) {
+        StarTrek gate = new StarTrek(conn);
+        conn.setDelegate(gate);
+        return gate;
+    }
     public static StarGate createGate(Socket socket) {
-        return new StarTrek(new BaseConnection(socket));
+        return createGate(new BaseConnection(socket));
     }
     public static StarGate createGate(String host, int port) {
-        return new StarTrek(new ActiveConnection(host, port));
+        return createGate(new ActiveConnection(host, port));
     }
     public static StarGate createGate(String host, int port, Socket socket) {
-        return new StarTrek(new ActiveConnection(host, port, socket));
-    }
-
-    private final ReadWriteLock sendLock = new ReentrantReadWriteLock();
-    private final ReadWriteLock receiveLock = new ReentrantReadWriteLock();
-
-    @Override
-    public boolean send(byte[] pack) {
-        boolean ok;
-        Lock writeLock = sendLock.writeLock();
-        writeLock.lock();
-        try {
-            ok = super.send(pack);
-        } finally {
-            writeLock.unlock();
-        }
-        return ok;
-    }
-
-    @Override
-    public byte[] receive(int length, boolean remove) {
-        byte[] data;
-        Lock writeLock = receiveLock.writeLock();
-        writeLock.lock();
-        try {
-            data = super.receive(length, remove);
-        } finally {
-            writeLock.unlock();
-        }
-        return data;
+        return createGate(new ActiveConnection(host, port, socket));
     }
 
     @Override

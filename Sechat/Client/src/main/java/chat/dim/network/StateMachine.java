@@ -31,7 +31,7 @@ import chat.dim.User;
 import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.Transition;
-import chat.dim.stargate.StarGate;
+import chat.dim.startrek.StarGate;
 
 /**
  *  Server state machine

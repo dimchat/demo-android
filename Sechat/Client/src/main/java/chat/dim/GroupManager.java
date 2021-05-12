@@ -39,7 +39,7 @@ import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QuitCommand;
-import chat.dim.stargate.StarShip;
+import chat.dim.startrek.StarShip;
 
 /**
  *  This is for sending group message, or managing group members

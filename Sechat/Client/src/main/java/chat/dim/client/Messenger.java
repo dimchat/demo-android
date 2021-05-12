@@ -51,7 +51,7 @@ import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.stargate.StarShip;
+import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger implements ServerDelegate {

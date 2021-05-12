@@ -26,9 +26,10 @@
 package chat.dim.network;
 
 import chat.dim.common.Messenger;
-import chat.dim.stargate.Gate;
-import chat.dim.stargate.Ship;
-import chat.dim.stargate.StarShip;
+import chat.dim.stargate.MTPDocker;
+import chat.dim.startrek.Gate;
+import chat.dim.startrek.Ship;
+import chat.dim.startrek.StarShip;
 
 public class Session extends BaseSession {
 

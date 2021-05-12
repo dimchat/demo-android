@@ -49,9 +49,9 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
-import chat.dim.stargate.Gate;
-import chat.dim.stargate.Ship;
-import chat.dim.stargate.StarShip;
+import chat.dim.startrek.Gate;
+import chat.dim.startrek.Ship;
+import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements Messenger.Delegate, StateDelegate<ServerState> {

@@ -52,7 +52,7 @@ import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.stargate.StarShip;
+import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class MessageDataSource implements Messenger.DataSource, Observer {

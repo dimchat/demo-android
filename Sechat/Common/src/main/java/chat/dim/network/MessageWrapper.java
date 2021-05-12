@@ -29,7 +29,7 @@ import java.util.Date;
 
 import chat.dim.Messenger;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.stargate.Ship;
+import chat.dim.startrek.Ship;
 
 final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
 

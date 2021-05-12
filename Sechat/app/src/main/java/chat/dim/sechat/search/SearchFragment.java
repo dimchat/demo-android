@@ -20,7 +20,6 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
 import chat.dim.sechat.profile.ProfileActivity;
-import chat.dim.stargate.StarShip;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.list.Listener;
 
@@ -91,7 +90,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
         Messenger messenger = Messenger.getInstance();
 //        return messenger.sendCommand(cmd, StarShip.NORMAL);
         ID bot = ID.parse("archivist@anywhere");
-        return messenger.sendContent(null, bot, cmd, null, StarShip.NORMAL);
+        return messenger.sendContent(null, bot, cmd, null, 0);
     }
 
     @Override

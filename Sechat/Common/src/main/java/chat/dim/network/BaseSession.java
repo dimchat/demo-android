@@ -30,9 +30,9 @@ import java.net.Socket;
 
 import chat.dim.common.Messenger;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.stargate.Gate;
-import chat.dim.stargate.Ship;
-import chat.dim.stargate.StarGate;
+import chat.dim.startrek.Gate;
+import chat.dim.startrek.Ship;
+import chat.dim.startrek.StarGate;
 import chat.dim.utils.Log;
 
 public class BaseSession extends Thread implements Gate.Delegate {

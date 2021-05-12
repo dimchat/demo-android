@@ -42,7 +42,7 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
-import chat.dim.stargate.StarShip;
+import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class MessageProcessor extends chat.dim.common.MessageProcessor {
