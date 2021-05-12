@@ -8,8 +8,9 @@ dependencies {
     implementation group: 'chat.dim', name: 'SDK', version: '0.5.18'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.4'
 
-    implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
     implementation group: 'chat.dim', name: 'StarGate', version: '0.2.10'
+    implementation group: 'chat.dim', name: 'TCP', version: '0.1.4'
+    implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
 }
 
 sourceCompatibility = "1.8"

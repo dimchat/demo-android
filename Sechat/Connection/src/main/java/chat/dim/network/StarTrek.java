@@ -35,42 +35,29 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.stargate.Docker;
 import chat.dim.stargate.StarGate;
 import chat.dim.tcp.ActiveConnection;
 import chat.dim.tcp.BaseConnection;
 
-public class StarTrek extends StarGate {
-
-    private final ReadWriteLock sendLock = new ReentrantReadWriteLock();
-    private final ReadWriteLock receiveLock = new ReentrantReadWriteLock();
+public class StarTrek extends TCPGate {
 
     public StarTrek(BaseConnection conn) {
         super(conn);
+        conn.setDelegate(this);
     }
 
-    private static StarGate createGate(BaseConnection conn) {
-        StarGate gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
-    }
     public static StarGate createGate(Socket socket) {
-        return createGate(new BaseConnection(socket));
+        return new StarTrek(new BaseConnection(socket));
     }
     public static StarGate createGate(String host, int port) {
-        return createGate(new ActiveConnection(host, port));
+        return new StarTrek(new ActiveConnection(host, port));
     }
     public static StarGate createGate(String host, int port, Socket socket) {
-        return createGate(new ActiveConnection(host, port, socket));
+        return new StarTrek(new ActiveConnection(host, port, socket));
     }
 
-    @Override
-    protected Docker createDocker() {
-        if (MTPDocker.check(this)) {
-            return new MTPDocker(this);
-        }
-        return null;
-    }
+    private final ReadWriteLock sendLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock receiveLock = new ReentrantReadWriteLock();
 
     @Override
     public boolean send(byte[] pack) {
@@ -100,13 +87,13 @@ public class StarTrek extends StarGate {
 
     @Override
     public void setup() {
-        new Thread((BaseConnection) connection).start();
+        new Thread(connection).start();
         super.setup();
     }
 
     @Override
     public void finish() {
         super.finish();
-        ((BaseConnection) connection).stop();
+        connection.stop();
     }
 }
