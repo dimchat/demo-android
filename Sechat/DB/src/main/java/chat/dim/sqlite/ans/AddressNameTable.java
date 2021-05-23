@@ -31,11 +31,12 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 
 public final class AddressNameTable extends DataTable implements chat.dim.database.AddressNameTable {
 
     private AddressNameTable() {
-        super(AddressNameDatabase.getInstance());
+        super();
     }
 
     private static AddressNameTable ourInstance;
@@ -44,6 +45,11 @@ public final class AddressNameTable extends DataTable implements chat.dim.databa
             ourInstance = new AddressNameTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return AddressNameDatabase.getInstance();
     }
 
     //

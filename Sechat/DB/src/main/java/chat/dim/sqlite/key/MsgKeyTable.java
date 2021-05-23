@@ -35,11 +35,12 @@ import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 
 public final class MsgKeyTable extends DataTable implements chat.dim.database.MsgKeyTable {
 
     private MsgKeyTable() {
-        super(KeyDatabase.getInstance());
+        super();
     }
 
     private static MsgKeyTable ourInstance;
@@ -48,6 +49,11 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
             ourInstance = new MsgKeyTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return KeyDatabase.getInstance();
     }
 
     //

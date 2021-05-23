@@ -30,26 +30,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
-import chat.dim.sqlite.ans.AddressNameDatabase;
-import chat.dim.sqlite.dkd.MessageDatabase;
-import chat.dim.sqlite.key.KeyDatabase;
-import chat.dim.sqlite.mkm.EntityDatabase;
 
 public abstract class Database extends SQLiteOpenHelper {
 
-    protected Database(Context context, String name, int version) {
-        super(context, name, null, version);
+    public static Context context = null;
+
+    protected Database(Context ctx, String name, int version) {
+        super(ctx, name, null, version);
     }
 
     protected static String getFilePath(String dbName) {
         return Paths.appendPathComponent(ExternalStorage.getRoot(), "sqlite", dbName);
-    }
-
-    public static void setContext(Context context) {
-        // databases
-        AddressNameDatabase.setContext(context);
-        KeyDatabase.setContext(context);
-        EntityDatabase.setContext(context);
-        MessageDatabase.setContext(context);
     }
 }

@@ -22,7 +22,6 @@ import chat.dim.model.NetworkDatabase;
 import chat.dim.sqlite.Database;
 import chat.dim.sqlite.ans.AddressNameTable;
 import chat.dim.sqlite.dim.LoginTable;
-import chat.dim.sqlite.dim.MainDatabase;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.sqlite.dkd.MessageDatabase;
 import chat.dim.sqlite.dkd.MessageTable;
@@ -51,8 +50,7 @@ public final class SechatApp extends Application {
 
     private void initDatabases() {
         // set context for databases
-        Database.setContext(this);
-        MainDatabase.setContext(this);
+        Database.context = this;
 
         chat.dim.common.Facebook.ansTable = AddressNameTable.getInstance();
 

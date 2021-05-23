@@ -37,11 +37,12 @@ import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 
 public final class LoginTable extends DataTable implements chat.dim.database.LoginTable {
 
     private LoginTable() {
-        super(MainDatabase.getInstance());
+        super();
     }
 
     private static LoginTable ourInstance;
@@ -50,6 +51,11 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
             ourInstance = new LoginTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return MainDatabase.getInstance();
     }
 
     //

@@ -34,11 +34,12 @@ import java.util.List;
 
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 
 public final class ContactTable extends DataTable implements chat.dim.database.ContactTable {
 
     private ContactTable() {
-        super(EntityDatabase.getInstance());
+        super();
     }
 
     private static ContactTable ourInstance;
@@ -47,6 +48,11 @@ public final class ContactTable extends DataTable implements chat.dim.database.C
             ourInstance = new ContactTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return EntityDatabase.getInstance();
     }
 
     //

@@ -37,11 +37,11 @@ public final class AddressNameDatabase extends Database {
     }
 
     private static AddressNameDatabase ourInstance = null;
-    public static void setContext(Context context) {
-        ourInstance = new AddressNameDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
+
     static AddressNameDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
+        if (ourInstance == null) {
+            ourInstance = new AddressNameDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        }
         return ourInstance;
     }
 

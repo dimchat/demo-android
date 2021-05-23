@@ -34,11 +34,12 @@ import java.util.List;
 
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 
 public final class UserTable extends DataTable implements chat.dim.database.UserTable {
 
     private UserTable() {
-        super(EntityDatabase.getInstance());
+        super();
     }
 
     private static UserTable ourInstance;
@@ -47,6 +48,11 @@ public final class UserTable extends DataTable implements chat.dim.database.User
             ourInstance = new UserTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return EntityDatabase.getInstance();
     }
 
     private List<ID> users = null;

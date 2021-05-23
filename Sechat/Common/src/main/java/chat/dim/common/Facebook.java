@@ -69,15 +69,17 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public List<User> getLocalUsers() {
         if (users == null) {
-            users = new ArrayList<>();
             List<ID> list = userTable.allUsers();
-            User user;
-            for (ID item : list) {
-                user = getUser(item);
-                if (user == null) {
-                    throw new NullPointerException("failed to get local user: " + item);
+            if (list != null) {
+                users = new ArrayList<>();
+                User user;
+                for (ID item : list) {
+                    user = getUser(item);
+                    if (user == null) {
+                        throw new NullPointerException("failed to get local user: " + item);
+                    }
+                    users.add(user);
                 }
-                users.add(user);
             }
         }
         return users;

@@ -29,8 +29,9 @@ public class AccountViewModel extends UserViewModel {
         User user = super.getUser();
         if (user == null) {
             user = getFacebook().getCurrentUser();
-            assert user != null : "failed to get current user";
-            setEntity(user);
+            if (user != null) {
+                setEntity(user);
+            }
         }
         return user;
     }

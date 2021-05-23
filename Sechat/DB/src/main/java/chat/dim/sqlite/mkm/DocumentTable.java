@@ -38,12 +38,13 @@ import chat.dim.mkm.BaseDocument;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 import chat.dim.utils.Log;
 
 public final class DocumentTable extends DataTable implements chat.dim.database.DocumentTable {
 
     private DocumentTable() {
-        super(EntityDatabase.getInstance());
+        super();
     }
 
     private static DocumentTable ourInstance;
@@ -52,6 +53,11 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
             ourInstance = new DocumentTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return EntityDatabase.getInstance();
     }
 
     // memory caches

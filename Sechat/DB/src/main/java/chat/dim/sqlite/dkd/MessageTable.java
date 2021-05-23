@@ -46,12 +46,13 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 import chat.dim.utils.Log;
 
 public final class MessageTable extends DataTable implements chat.dim.database.MessageTable {
 
     private MessageTable() {
-        super(MessageDatabase.getInstance());
+        super();
     }
 
     private static MessageTable ourInstance;
@@ -60,6 +61,11 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
             ourInstance = new MessageTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return MessageDatabase.getInstance();
     }
 
     //

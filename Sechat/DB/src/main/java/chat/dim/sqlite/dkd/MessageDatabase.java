@@ -43,16 +43,14 @@ public final class MessageDatabase extends Database {
         super(context, name, version);
     }
 
-    private static MessageDatabase ourInstance = null;
-
     public static Messenger messenger = null;
 
-    public static void setContext(Context context) {
-        ourInstance = new MessageDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
+    private static MessageDatabase ourInstance = null;
 
     static MessageDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
+        if (ourInstance == null) {
+            ourInstance = new MessageDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        }
         return ourInstance;
     }
 

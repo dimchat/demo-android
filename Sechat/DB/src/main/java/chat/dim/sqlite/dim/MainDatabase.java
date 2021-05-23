@@ -37,11 +37,11 @@ public final class MainDatabase extends Database {
     }
 
     private static MainDatabase ourInstance = null;
-    public static void setContext(Context context) {
-        ourInstance = new MainDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
+
     static MainDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
+        if (ourInstance == null) {
+            ourInstance = new MainDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        }
         return ourInstance;
     }
 

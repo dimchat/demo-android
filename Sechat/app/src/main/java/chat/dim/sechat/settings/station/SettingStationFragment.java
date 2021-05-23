@@ -113,14 +113,14 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     }
 
     @Override
-    public void reloadData() {
-        super.reloadData();
-
+    protected void onReloaded() {
         // TODO: check current SP name
 
         ProviderTable.StationInfo first = mViewModel.getCurrentStationInfo();
         assert first != null : "current station not found";
         showCurrentStation(first);
+
+        super.onReloaded();
     }
 
     private void showCurrentStation(ProviderTable.StationInfo stationInfo) {

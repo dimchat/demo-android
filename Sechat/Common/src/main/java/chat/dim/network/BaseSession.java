@@ -99,7 +99,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
 
     public boolean isActive() {
-        return active && gate.isOpened();
+        return active && gate.isRunning();
     }
     public void setActive(boolean value) {
         active = value;
@@ -131,7 +131,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
 
     public boolean isRunning() {
-        return running && gate.isOpened();
+        return running && gate.isRunning();
     }
 
     public void handle() {

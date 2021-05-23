@@ -37,11 +37,11 @@ public final class KeyDatabase extends Database {
     }
 
     private static KeyDatabase ourInstance = null;
-    public static void setContext(Context context) {
-        ourInstance = new KeyDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
+
     static KeyDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
+        if (ourInstance == null) {
+            ourInstance = new KeyDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        }
         return ourInstance;
     }
 

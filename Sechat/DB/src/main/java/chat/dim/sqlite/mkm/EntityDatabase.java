@@ -37,15 +37,14 @@ public final class EntityDatabase extends Database {
         super(context, name, version);
     }
 
-    private static EntityDatabase ourInstance = null;
-
     public static Facebook facebook = null;
 
-    public static void setContext(Context context) {
-        ourInstance = new EntityDatabase(context, getFilePath(DB_NAME), DB_VERSION);
-    }
+    private static EntityDatabase ourInstance = null;
+
     static EntityDatabase getInstance() {
-        assert ourInstance != null : "database should be initialized with context first";
+        if (ourInstance == null) {
+            ourInstance = new EntityDatabase(context, getFilePath(DB_NAME), DB_VERSION);
+        }
         return ourInstance;
     }
 

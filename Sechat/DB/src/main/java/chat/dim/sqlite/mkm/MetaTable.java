@@ -41,12 +41,13 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.sqlite.DataTable;
+import chat.dim.sqlite.Database;
 import chat.dim.utils.Log;
 
 public final class MetaTable extends DataTable implements chat.dim.database.MetaTable {
 
     private MetaTable() {
-        super(EntityDatabase.getInstance());
+        super();
     }
 
     private static MetaTable ourInstance;
@@ -55,6 +56,11 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             ourInstance = new MetaTable();
         }
         return ourInstance;
+    }
+
+    @Override
+    protected Database getDatabase() {
+        return EntityDatabase.getInstance();
     }
 
     // memory caches
