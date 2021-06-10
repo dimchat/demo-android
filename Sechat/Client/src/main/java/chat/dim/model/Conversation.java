@@ -32,6 +32,7 @@ import chat.dim.Entity;
 import chat.dim.Group;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
@@ -96,8 +97,7 @@ public class Conversation {
     }
 
     public InstantMessage getLastVisibleMessage() {
-        return database.lastMessage(this);
-        /*
+        // return database.lastMessage(this);
         int count = numberOfMessages();
         InstantMessage iMsg;
         int msgType;
@@ -107,19 +107,20 @@ public class Conversation {
                 continue;
             }
             // FIXME: here will throw a NullPointerException
-            msgType = iMsg.getContent().type;
-            if (ContentType.TEXT.value == msgType ||
-                    ContentType.FILE.value == msgType ||
-                    ContentType.IMAGE.value == msgType ||
-                    ContentType.AUDIO.value == msgType ||
-                    ContentType.VIDEO.value == msgType ||
-                    ContentType.PAGE.value == msgType) {
+            msgType = iMsg.getType();
+            if (msgType == ContentType.TEXT.value ||
+                    msgType == ContentType.FILE.value ||
+                    msgType == ContentType.IMAGE.value ||
+                    msgType == ContentType.AUDIO.value ||
+                    msgType == ContentType.VIDEO.value ||
+                    msgType == ContentType.PAGE.value ||
+                    msgType == ContentType.MONEY.value ||
+                    msgType == ContentType.TRANSFER.value) {
                 // got it
                 return iMsg;
             }
         }
         return null;
-         */
     }
 
     // interfaces for ConversationDataSource

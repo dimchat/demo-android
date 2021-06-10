@@ -31,6 +31,7 @@ import chat.dim.User;
 import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.Machine;
 import chat.dim.fsm.Transition;
+import chat.dim.startrek.Gate;
 import chat.dim.startrek.StarGate;
 
 /**
@@ -46,12 +47,16 @@ class StateMachine extends AutoMachine<ServerState> {
         setDelegate(server);
 
         // add states
-        addState(ServerState.DEFAULT, getDefaultState());
-        addState(ServerState.CONNECTING, getConnectingState());
-        addState(ServerState.CONNECTED, getConnectedState());
-        addState(ServerState.HANDSHAKING, getHandshakingState());
-        addState(ServerState.RUNNING, getRunningState());
-        addState(ServerState.ERROR, getErrorState());
+        setState(getDefaultState());
+        setState(getConnectingState());
+        setState(getConnectedState());
+        setState(getHandshakingState());
+        setState(getRunningState());
+        setState(getErrorState());
+    }
+
+    private void setState(ServerState state) {
+        addState(state.name, state);
     }
 
     @Override
@@ -78,7 +83,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private StarGate.Status getStatus() {
         Server server = getServer();
         if (server == null) {
-            return StarGate.Status.Error;
+            return StarGate.Status.ERROR;
         }
         return server.getStatus();
     }
@@ -103,7 +108,7 @@ class StateMachine extends AutoMachine<ServerState> {
                     return false;
                 }
                 StarGate.Status status = getStatus();
-                return status == StarGate.Status.Connecting || status == StarGate.Status.Connected;
+                return status == StarGate.Status.CONNECTING || status == StarGate.Status.CONNECTED;
             }
         });
 
@@ -119,7 +124,7 @@ class StateMachine extends AutoMachine<ServerState> {
             protected boolean evaluate(Machine machine) {
                 assert getCurrentUser() != null : "server/user error";
                 StarGate.Status status = getStatus();
-                return status == StarGate.Status.Connected;
+                return status == StarGate.Status.CONNECTED;
             }
         });
 
@@ -128,7 +133,7 @@ class StateMachine extends AutoMachine<ServerState> {
             @Override
             protected boolean evaluate(Machine machine) {
                 StarGate.Status status = getStatus();
-                return status == StarGate.Status.Error;
+                return status == StarGate.Status.ERROR;
             }
         });
 
@@ -178,7 +183,7 @@ class StateMachine extends AutoMachine<ServerState> {
                     return false;
                 }
                 StarGate.Status status = getStatus();
-                return status == StarGate.Status.Connected;
+                return status == StarGate.Status.CONNECTED;
             }
         });
 
@@ -187,7 +192,7 @@ class StateMachine extends AutoMachine<ServerState> {
             @Override
             protected boolean evaluate(Machine machine) {
                 StarGate.Status status = getStatus();
-                return status != StarGate.Status.Connected;
+                return status != StarGate.Status.CONNECTED;
             }
         });
 
@@ -202,7 +207,7 @@ class StateMachine extends AutoMachine<ServerState> {
             @Override
             protected boolean evaluate(Machine machine) {
                 StarGate.Status status = getStatus();
-                return status != StarGate.Status.Connected;
+                return status != StarGate.Status.CONNECTED;
             }
         });
 
@@ -226,7 +231,7 @@ class StateMachine extends AutoMachine<ServerState> {
             @Override
             protected boolean evaluate(Machine machine) {
                 StarGate.Status status = getStatus();
-                return status != StarGate.Status.Error;
+                return status != StarGate.Status.ERROR;
             }
         });
 

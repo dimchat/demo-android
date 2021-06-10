@@ -75,8 +75,8 @@ public final class Facebook extends chat.dim.common.Facebook {
         }
 
         Map<String, Object> info = new HashMap<>();
-        info.put("ID", entity.toString());
-        info.put("meta", meta.getMap());
+        info.put("ID", entity);
+        info.put("meta", meta);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.MetaSaved, this, info);
         return true;
@@ -105,7 +105,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
         Map<String, Object> info = new HashMap<>();
         info.put("action", "add");
-        info.put("ID", contact);
+        info.put("contact", contact);
         info.put("user", user);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ContactsUpdated, this, info);
@@ -120,14 +120,14 @@ public final class Facebook extends chat.dim.common.Facebook {
 
         Map<String, Object> info = new HashMap<>();
         info.put("action", "remove");
-        info.put("ID", contact);
+        info.put("contact", contact);
         info.put("user", user);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ContactsUpdated, this, info);
         return true;
     }
 
-    //-------- Relationship
+    //-------- Group
 
     @Override
     public boolean addMember(ID member, ID group) {
@@ -137,7 +137,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
         Map<String, Object> info = new HashMap<>();
         info.put("action", "add");
-        info.put("ID", member);
+        info.put("member", member);
         info.put("group", group);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.MembersUpdated, this, info);
@@ -152,7 +152,7 @@ public final class Facebook extends chat.dim.common.Facebook {
 
         Map<String, Object> info = new HashMap<>();
         info.put("action", "remove");
-        info.put("ID", member);
+        info.put("member", member);
         info.put("group", group);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.MembersUpdated, this, info);
@@ -166,6 +166,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         }
 
         Map<String, Object> info = new HashMap<>();
+        info.put("action", "update");
         info.put("members", members);
         info.put("group", group);
         NotificationCenter nc = NotificationCenter.getInstance();
@@ -180,6 +181,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         }
 
         Map<String, Object> info = new HashMap<>();
+        info.put("action", "remove");
         info.put("group", group);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.GroupRemoved, this, info);
@@ -194,7 +196,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         Meta meta = super.getMeta(identifier);
         if (meta == null) {
             if (identifier.isBroadcast()) {
-                // broadcast ID has not meta
+                // broadcast ID has no meta
                 return null;
             }
             // query from DIM network
@@ -209,9 +211,13 @@ public final class Facebook extends chat.dim.common.Facebook {
         // try from database
         Document doc = super.getDocument(identifier, type);
         if (doc == null || isExpired(doc, true)) {
+            if (identifier.isBroadcast()) {
+                // broadcast ID has no document
+                return null;
+            }
             // query from DIM network
             Messenger messenger = Messenger.getInstance();
-            messenger.queryDocument(identifier);
+            messenger.queryDocument(identifier, type);
         }
         return doc;
     }

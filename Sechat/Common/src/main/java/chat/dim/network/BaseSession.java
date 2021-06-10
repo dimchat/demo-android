@@ -67,13 +67,13 @@ public class BaseSession extends Thread implements Gate.Delegate {
     private void flush() {
         // store all messages
         ReliableMessage msg;
-        MessageWrapper wrapper = queue.pop();
+        MessageWrapper wrapper = queue.shift();
         while (wrapper != null) {
             msg = wrapper.getMessage();
             if (msg != null) {
                 storeMessage(msg);
             }
-            wrapper = queue.pop();
+            wrapper = queue.shift();
         }
     }
 
@@ -86,7 +86,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
             if (msg != null) {
                 storeMessage(msg);
             }
-            wrapper = queue.pop();
+            wrapper = queue.eject();
         }
     }
 
@@ -196,7 +196,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     @Override
     public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
-        if (newStatus.equals(Gate.Status.Connected)) {
+        if (newStatus.equals(Gate.Status.CONNECTED)) {
             getMessenger().onConnected();
         }
     }

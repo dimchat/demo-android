@@ -55,7 +55,8 @@ public interface ServerDelegate {
     /**
      *  Callback for handshake accepted
      *
+     * @param sessionKey - session ID
      * @param server - current station
      */
-    void onHandshakeAccepted(Station server);
+    void onHandshakeAccepted(String sessionKey, Station server);
 }

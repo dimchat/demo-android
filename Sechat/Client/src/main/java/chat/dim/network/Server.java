@@ -36,8 +36,8 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.common.MessageTransmitter;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.fsm.Delegate;
 import chat.dim.fsm.Machine;
-import chat.dim.fsm.StateDelegate;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -54,13 +54,13 @@ import chat.dim.startrek.Ship;
 import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements Messenger.Delegate, StateDelegate<ServerState> {
+public class Server extends Station implements Messenger.Delegate, Delegate<ServerState> {
 
     private User currentUser = null;
 
     private boolean paused = false;
 
-    String sessionKey = null;
+    private String sessionKey = null;
     private final Session session;
 
     public final String name;
@@ -124,11 +124,11 @@ public class Server extends Station implements Messenger.Delegate, StateDelegate
         Messenger messenger = Messenger.getInstance();
         SecureMessage sMsg = messenger.encryptMessage(iMsg);
         if (sMsg == null) {
-            throw new NullPointerException("failed to encrypt message: " + iMsg);
+            throw new NullPointerException("failed to encrypt message: " + iMsg.getMap());
         }
         ReliableMessage rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
-            throw new NullPointerException("failed to sign message: " + sMsg);
+            throw new NullPointerException("failed to sign message: " + sMsg.getMap());
         }
         return rMsg;
     }
@@ -160,7 +160,7 @@ public class Server extends Station implements Messenger.Delegate, StateDelegate
             return;
         }
         // check connection status == 'Connected'
-        if (getStatus() != Gate.Status.Connected) {
+        if (getStatus() != Gate.Status.CONNECTED) {
             // FIXME: sometimes the connection will be lost while handshaking
             Log.error("server not connected");
             return;
@@ -200,7 +200,7 @@ public class Server extends Station implements Messenger.Delegate, StateDelegate
         fsm.setSessionKey(sessionKey);
 
         // call client
-        getDelegate().onHandshakeAccepted(this);
+        getDelegate().onHandshakeAccepted(sessionKey, this);
     }
 
     //--------

@@ -150,18 +150,17 @@ public class Facebook extends chat.dim.Facebook {
             // set expired time
             doc.put(EXPIRES_KEY, now + EXPIRES);
             return false;
+        } else if (now < expires.longValue()) {
+            return false;
         }
-        if (now > expires.longValue()) {
-            if (reset) {
-                // update expired time
-                doc.put(EXPIRES_KEY, now + EXPIRES);
-            }
-            return true;
+        if (reset) {
+            // update expired time
+            doc.put(EXPIRES_KEY, now + EXPIRES);
         }
-        return false;
+        return true;
     }
 
-    //-------- Relationship
+    //-------- Group
 
     public boolean addMember(ID member, ID group) {
         return groupTable.addMember(member, group);
@@ -212,25 +211,24 @@ public class Facebook extends chat.dim.Facebook {
 
     @Override
     protected User createUser(ID identifier) {
-        if (isWaitingMeta(identifier)) {
+        if (isWaiting(identifier)) {
             return null;
+        } else {
+            return super.createUser(identifier);
         }
-        return super.createUser(identifier);
     }
 
-    private boolean isWaitingMeta(ID entity) {
-        if (entity.isBroadcast()) {
-            return false;
-        }
-        return getMeta(entity) == null;
+    private boolean isWaiting(ID entity) {
+        return !entity.isBroadcast() && getMeta(entity) != null;
     }
 
     @Override
     protected Group createGroup(ID identifier) {
-        if (isWaitingMeta(identifier)) {
+        if (isWaiting(identifier)) {
             return null;
+        } else {
+            return super.createGroup(identifier);
         }
-        return super.createGroup(identifier);
     }
 
     //-------- EntityDataSource
@@ -238,11 +236,12 @@ public class Facebook extends chat.dim.Facebook {
     @Override
     public Meta getMeta(ID identifier) {
         if (identifier.isBroadcast()) {
-            // broadcast ID has not meta
+            // broadcast ID has no meta
             return null;
+        } else {
+            // try from database
+            return metaTable.getMeta(identifier);
         }
-        // try from database
-        return metaTable.getMeta(identifier);
     }
 
     @Override

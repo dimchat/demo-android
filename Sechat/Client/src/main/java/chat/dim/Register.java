@@ -63,7 +63,6 @@ public final class Register {
      * @return User object
      */
     public User createUser(String name, String avatar) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
         //
         //  Step 1. generate private key (with asymmetric algorithm)
         //
@@ -84,9 +83,10 @@ public final class Register {
         Visa visa = createUserDocument(identifier, name, avatar, (EncryptKey) msgKey);
         // 5. save private key, meta & visa in local storage
         //    don't forget to upload them onto the DIM station
+        Facebook facebook = Messenger.getInstance().getFacebook();
         facebook.saveMeta(meta, identifier);
         facebook.savePrivateKey(privateKey, identifier, PrivateKeyTable.META);
-        facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.PROFILE);
+        facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.VISA);
         facebook.saveDocument(visa);
         // 6. create user
         return facebook.getUser(identifier);

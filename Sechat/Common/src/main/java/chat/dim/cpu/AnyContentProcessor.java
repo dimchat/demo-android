@@ -68,13 +68,8 @@ public class AnyContentProcessor extends ContentProcessor {
             // Web page
             text = "Web page received";
         } else {
-            text = "Content (type: " + content.getType() + ") not support yet!";
-            TextContent res = new TextContent(text);
-            ID group = content.getGroup();
-            if (group != null) {
-                res.setGroup(group);
-            }
-            return res;
+            // Other
+            return super.process(content, rMsg);
         }
 
         Object group = content.getGroup();

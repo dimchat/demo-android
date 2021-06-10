@@ -29,7 +29,6 @@ import chat.dim.common.Messenger;
 import chat.dim.stargate.MTPDocker;
 import chat.dim.startrek.Gate;
 import chat.dim.startrek.Ship;
-import chat.dim.startrek.StarShip;
 
 public class Session extends BaseSession {
 
@@ -38,27 +37,28 @@ public class Session extends BaseSession {
     public Session(String host, int port, Messenger transceiver) {
         super(host, port, transceiver);
         docker = new MTPDocker(gate);
-        gate.setDocker(docker);
     }
 
     @Override
     public void setup() {
+        gate.setDocker(docker);
         setActive(true);
         super.setup();
     }
 
     @Override
     public void finish() {
-        setActive(false);
         super.finish();
+        setActive(false);
+        gate.setDocker(null);
     }
 
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
-        if (!isActive()) {
+        if (isActive()) {
+            return gate.send(payload, priority, delegate);
+        } else {
             return false;
         }
-        StarShip ship = docker.pack(payload, priority, delegate);
-        return gate.parkShip(ship);
     }
 
     //
@@ -68,7 +68,7 @@ public class Session extends BaseSession {
     @Override
     public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
         super.onStatusChanged(gate, oldStatus, newStatus);
-        if (newStatus.equals(Gate.Status.Connected)) {
+        if (newStatus.equals(Gate.Status.CONNECTED)) {
             Messenger.Delegate delegate = getMessenger().getDelegate();
             if (delegate instanceof Server) {
                 ((Server) delegate).handshake(null);

@@ -86,7 +86,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
             Messenger messenger = Messenger.getInstance();
             Facebook facebook = messenger.getFacebook();
-            ID entity = ID.parse(info.get("ID"));
+            ID entity = (ID) info.get("ID");
             if (entity.isUser()) {
                 // check user
                 if (facebook.getPublicKeyForEncryption(entity) == null) {
@@ -190,7 +190,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
     @Override
     public void suspendMessage(ReliableMessage rMsg) {
         // save this message in a queue waiting sender's meta response
-        ID waiting = (ID) rMsg.get("waiting");
+        ID waiting = ID.parse(rMsg.get("waiting"));
         if (waiting == null) {
             waiting = rMsg.getGroup();
             if (waiting == null) {
@@ -210,7 +210,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
     @Override
     public void suspendMessage(InstantMessage iMsg) {
         // save this message in a queue waiting receiver's meta response
-        ID waiting = (ID) iMsg.get("waiting");
+        ID waiting = ID.parse(iMsg.get("waiting"));
         if (waiting == null) {
             waiting = iMsg.getGroup();
             if (waiting == null) {

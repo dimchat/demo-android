@@ -118,7 +118,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         if (isWaitingGroup(content, sender)) {
             // save this message in a queue to wait group meta response
             ID group = content.getGroup();
-            rMsg.put("waiting", group);
+            rMsg.put("waiting", group.toString());
             getMessenger().suspendMessage(rMsg);
             return null;
         }
@@ -134,7 +134,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
                     if (waiting == null) {
                         throw new NullPointerException("failed to get ID: " + text);
                     } else {
-                        rMsg.put("waiting", waiting);
+                        rMsg.put("waiting", waiting.toString());
                         getMessenger().suspendMessage(rMsg);
                     }
                 }

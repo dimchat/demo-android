@@ -83,7 +83,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MessageUpdated)) {
-            ID entity = ID.parse(info.get("ID"));
+            ID entity = (ID) info.get("ID");
             if (chatBox.identifier.equals(entity)) {
                 reloadData();
             }

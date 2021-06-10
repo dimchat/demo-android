@@ -119,18 +119,18 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         return sendContent(null, server.identifier, cmd, null, priority);
     }
 
-    @Override
-    public boolean sendContent(ID sender, ID receiver, Content content, Messenger.Callback callback, int priority) {
-        if (sender == null) {
-            User user = getCurrentUser();
-            if (user == null) {
-                // FIXME: suspend message for waiting user login
-                return false;
-            }
-            sender = user.identifier;
-        }
-        return super.sendContent(sender, receiver, content, callback, priority);
-    }
+//    @Override
+//    public boolean sendContent(ID sender, ID receiver, Content content, Messenger.Callback callback, int priority) {
+//        if (sender == null) {
+//            User user = getCurrentUser();
+//            if (user == null) {
+//                // FIXME: suspend message for waiting user login
+//                return false;
+//            }
+//            sender = user.identifier;
+//        }
+//        return super.sendContent(sender, receiver, content, callback, priority);
+//    }
 
     private boolean sendContent(ID receiver, Content content) {
         return sendContent(null, receiver, content, null, StarShip.SLOWER);
@@ -158,9 +158,9 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         }
         visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         // pack and send user document to every contact
-        Command cmd = new DocumentCommand(identifier, visa);
         List<ID> contacts = user.getContacts();
-        if (contacts != null) {
+        if (contacts != null && contacts.size() > 0) {
+            Command cmd = new DocumentCommand(identifier, visa);
             for (ID contact : contacts) {
                 sendContent(contact, cmd);
             }
@@ -200,9 +200,9 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         sendCommand(cmd, StarShip.SLOWER);
     }
 
-    private final Map<ID, Long> metaQueryTime = new HashMap<>();
-    private final Map<ID, Long> documentQueryTime = new HashMap<>();
-    private final Map<ID, Map<ID, Long>> groupQueryTimes = new HashMap<>();
+    private final Map<ID, Long> metaQueryExpires = new HashMap<>();
+    private final Map<ID, Long> documentQueryExpires = new HashMap<>();
+    private final Map<ID, Map<ID, Long>> groupQueryExpires = new HashMap<>();
 
     private static final int QUERY_INTERVAL = 120 * 1000;  // query interval (2 minutes)
 
@@ -215,11 +215,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number expires = metaQueryTime.get(identifier);
+        Number expires = metaQueryExpires.get(identifier);
         if (expires != null && now < expires.longValue()) {
             return false;
         }
-        metaQueryTime.put(identifier, now + QUERY_INTERVAL);
+        metaQueryExpires.put(identifier, now + QUERY_INTERVAL);
         Log.info("querying meta: " + identifier);
 
         // query from DIM network
@@ -228,7 +228,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     }
 
     @Override
-    public boolean queryDocument(ID identifier) {
+    public boolean queryDocument(ID identifier, String type) {
         if (identifier.isBroadcast()) {
             // broadcast ID has no document
             return false;
@@ -236,11 +236,11 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 
         // check for duplicated querying
         long now = (new Date()).getTime();
-        Number expires = documentQueryTime.get(identifier);
+        Number expires = documentQueryExpires.get(identifier);
         if (expires != null && now < expires.longValue()) {
             return false;
         }
-        documentQueryTime.put(identifier, now + QUERY_INTERVAL);
+        documentQueryExpires.put(identifier, now + QUERY_INTERVAL);
         Log.info("querying entity document: " + identifier);
 
         // query from DIM network
@@ -258,10 +258,10 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
             return false;
         }
 
-        Map<ID, Long> times = groupQueryTimes.get(group);
+        Map<ID, Long> times = groupQueryExpires.get(group);
         if (times == null) {
             times = new HashMap<>();
-            groupQueryTimes.put(group, times);
+            groupQueryExpires.put(group, times);
         }
         long now = (new Date()).getTime();
 
@@ -312,16 +312,13 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 
     @Override
     public void onReceivePackage(byte[] data, Station server) {
-        byte[] response;
         try {
-            Messenger messenger = Messenger.getInstance();
-            response = messenger.process(data);
+            byte[] response = process(data);
+            if (response != null && response.length > 0) {
+                ((Server) server).sendPackage(response, null, StarShip.SLOWER);
+            }
         } catch (NullPointerException e) {
             e.printStackTrace();
-            response = null;
-        }
-        if (response != null && response.length > 0) {
-            getCurrentServer().sendPackage(response, null, StarShip.SLOWER);
         }
     }
 
@@ -336,7 +333,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     }
 
     @Override
-    public void onHandshakeAccepted(Station server) {
+    public void onHandshakeAccepted(String sessionKey, Station server) {
         User user = getCurrentUser();
         assert user != null : "current user not found";
 
@@ -345,7 +342,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         login.setAgent(getTerminal().getUserAgent());
         login.setStation(server);
         // TODO: set provider
-        Messenger messenger = Messenger.getInstance();
-        messenger.broadcastContent(login);
+        broadcastContent(login);
     }
 }

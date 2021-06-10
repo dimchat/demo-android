@@ -49,7 +49,7 @@ final class MessageQueue {
         return true;
     }
 
-    MessageWrapper pop() {
+    MessageWrapper shift() {
         MessageWrapper wrapper = null;
         Lock writeLock = lock.writeLock();
         writeLock.lock();

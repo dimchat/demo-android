@@ -91,7 +91,7 @@ public final class GroupManager {
         }
         int count = members.size();
 
-        // 0. build 'meta/visa' command
+        // 0. build 'meta/document' command
         Meta meta = facebook.getMeta(group);
         if (meta == null) {
             throw new NullPointerException("failed to get meta for group: " + group);
@@ -104,11 +104,10 @@ public final class GroupManager {
         } else {
             cmd = new DocumentCommand(group, meta, doc);
         }
-
+        sendGroupCommand(cmd);                  // to current station
+        sendGroupCommand(cmd, bots);            // to group assistants
         if (count <= 2) { // new group?
             // 1. send 'meta/document' to station and bots
-            sendGroupCommand(cmd);              // to current station
-            sendGroupCommand(cmd, bots);        // to group assistants
             // 2. update local storage
             members = addMembers(newMembers, group);
             sendGroupCommand(cmd, members);     // to all members
@@ -118,8 +117,6 @@ public final class GroupManager {
             sendGroupCommand(cmd, members);     // to all members
         } else {
             // 1. send 'meta/document' to station, bots and all members
-            sendGroupCommand(cmd);              // to current station
-            sendGroupCommand(cmd, bots);        // to group assistants
             //sendGroupCommand(cmd, members);     // to old members
             sendGroupCommand(cmd, newMembers);  // to new members
             // 2. send 'invite' command with new members to old members

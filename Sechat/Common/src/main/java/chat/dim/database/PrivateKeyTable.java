@@ -34,7 +34,7 @@ import chat.dim.protocol.ID;
 public interface PrivateKeyTable {
 
     String META = "M";
-    String PROFILE = "P";
+    String VISA = "V";
 
     /**
      *  Save private key for user

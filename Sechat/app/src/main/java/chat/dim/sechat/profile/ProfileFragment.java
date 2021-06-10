@@ -77,7 +77,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.ContactsUpdated)) {
-            ID contact = ID.parse(info.get("ID"));
+            ID contact = (ID) info.get("contact");
             if (identifier.equals(contact)) {
                 MainThread.call(() -> refreshPage(false));
             }

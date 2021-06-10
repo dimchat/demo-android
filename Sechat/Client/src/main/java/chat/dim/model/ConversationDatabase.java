@@ -81,7 +81,12 @@ public final class ConversationDatabase extends MessageBuilder {
     }
 
     public boolean removeConversationAtIndex(int index) {
-        return messageTable.removeConversationAtIndex(index);
+        ID chat = messageTable.conversationAtIndex(index);
+        if (!messageTable.removeConversationAtIndex(index)) {
+            return false;
+        }
+        postMessageUpdatedNotification(null, chat);
+        return true;
     }
 
     public boolean removeConversation(ID identifier) {

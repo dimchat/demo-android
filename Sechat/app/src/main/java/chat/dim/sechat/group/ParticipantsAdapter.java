@@ -162,7 +162,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             Map info = notification.userInfo;
             assert name != null && info != null : "notification error: " + notification;
             if (name.equals(NotificationNames.DocumentUpdated)) {
-                ID user = ID.parse(info.get("ID"));
+                ID user = (ID) info.get("ID");
                 if (identifier.equals(user)) {
                     MainThread.call(this::refresh);
                 }

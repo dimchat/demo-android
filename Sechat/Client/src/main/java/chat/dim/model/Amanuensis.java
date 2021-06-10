@@ -31,6 +31,7 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReceiptCommand;
 
 public final class Amanuensis {
 
@@ -67,7 +68,7 @@ public final class Amanuensis {
             return getConversation(receiver);
         }
         // check group
-        ID group = iMsg.getContent().getGroup();
+        ID group = iMsg.getGroup();
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
@@ -84,6 +85,10 @@ public final class Amanuensis {
     }
 
     public boolean saveMessage(InstantMessage iMsg) {
+        if (iMsg.getContent() instanceof ReceiptCommand) {
+            // it's a receipt
+            return saveReceipt(iMsg);
+        }
         Conversation chatBox = getConversation(iMsg);
         if (chatBox == null) {
             return false;

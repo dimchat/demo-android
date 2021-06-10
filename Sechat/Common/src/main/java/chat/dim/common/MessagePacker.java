@@ -88,7 +88,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
                 // broadcast message has no key
                 return;
             }
-            throw new NullPointerException("key data error: " + key.toString());
+            throw new NullPointerException("key data error: " + key.getMap());
         }
         // get digest
         byte[] part = new byte[6];
