@@ -100,7 +100,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getDefaultState() {
         ServerState state = new ServerState(ServerState.DEFAULT);
 
-        // target state: Connecting
+        // Default -> Connecting
         state.addTransition(new Transition(ServerState.CONNECTING) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -118,7 +118,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getConnectingState() {
         ServerState state = new ServerState(ServerState.CONNECTING);
 
-        // target state: Connected
+        // Connecting -> Connected
         state.addTransition(new Transition(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -128,7 +128,7 @@ class StateMachine extends AutoMachine<ServerState> {
             }
         });
 
-        // target state: Error
+        // Connecting -> Error
         state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -143,7 +143,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getConnectedState() {
         ServerState state = new ServerState(ServerState.CONNECTED);
 
-        // target state: Handshaking
+        // Connected -> Handshaking
         state.addTransition(new Transition(ServerState.HANDSHAKING) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -157,7 +157,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getHandshakingState() {
         ServerState state = new ServerState(ServerState.HANDSHAKING);
 
-        // target state: Running
+        // Handshaking -> Running
         state.addTransition(new Transition(ServerState.RUNNING) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -167,7 +167,7 @@ class StateMachine extends AutoMachine<ServerState> {
             }
         });
 
-        // target state: Connected
+        // Handshaking -> Connected
         state.addTransition(new Transition(ServerState.CONNECTED) {
             @Override
             protected boolean evaluate(Machine machine) {
@@ -180,19 +180,21 @@ class StateMachine extends AutoMachine<ServerState> {
                 long expired = enterTime.getTime() + 120 * 1000;
                 long now = (new Date()).getTime();
                 if (now < expired) {
+                    // not expired yet
                     return false;
                 }
+                // handshake expired, return to connected to do it again
                 StarGate.Status status = getStatus();
                 return status == StarGate.Status.CONNECTED;
             }
         });
 
-        // target state: Error
+        // Handshaking -> Error
         state.addTransition(new Transition(ServerState.ERROR) {
             @Override
             protected boolean evaluate(Machine machine) {
                 StarGate.Status status = getStatus();
-                return status != StarGate.Status.CONNECTED;
+                return status == StarGate.Status.ERROR;
             }
         });
 
@@ -202,21 +204,21 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getRunningState() {
         ServerState state = new ServerState(ServerState.RUNNING);
 
-        // target state: Error
-        state.addTransition(new Transition(ServerState.ERROR) {
-            @Override
-            protected boolean evaluate(Machine machine) {
-                StarGate.Status status = getStatus();
-                return status != StarGate.Status.CONNECTED;
-            }
-        });
-
-        // target state: Default
+        // Running -> Default
         state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {
                 // user switched?
                 return getSessionKey() == null;
+            }
+        });
+
+        // Running -> Error
+        state.addTransition(new Transition(ServerState.ERROR) {
+            @Override
+            protected boolean evaluate(Machine machine) {
+                StarGate.Status status = getStatus();
+                return status == StarGate.Status.ERROR;
             }
         });
 
@@ -226,7 +228,7 @@ class StateMachine extends AutoMachine<ServerState> {
     private ServerState getErrorState() {
         ServerState state = new ServerState(ServerState.ERROR);
 
-        // target state: Default
+        // Error -> Default
         state.addTransition(new Transition(ServerState.DEFAULT) {
             @Override
             protected boolean evaluate(Machine machine) {

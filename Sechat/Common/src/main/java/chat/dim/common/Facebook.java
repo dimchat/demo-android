@@ -219,7 +219,7 @@ public class Facebook extends chat.dim.Facebook {
     }
 
     private boolean isWaiting(ID entity) {
-        return !entity.isBroadcast() && getMeta(entity) != null;
+        return !entity.isBroadcast() && getMeta(entity) == null;
     }
 
     @Override

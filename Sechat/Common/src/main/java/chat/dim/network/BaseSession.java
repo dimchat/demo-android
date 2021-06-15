@@ -60,9 +60,6 @@ public class BaseSession extends Thread implements Gate.Delegate {
     public BaseSession(String host, int port, Messenger transceiver) {
         this(StarTrek.createGate(host, port), transceiver);
     }
-    public BaseSession(Socket socket, Messenger transceiver) {
-        this(StarTrek.createGate(socket), transceiver);
-    }
 
     private void flush() {
         // store all messages
@@ -110,6 +107,8 @@ public class BaseSession extends Thread implements Gate.Delegate {
         setup();
         try {
             handle();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             finish();
         }

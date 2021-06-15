@@ -31,48 +31,62 @@
 package chat.dim.network;
 
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import chat.dim.stargate.LockedGate;
-import chat.dim.startrek.StarGate;
-import chat.dim.tcp.Connection;
+import chat.dim.tcp.ActiveConnection;
 
-public final class StarTrek extends LockedGate {
+public class StarLink extends ActiveConnection {
 
-    public StarTrek(Connection conn) {
-        super(conn);
+    private final List<byte[]> outgoPackages = new ArrayList<>();
+    private final ReadWriteLock outgoLock = new ReentrantReadWriteLock();
+
+    public StarLink(String remoteHost, int remotePort, Socket connectedSocket) {
+        super(remoteHost, remotePort, connectedSocket);
     }
 
-    private static StarGate createGate(StarLink conn) {
-        StarTrek gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        (new Thread(gate)).start();
-        return gate;
-    }
-    public static StarGate createGate(String host, int port) {
-        return createGate(new StarLink(host, port));
-    }
-    public static StarGate createGate(String host, int port, Socket socket) {
-        return createGate(new StarLink(host, port, socket));
+    public StarLink(String serverHost, int serverPort) {
+        super(serverHost, serverPort);
     }
 
     @Override
-    public void setup() {
-        new Thread(connection).start();
-        super.setup();
-    }
-
-    @Override
-    public void handle() {
+    public int send(byte[] data) {
+        Lock writeLock = outgoLock.writeLock();
+        writeLock.lock();
         try {
-            super.handle();
-        } catch (Exception e) {
-            e.printStackTrace();
+            outgoPackages.add(data);
+        } finally {
+            writeLock.unlock();
         }
+        return data.length;
+    }
+
+    private byte[] nextOutgo() {
+        byte[] data = null;
+        Lock writeLock = outgoLock.writeLock();
+        writeLock.lock();
+        try {
+            if (outgoPackages.size() > 0) {
+                data = outgoPackages.remove(0);
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        return data;
     }
 
     @Override
-    public void finish() {
-        super.finish();
-        connection.stop();
+    public boolean process() {
+        boolean ok = super.process();
+        byte[] data = nextOutgo();
+        if (data != null) {
+            if (super.send(data) == data.length) {
+                ok = true;
+            }
+        }
+        return ok;
     }
 }

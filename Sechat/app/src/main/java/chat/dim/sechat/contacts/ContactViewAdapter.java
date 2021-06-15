@@ -81,7 +81,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
             Map info = notification.userInfo;
             assert name != null && info != null : "notification error: " + notification;
             if (name.equals(NotificationNames.DocumentUpdated)) {
-                ID user = (ID) info.get("ID");
+                ID user = ID.parse(info.get("ID"));
                 if (user.equals(item.getIdentifier())) {
                     MainThread.call(this::refresh);
                 }
