@@ -177,7 +177,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         byte[] jpeg = Images.jpeg(bitmap);
         String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
         FtpServer ftp = FtpServer.getInstance();
-        ftp.saveImage(jpeg, filename);
+        ftp.saveFileData(jpeg, filename);
 
         // thumbnail
         byte[] thumbnail = Images.thumbnail(bitmap);

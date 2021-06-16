@@ -77,7 +77,7 @@ public final class FtpServer {
         }
 
         // save a copy to cache directory
-        saveImage(imageData, filename);
+        saveFileData(imageData, filename);
 
         return download;
     }
@@ -108,11 +108,11 @@ public final class FtpServer {
     //  File data: Image, Audio, Video, ...
     //
 
-    public boolean saveImage(byte[] imageData, String filename) {
+    public boolean saveFileData(byte[] data, String filename) {
         try {
             // save a copy to cache directory
             String path = ExternalStorage.getCacheFilePath(filename);
-            return ExternalStorage.saveData(imageData, path);
+            return ExternalStorage.saveData(data, path);
         } catch (IOException e) {
             e.printStackTrace();
             return false;
