@@ -56,15 +56,6 @@ public final class StarTrek extends LockedGate {
     }
 
     @Override
-    public byte[] receive(int length, boolean remove) {
-        byte[] data = super.receive(length, remove);
-        if (data == null) {
-            data = new byte[0];
-        }
-        return data;
-    }
-
-    @Override
     public void setup() {
         new Thread(connection).start();
         super.setup();

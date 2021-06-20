@@ -46,7 +46,7 @@ import chat.dim.dmtp.values.MappedAddressValue;
 import chat.dim.dmtp.values.RelayedAddressValue;
 import chat.dim.dmtp.values.SourceAddressValue;
 import chat.dim.dmtp.values.TimestampValue;
-import chat.dim.tlv.Data;
+import chat.dim.type.ByteArray;
 import chat.dim.udp.Connection;
 
 public class Contact {
@@ -210,7 +210,7 @@ public class Contact {
     //  Signature
     //
 
-    private static Data getSignData(LocationValue location) {
+    private static ByteArray getSignData(LocationValue location) {
         MappedAddressValue mappedAddress = (MappedAddressValue) location.get(FieldName.MAPPED_ADDRESS);
         if (mappedAddress == null) {
             return null;
@@ -219,7 +219,7 @@ public class Contact {
         RelayedAddressValue relayedAddress = (RelayedAddressValue) location.get(FieldName.RELAYED_ADDRESS);
         TimestampValue timestamp = (TimestampValue) location.get(FieldName.TIME);
         // data = "source_address" + "mapped_address" + "relayed_address" + "time"
-        Data data = mappedAddress;
+        ByteArray data = mappedAddress;
         if (sourceAddress != null) {
             data = sourceAddress.concat(data);
         }
@@ -239,7 +239,7 @@ public class Contact {
      * @return signed location info
      */
     public LocationValue signLocation(LocationValue location) {
-        Data data = getSignData(location);
+        ByteArray data = getSignData(location);
         if (data == null) {
             return null;
         }
@@ -262,8 +262,8 @@ public class Contact {
             return false;
         }
 
-        Data data = getSignData(location);
-        Data signature = location.getSignature();
+        ByteArray data = getSignData(location);
+        ByteArray signature = location.getSignature();
         if (data == null || signature == null) {
             return false;
         }

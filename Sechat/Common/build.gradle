@@ -6,8 +6,8 @@ dependencies {
     implementation group: 'chat.dim', name: 'SDK', version: '0.5.20'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.5'
 
-    implementation group: 'chat.dim', name: 'StarGate', version: '0.3.2'
-    implementation group: 'chat.dim', name: 'DMTP', version: '0.1.1'
+    implementation group: 'chat.dim', name: 'StarGate', version: '0.3.3'
+    implementation group: 'chat.dim', name: 'DMTP', version: '0.1.2'
     implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
 }
 

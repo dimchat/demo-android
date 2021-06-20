@@ -43,11 +43,12 @@ import chat.dim.format.UTF8;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.tlv.Data;
-import chat.dim.tlv.IntegerData;
-import chat.dim.tlv.MutableData;
-import chat.dim.tlv.VarIntData;
+import chat.dim.type.ByteArray;
+import chat.dim.type.Data;
 import chat.dim.type.Dictionary;
+import chat.dim.type.IntegerData;
+import chat.dim.type.MutableData;
+import chat.dim.type.VarIntData;
 
 public class Utils {
 
@@ -96,7 +97,7 @@ public class Utils {
         if (key == null) {
             Map<Object, String> keys = (Map) info.get("keys");
             if (keys != null) {
-                Data data = buildKeys(keys);
+                ByteArray data = buildKeys(keys);
                 data = KEYS_PREFIX.concat(data);
                 // DMTP store both 'keys' and 'key' in 'key'
                 info.put("key", data.getBytes());
@@ -148,7 +149,7 @@ public class Utils {
         //
         //  body
         //
-        Data content = msg.getContent();
+        ByteArray content = msg.getContent();
         if (content != null) {
             if (content.getByte(0) == '{') {
                 // JsON
@@ -158,12 +159,12 @@ public class Utils {
                 info.put("data", Base64.encode(content.getBytes()));
             }
         }
-        Data signature = msg.getSignature();
+        ByteArray signature = msg.getSignature();
         if (signature != null) {
             info.put("signature", Base64.encode(signature.getBytes()));
         }
         // symmetric key, keys
-        Data key = msg.getKey();
+        ByteArray key = msg.getKey();
         if (key != null && key.getLength() > 5) {
             if (key.slice(0, 5).equals(KEYS_PREFIX)) {
                 // 'KEYS:'
@@ -175,12 +176,12 @@ public class Utils {
         //
         //  attachments
         //
-        Data meta = msg.getMeta();
+        ByteArray meta = msg.getMeta();
         if (meta != null && meta.getLength() > 0) {
             // JsON to dict
             info.put("meta", JSON.decode(meta.getBytes()));
         }
-        Data profile = msg.getProfile();
+        ByteArray profile = msg.getProfile();
         if (profile != null && profile.getLength() > 0) {
             // JsON to dict
             info.put("profile", JSON.decode(profile.getBytes()));
@@ -189,22 +190,22 @@ public class Utils {
         return ReliableMessage.parse(info);
     }
 
-    private static Data KEYS_PREFIX = new Data("KEYS:".getBytes());
+    private static ByteArray KEYS_PREFIX = new Data("KEYS:".getBytes());
 
-    private static Map<String, Object> parseKeys(Data data) {
+    private static Map<String, Object> parseKeys(ByteArray data) {
         Map<String, Object> keys = new HashMap<>();
         IntegerData size;
         StringValue name;
         BinaryValue value;
         while (data.getLength() > 0) {
             // get key length
-            size = VarIntData.fromData(data);
+            size = VarIntData.from(data);
             data = data.slice(size.getLength());
             // get key name
             name = new StringValue(data.slice(0, size.getIntValue()));
             data = data.slice(size.getIntValue());
             // get value length
-            size = VarIntData.fromData(data);
+            size = VarIntData.from(data);
             data = data.slice(size.getLength());
             // get value
             value = new BinaryValue(data.slice(0, size.getIntValue()));
@@ -216,7 +217,7 @@ public class Utils {
         return keys;
     }
 
-    private static Data buildKeys(Map<Object, String> keys) {
+    private static ByteArray buildKeys(Map<Object, String> keys) {
         MutableData data = new MutableData(512);
         Object key;
         String base64;
@@ -235,9 +236,9 @@ public class Utils {
             base64 = entry.getValue();
             if (idValue.getLength() > 0 && base64 != null && base64.length() > 0) {
                 keyValue = new BinaryValue(Base64.decode(base64));
-                data.append(new VarIntData(idValue.getLength()));
+                data.append(VarIntData.from(idValue.getLength()));
                 data.append(idValue);
-                data.append(new VarIntData(keyValue.getLength()));
+                data.append(VarIntData.from(keyValue.getLength()));
                 data.append(keyValue);
             }
         }
