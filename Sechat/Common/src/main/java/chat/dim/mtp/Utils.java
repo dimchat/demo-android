@@ -35,14 +35,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.dmtp.protocol.Message;
-import chat.dim.dmtp.values.BinaryValue;
-import chat.dim.dmtp.values.StringValue;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.tlv.RawValue;
+import chat.dim.tlv.StringValue;
 import chat.dim.type.ByteArray;
 import chat.dim.type.Data;
 import chat.dim.type.Dictionary;
@@ -165,7 +165,7 @@ public class Utils {
         }
         // symmetric key, keys
         ByteArray key = msg.getKey();
-        if (key != null && key.getLength() > 5) {
+        if (key != null && key.getSize() > 5) {
             if (key.slice(0, 5).equals(KEYS_PREFIX)) {
                 // 'KEYS:'
                 info.put("keys", parseKeys(key.slice(5)));
@@ -177,14 +177,14 @@ public class Utils {
         //  attachments
         //
         ByteArray meta = msg.getMeta();
-        if (meta != null && meta.getLength() > 0) {
+        if (meta != null && meta.getSize() > 0) {
             // JsON to dict
             info.put("meta", JSON.decode(meta.getBytes()));
         }
-        ByteArray profile = msg.getProfile();
-        if (profile != null && profile.getLength() > 0) {
+        ByteArray visa = msg.getVisa();
+        if (visa != null && visa.getSize() > 0) {
             // JsON to dict
-            info.put("profile", JSON.decode(profile.getBytes()));
+            info.put("visa", JSON.decode(visa.getBytes()));
         }
 
         return ReliableMessage.parse(info);
@@ -196,21 +196,21 @@ public class Utils {
         Map<String, Object> keys = new HashMap<>();
         IntegerData size;
         StringValue name;
-        BinaryValue value;
-        while (data.getLength() > 0) {
+        RawValue value;
+        while (data.getSize() > 0) {
             // get key length
             size = VarIntData.from(data);
-            data = data.slice(size.getLength());
+            data = data.slice(size.getSize());
             // get key name
-            name = new StringValue(data.slice(0, size.getIntValue()));
+            name = StringValue.from(data.slice(0, size.getIntValue()));
             data = data.slice(size.getIntValue());
             // get value length
             size = VarIntData.from(data);
-            data = data.slice(size.getLength());
+            data = data.slice(size.getSize());
             // get value
-            value = new BinaryValue(data.slice(0, size.getIntValue()));
+            value = new RawValue(data.slice(0, size.getIntValue()));
             data = data.slice(size.getIntValue());
-            if (name.getLength() > 0 && value.getLength() > 0) {
+            if (name.getSize() > 0 && value.getSize() > 0) {
                 keys.put(name.string, Base64.encode(value.getBytes()));
             }
         }
@@ -222,23 +222,23 @@ public class Utils {
         Object key;
         String base64;
         StringValue idValue;
-        BinaryValue keyValue;
+        RawValue keyValue;
         for (Map.Entry<Object, String> entry : keys.entrySet()) {
             key = entry.getKey();
             if (key instanceof ID) {
-                idValue = new StringValue(key.toString());
+                idValue = StringValue.from(key.toString());
             } else if (key instanceof String) {
-                idValue = new StringValue((String) key);
+                idValue = StringValue.from((String) key);
             } else {
                 assert key == null : "error key: " + key;
                 continue;
             }
             base64 = entry.getValue();
-            if (idValue.getLength() > 0 && base64 != null && base64.length() > 0) {
-                keyValue = new BinaryValue(Base64.decode(base64));
-                data.append(VarIntData.from(idValue.getLength()));
+            if (idValue.getSize() > 0 && base64 != null && base64.length() > 0) {
+                keyValue = new RawValue(Base64.decode(base64));
+                data.append(VarIntData.from(idValue.getSize()));
                 data.append(idValue);
-                data.append(VarIntData.from(keyValue.getLength()));
+                data.append(VarIntData.from(keyValue.getSize()));
                 data.append(keyValue);
             }
         }
