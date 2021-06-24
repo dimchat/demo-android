@@ -8,7 +8,6 @@ dependencies {
 
     implementation group: 'chat.dim', name: 'StarGate', version: '0.3.3'
     implementation group: 'chat.dim', name: 'DMTP', version: '0.1.2'
-    implementation group: 'chat.dim', name: 'STUN', version: '0.1.2'
     implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
 }
 

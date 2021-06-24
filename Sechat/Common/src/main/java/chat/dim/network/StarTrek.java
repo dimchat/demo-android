@@ -45,6 +45,7 @@ public final class StarTrek extends LockedGate {
     private static StarGate createGate(StarLink conn) {
         StarTrek gate = new StarTrek(conn);
         conn.setDelegate(gate);
+        conn.start();
         (new Thread(gate)).start();
         return gate;
     }

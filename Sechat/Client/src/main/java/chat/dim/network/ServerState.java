@@ -27,11 +27,12 @@ package chat.dim.network;
 
 import java.util.Date;
 
-import chat.dim.fsm.Machine;
-import chat.dim.fsm.State;
+import chat.dim.fsm.BaseState;
+import chat.dim.fsm.BaseTransition;
+import chat.dim.startrek.StarGate;
 import chat.dim.utils.Log;
 
-public class ServerState extends State {
+public class ServerState extends BaseState<StateMachine, BaseTransition<StateMachine>> {
 
     public static final String DEFAULT     = "default";
     public static final String CONNECTING  = "connecting";
@@ -41,7 +42,7 @@ public class ServerState extends State {
     public static final String ERROR       = "error";
 
     public final String name;
-    public Date enterTime;
+    private Date enterTime;
 
     ServerState(String name) {
         super();
@@ -53,39 +54,183 @@ public class ServerState extends State {
     public boolean equals(Object other) {
         if (other == this) {
             return true;
-        }
-        String otherName;
-        if (other instanceof ServerState) {
-            otherName = ((ServerState) other).name;
+        } else if (other instanceof ServerState) {
+            return ((ServerState) other).name.equals(name);
+        } else if (other instanceof String) {
+            return other.equals(name);
         } else {
-            assert other == null : "unknown server state: " + other;
             return false;
         }
-        return otherName.equals(name);
     }
-
     public boolean equals(String other) {
         return name.equals(other);
     }
 
     @Override
-    protected void onEnter(Machine machine) {
+    public void onEnter(StateMachine machine) {
         // do nothing
         Log.info("onEnter: " + name + " state");
         this.enterTime = new Date();
     }
 
     @Override
-    protected void onExit(Machine machine) {
+    public void onExit(StateMachine machine) {
         this.enterTime = null;
     }
 
     @Override
-    protected void onPause(Machine machine) {
+    public void onPause(StateMachine machine) {
     }
 
     @Override
-    protected void onResume(Machine machine) {
+    public void onResume(StateMachine machine) {
+    }
+
+    //
+    //  Factories
+    //
+
+    static ServerState getDefaultState() {
+        ServerState state = new ServerState(DEFAULT);
+
+        // Default -> Connecting
+        state.addTransition(new BaseTransition<StateMachine>(CONNECTING) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                if (machine.getCurrentUser() == null) {
+                    return false;
+                }
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.CONNECTING || status == StarGate.Status.CONNECTED;
+            }
+        });
+
+        return state;
+    }
+
+    static ServerState getConnectingState() {
+        ServerState state = new ServerState(CONNECTING);
+
+        // Connecting -> Connected
+        state.addTransition(new BaseTransition<StateMachine>(CONNECTED) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                assert machine.getCurrentUser() != null : "server/user error";
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.CONNECTED;
+            }
+        });
+
+        // Connecting -> Error
+        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.ERROR;
+            }
+        });
+
+        return state;
+    }
+
+    static ServerState getConnectedState() {
+        ServerState state = new ServerState(CONNECTED);
+
+        // Connected -> Handshaking
+        state.addTransition(new BaseTransition<StateMachine>(HANDSHAKING) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                return machine.getCurrentUser() != null;
+            }
+        });
+
+        return state;
+    }
+
+    static ServerState getHandshakingState() {
+        ServerState state = new ServerState(HANDSHAKING);
+
+        // Handshaking -> Running
+        state.addTransition(new BaseTransition<StateMachine>(RUNNING) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                // when current user changed, the server will clear this session, so
+                // if it's set again, it means handshake accepted
+                return machine.getSessionKey() != null;
+            }
+        });
+
+        // Handshaking -> Connected
+        state.addTransition(new BaseTransition<StateMachine>(CONNECTED) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                ServerState state = machine.getCurrentState();
+                Date enterTime = state.enterTime;
+                if (enterTime == null) {
+                    // not enter yet
+                    return false;
+                }
+                long expired = enterTime.getTime() + 120 * 1000;
+                long now = (new Date()).getTime();
+                if (now < expired) {
+                    // not expired yet
+                    return false;
+                }
+                // handshake expired, return to connected to do it again
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.CONNECTED;
+            }
+        });
+
+        // Handshaking -> Error
+        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.ERROR;
+            }
+        });
+
+        return state;
+    }
+
+    static ServerState getRunningState() {
+        ServerState state = new ServerState(RUNNING);
+
+        // Running -> Default
+        state.addTransition(new BaseTransition<StateMachine>(DEFAULT) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                // user switched?
+                return machine.getSessionKey() == null;
+            }
+        });
+
+        // Running -> Error
+        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.ERROR;
+            }
+        });
+
+        return state;
+    }
+
+    static ServerState getErrorState() {
+        ServerState state = new ServerState(ERROR);
+
+        // Error -> Default
+        state.addTransition(new BaseTransition<StateMachine>(DEFAULT) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                StarGate.Status status = machine.getStatus();
+                return status != StarGate.Status.ERROR;
+            }
+        });
+
+        return state;
     }
 }
 

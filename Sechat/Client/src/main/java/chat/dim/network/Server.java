@@ -36,8 +36,8 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.common.MessageTransmitter;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Delegate;
-import chat.dim.fsm.Machine;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -54,7 +54,7 @@ import chat.dim.startrek.Ship;
 import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements Messenger.Delegate, Delegate<ServerState> {
+public class Server extends Station implements Messenger.Delegate, Delegate<StateMachine, BaseTransition<StateMachine>, ServerState> {
 
     private User currentUser = null;
 
@@ -264,7 +264,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Serv
 
 //    @Override
 //    public void onSent(StarGate star, Package request, Error error) {
-//        Log.info("sent " + request.getLength() + " bytes");
+//        Log.info("sent " + request.getSize() + " bytes");
 //        Messenger.CompletionHandler handler = null;
 //
 //        byte[] requestData = request.body.getBytes();
@@ -371,7 +371,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Serv
     //-------- StateDelegate
 
     @Override
-    public void enterState(ServerState state, Machine machine) {
+    public void enterState(ServerState state, StateMachine machine) {
         Map<String, Object> info = new HashMap<>();
         info.put("state", state.name);
         NotificationCenter nc = NotificationCenter.getInstance();
@@ -395,11 +395,11 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Serv
     }
 
     @Override
-    public void exitState(ServerState state, Machine machine) {
+    public void exitState(ServerState state, StateMachine machine) {
     }
 
     @Override
-    public void pauseState(ServerState state, Machine machine) {
+    public void pauseState(ServerState state, StateMachine machine) {
         /* TODO: reuse session key?
         if (ServerState.RUNNING.equals(state.name)) {
             // save old session key for re-login
@@ -409,7 +409,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Serv
     }
 
     @Override
-    public void resumeState(ServerState state, Machine machine) {
+    public void resumeState(ServerState state, StateMachine machine) {
         if (ServerState.RUNNING.equals(state.name)) {
             // switch state for re-login
             fsm.setSessionKey(null);
