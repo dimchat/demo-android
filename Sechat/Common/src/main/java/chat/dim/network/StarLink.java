@@ -30,63 +30,33 @@
  */
 package chat.dim.network;
 
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
-import chat.dim.tcp.ActiveConnection;
+import chat.dim.net.ActiveConnection;
+import chat.dim.net.Channel;
+import chat.dim.tcp.StreamChannel;
 
 public class StarLink extends ActiveConnection {
 
-    private final List<byte[]> outgoPackages = new ArrayList<>();
-    private final ReadWriteLock outgoLock = new ReentrantReadWriteLock();
-
-    public StarLink(String remoteHost, int remotePort, Socket connectedSocket) {
-        super(remoteHost, remotePort, connectedSocket);
+    public StarLink(InetSocketAddress remote, Channel byteChannel) {
+        super(remote, byteChannel);
     }
 
-    public StarLink(String serverHost, int serverPort) {
-        super(serverHost, serverPort);
+    public StarLink(InetSocketAddress remote) {
+        this(remote, null);
     }
 
-    @Override
-    public int send(byte[] data) {
-        Lock writeLock = outgoLock.writeLock();
-        writeLock.lock();
-        try {
-            outgoPackages.add(data);
-        } finally {
-            writeLock.unlock();
-        }
-        return data.length;
-    }
-
-    private byte[] nextOutgo() {
-        byte[] data = null;
-        Lock writeLock = outgoLock.writeLock();
-        writeLock.lock();
-        try {
-            if (outgoPackages.size() > 0) {
-                data = outgoPackages.remove(0);
-            }
-        } finally {
-            writeLock.unlock();
-        }
-        return data;
+    public StarLink(String host, int port) {
+        this(new InetSocketAddress(host, port));
     }
 
     @Override
-    public boolean process() {
-        boolean ok = super.process();
-        byte[] data = nextOutgo();
-        if (data != null) {
-            if (super.send(data) == data.length) {
-                ok = true;
-            }
-        }
-        return ok;
+    protected Channel connect(InetSocketAddress remote) throws IOException {
+        StreamChannel channel = new StreamChannel();
+        channel.configureBlocking(true);
+        channel.connect(remote);
+        channel.configureBlocking(false);
+        return channel;
     }
 }

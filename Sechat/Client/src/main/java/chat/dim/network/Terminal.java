@@ -37,6 +37,7 @@ import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.ID;
+import chat.dim.threading.BackgroundThreads;
 
 public abstract class Terminal {
 
@@ -168,7 +169,7 @@ public abstract class Terminal {
         User user = facebook.getCurrentUser();
         if (user != null) {
             currentServer.setCurrentUser(user);
-            currentServer.handshake(null);
+            BackgroundThreads.rush(() -> currentServer.handshake(null));
         }
     }
 

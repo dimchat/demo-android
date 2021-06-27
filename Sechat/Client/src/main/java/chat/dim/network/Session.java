@@ -32,16 +32,13 @@ import chat.dim.startrek.Ship;
 
 public class Session extends BaseSession {
 
-    private final MTPDocker docker;
-
     public Session(String host, int port, Messenger transceiver) {
         super(host, port, transceiver);
-        docker = new MTPDocker(gate);
+        gate.setDocker(new MTPDocker(gate));
     }
 
     @Override
     public void setup() {
-        gate.setDocker(docker);
         setActive(true);
         super.setup();
     }

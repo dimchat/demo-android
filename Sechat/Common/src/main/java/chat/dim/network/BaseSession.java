@@ -26,20 +26,19 @@
 package chat.dim.network;
 
 import java.lang.ref.WeakReference;
-import java.net.Socket;
 
 import chat.dim.common.Messenger;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.startrek.Docker;
 import chat.dim.startrek.Gate;
 import chat.dim.startrek.Ship;
-import chat.dim.startrek.StarGate;
 import chat.dim.utils.Log;
 
 public class BaseSession extends Thread implements Gate.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
-    public final StarGate gate;
+    public final StarTrek gate;
     private final WeakReference<Messenger> messengerRef;
 
     private final MessageQueue queue;
@@ -47,7 +46,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     private boolean active;
     private boolean running;
 
-    private BaseSession(StarGate starGate, Messenger transceiver) {
+    private BaseSession(StarTrek starGate, Messenger transceiver) {
         super();
         gate = starGate;
         gate.setDelegate(this);
@@ -100,6 +99,12 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
     public void setActive(boolean value) {
         active = value;
+    }
+
+    @Override
+    public synchronized void start() {
+        gate.start();
+        super.start();
     }
 
     @Override
