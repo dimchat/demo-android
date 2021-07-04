@@ -32,6 +32,7 @@ package chat.dim.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import chat.dim.net.ActiveConnection;
 import chat.dim.net.Channel;
@@ -39,23 +40,17 @@ import chat.dim.tcp.StreamChannel;
 
 public class StarLink extends ActiveConnection {
 
-    public StarLink(InetSocketAddress remote, Channel byteChannel) {
-        super(remote, byteChannel);
-    }
-
-    public StarLink(InetSocketAddress remote) {
-        this(remote, null);
+    public StarLink(SocketAddress remote, SocketAddress local) {
+        super(remote, local);
     }
 
     public StarLink(String host, int port) {
-        this(new InetSocketAddress(host, port));
+        this(new InetSocketAddress(host, port), null);
     }
 
     @Override
-    protected Channel connect(InetSocketAddress remote) throws IOException {
-        StreamChannel channel = new StreamChannel();
-        channel.configureBlocking(true);
-        channel.connect(remote);
+    protected Channel connect(SocketAddress remote, SocketAddress local) throws IOException {
+        StreamChannel channel = new StreamChannel(remote, local);
         channel.configureBlocking(false);
         return channel;
     }

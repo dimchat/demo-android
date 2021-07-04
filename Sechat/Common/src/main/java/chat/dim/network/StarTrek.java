@@ -64,6 +64,12 @@ public final class StarTrek extends LockedGate {
     }
 
     @Override
+    public boolean process() {
+        connection.tick();
+        return super.process();
+    }
+
+    @Override
     public void finish() {
         super.finish();
         assert connection instanceof BaseConnection;

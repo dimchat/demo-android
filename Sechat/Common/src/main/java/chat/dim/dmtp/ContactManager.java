@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.dmtp.protocol.LocationValue;
-import chat.dim.tlv.StringValue;
+import chat.dim.tlv.values.StringValue;
 
 public class ContactManager implements LocationDelegate {
 
@@ -62,7 +62,7 @@ public class ContactManager implements LocationDelegate {
     public ContactManager(Peer peer) {
         super();
         this.peer = peer;
-        this.sourceAddress = peer.localAddress;
+        this.sourceAddress = peer.getLocalAddress();
     }
 
     /**
