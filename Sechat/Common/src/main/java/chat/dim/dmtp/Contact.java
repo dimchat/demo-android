@@ -43,6 +43,7 @@ import chat.dim.dmtp.protocol.Command;
 import chat.dim.dmtp.protocol.LocationValue;
 import chat.dim.net.Connection;
 import chat.dim.net.ConnectionState;
+import chat.dim.net.Hub;
 import chat.dim.stun.valus.MappedAddressValue;
 import chat.dim.stun.valus.SourceAddressValue;
 import chat.dim.tlv.values.RawValue;
@@ -52,7 +53,7 @@ import chat.dim.type.ByteArray;
 
 public class Contact {
 
-    public static long EXPIRES = 24 * 3600 * 1000;  // 24 hours
+    public static long EXPIRES = 24 * 3600 * 1000; // 24 hours (milliseconds)
 
     public final String identifier;
 
@@ -272,7 +273,7 @@ public class Contact {
         return true;
     }
 
-    public void purge(Peer peer) {
+    public void purge(Hub peer) {
         Lock writeLock = locationLock.writeLock();
         writeLock.lock();
         try {
@@ -295,7 +296,7 @@ public class Contact {
      * @param peer     - node peer
      * @return true to remove location
      */
-    public static boolean isExpired(LocationValue location, Peer peer) {
+    public static boolean isExpired(LocationValue location, Hub peer) {
         // if source-address's connection exists and not error,
         //    location not expired;
         SocketAddress sourceAddress = location.getSourceAddress();
@@ -304,11 +305,11 @@ public class Contact {
         SocketAddress mappedAddress = location.getMappedAddress();
         return isExpired(sourceAddress, peer) && isExpired(mappedAddress, peer);
     }
-    private static boolean isExpired(SocketAddress address, Peer peer) {
+    private static boolean isExpired(SocketAddress address, Hub peer) {
         if (address == null) {
             return true;
         }
-        Connection conn = peer.getConnection(address);
+        Connection conn = peer.getConnection(address, null);
         if (conn == null) {
             return true;
         }
@@ -322,6 +323,6 @@ public class Contact {
             return true;
         }
         long now = (new Date()).getTime();
-        return now > (timestamp + EXPIRES);
+        return now > (timestamp * 1000 + EXPIRES);
     }
 }

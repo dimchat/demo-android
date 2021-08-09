@@ -60,6 +60,7 @@ public final class StarTrek extends LockedGate {
             super.handle();
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
