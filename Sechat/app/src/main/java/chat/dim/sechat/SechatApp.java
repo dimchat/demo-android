@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,7 +102,7 @@ public final class SechatApp extends Application {
         client.enterBackground();
     }
 
-    public static boolean launch(android.app.Application app, Activity activity) {
+    public static boolean launch(android.app.Application app, Activity activity) throws IOException {
         if (!Permissions.canWriteExternalStorage(activity)) {
             Permissions.requestExternalStoragePermissions(activity);
             return false;

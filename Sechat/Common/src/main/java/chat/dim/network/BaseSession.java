@@ -26,15 +26,18 @@
 package chat.dim.network;
 
 import java.lang.ref.WeakReference;
+import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
+import chat.dim.mtp.Package;
+import chat.dim.mtp.StreamArrival;
+import chat.dim.port.Arrival;
+import chat.dim.port.Departure;
+import chat.dim.port.Gate;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.startrek.Docker;
-import chat.dim.startrek.Gate;
-import chat.dim.startrek.Ship;
 import chat.dim.utils.Log;
 
-public class BaseSession extends Thread implements Gate.Delegate {
+public class BaseSession extends Thread implements StarDelegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
@@ -44,20 +47,14 @@ public class BaseSession extends Thread implements Gate.Delegate {
     private final MessageQueue queue;
 
     private boolean active;
-    private boolean running;
 
-    private BaseSession(StarTrek starGate, Messenger transceiver) {
+    public BaseSession(String host, int port, Messenger transceiver) {
         super();
-        gate = starGate;
-        gate.setDelegate(this);
+        gate = StarTrek.create(host, port, this);
         messengerRef = new WeakReference<>(transceiver);
         queue = new MessageQueue();
         // session status
         active = false;
-        running = false;
-    }
-    public BaseSession(String host, int port, Messenger transceiver) {
-        this(StarTrek.createGate(host, port), transceiver);
     }
 
     private void flush() {
@@ -103,7 +100,6 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     @Override
     public synchronized void start() {
-        gate.start();
         super.start();
     }
 
@@ -120,22 +116,20 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
 
     public void close() {
-        running = false;
+        gate.stop();
     }
 
     public void setup() {
-        running = true;
-        gate.setup();
+        gate.start();
     }
 
     public void finish() {
-        running = false;
-        gate.finish();
+        gate.stop();
         flush();
     }
 
     public boolean isRunning() {
-        return running && gate.isRunning();
+        return gate.isRunning();
     }
 
     public void handle() {
@@ -199,21 +193,31 @@ public class BaseSession extends Thread implements Gate.Delegate {
     //
 
     @Override
-    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
-        if (newStatus.equals(Gate.Status.CONNECTED)) {
+    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, Gate gate) {
+        if (newStatus.equals(Gate.Status.READY)) {
             getMessenger().onConnected();
         }
     }
 
     @Override
-    public byte[] onReceived(Gate gate, Ship ship) {
-        byte[] payload = ship.getPayload();
+    public void onReceived(Arrival income, SocketAddress source, SocketAddress destination, Gate gate) {
+        assert income instanceof StreamArrival : "arrival ship error: " + income;
+        StreamArrival ship = (StreamArrival) income;
+        Package pack = ship.getPackage();
+        byte[] payload = pack.body.getBytes();
         Log.info("received " + payload.length + " bytes");
         try {
-            return getMessenger().process(payload);
+            getMessenger().process(payload);
         } catch (NullPointerException e) {
             e.printStackTrace();
-            return null;
         }
+    }
+
+    @Override
+    public void onSent(Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
+    }
+
+    @Override
+    public void onError(Error error, Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
     }
 }

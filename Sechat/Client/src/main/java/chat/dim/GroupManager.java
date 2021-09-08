@@ -30,6 +30,7 @@ import java.util.List;
 
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
@@ -39,7 +40,6 @@ import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.group.ExpelCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QuitCommand;
-import chat.dim.startrek.StarShip;
 
 /**
  *  This is for sending group message, or managing group members
@@ -61,10 +61,10 @@ public final class GroupManager {
 
     // send command to current station
     private static void sendGroupCommand(Command cmd) {
-        getMessenger().sendCommand(cmd, StarShip.NORMAL);
+        getMessenger().sendCommand(cmd, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, ID receiver) {
-        getMessenger().sendContent(null, receiver, cmd, null, StarShip.NORMAL);
+        getMessenger().sendContent(null, receiver, cmd, null, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members == null) {

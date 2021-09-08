@@ -32,7 +32,7 @@ import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
-import chat.dim.mtp.Utils;
+import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
@@ -109,7 +109,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
             return super.serializeMessage(rMsg);
         } else {
             // D-MTP
-            return Utils.serializeMessage(rMsg);
+            return MsgUtils.serializeMessage(rMsg);
         }
     }
 
@@ -122,7 +122,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
             // JsON
             return super.deserializeMessage(data);
         } else { // D-MTP
-            return Utils.deserializeMessage(data);
+            return MsgUtils.deserializeMessage(data);
         }
     }
 

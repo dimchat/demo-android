@@ -25,16 +25,17 @@
  */
 package chat.dim.network;
 
+import java.io.IOException;
+import java.net.SocketAddress;
+
 import chat.dim.common.Messenger;
-import chat.dim.stargate.MTPDocker;
-import chat.dim.startrek.Gate;
-import chat.dim.startrek.Ship;
+import chat.dim.port.Departure;
+import chat.dim.port.Gate;
 
 public class Session extends BaseSession {
 
-    public Session(String host, int port, Messenger transceiver) {
+    public Session(String host, int port, Messenger transceiver) throws IOException {
         super(host, port, transceiver);
-        gate.setDocker(new MTPDocker(gate));
     }
 
     @Override
@@ -47,12 +48,15 @@ public class Session extends BaseSession {
     public void finish() {
         super.finish();
         setActive(false);
-        gate.setDocker(null);
     }
 
-    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
+    public boolean send(byte[] payload, Departure.Priority priority) {
+        return send(payload, priority.value);
+    }
+    public boolean send(byte[] payload, int priority) {
         if (isActive()) {
-            return gate.send(payload, priority, delegate);
+            gate.sendMessage(payload, priority);
+            return true;
         } else {
             return false;
         }
@@ -63,9 +67,9 @@ public class Session extends BaseSession {
     //
 
     @Override
-    public void onStatusChanged(Gate gate, Gate.Status oldStatus, Gate.Status newStatus) {
-        super.onStatusChanged(gate, oldStatus, newStatus);
-        if (newStatus.equals(Gate.Status.CONNECTED)) {
+    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, Gate gate) {
+        super.onStatusChanged(oldStatus, newStatus, remote, gate);
+        if (newStatus.equals(Gate.Status.READY)) {
             Messenger.Delegate delegate = getMessenger().getDelegate();
             if (delegate instanceof Server) {
                 ((Server) delegate).handshake(null);

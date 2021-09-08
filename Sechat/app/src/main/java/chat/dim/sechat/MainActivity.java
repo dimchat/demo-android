@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.User;
@@ -184,7 +185,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         setDefaultFragment();
 
-        SechatApp.launch(getApplication(), this);
+        try {
+            SechatApp.launch(getApplication(), this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // FIXME:
+        }
 
         User user = checkCurrentUser();
         if (user != null) {

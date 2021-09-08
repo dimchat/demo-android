@@ -37,6 +37,7 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.port.Departure;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ForwardContent;
@@ -52,7 +53,6 @@ import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class MessageDataSource implements Messenger.DataSource, Observer {
@@ -104,7 +104,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
                     if (res == null) {
                         continue;
                     }
-                    messenger.sendMessage(res, null, StarShip.SLOWER);
+                    messenger.sendMessage(res, null, Departure.Priority.SLOWER.value);
                 }
             }
 
@@ -112,7 +112,7 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             List<InstantMessage> outgoing = outgoingMessages.remove(entity);
             if (outgoing != null) {
                 for (InstantMessage item : outgoing) {
-                    messenger.sendMessage(item, null, StarShip.SLOWER);
+                    messenger.sendMessage(item, null, Departure.Priority.SLOWER.value);
                 }
             }
         }

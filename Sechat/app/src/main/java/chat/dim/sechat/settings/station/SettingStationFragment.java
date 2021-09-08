@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.client.Facebook;
@@ -82,7 +83,13 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
 
         // reconnect to new station
         Client client = Client.getInstance();
-        client.launch(null);
+        try {
+            // reconnect
+            client.launch(null);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // FIXME:
+        }
         client.enterForeground();
 
         NotificationCenter nc = NotificationCenter.getInstance();

@@ -50,7 +50,7 @@ import chat.dim.type.IntegerData;
 import chat.dim.type.MutableData;
 import chat.dim.type.VarIntData;
 
-public class Utils {
+public class MsgUtils {
 
     @SuppressWarnings("unchecked")
     public static byte[] serializeMessage(ReliableMessage msg) {
@@ -115,10 +115,10 @@ public class Utils {
             // dict to JSON
             info.put("meta", JSON.encode(meta));
         }
-        Map<String, Object> profile = (Map) info.get("profile");
-        if (profile != null) {
+        Map<String, Object> visa = (Map) info.get("visa");
+        if (visa != null) {
             // dict to JSON
-            info.put("profile", JSON.encode(profile));
+            info.put("visa", JSON.encode(visa));
         }
 
         // create as message

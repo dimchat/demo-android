@@ -25,6 +25,7 @@
  */
 package chat.dim.network;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,7 +126,7 @@ public abstract class Terminal {
 
     //--------
 
-    private void startServer(ProviderTable.StationInfo stationInfo) {
+    private void startServer(ProviderTable.StationInfo stationInfo) throws IOException {
         ID identifier = stationInfo.identifier;
         String name = stationInfo.name;
         String host = stationInfo.host;
@@ -173,7 +174,7 @@ public abstract class Terminal {
         }
     }
 
-    private void startServer() {
+    private void startServer() throws IOException {
         NetworkDatabase database = NetworkDatabase.getInstance();
         List<ProviderTable.ProviderInfo> providers = database.allProviders();
         if (providers.size() > 0) {
@@ -190,7 +191,7 @@ public abstract class Terminal {
 
     //-------- AppDelegate
 
-    public void launch(Map<String, Object> options) {
+    public void launch(Map<String, Object> options) throws IOException {
 
         //
         // launch server

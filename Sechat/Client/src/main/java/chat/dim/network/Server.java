@@ -41,6 +41,8 @@ import chat.dim.fsm.Delegate;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.port.Departure;
+import chat.dim.port.Gate;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
@@ -49,9 +51,6 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
-import chat.dim.startrek.Gate;
-import chat.dim.startrek.Ship;
-import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class Server extends Station implements Messenger.Delegate, Delegate<StateMachine, BaseTransition<StateMachine>, ServerState> {
@@ -69,7 +68,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
 
     private WeakReference<ServerDelegate> delegateRef = null;
 
-    Server(ID identifier, String host, int port, String title) {
+    Server(ID identifier, String host, int port, String title) throws IOException {
         super(identifier, host, port);
         session = new Session(host, port, Messenger.getInstance());
         name = title;
@@ -106,7 +105,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     Gate.Status getStatus() {
-        return session.gate.getStatus();
+        return session.gate.getStatus(session.gate.remoteAddress, null);
     }
 
     private ReliableMessage packCommand(Command cmd) {
@@ -160,7 +159,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
             return;
         }
         // check connection status == 'Connected'
-        if (getStatus() != Gate.Status.CONNECTED) {
+        if (getStatus() != Gate.Status.READY) {
             // FIXME: sometimes the connection will be lost while handshaking
             Log.error("server not connected");
             return;
@@ -185,7 +184,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         Messenger messenger = Messenger.getInstance();
         byte[] data = messenger.serializeMessage(rMsg);
         // Urgent Command
-        session.send(data, StarShip.URGENT, null);
+        session.send(data, Departure.Priority.URGENT);
     }
 
     public void handshakeAccepted() {
@@ -321,15 +320,16 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
 
     @Override
     public boolean sendPackage(byte[] data, Messenger.CompletionHandler handler, int priority) {
-        Ship.Delegate delegate = null;
+        StarDelegate delegate = null;
         if (handler instanceof MessageTransmitter.CompletionHandler) {
             Messenger.Callback callback = ((MessageTransmitter.CompletionHandler) handler).callback;
-            if (callback instanceof Ship.Delegate) {
-                delegate = (Ship.Delegate) callback;
+            if (callback instanceof StarDelegate) {
+                delegate = (StarDelegate) callback;
             }
         }
 
-        if (session.send(data, priority, delegate)) {
+        // FIXME: what about the delegate?
+        if (session.send(data, priority)) {
             if (handler != null) {
                 handler.onSuccess();
             }
@@ -372,6 +372,9 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
 
     @Override
     public void enterState(ServerState state, StateMachine machine) {
+        if (state == null) {
+            return;
+        }
         Map<String, Object> info = new HashMap<>();
         info.put("state", state.name);
         NotificationCenter nc = NotificationCenter.getInstance();

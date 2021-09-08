@@ -39,6 +39,7 @@ import chat.dim.network.Server;
 import chat.dim.network.ServerDelegate;
 import chat.dim.network.Station;
 import chat.dim.network.Terminal;
+import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
@@ -51,7 +52,6 @@ import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger implements ServerDelegate {
@@ -133,7 +133,8 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 //    }
 
     private boolean sendContent(ID receiver, Content content) {
-        return sendContent(null, receiver, content, null, StarShip.SLOWER);
+        return sendContent(null, receiver, content,
+                null, Departure.Priority.SLOWER.value);
     }
 
     /**
@@ -170,7 +171,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     public boolean postDocument(Document doc, Meta meta) {
         doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         Command cmd = new DocumentCommand(doc.getIdentifier(), meta, doc);
-        return sendCommand(cmd, StarShip.SLOWER);
+        return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
     public void postContacts(List<ID> contacts) {
@@ -189,7 +190,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         cmd.setIdentifier(user.identifier);
         cmd.setData(data);
         cmd.setKey(key);
-        sendCommand(cmd, StarShip.SLOWER);
+        sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
     public void queryContacts() {
@@ -197,7 +198,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         assert user != null : "current user empty";
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
         cmd.setIdentifier(user.identifier);
-        sendCommand(cmd, StarShip.SLOWER);
+        sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
     private final Map<ID, Long> metaQueryExpires = new HashMap<>();
@@ -224,7 +225,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 
         // query from DIM network
         Command cmd = new MetaCommand(identifier);
-        return sendCommand(cmd, StarShip.SLOWER);
+        return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
     @Override
@@ -245,7 +246,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
 
         // query from DIM network
         Command cmd = new DocumentCommand(identifier);
-        return sendCommand(cmd, StarShip.SLOWER);
+        return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
     @Override
@@ -296,7 +297,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         if (offlineTime != null) {
             cmd.put("last_time", offlineTime.getTime() / 1000);
         }
-        sendCommand(cmd, StarShip.NORMAL);
+        sendCommand(cmd, Departure.Priority.NORMAL.value);
     }
     public void reportOffline() {
         User user = getCurrentUser();
@@ -305,7 +306,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         }
         Command cmd = new ReportCommand(ReportCommand.OFFLINE);
         offlineTime = cmd.getTime();
-        sendCommand(cmd, StarShip.NORMAL);
+        sendCommand(cmd, Departure.Priority.NORMAL.value);
     }
 
     //---- Server Delegate
@@ -315,7 +316,7 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         try {
             byte[] response = process(data);
             if (response != null && response.length > 0) {
-                ((Server) server).sendPackage(response, null, StarShip.SLOWER);
+                ((Server) server).sendPackage(response, null, Departure.Priority.SLOWER.value);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();

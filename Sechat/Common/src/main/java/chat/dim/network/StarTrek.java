@@ -30,50 +30,83 @@
  */
 package chat.dim.network;
 
-import chat.dim.net.BaseConnection;
-import chat.dim.stargate.LockedGate;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.List;
 
-public final class StarTrek extends LockedGate {
+import chat.dim.mtp.PackUtils;
+import chat.dim.mtp.Package;
+import chat.dim.mtp.StreamDocker;
+import chat.dim.net.Connection;
+import chat.dim.port.Docker;
+import chat.dim.port.Gate;
+import chat.dim.stargate.TCPGate;
+import chat.dim.tcp.ClientHub;
+import chat.dim.utils.Log;
 
-    public StarTrek(BaseConnection conn) {
-        super(conn);
+interface StarDelegate extends Gate.Delegate {
+}
+
+public final class StarTrek extends TCPGate<ClientHub> {
+
+    public final SocketAddress remoteAddress;
+    public final SocketAddress localAddress;
+
+    public StarTrek(StarDelegate delegate, SocketAddress remote, SocketAddress local) {
+        super(delegate);
+        remoteAddress = remote;
+        localAddress = local;
     }
 
-    private static StarTrek createGate(BaseConnection conn) {
-        StarTrek gate = new StarTrek(conn);
-        conn.setDelegate(gate);
-        return gate;
+    @Override
+    protected ClientHub createHub() {
+        return new ClientHub(this);
     }
-    public static StarTrek createGate(String host, int port) {
-        return createGate(new StarLink(host, port));
+
+    @Override
+    protected Docker createDocker(SocketAddress remote, SocketAddress local, List<byte[]> data) {
+        // TODO: check data format before create docker
+        return new StreamDocker(remote, local, this);
+    }
+
+    @Override
+    public void onSent(byte[] data, SocketAddress source, SocketAddress destination, Connection connection) {
+        super.onSent(data, source, destination, connection);
+        int dataLen = data == null ? 0 : data.length;
+        Log.info(dataLen + " byte(s) sent to " + destination);
+    }
+
+    @Override
+    public void onError(Throwable error, byte[] data, SocketAddress source, SocketAddress destination, Connection connection) {
+        super.onError(error, data, source, destination, connection);
+        int dataLen = data == null ? 0 : data.length;
+        Log.error("failed to sent data (" + dataLen + " bytes) to " + destination + ":" + error);
     }
 
     public void start() {
-        assert connection instanceof BaseConnection;
-        ((BaseConnection) connection).start();
-        (new Thread(this)).start();
-    }
-
-    @Override
-    public void handle() {
+        super.start();
         try {
-            super.handle();
-        } catch (Exception e) {
+            hub.connect(remoteAddress, localAddress);
+        } catch (IOException e) {
             e.printStackTrace();
-            throw e;
         }
     }
 
-    @Override
-    public boolean process() {
-        connection.tick();
-        return super.process();
+    void sendCommand(byte[] body, int priority) {
+        Package pack = PackUtils.createCommand(body);
+        Docker worker = getDocker(remoteAddress, localAddress, null);
+        ((StreamDocker) worker).sendPackage(pack, priority);
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-        assert connection instanceof BaseConnection;
-        ((BaseConnection) connection).stop();
+    void sendMessage(byte[] body, int priority) {
+        Package pack = PackUtils.createMessage(body);
+        Docker worker = getDocker(remoteAddress, localAddress, null);
+        ((StreamDocker) worker).sendPackage(pack, priority);
+    }
+
+    public static StarTrek create(String host, int port, StarDelegate delegate) {
+        SocketAddress remote = new InetSocketAddress(host, port);
+        return new StarTrek(delegate, remote, null);
     }
 }

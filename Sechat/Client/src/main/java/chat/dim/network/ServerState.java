@@ -29,6 +29,7 @@ import java.util.Date;
 
 import chat.dim.fsm.BaseState;
 import chat.dim.fsm.BaseTransition;
+import chat.dim.port.Gate;
 import chat.dim.startrek.StarGate;
 import chat.dim.utils.Log;
 
@@ -101,7 +102,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                     return false;
                 }
                 StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.CONNECTING || status == StarGate.Status.CONNECTED;
+                return status == StarGate.Status.READY || status == StarGate.Status.READY;
             }
         });
 
@@ -117,7 +118,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
             public boolean evaluate(StateMachine machine) {
                 assert machine.getCurrentUser() != null : "server/user error";
                 StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.CONNECTED;
+                return status == StarGate.Status.READY;
             }
         });
 
@@ -178,7 +179,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                 }
                 // handshake expired, return to connected to do it again
                 StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.CONNECTED;
+                return status == StarGate.Status.READY;
             }
         });
 

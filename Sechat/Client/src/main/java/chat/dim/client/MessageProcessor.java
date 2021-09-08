@@ -31,6 +31,7 @@ import chat.dim.cpu.HandshakeCommandProcessor;
 import chat.dim.cpu.LoginCommandProcessor;
 import chat.dim.cpu.SearchCommandProcessor;
 import chat.dim.cpu.StorageCommandProcessor;
+import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
@@ -42,7 +43,6 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
-import chat.dim.startrek.StarShip;
 import chat.dim.utils.Log;
 
 public class MessageProcessor extends chat.dim.common.MessageProcessor {
@@ -80,7 +80,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
         Envelope env = Envelope.create(user.identifier, sender, null);
         InstantMessage iMsg = InstantMessage.create(env, res);
         // normal response
-        getMessenger().sendMessage(iMsg, null, StarShip.SLOWER);
+        getMessenger().sendMessage(iMsg, null, Departure.Priority.SLOWER.value);
         // DON'T respond to station directly
         return null;
     }
