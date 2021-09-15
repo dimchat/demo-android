@@ -29,14 +29,14 @@ import java.net.SocketAddress;
 import java.util.Date;
 
 import chat.dim.Messenger;
-import chat.dim.mtp.StreamArrival;
-import chat.dim.mtp.StreamDeparture;
+import chat.dim.net.Connection;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
-import chat.dim.port.Gate;
+import chat.dim.port.Ship;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.utils.Log;
 
-final class MessageWrapper implements StarDelegate, Messenger.Callback {
+final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
 
     private long timestamp;
     private ReliableMessage msg;
@@ -75,27 +75,23 @@ final class MessageWrapper implements StarDelegate, Messenger.Callback {
     }
 
     //
-    //  Gate Delegate
+    //  Ship Delegate
     //
 
     @Override
-    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, Gate gate) {
+    public void onReceived(Arrival arrival, SocketAddress source, SocketAddress destination, Connection connection) {
 
     }
 
     @Override
-    public void onReceived(Arrival income, SocketAddress source, SocketAddress destination, Gate gate) {
-
-    }
-
-    @Override
-    public void onSent(Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
+    public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
         // success, remove message
         msg = null;
     }
 
     @Override
-    public void onError(Error error, Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
+    public void onError(Throwable error, Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+        Log.error("connection error (" + source + ", " + destination + "): " + error.getLocalizedMessage());
         // failed
         timestamp = -1;
     }

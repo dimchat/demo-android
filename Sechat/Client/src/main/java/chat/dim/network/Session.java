@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import chat.dim.common.Messenger;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
+import chat.dim.port.Ship;
 
 public class Session extends BaseSession {
 
@@ -50,12 +51,12 @@ public class Session extends BaseSession {
         setActive(false);
     }
 
-    public boolean send(byte[] payload, Departure.Priority priority) {
-        return send(payload, priority.value);
+    public boolean send(byte[] payload, Departure.Priority priority, Ship.Delegate delegate) {
+        return send(payload, priority.value, delegate);
     }
-    public boolean send(byte[] payload, int priority) {
+    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
         if (isActive()) {
-            gate.sendMessage(payload, priority);
+            gate.sendMessage(payload, priority, delegate);
             return true;
         } else {
             return false;
@@ -67,8 +68,8 @@ public class Session extends BaseSession {
     //
 
     @Override
-    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, Gate gate) {
-        super.onStatusChanged(oldStatus, newStatus, remote, gate);
+    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
+        super.onStatusChanged(oldStatus, newStatus, remote, local, gate);
         if (newStatus.equals(Gate.Status.READY)) {
             Messenger.Delegate delegate = getMessenger().getDelegate();
             if (delegate instanceof Server) {

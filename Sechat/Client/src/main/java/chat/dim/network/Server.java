@@ -43,6 +43,7 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
+import chat.dim.port.Ship;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
@@ -169,6 +170,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
             sessionKey = newSessionKey;
         }
         fsm.setSessionKey(null);
+        Log.info("shaking hands with session key: " + sessionKey);
 
         // create handshake command
         HandshakeCommand cmd = new HandshakeCommand(sessionKey);
@@ -184,7 +186,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         Messenger messenger = Messenger.getInstance();
         byte[] data = messenger.serializeMessage(rMsg);
         // Urgent Command
-        session.send(data, Departure.Priority.URGENT);
+        session.send(data, Departure.Priority.URGENT, null);
     }
 
     public void handshakeAccepted() {
@@ -320,16 +322,16 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
 
     @Override
     public boolean sendPackage(byte[] data, Messenger.CompletionHandler handler, int priority) {
-        StarDelegate delegate = null;
+        Ship.Delegate delegate = null;
         if (handler instanceof MessageTransmitter.CompletionHandler) {
             Messenger.Callback callback = ((MessageTransmitter.CompletionHandler) handler).callback;
-            if (callback instanceof StarDelegate) {
-                delegate = (StarDelegate) callback;
+            if (callback instanceof Ship.Delegate) {
+                delegate = (Ship.Delegate) callback;
             }
         }
 
         // FIXME: what about the delegate?
-        if (session.send(data, priority)) {
+        if (session.send(data, priority, delegate)) {
             if (handler != null) {
                 handler.onSuccess();
             }
@@ -371,16 +373,24 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     //-------- StateDelegate
 
     @Override
-    public void enterState(ServerState state, StateMachine machine) {
-        if (state == null) {
+    public void enterState(ServerState next, StateMachine machine) {
+        // called before state changed
+    }
+
+    @Override
+    public void exitState(ServerState previous, StateMachine machine) {
+        // called after state changed
+        ServerState current = machine.getCurrentState();
+        Log.info("server state changed: " + previous + " -> " + current);
+        if (current == null) {
             return;
         }
         Map<String, Object> info = new HashMap<>();
-        info.put("state", state.name);
+        info.put("state", current.name);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ServerStateChanged, this, info);
 
-        switch (state.name) {
+        switch (current.name) {
             case ServerState.HANDSHAKING: {
                 // start handshake
                 handshake(null);
@@ -398,13 +408,9 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     @Override
-    public void exitState(ServerState state, StateMachine machine) {
-    }
-
-    @Override
-    public void pauseState(ServerState state, StateMachine machine) {
+    public void pauseState(ServerState current, StateMachine machine) {
         /* TODO: reuse session key?
-        if (ServerState.RUNNING.equals(state.name)) {
+        if (ServerState.RUNNING.equals(current.name)) {
             // save old session key for re-login
             oldSession = sessionKey;
         }
@@ -412,8 +418,8 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     @Override
-    public void resumeState(ServerState state, StateMachine machine) {
-        if (ServerState.RUNNING.equals(state.name)) {
+    public void resumeState(ServerState current, StateMachine machine) {
+        if (ServerState.RUNNING.equals(current.name)) {
             // switch state for re-login
             fsm.setSessionKey(null);
         }

@@ -25,19 +25,25 @@
  */
 package chat.dim.network;
 
+import com.alibaba.fastjson.JSONException;
+
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
+import chat.dim.net.Connection;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
+import chat.dim.port.Ship;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.startrek.DepartureShip;
 import chat.dim.utils.Log;
 
-public class BaseSession extends Thread implements StarDelegate {
+public class BaseSession extends Thread implements Gate.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
@@ -48,7 +54,7 @@ public class BaseSession extends Thread implements StarDelegate {
 
     private boolean active;
 
-    public BaseSession(String host, int port, Messenger transceiver) {
+    public BaseSession(String host, int port, Messenger transceiver) throws IOException {
         super();
         gate = StarTrek.create(host, port, this);
         messengerRef = new WeakReference<>(transceiver);
@@ -193,31 +199,46 @@ public class BaseSession extends Thread implements StarDelegate {
     //
 
     @Override
-    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, Gate gate) {
+    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
         if (newStatus.equals(Gate.Status.READY)) {
             getMessenger().onConnected();
         }
     }
 
     @Override
-    public void onReceived(Arrival income, SocketAddress source, SocketAddress destination, Gate gate) {
-        assert income instanceof StreamArrival : "arrival ship error: " + income;
-        StreamArrival ship = (StreamArrival) income;
+    public void onReceived(Arrival arrival, SocketAddress source, SocketAddress destination, Connection connection) {
+        assert arrival instanceof StreamArrival : "arrival ship error: " + arrival;
+        StreamArrival ship = (StreamArrival) arrival;
         Package pack = ship.getPackage();
         byte[] payload = pack.body.getBytes();
         Log.info("received " + payload.length + " bytes");
         try {
             getMessenger().process(payload);
+        } catch (JSONException e) {
+            Log.info("JSON error: " + (new String(payload)));
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onSent(Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
+    public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+        if (departure instanceof DepartureShip) {
+            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
+            if (delegate != null && delegate != this) {
+                delegate.onSent(departure, source, destination, connection);
+            }
+        }
     }
 
     @Override
-    public void onError(Error error, Departure outgo, SocketAddress source, SocketAddress destination, Gate gate) {
+    public void onError(Throwable error, Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+        Log.error("connection error (" + source + ", " + destination + "): " + error.getLocalizedMessage());
+        if (departure instanceof DepartureShip) {
+            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
+            if (delegate != null && delegate != this) {
+                delegate.onError(error, departure, source, destination, connection);
+            }
+        }
     }
 }
