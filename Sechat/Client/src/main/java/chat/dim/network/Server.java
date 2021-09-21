@@ -106,7 +106,8 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     Gate.Status getStatus() {
-        return session.gate.getStatus(session.gate.remoteAddress, null);
+        StarTrek gate = session.getGate();
+        return gate.getStatus(gate.remoteAddress, null);
     }
 
     private ReliableMessage packCommand(Command cmd) {

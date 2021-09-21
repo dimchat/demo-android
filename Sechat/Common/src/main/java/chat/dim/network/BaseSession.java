@@ -47,7 +47,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
-    public final StarTrek gate;
+    private final StarTrek gate;
     private final WeakReference<Messenger> messengerRef;
 
     private final MessageQueue queue;
@@ -61,6 +61,10 @@ public class BaseSession extends Thread implements Gate.Delegate {
         queue = new MessageQueue();
         // session status
         active = false;
+    }
+
+    public StarTrek getGate() {
+        return gate;
     }
 
     private void flush() {
@@ -200,7 +204,10 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     @Override
     public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
-        if (newStatus.equals(Gate.Status.READY)) {
+        if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
+            setActive(false);
+            close();
+        } else if (newStatus.equals(Gate.Status.READY)) {
             getMessenger().onConnected();
         }
     }

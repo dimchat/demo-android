@@ -35,7 +35,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 
-import chat.dim.mtp.PackUtils;
+import chat.dim.mtp.MTPHelper;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamDocker;
 import chat.dim.port.Docker;
@@ -75,10 +75,10 @@ public final class StarTrek extends TCPGate<ClientHub> {
     }
 
     public void sendCommand(byte[] body, int priority, Ship.Delegate delegate) {
-        send(PackUtils.createCommand(body), priority, delegate);
+        send(MTPHelper.createCommand(body), priority, delegate);
     }
     public void sendMessage(byte[] body, int priority, Ship.Delegate delegate) {
-        send(PackUtils.createMessage(body), priority, delegate);
+        send(MTPHelper.createMessage(body), priority, delegate);
     }
     public void send(Package pack, int priority, Ship.Delegate delegate) {
         Docker worker = getDocker(remoteAddress, localAddress, null);

@@ -32,6 +32,7 @@ import chat.dim.common.Messenger;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
+import chat.dim.tcp.ClientHub;
 
 public class Session extends BaseSession {
 
@@ -56,9 +57,11 @@ public class Session extends BaseSession {
     }
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
         if (isActive()) {
-            gate.sendMessage(payload, priority, delegate);
+            getGate().sendMessage(payload, priority, delegate);
             return true;
         } else {
+            // FIXME: connection lost?
+            // java.nio.BufferOverflowException
             return false;
         }
     }
@@ -69,8 +72,13 @@ public class Session extends BaseSession {
 
     @Override
     public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
-        super.onStatusChanged(oldStatus, newStatus, remote, local, gate);
-        if (newStatus.equals(Gate.Status.READY)) {
+        if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
+            // connection lost, reconnecting
+            ClientHub hub = getGate().getHub();
+            hub.getConnection(remote, local);
+        } else if (newStatus.equals(Gate.Status.READY)) {
+            getMessenger().onConnected();
+            // handshake
             Messenger.Delegate delegate = getMessenger().getDelegate();
             if (delegate instanceof Server) {
                 ((Server) delegate).handshake(null);

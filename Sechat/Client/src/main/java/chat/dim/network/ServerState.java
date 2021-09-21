@@ -52,6 +52,11 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
     }
 
     @Override
+    public String toString() {
+        return name;
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
