@@ -55,7 +55,7 @@ import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
 
-public class MessageDataSource implements Messenger.DataSource, Observer {
+public class MessageDataSource implements Observer {
 
     private static final MessageDataSource ourInstance = new MessageDataSource();
     public static MessageDataSource getInstance() { return ourInstance; }
@@ -120,7 +120,6 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         }
     }
 
-    @Override
     public boolean saveMessage(InstantMessage iMsg) {
         Content content = iMsg.getContent();
         // TODO: check message type
@@ -189,7 +188,6 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         }
     }
 
-    @Override
     public void suspendMessage(ReliableMessage rMsg) {
         // save this message in a queue waiting sender's meta response
         ID waiting = ID.parse(rMsg.get("waiting"));
@@ -209,7 +207,6 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
         list.add(rMsg);
     }
 
-    @Override
     public void suspendMessage(InstantMessage iMsg) {
         // save this message in a queue waiting receiver's meta response
         ID waiting = ID.parse(iMsg.get("waiting"));

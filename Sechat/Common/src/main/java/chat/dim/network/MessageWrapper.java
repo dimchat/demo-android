@@ -101,7 +101,7 @@ final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
     //
 
     @Override
-    public void onFinished(Object result, Error error) {
+    public void onFinished(ReliableMessage rMsg, Error error) {
         if (error == null) {
             // this message was assigned to the worker of StarGate,
             // update sent time

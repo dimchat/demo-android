@@ -37,18 +37,24 @@ public class MessageTransmitter extends chat.dim.MessageTransmitter {
     }
 
     @Override
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
+    }
+
+    @Override
     public boolean sendMessage(final InstantMessage iMsg, final Messenger.Callback callback, final int priority) {
         BackgroundThreads.wait(new Runnable() {
             @Override
             public void run() {
+                final Messenger messenger = getMessenger();
                 // Send message (secured + certified) to target station
-                SecureMessage sMsg = getMessenger().encryptMessage(iMsg);
+                SecureMessage sMsg = messenger.encryptMessage(iMsg);
                 if (sMsg == null) {
                     // public key not found?
                     return ;
                     //throw new NullPointerException("failed to encrypt message: " + iMsg);
                 }
-                ReliableMessage rMsg = getMessenger().signMessage(sMsg);
+                ReliableMessage rMsg = messenger.signMessage(sMsg);
                 if (rMsg == null) {
                     // TODO: set iMsg.state = error
                     throw new NullPointerException("failed to sign message: " + sMsg);
@@ -60,9 +66,44 @@ public class MessageTransmitter extends chat.dim.MessageTransmitter {
                 // save signature for receipt
                 iMsg.put("signature", rMsg.get("signature"));
 
-                getMessenger().saveMessage(iMsg);
+                messenger.saveMessage(iMsg);
             }
         });
         return true;
+    }
+
+    @Override
+    public boolean sendMessage(final ReliableMessage rMsg, final Messenger.Callback callback, final int priority) {
+        final Messenger.CompletionHandler handler;
+        if (callback == null) {
+            handler = null;
+        } else {
+            handler = new CompletionHandler(rMsg, callback);
+        }
+        final Messenger messenger = getMessenger();
+        final byte[] data = messenger.serializeMessage(rMsg);
+        return messenger.sendPackage(data, handler, priority);
+    }
+
+    public static class CompletionHandler implements Messenger.CompletionHandler {
+
+        public final ReliableMessage message;
+        public final Messenger.Callback callback;
+
+        public CompletionHandler(ReliableMessage rMsg, Messenger.Callback cb) {
+            super();
+            message = rMsg;
+            callback = cb;
+        }
+
+        @Override
+        public void onSuccess() {
+            callback.onFinished(message, null);
+        }
+
+        @Override
+        public void onFailed(final Error error) {
+            callback.onFinished(message, error);
+        }
     }
 }

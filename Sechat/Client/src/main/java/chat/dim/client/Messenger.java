@@ -45,9 +45,11 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
@@ -72,19 +74,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     }
 
     @Override
-    protected DataSource getDataSource() {
-        DataSource delegate = super.getDataSource();
-        if (delegate == null) {
-            delegate = createDataSource();
-            setDataSource(delegate);
-        }
-        return delegate;
-    }
-    protected DataSource createDataSource() {
-        return MessageDataSource.getInstance();
-    }
-
-    @Override
     protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
     }
@@ -103,6 +92,24 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     }
     public User getCurrentUser() {
         return getTerminal().getCurrentUser();
+    }
+
+    @Override
+    public void suspendMessage(ReliableMessage rMsg) {
+        MessageDataSource ds = MessageDataSource.getInstance();
+        ds.suspendMessage(rMsg);
+    }
+
+    @Override
+    public void suspendMessage(InstantMessage iMsg) {
+        MessageDataSource ds = MessageDataSource.getInstance();
+        ds.suspendMessage(iMsg);
+    }
+
+    @Override
+    public boolean saveMessage(InstantMessage iMsg) {
+        MessageDataSource ds = MessageDataSource.getInstance();
+        return ds.saveMessage(iMsg);
     }
 
     /**

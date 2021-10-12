@@ -28,6 +28,7 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.Facebook;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
@@ -37,6 +38,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.Visa;
@@ -50,6 +52,11 @@ public class MessagePacker extends chat.dim.MessagePacker {
 
     public MessagePacker(Messenger messenger) {
         super(messenger);
+    }
+
+    @Override
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
     }
 
     private void attachKeyDigest(ReliableMessage rMsg) {
@@ -127,10 +134,52 @@ public class MessagePacker extends chat.dim.MessagePacker {
     }
 
     @Override
+    public SecureMessage verifyMessage(ReliableMessage rMsg) {
+        final ID sender = rMsg.getSender();
+        // [Meta Protocol]
+        Meta meta = rMsg.getMeta();
+        if (meta == null) {
+            meta = getFacebook().getMeta(sender);
+        } else if (!meta.matches(sender)) {
+            meta = null;
+        }
+        if (meta == null) {
+            // NOTICE: the application will query meta automatically,
+            //         save this message in a queue waiting sender's meta response
+            getMessenger().suspendMessage(rMsg);
+            return null;
+        }
+        // make sure meta exists before verifying message
+        return super.verifyMessage(rMsg);
+    }
+
+    private boolean isWaiting(ID identifier) {
+        if (identifier.isGroup()) {
+            // checking group meta
+            return getFacebook().getMeta(identifier) == null;
+        } else {
+            // checking visa key
+            return getFacebook().getPublicKeyForEncryption(identifier) == null;
+        }
+    }
+
+    @Override
     public SecureMessage encryptMessage(InstantMessage iMsg) {
+        final ID receiver = iMsg.getReceiver();
+        final ID group = iMsg.getGroup();
+        if (!(receiver.isBroadcast() || (group != null  && group.isBroadcast()))) {
+            // this message is not a broadcast message
+            if (isWaiting(receiver) || (group != null && isWaiting(group))) {
+                // NOTICE: the application will query visa automatically,
+                //         save this message in a queue waiting sender's visa response
+                getMessenger().suspendMessage(iMsg);
+                return null;
+            }
+        }
+
+        // make sure visa.key exists before encrypting message
         SecureMessage sMsg = super.encryptMessage(iMsg);
 
-        ID receiver = iMsg.getReceiver();
         if (receiver.isGroup()) {
             // reuse group message keys
             ID sender = iMsg.getSender();

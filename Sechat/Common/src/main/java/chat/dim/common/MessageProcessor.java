@@ -30,6 +30,7 @@ import java.util.List;
 
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.group.InviteCommand;
@@ -47,7 +48,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     protected Facebook getFacebook() {
-        return getMessenger().getFacebook();
+        return (Facebook) getMessenger().getFacebook();
     }
 
     // check whether group info empty
@@ -141,5 +142,16 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             }
             return null;
         }
+    }
+
+    @Override
+    public List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg) {
+        final List<InstantMessage> responses = super.process(iMsg, rMsg);
+        final Messenger messenger = getMessenger();
+        if (!messenger.saveMessage(iMsg)) {
+            // error
+            return null;
+        }
+        return responses;
     }
 }
