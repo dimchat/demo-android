@@ -25,6 +25,9 @@
  */
 package chat.dim.cpu;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
@@ -43,7 +46,7 @@ public class AnyContentProcessor extends ContentProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
+    public List<Content> process(Content content, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -82,6 +85,8 @@ public class AnyContentProcessor extends ContentProcessor {
         Object signature = rMsg.get("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
         receipt.put("signature", signature);
-        return receipt;
+        List<Content> responses = new ArrayList<>();
+        responses.add(receipt);
+        return responses;
     }
 }

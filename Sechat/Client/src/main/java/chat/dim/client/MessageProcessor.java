@@ -25,6 +25,8 @@
  */
 package chat.dim.client;
 
+import java.util.List;
+
 import chat.dim.User;
 import chat.dim.cpu.CommandProcessor;
 import chat.dim.cpu.HandshakeCommandProcessor;
@@ -43,6 +45,7 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
+import chat.dim.protocol.TextContent;
 import chat.dim.utils.Log;
 
 public class MessageProcessor extends chat.dim.common.MessageProcessor {
@@ -52,35 +55,55 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
     }
 
     @Override
-    public Content process(Content content, ReliableMessage rMsg) {
-        Content res = super.process(content, rMsg);
-        if (res == null) {
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
+    }
+
+    @Override
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        List<Content> responses = super.process(content, rMsg);
+        if (responses == null || responses.size() == 0) {
             // respond nothing
             return null;
-        }
-        if (res instanceof HandshakeCommand) {
+        } else if (responses.get(0) instanceof HandshakeCommand) {
             // urgent command
-            return res;
+            return responses;
         }
 
         ID sender = rMsg.getSender();
-        if (res instanceof ReceiptCommand) {
-            if (NetworkType.STATION.equals(sender.getType())) {
-                // no need to respond receipt to station
-                return null;
-            }
-            Log.info("receipt to sender: " + sender);
-        }
-
-        // check receiver
         ID receiver = rMsg.getReceiver();
         User user = getFacebook().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
-        // pack message
-        Envelope env = Envelope.create(user.identifier, sender, null);
-        InstantMessage iMsg = InstantMessage.create(env, res);
-        // normal response
-        getMessenger().sendMessage(iMsg, null, Departure.Priority.SLOWER.value);
+
+        Envelope env;
+        InstantMessage iMsg;
+        Messenger messenger = getMessenger();
+
+        // check responses
+        for (Content res : responses) {
+            if (res == null) {
+                // should not happen
+                continue;
+            } else if (res instanceof ReceiptCommand) {
+                if (NetworkType.STATION.equals(sender.getType())) {
+                    // no need to respond receipt to station
+                    continue;
+                }
+                Log.info("receipt to sender: " + sender);
+            } else if (res instanceof TextContent) {
+                if (NetworkType.STATION.equals(sender.getType())) {
+                    // no need to respond text message to station
+                    continue;
+                }
+                Log.info("text to sender: " + sender);
+            }
+            // pack message
+            env = Envelope.create(user.identifier, sender, null);
+            iMsg = InstantMessage.create(env, res);
+            // normal response
+            messenger.sendMessage(iMsg, null, Departure.Priority.SLOWER.value);
+        }
+
         // DON'T respond to station directly
         return null;
     }

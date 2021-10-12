@@ -25,6 +25,8 @@
  */
 package chat.dim.cpu;
 
+import java.util.List;
+
 import chat.dim.client.Messenger;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
@@ -39,7 +41,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         super();
     }
 
-    private Content success() {
+    private List<Content> success() {
         Log.info("handshake success!");
         Messenger messenger = (Messenger) getMessenger();
         Server server = messenger.getCurrentServer();
@@ -47,7 +49,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         return null;
     }
 
-    private Content restart(String sessionKey) {
+    private List<Content> restart(String sessionKey) {
         Log.info("handshake again, session key: " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();
         Server server = messenger.getCurrentServer();
@@ -56,7 +58,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content execute(Command cmd, ReliableMessage rMsg) {
+    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof HandshakeCommand : "handshake command error: " + cmd;
         HandshakeCommand hCmd = (HandshakeCommand) cmd;
         String message = hCmd.message;

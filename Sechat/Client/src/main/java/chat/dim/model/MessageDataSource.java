@@ -98,13 +98,15 @@ public class MessageDataSource implements Messenger.DataSource, Observer {
             // processing incoming messages
             List<ReliableMessage> incoming = incomingMessages.remove(entity);
             if (incoming != null) {
-                ReliableMessage res;
+                List<ReliableMessage> responses;
                 for (ReliableMessage item : incoming) {
-                    res = messenger.process(item);
-                    if (res == null) {
+                    responses = messenger.process(item);
+                    if (responses == null || responses.size() == 0) {
                         continue;
                     }
-                    messenger.sendMessage(res, null, Departure.Priority.SLOWER.value);
+                    for (ReliableMessage res : responses) {
+                        messenger.sendMessage(res, null, Departure.Priority.SLOWER.value);
+                    }
                 }
             }
 

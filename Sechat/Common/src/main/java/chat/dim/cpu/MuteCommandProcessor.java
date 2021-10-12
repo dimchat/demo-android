@@ -38,18 +38,18 @@ public class MuteCommandProcessor extends CommandProcessor {
         super();
     }
 
-    private Content getMuteList() {
+    private List<Content> getMuteList() {
         // TODO: load mute-list from database
         return null;
     }
 
-    private Content putMuteList(List list) {
+    private List<Content> putMuteList(List list) {
         // TODO: save mute-list into database
         return null;
     }
 
     @Override
-    public Content execute(Command cmd, ReliableMessage rMsg) {
+    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof MuteCommand : "mute command error: " + cmd;
         MuteCommand mCmd = (MuteCommand) cmd;
         List list = mCmd.getMuteList();

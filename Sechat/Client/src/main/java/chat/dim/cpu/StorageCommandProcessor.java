@@ -89,14 +89,14 @@ public class StorageCommandProcessor extends CommandProcessor {
 
     //---- Contacts
 
-    private Content saveContacts(List<String> contacts, ID user) {
+    private List<Content> saveContacts(List<String> contacts, ID user) {
         // TODO: save contacts when import your account in a new app
         return null;
     }
 
     // decrypt and save contacts for user
     @SuppressWarnings("unchecked")
-    private Content processContacts(StorageCommand cmd) {
+    private List<Content> processContacts(StorageCommand cmd) {
         List<String> contacts = (List) cmd.get("contacts");
         if (contacts == null) {
             contacts = (List) decryptData(cmd);
@@ -110,13 +110,13 @@ public class StorageCommandProcessor extends CommandProcessor {
 
     //---- Private Key
 
-    private Content savePrivateKey(PrivateKey key, ID user) {
+    private List<Content> savePrivateKey(PrivateKey key, ID user) {
         // TODO: save private key when import your accounts from network
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    private Content processPrivateKey(StorageCommand cmd) {
+    private List<Content> processPrivateKey(StorageCommand cmd) {
         String string = "<TODO: input your password>";
         SymmetricKey password = Password.generate(string);
         Object dict = decryptData(cmd, password);
@@ -129,7 +129,7 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content execute(Command cmd, ReliableMessage rMsg) {
+    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof StorageCommand : "storage command error: " + cmd;
         StorageCommand sCmd = (StorageCommand) cmd;
         String title = sCmd.getTitle();

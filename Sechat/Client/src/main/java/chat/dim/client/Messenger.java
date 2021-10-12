@@ -314,9 +314,16 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
     @Override
     public void onReceivePackage(byte[] data, Station server) {
         try {
-            byte[] response = process(data);
-            if (response != null && response.length > 0) {
-                ((Server) server).sendPackage(response, null, Departure.Priority.SLOWER.value);
+            List<byte[]> responses = process(data);
+            if (responses == null) {
+                return;
+            }
+            for (byte[] res : responses) {
+                if (res == null || res.length == 0) {
+                    // should not happen
+                    continue;
+                }
+                ((Server) server).sendPackage(res, null, Departure.Priority.SLOWER.value);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();

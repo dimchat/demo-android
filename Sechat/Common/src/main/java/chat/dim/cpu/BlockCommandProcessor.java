@@ -38,18 +38,18 @@ public class BlockCommandProcessor extends CommandProcessor {
         super();
     }
 
-    private Content getBlockList() {
+    private List<Content> getBlockList() {
         // TODO: load block-list from database
         return null;
     }
 
-    private Content putBlockList(List list) {
+    private List<Content> putBlockList(List list) {
         // TODO: save block-list into database
         return null;
     }
 
     @Override
-    public Content execute(Command cmd, ReliableMessage rMsg) {
+    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof BlockCommand : "block command error: " + cmd;
         BlockCommand bCmd = (BlockCommand) cmd;
         List list = bCmd.getBlockCList();

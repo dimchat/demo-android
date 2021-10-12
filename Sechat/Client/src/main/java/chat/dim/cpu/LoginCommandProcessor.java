@@ -25,6 +25,7 @@
  */
 package chat.dim.cpu;
 
+import java.util.List;
 import java.util.Map;
 
 import chat.dim.database.LoginTable;
@@ -43,7 +44,7 @@ public class LoginCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public Content execute(Command cmd, ReliableMessage rMsg) {
+    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof LoginCommand : "login command error: " + cmd;
         LoginCommand lCmd = (LoginCommand) cmd;
 
