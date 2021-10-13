@@ -120,7 +120,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
         return packer;
     }
-    private chat.dim.MessagePacker getMessagePacker() {
+    private MessagePacker getMessagePacker() {
         if (messagePacker == null) {
             messagePacker = createMessagePacker();
         }
@@ -151,7 +151,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
         return processor;
     }
-    private chat.dim.MessageProcessor getMessageProcessor() {
+    private MessageProcessor getMessageProcessor() {
         if (messageProcessor == null) {
             messageProcessor = createMessageProcessor();
         }
@@ -180,7 +180,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         }
         return transmitter;
     }
-    private chat.dim.MessageTransmitter getMessageTransmitter() {
+    private MessageTransmitter getMessageTransmitter() {
         if (messageTransmitter == null) {
             messageTransmitter = createMessageTransmitter();
         }

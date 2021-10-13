@@ -155,7 +155,9 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         }
         // check FSM state == 'Handshaking'
         ServerState state = getCurrentState();
-        if (!state.equals(ServerState.CONNECTED) && !state.equals(ServerState.HANDSHAKING)) {
+        if (!state.equals(ServerState.HANDSHAKING) &&
+                !state.equals(ServerState.CONNECTED) &&
+                !state.equals(ServerState.RUNNING)) {
             // FIXME: sometimes the connection state will be reset
             Log.error("server state not for handshaking: " + state.name);
             return;

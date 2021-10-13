@@ -134,6 +134,16 @@ public class MessagePacker extends chat.dim.MessagePacker {
     }
 
     @Override
+    public ReliableMessage signMessage(SecureMessage sMsg) {
+        if (sMsg instanceof ReliableMessage) {
+            // already signed
+            return (ReliableMessage) sMsg;
+        } else {
+            return super.signMessage(sMsg);
+        }
+    }
+
+    @Override
     public SecureMessage verifyMessage(ReliableMessage rMsg) {
         final ID sender = rMsg.getSender();
         // [Meta Protocol]
