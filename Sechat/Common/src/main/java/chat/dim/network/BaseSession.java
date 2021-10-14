@@ -30,6 +30,8 @@ import com.alibaba.fastjson.JSONException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
@@ -212,6 +214,59 @@ public class BaseSession extends Thread implements Gate.Delegate {
         }
     }
 
+    private static List<byte[]> splitLines(byte[] data) {
+        List<byte[]> lines = new ArrayList<>();
+        byte[] tmp;
+        int pos1 = 0, pos2;
+        while (pos1 < data.length) {
+            pos2 = pos1;
+            while (pos2 < data.length) {
+                if (data[pos2] == '\n') {
+                    break;
+                } else {
+                    ++pos2;
+                }
+            }
+            if (pos2 > pos1) {
+                tmp = new byte[pos2 - pos1];
+                System.arraycopy(data, pos1, tmp, 0, pos2 - pos1);
+                lines.add(tmp);
+            }
+            pos1 = pos2 + 1;  // skip '\n'
+        }
+        return lines;
+    }
+    private static byte[] join(List<byte[]> packages) {
+        // get buffer size
+        int size = 0;
+        for (byte[] item : packages) {
+            size += item.length + 1;
+        }
+        if (size == 0) {
+            return null;
+        } else {
+            size -= 1;  // remove last '\n'
+        }
+        // combine packages
+        byte[] buffer = new byte[size];
+        // copy first package
+        byte[] item = packages.get(0);
+        System.arraycopy(item, 0, buffer, 0, item.length);
+        // copy the others
+        int offset = item.length;
+        for (int i = 0; i < packages.size(); ++i) {
+            // set separator
+            buffer[offset] = SEPARATOR;
+            ++offset;
+            // copy package data
+            item = packages.get(i);
+            System.arraycopy(item, 0, buffer, offset, item.length);
+            offset += item.length;
+        }
+        return buffer;
+    }
+    private static final byte SEPARATOR = '\n';
+
     @Override
     public void onReceived(Arrival arrival, SocketAddress source, SocketAddress destination, Connection connection) {
         assert arrival instanceof StreamArrival : "arrival ship error: " + arrival;
@@ -219,12 +274,40 @@ public class BaseSession extends Thread implements Gate.Delegate {
         Package pack = ship.getPackage();
         byte[] payload = pack.body.getBytes();
         Log.info("received " + payload.length + " bytes");
-        try {
-            getMessenger().process(payload);
-        } catch (JSONException e) {
-            Log.info("JSON error: " + (new String(payload)));
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        // 1. split data when multi packages received in one time
+        List<byte[]> packages;
+        if (payload.length == 0) {
+            packages = new ArrayList<>();
+        } else if (payload[0] == '{') {
+            packages = splitLines(payload);
+        } else {
+            packages = new ArrayList<>();
+            packages.add(payload);
+        }
+        // 2. process package data one by one
+        Messenger messenger = getMessenger();
+        List<byte[]> responses;
+        byte[] buffer;
+        for (byte[] data : packages) {
+            try {
+                responses = messenger.process(data);
+            } catch (JSONException e) {
+                Log.info("JSON error: " + (new String(payload)));
+                continue;
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                continue;
+            }
+            if (responses == null || responses.size() == 0) {
+                continue;
+            }
+            // combine & respond
+            buffer = join(responses);
+            if (buffer == null || buffer.length == 0) {
+                // should not happen
+                continue;
+            }
+            messenger.sendPackage(buffer, null, Departure.Priority.SLOWER.value);
         }
     }
 
