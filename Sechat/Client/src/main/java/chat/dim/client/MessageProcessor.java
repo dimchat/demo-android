@@ -36,10 +36,8 @@ import chat.dim.cpu.StorageCommandProcessor;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.Envelope;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
@@ -74,9 +72,6 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
         ID receiver = rMsg.getReceiver();
         User user = getFacebook().selectLocalUser(receiver);
         assert user != null : "receiver error: " + receiver;
-
-        Envelope env;
-        InstantMessage iMsg;
         Messenger messenger = getMessenger();
 
         // check responses
@@ -97,11 +92,8 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
                 }
                 Log.info("text to sender: " + sender);
             }
-            // pack message
-            env = Envelope.create(user.identifier, sender, null);
-            iMsg = InstantMessage.create(env, res);
-            // normal response
-            messenger.sendMessage(iMsg, null, Departure.Priority.SLOWER.value);
+            // pack & send
+            messenger.sendContent(user.identifier, receiver, res, null, Departure.Priority.SLOWER.value);
         }
 
         // DON'T respond to station directly

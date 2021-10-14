@@ -128,6 +128,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
 
     public void close() {
+        active = false;
         gate.stop();
     }
 
@@ -136,6 +137,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     }
 
     public void finish() {
+        active = false;
         gate.stop();
         flush();
     }
@@ -313,6 +315,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     @Override
     public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+        Log.info("message sent: " + departure);
         if (departure instanceof DepartureShip) {
             Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
             if (delegate != null && delegate != this) {

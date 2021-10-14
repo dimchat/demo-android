@@ -36,8 +36,6 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.model.MessageDataSource;
 import chat.dim.network.Server;
-import chat.dim.network.ServerDelegate;
-import chat.dim.network.Station;
 import chat.dim.network.Terminal;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
@@ -46,17 +44,15 @@ import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
 
-public final class Messenger extends chat.dim.common.Messenger implements ServerDelegate {
+public final class Messenger extends chat.dim.common.Messenger {
 
     private static final Messenger ourInstance = new Messenger();
     public static Messenger getInstance() { return ourInstance; }
@@ -125,19 +121,6 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
         }
         return sendContent(null, server.identifier, cmd, null, priority);
     }
-
-//    @Override
-//    public boolean sendContent(ID sender, ID receiver, Content content, Messenger.Callback callback, int priority) {
-//        if (sender == null) {
-//            User user = getCurrentUser();
-//            if (user == null) {
-//                // FIXME: suspend message for waiting user login
-//                return false;
-//            }
-//            sender = user.identifier;
-//        }
-//        return super.sendContent(sender, receiver, content, callback, priority);
-//    }
 
     private boolean sendContent(ID receiver, Content content) {
         return sendContent(null, receiver, content,
@@ -291,72 +274,5 @@ public final class Messenger extends chat.dim.common.Messenger implements Server
             }
         }
         return checking;
-    }
-
-    private Date offlineTime = null;
-
-    public void reportOnline() {
-        User user = getCurrentUser();
-        if (user == null) {
-            return;
-        }
-        Command cmd = new ReportCommand(ReportCommand.ONLINE);
-        if (offlineTime != null) {
-            cmd.put("last_time", offlineTime.getTime() / 1000);
-        }
-        sendCommand(cmd, Departure.Priority.NORMAL.value);
-    }
-    public void reportOffline() {
-        User user = getCurrentUser();
-        if (user == null) {
-            return;
-        }
-        Command cmd = new ReportCommand(ReportCommand.OFFLINE);
-        offlineTime = cmd.getTime();
-        sendCommand(cmd, Departure.Priority.NORMAL.value);
-    }
-
-    //---- Server Delegate
-
-    @Override
-    public void onReceivePackage(byte[] data, Station server) {
-        try {
-            List<byte[]> responses = process(data);
-            if (responses == null) {
-                return;
-            }
-            for (byte[] res : responses) {
-                if (res == null || res.length == 0) {
-                    // should not happen
-                    continue;
-                }
-                ((Server) server).sendPackage(res, null, Departure.Priority.SLOWER.value);
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void didSendPackage(byte[] data, Station server) {
-        // TODO: mark it sent
-    }
-
-    @Override
-    public void didFailToSendPackage(Error error, byte[] data, Station server) {
-        // TODO: resend it
-    }
-
-    @Override
-    public void onHandshakeAccepted(String sessionKey, Station server) {
-        User user = getCurrentUser();
-        assert user != null : "current user not found";
-
-        // broadcast login command
-        LoginCommand login = new LoginCommand(user.identifier);
-        login.setAgent(getTerminal().getUserAgent());
-        login.setStation(server);
-        // TODO: set provider
-        broadcastContent(login);
     }
 }

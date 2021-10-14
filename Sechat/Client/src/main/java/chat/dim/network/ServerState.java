@@ -176,7 +176,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                     // not enter yet
                     return false;
                 }
-                long expired = enterTime.getTime() + 120 * 1000;
+                long expired = enterTime.getTime() + 30 * 1000;
                 long now = (new Date()).getTime();
                 if (now < expired) {
                     // not expired yet

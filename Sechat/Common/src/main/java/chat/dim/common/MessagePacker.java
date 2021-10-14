@@ -28,7 +28,6 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Facebook;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;

@@ -38,11 +38,13 @@ import java.util.List;
 import chat.dim.mtp.MTPHelper;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamDocker;
+import chat.dim.net.Connection;
 import chat.dim.port.Docker;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
 import chat.dim.stargate.TCPGate;
 import chat.dim.tcp.ClientHub;
+import chat.dim.utils.Log;
 
 public final class StarTrek extends TCPGate<ClientHub> {
 
@@ -83,5 +85,12 @@ public final class StarTrek extends TCPGate<ClientHub> {
     public void send(Package pack, int priority, Ship.Delegate delegate) {
         Docker worker = getDocker(remoteAddress, localAddress, null);
         ((StreamDocker) worker).send(pack, priority, delegate);
+    }
+
+    @Override
+    public void onSent(byte[] data, SocketAddress source, SocketAddress destination, Connection connection) {
+        super.onSent(data, source, destination, connection);
+        // ignore this event
+        Log.info(data.length + " byte(s) sent to " + destination);
     }
 }

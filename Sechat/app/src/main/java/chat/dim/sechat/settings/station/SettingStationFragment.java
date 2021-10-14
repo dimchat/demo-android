@@ -76,13 +76,12 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
 
     @Override
     public void onDestroy() {
-        Messenger messenger = Messenger.getInstance();
-        messenger.reportOffline();
+        Client client = Client.getInstance();
+        client.reportOffline();
 
         _sleep(2000);
 
         // reconnect to new station
-        Client client = Client.getInstance();
         try {
             // reconnect
             client.launch(null);

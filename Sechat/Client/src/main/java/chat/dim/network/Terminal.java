@@ -27,6 +27,7 @@ package chat.dim.network;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -37,10 +38,14 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.model.NetworkDatabase;
+import chat.dim.port.Departure;
+import chat.dim.protocol.Command;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.ReportCommand;
 import chat.dim.threading.BackgroundThreads;
 
-public abstract class Terminal {
+public abstract class Terminal implements ServerDelegate {
 
     private Server currentServer = null;
 
@@ -161,7 +166,7 @@ public abstract class Terminal {
             // connect new server
             Server server = new Server(identifier, host, port, name);
             server.setDataSource(facebook);
-            server.setDelegate(messenger);
+            server.setDelegate(this);
             server.start(options);
             setCurrentServer(server);
         }
@@ -211,8 +216,7 @@ public abstract class Terminal {
     public void enterBackground() {
         if (currentServer != null) {
             // report client state
-            Messenger messenger = Messenger.getInstance();
-            messenger.reportOffline();
+            reportOffline();
 
             // pause the server
             currentServer.pause();
@@ -225,10 +229,50 @@ public abstract class Terminal {
             currentServer.resume();
 
             // report client state
-            Messenger messenger = Messenger.getInstance();
-            messenger.reportOnline();
+            reportOnline();
 
             // TODO: clear icon badge
         }
+    }
+
+    private Date offlineTime = null;
+
+    public void reportOnline() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        Command cmd = new ReportCommand(ReportCommand.ONLINE);
+        if (offlineTime != null) {
+            cmd.put("last_time", offlineTime.getTime() / 1000);
+        }
+        Messenger messenger = Messenger.getInstance();
+        messenger.sendCommand(cmd, Departure.Priority.NORMAL.value);
+    }
+    public void reportOffline() {
+        User user = getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        Command cmd = new ReportCommand(ReportCommand.OFFLINE);
+        offlineTime = cmd.getTime();
+        Messenger messenger = Messenger.getInstance();
+        messenger.sendCommand(cmd, Departure.Priority.NORMAL.value);
+    }
+
+    //---- ServerDelegate
+
+    @Override
+    public void onHandshakeAccepted(String sessionKey, Station server) {
+        User user = getCurrentUser();
+        assert user != null : "current user not found";
+
+        // broadcast login command
+        LoginCommand login = new LoginCommand(user.identifier);
+        login.setAgent(getUserAgent());
+        login.setStation(server);
+        // TODO: set provider
+        Messenger messenger = Messenger.getInstance();
+        messenger.broadcastContent(login);
     }
 }

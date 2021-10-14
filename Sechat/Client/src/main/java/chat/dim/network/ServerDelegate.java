@@ -28,31 +28,6 @@ package chat.dim.network;
 public interface ServerDelegate {
 
     /**
-     *  Received a new data package from the station
-     *
-     * @param data - data package received
-     * @param server - current station
-     */
-    void onReceivePackage(byte[] data, Station server);
-
-    /**
-     *  Send data package to station success
-     *
-     * @param data - data package sent
-     * @param server - current station
-     */
-    void didSendPackage(byte[] data, Station server);
-
-    /**
-     *  Failed to send data package to station
-     *
-     * @param error - error information
-     * @param data - data package to send
-     * @param server - current station
-     */
-    void didFailToSendPackage(Error error, byte[] data, Station server);
-
-    /**
      *  Callback for handshake accepted
      *
      * @param sessionKey - session ID
