@@ -129,7 +129,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     public void close() {
         active = false;
-        gate.stop();
+        //gate.stop();
     }
 
     public void setup() {

@@ -29,7 +29,6 @@ import java.util.Date;
 
 import chat.dim.fsm.BaseState;
 import chat.dim.fsm.BaseTransition;
-import chat.dim.port.Gate;
 import chat.dim.startrek.StarGate;
 import chat.dim.utils.Log;
 
@@ -107,7 +106,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                     return false;
                 }
                 StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.READY || status == StarGate.Status.READY;
+                return status == StarGate.Status.PREPARING || status == StarGate.Status.READY;
             }
         });
 
