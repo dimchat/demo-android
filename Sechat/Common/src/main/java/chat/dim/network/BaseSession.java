@@ -210,7 +210,7 @@ public class BaseSession extends Thread implements Gate.Delegate {
     public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
         if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
             setActive(false);
-            close();
+            //close();
         } else if (newStatus.equals(Gate.Status.READY)) {
             getMessenger().onConnected();
         }
