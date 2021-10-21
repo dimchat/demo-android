@@ -27,7 +27,6 @@ package chat.dim.network;
 
 import com.alibaba.fastjson.JSONException;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ import chat.dim.stargate.CommonGate;
 import chat.dim.startrek.DepartureShip;
 import chat.dim.utils.Log;
 
-public abstract class BaseSession<G extends CommonGate, H extends Hub>
+public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         extends Thread implements Gate.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
@@ -59,7 +58,7 @@ public abstract class BaseSession<G extends CommonGate, H extends Hub>
 
     private boolean active;
 
-    public BaseSession(String host, int port, Messenger transceiver) throws IOException {
+    public BaseSession(String host, int port, Messenger transceiver) {
         super();
         gate = createGate(host, port, this);
         messengerRef = new WeakReference<>(transceiver);

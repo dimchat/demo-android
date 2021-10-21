@@ -131,7 +131,7 @@ public abstract class Terminal implements ServerDelegate {
 
     //--------
 
-    private void startServer(ProviderTable.StationInfo stationInfo) throws IOException {
+    private void startServer(ProviderTable.StationInfo stationInfo) {
         ID identifier = stationInfo.identifier;
         String name = stationInfo.name;
         String host = stationInfo.host;
@@ -179,7 +179,7 @@ public abstract class Terminal implements ServerDelegate {
         }
     }
 
-    private void startServer() throws IOException {
+    private void startServer() {
         NetworkDatabase database = NetworkDatabase.getInstance();
         List<ProviderTable.ProviderInfo> providers = database.allProviders();
         if (providers.size() > 0) {
@@ -196,7 +196,7 @@ public abstract class Terminal implements ServerDelegate {
 
     //-------- AppDelegate
 
-    public void launch(Map<String, Object> options) throws IOException {
+    public void launch(Map<String, Object> options) {
 
         //
         // launch server

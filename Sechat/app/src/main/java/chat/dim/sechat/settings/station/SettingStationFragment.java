@@ -85,7 +85,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
         try {
             // reconnect
             client.launch(null);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // FIXME:
         }

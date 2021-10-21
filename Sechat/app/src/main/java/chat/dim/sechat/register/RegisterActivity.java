@@ -46,7 +46,7 @@ public class RegisterActivity extends ImagePickerActivity {
     boolean tryLaunch() {
         try {
             return SechatApp.launch(getApplication(), this);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

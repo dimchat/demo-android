@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
     private void refreshTitle() {
         CharSequence status;
         if (serverState == null) {
-            status = null;
+            status = "...";
         } else if (serverState.equals(ServerState.DEFAULT)) {
             status = getText(R.string.server_default);
         } else if (serverState.equals(ServerState.CONNECTING)) {
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
         } else if (serverState.equals(ServerState.RUNNING)) {
             status = null;
         } else {
-            status = null;
+            status = "?";
         }
         if (status == null) {
             setTitle(originTitle);
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
         try {
             SechatApp.launch(getApplication(), this);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // FIXME:
         }

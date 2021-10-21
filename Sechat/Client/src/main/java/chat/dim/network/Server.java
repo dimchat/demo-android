@@ -70,7 +70,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
 
     private WeakReference<ServerDelegate> delegateRef = null;
 
-    Server(ID identifier, String host, int port, String title) throws IOException {
+    Server(ID identifier, String host, int port, String title) {
         super(identifier, host, port);
         session = new Session(host, port, Messenger.getInstance());
         name = title;

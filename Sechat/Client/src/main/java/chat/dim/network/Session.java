@@ -38,7 +38,7 @@ import chat.dim.tcp.ClientHub;
 
 public class Session extends BaseSession<TCPClientGate, ClientHub> {
 
-    public Session(String host, int port, Messenger transceiver) throws IOException {
+    public Session(String host, int port, Messenger transceiver) {
         super(host, port, transceiver);
     }
 

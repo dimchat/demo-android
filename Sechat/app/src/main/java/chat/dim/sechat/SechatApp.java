@@ -102,7 +102,7 @@ public final class SechatApp extends Application {
         client.enterBackground();
     }
 
-    public static boolean launch(android.app.Application app, Activity activity) throws IOException {
+    public static boolean launch(android.app.Application app, Activity activity) {
         if (!Permissions.canWriteExternalStorage(activity)) {
             Permissions.requestExternalStoragePermissions(activity);
             return false;
