@@ -26,18 +26,26 @@
 package chat.dim.network;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
+import chat.dim.stargate.TCPClientGate;
 import chat.dim.tcp.ClientHub;
 
-public class Session extends BaseSession {
+public class Session extends BaseSession<TCPClientGate, ClientHub> {
 
     public Session(String host, int port, Messenger transceiver) throws IOException {
         super(host, port, transceiver);
+    }
+
+    @Override
+    protected TCPClientGate createGate(String host, int port, Gate.Delegate delegate) {
+        SocketAddress remote = new InetSocketAddress(host, port);
+        return new TCPClientGate(delegate, remote, null);
     }
 
     @Override
@@ -75,7 +83,7 @@ public class Session extends BaseSession {
         if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
             // connection lost, reconnecting
             ClientHub hub = getGate().getHub();
-            hub.getConnection(remote, local);
+            hub.connect(remote, local);
         } else if (newStatus.equals(Gate.Status.READY)) {
             getMessenger().onConnected();
             // handshake

@@ -37,19 +37,22 @@ import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
 import chat.dim.net.Connection;
+import chat.dim.net.Hub;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.stargate.CommonGate;
 import chat.dim.startrek.DepartureShip;
 import chat.dim.utils.Log;
 
-public class BaseSession extends Thread implements Gate.Delegate {
+public abstract class BaseSession<G extends CommonGate, H extends Hub>
+        extends Thread implements Gate.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
-    private final StarTrek gate;
+    private final G gate;
     private final WeakReference<Messenger> messengerRef;
 
     private final MessageQueue queue;
@@ -58,14 +61,15 @@ public class BaseSession extends Thread implements Gate.Delegate {
 
     public BaseSession(String host, int port, Messenger transceiver) throws IOException {
         super();
-        gate = StarTrek.create(host, port, this);
+        gate = createGate(host, port, this);
         messengerRef = new WeakReference<>(transceiver);
         queue = new MessageQueue();
         // session status
         active = false;
     }
 
-    public StarTrek getGate() {
+    protected abstract G createGate(String host, int port, Gate.Delegate delegate);
+    public G getGate() {
         return gate;
     }
 
