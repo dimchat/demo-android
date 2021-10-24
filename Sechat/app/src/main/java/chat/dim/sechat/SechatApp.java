@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

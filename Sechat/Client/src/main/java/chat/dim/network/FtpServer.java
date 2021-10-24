@@ -45,7 +45,7 @@ public final class FtpServer {
         super();
     }
 
-    private Configuration config = Configuration.getInstance();
+    private final Configuration config = Configuration.getInstance();
 
     //
     //  Avatar

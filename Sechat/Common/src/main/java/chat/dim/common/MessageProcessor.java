@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
@@ -148,6 +149,12 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     public List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg) {
         final List<InstantMessage> responses = super.process(iMsg, rMsg);
         final Messenger messenger = getMessenger();
+        // FIXME: no need to decrypt twice here actually
+        Content content = iMsg.getContent();
+        if (content instanceof ForwardContent) {
+            rMsg = ((ForwardContent) content).getMessage();
+            iMsg = messenger.decryptMessage(rMsg);
+        }
         if (!messenger.saveMessage(iMsg)) {
             // error
             return null;

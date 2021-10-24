@@ -35,7 +35,7 @@ import chat.dim.protocol.ReliableMessage;
 
 final class MessageQueue {
 
-    private List<MessageWrapper> queue = new ArrayList<>();
+    private final List<MessageWrapper> queue = new ArrayList<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     boolean append(ReliableMessage msg) {

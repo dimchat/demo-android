@@ -25,7 +25,6 @@
  */
 package chat.dim.network;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
