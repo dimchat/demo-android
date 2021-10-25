@@ -34,6 +34,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
 
@@ -147,14 +148,27 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
 
     @Override
     public List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg) {
-        final List<InstantMessage> responses = super.process(iMsg, rMsg);
         final Messenger messenger = getMessenger();
-        // FIXME: no need to decrypt twice here actually
+        SecureMessage sMsg;
+        // unwrap secret message circularly
         Content content = iMsg.getContent();
-        if (content instanceof ForwardContent) {
+        while (content instanceof ForwardContent) {
             rMsg = ((ForwardContent) content).getMessage();
-            iMsg = messenger.decryptMessage(rMsg);
+            sMsg = messenger.verifyMessage(rMsg);
+            if (sMsg == null) {
+                // signature not matched
+                return null;
+            }
+            iMsg = messenger.decryptMessage(sMsg);
+            if (iMsg == null) {
+                // not for you?
+                return null;
+            }
+            content = iMsg.getContent();
         }
+        // call super to process
+        final List<InstantMessage> responses = super.process(iMsg, rMsg);
+        // save instant/secret message
         if (!messenger.saveMessage(iMsg)) {
             // error
             return null;
