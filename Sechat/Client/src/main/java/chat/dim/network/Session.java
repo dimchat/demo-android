@@ -25,7 +25,6 @@
  */
 package chat.dim.network;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -64,14 +63,11 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
         return send(payload, priority.value, delegate);
     }
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
-        if (isActive()) {
-            getGate().sendMessage(payload, priority, delegate);
-            return true;
-        } else {
+        if (!isActive()) {
             // FIXME: connection lost?
             // java.nio.BufferOverflowException
-            return false;
         }
+        return getGate().sendMessage(payload, priority, delegate);
     }
 
     //
@@ -80,12 +76,12 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
 
     @Override
     public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
+        super.onStatusChanged(oldStatus, newStatus, remote, local, gate);
         if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
             // connection lost, reconnecting
             ClientHub hub = getGate().getHub();
             hub.connect(remote, local);
         } else if (newStatus.equals(Gate.Status.READY)) {
-            getMessenger().onConnected();
             // handshake
             Messenger.Delegate delegate = getMessenger().getDelegate();
             if (delegate instanceof Server) {
