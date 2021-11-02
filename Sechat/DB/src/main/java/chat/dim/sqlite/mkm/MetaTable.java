@@ -66,7 +66,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
     // memory caches
     private Map<ID, Meta> metaTable = new HashMap<>();
 
-    private final Meta empty = new BaseMeta(null) {
+    private final Meta empty = new BaseMeta(new HashMap<>()) {
         @Override
         public Address generateAddress(byte type) {
             return null;
