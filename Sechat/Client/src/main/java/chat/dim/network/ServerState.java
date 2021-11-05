@@ -149,6 +149,15 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
             }
         });
 
+        // Connected -> Error
+        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+            @Override
+            public boolean evaluate(StateMachine machine) {
+                StarGate.Status status = machine.getStatus();
+                return status == StarGate.Status.ERROR;
+            }
+        });
+
         return state;
     }
 
@@ -181,7 +190,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                     // not expired yet
                     return false;
                 }
-                // handshake expired, return to connected to do it again
+                // handshake expired, return to 'connect' to do it again
                 StarGate.Status status = machine.getStatus();
                 return status == StarGate.Status.READY;
             }
