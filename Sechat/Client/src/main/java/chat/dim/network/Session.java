@@ -34,6 +34,7 @@ import chat.dim.port.Gate;
 import chat.dim.port.Ship;
 import chat.dim.stargate.TCPClientGate;
 import chat.dim.tcp.ClientHub;
+import chat.dim.utils.Log;
 
 public class Session extends BaseSession<TCPClientGate, ClientHub> {
 
@@ -66,7 +67,9 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
         if (!isActive()) {
             // FIXME: connection lost?
             // java.nio.BufferOverflowException
+            Log.error("session inactive");
         }
+        Log.info("sending " + payload.length + " byte(s)");
         return getGate().sendMessage(payload, priority, delegate);
     }
 
@@ -81,12 +84,6 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
             // connection lost, reconnecting
             ClientHub hub = getGate().getHub();
             hub.connect(remote, local);
-        } else if (newStatus.equals(Gate.Status.READY)) {
-            // handshake
-            Messenger.Delegate delegate = getMessenger().getDelegate();
-            if (delegate instanceof Server) {
-                ((Server) delegate).handshake(null);
-            }
         }
     }
 }

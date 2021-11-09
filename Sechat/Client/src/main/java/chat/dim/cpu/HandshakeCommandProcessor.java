@@ -32,6 +32,7 @@ import chat.dim.network.Server;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
@@ -41,34 +42,30 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         super(messenger);
     }
 
-    private List<Content> success() {
-        Log.info("handshake success!");
-        Messenger messenger = (Messenger) getMessenger();
-        Server server = messenger.getCurrentServer();
-        server.handshakeAccepted();
-        return null;
-    }
-
-    private List<Content> restart(String sessionKey) {
-        Log.info("handshake again, session key: " + sessionKey);
-        Messenger messenger = (Messenger) getMessenger();
-        Server server = messenger.getCurrentServer();
-        server.handshake(sessionKey);
-        return null;
-    }
-
     @Override
     public List<Content> execute(Command cmd, ReliableMessage rMsg) {
         assert cmd instanceof HandshakeCommand : "handshake command error: " + cmd;
         HandshakeCommand hCmd = (HandshakeCommand) cmd;
         String message = hCmd.message;
-        Log.info("received 'handshake': " + rMsg.getSender() + ", " + message + ", " + hCmd.sessionKey);
+        String sessionKey = hCmd.sessionKey;
+        ID sender = rMsg.getSender();
+        Log.info("received 'handshake': " + sender + ", " + message + ", " + sessionKey);
+        Messenger messenger = (Messenger) getMessenger();
+        Server server = messenger.getCurrentServer();
+        if (!server.identifier.equals(sender)) {
+            Log.error("!!! ignore error handshake from this sender: " + sender + ", " + server);
+            return null;
+        }
         if ("DIM!".equals(message)) {
             // S -> C
-            return success();
+            Log.info("handshake success!");
+            server.handshakeAccepted();
+            return null;
         } else if ("DIM?".equals(message)) {
             // S -> C
-            return restart(hCmd.sessionKey);
+            Log.info("handshake again, session key: " + sessionKey);
+            server.handshake(sessionKey);
+            return null;
         } else {
             // C -> S: Hello world!
             throw new IllegalStateException("handshake command error: " + cmd);
