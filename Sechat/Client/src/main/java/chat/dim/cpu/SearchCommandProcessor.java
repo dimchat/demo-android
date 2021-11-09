@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.Facebook;
+import chat.dim.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
@@ -40,8 +41,8 @@ import chat.dim.protocol.SearchCommand;
 
 public class SearchCommandProcessor extends CommandProcessor {
 
-    public SearchCommandProcessor() {
-        super();
+    public SearchCommandProcessor(Messenger messenger) {
+        super(messenger);
     }
 
     @SuppressWarnings("unchecked")

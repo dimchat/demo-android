@@ -28,21 +28,15 @@ package chat.dim.client;
 import java.util.List;
 
 import chat.dim.User;
-import chat.dim.cpu.CommandProcessor;
-import chat.dim.cpu.HandshakeCommandProcessor;
-import chat.dim.cpu.LoginCommandProcessor;
-import chat.dim.cpu.SearchCommandProcessor;
-import chat.dim.cpu.StorageCommandProcessor;
+import chat.dim.cpu.ClientProcessorFactory;
+import chat.dim.cpu.ProcessorFactory;
 import chat.dim.port.Departure;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.SearchCommand;
-import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.TextContent;
 import chat.dim.utils.Log;
 
@@ -55,6 +49,11 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
     @Override
     protected Messenger getMessenger() {
         return (Messenger) super.getMessenger();
+    }
+
+    @Override
+    protected ProcessorFactory createProcessorFactory() {
+        return new ClientProcessorFactory(getMessenger());
     }
 
     @Override
@@ -98,22 +97,5 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
         // DON'T respond to station directly
         return null;
-    }
-
-    static {
-        // register command processors
-        CommandProcessor.register(Command.HANDSHAKE, new HandshakeCommandProcessor());
-        CommandProcessor.register(Command.LOGIN, new LoginCommandProcessor());
-
-        // storage (contacts, private_key)
-        StorageCommandProcessor storageProcessor = new StorageCommandProcessor();
-        CommandProcessor.register(StorageCommand.STORAGE, storageProcessor);
-        CommandProcessor.register(StorageCommand.CONTACTS, storageProcessor);
-        CommandProcessor.register(StorageCommand.PRIVATE_KEY, storageProcessor);
-
-        // search (online)
-        SearchCommandProcessor searchProcessor = new SearchCommandProcessor();
-        CommandProcessor.register(SearchCommand.SEARCH, searchProcessor);
-        CommandProcessor.register(SearchCommand.ONLINE_USERS, searchProcessor);
     }
 }

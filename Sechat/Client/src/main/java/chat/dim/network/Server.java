@@ -34,7 +34,6 @@ import java.util.Map;
 import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
-import chat.dim.common.MessageTransmitter;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Delegate;
@@ -253,27 +252,22 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     @Override
-    public boolean sendPackage(byte[] data, Messenger.CompletionHandler handler, int priority) {
+    public boolean sendPackage(byte[] data, Messenger.Callback callback, int priority) {
         Ship.Delegate delegate = null;
-        if (handler instanceof MessageTransmitter.CompletionHandler) {
-            Messenger.Callback callback = ((MessageTransmitter.CompletionHandler) handler).callback;
-            if (callback instanceof Ship.Delegate) {
-                delegate = (Ship.Delegate) callback;
-            }
+        if (callback instanceof Ship.Delegate) {
+            delegate = (Ship.Delegate) callback;
         }
 
         // FIXME: what about the delegate?
-        if (session.send(data, priority, delegate)) {
-            if (handler != null) {
-                handler.onSuccess();
+        boolean ok = session.send(data, priority, delegate);
+        if (callback != null) {
+            if (ok) {
+                callback.onSuccess();
+            } else {
+                callback.onFailed(new Error("Server error: failed to send data package"));
             }
-            return true;
-        } else {
-            if (handler != null) {
-                handler.onFailed(new Error("Server error: failed to send data package"));
-            }
-            return false;
         }
+        return ok;
     }
 
     @Override

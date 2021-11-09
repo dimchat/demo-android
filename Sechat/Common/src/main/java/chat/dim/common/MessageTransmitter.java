@@ -74,36 +74,8 @@ public class MessageTransmitter extends chat.dim.MessageTransmitter {
 
     @Override
     public boolean sendMessage(final ReliableMessage rMsg, final Messenger.Callback callback, final int priority) {
-        final Messenger.CompletionHandler handler;
-        if (callback == null) {
-            handler = null;
-        } else {
-            handler = new CompletionHandler(rMsg, callback);
-        }
         final Messenger messenger = getMessenger();
         final byte[] data = messenger.serializeMessage(rMsg);
-        return messenger.sendPackage(data, handler, priority);
-    }
-
-    public static class CompletionHandler implements Messenger.CompletionHandler {
-
-        public final ReliableMessage message;
-        public final Messenger.Callback callback;
-
-        public CompletionHandler(ReliableMessage rMsg, Messenger.Callback cb) {
-            super();
-            message = rMsg;
-            callback = cb;
-        }
-
-        @Override
-        public void onSuccess() {
-            callback.onFinished(message, null);
-        }
-
-        @Override
-        public void onFailed(final Error error) {
-            callback.onFinished(message, error);
-        }
+        return messenger.sendPackage(data, callback, priority);
     }
 }

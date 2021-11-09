@@ -85,6 +85,7 @@ final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
 
     @Override
     public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+        Log.info("message sent: " + source + " -> " + departure);
         // success, remove message
         msg = null;
     }
@@ -101,14 +102,15 @@ final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
     //
 
     @Override
-    public void onFinished(ReliableMessage rMsg, Error error) {
-        if (error == null) {
-            // this message was assigned to the worker of StarGate,
-            // update sent time
-            timestamp = (new Date()).getTime();
-        } else {
-            // failed
-            timestamp = -1;
-        }
+    public void onSuccess() {
+        // this message was assigned to the worker of StarGate,
+        // update sent time
+        timestamp = (new Date()).getTime();
+    }
+
+    @Override
+    public void onFailed(Error error) {
+        // failed
+        timestamp = -1;
     }
 }

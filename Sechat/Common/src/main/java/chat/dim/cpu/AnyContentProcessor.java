@@ -28,10 +28,10 @@ package chat.dim.cpu;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.Messenger;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.PageContent;
 import chat.dim.protocol.ReceiptCommand;
@@ -41,8 +41,8 @@ import chat.dim.protocol.VideoContent;
 
 public class AnyContentProcessor extends ContentProcessor {
 
-    public AnyContentProcessor() {
-        super();
+    public AnyContentProcessor(Messenger messenger) {
+        super(messenger);
     }
 
     @Override

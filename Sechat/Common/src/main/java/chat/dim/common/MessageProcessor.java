@@ -28,6 +28,8 @@ package chat.dim.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.cpu.CommonProcessorFactory;
+import chat.dim.cpu.ProcessorFactory;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.ID;
@@ -51,6 +53,11 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
 
     protected Facebook getFacebook() {
         return (Facebook) getMessenger().getFacebook();
+    }
+
+    @Override
+    protected ProcessorFactory createProcessorFactory() {
+        return new CommonProcessorFactory(getMessenger());
     }
 
     // check whether group info empty

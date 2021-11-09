@@ -1,0 +1,72 @@
+/* license: https://mit-license.org
+ * ==============================================================================
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2021 Albert Moky
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * ==============================================================================
+ */
+package chat.dim.cpu;
+
+import chat.dim.Messenger;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.SearchCommand;
+import chat.dim.protocol.StorageCommand;
+
+public class ClientProcessorFactory extends CommonProcessorFactory {
+
+    public ClientProcessorFactory(Messenger messenger) {
+        super(messenger);
+    }
+
+    @Override
+    protected CommandProcessor createProcessor(int type, String command) {
+        // handshake, login
+        if (Command.HANDSHAKE.equals(command)) {
+            return new HandshakeCommandProcessor(getMessenger());
+        } else if (Command.LOGIN.equals(command)) {
+            return new LoginCommandProcessor(getMessenger());
+        }
+        // storage (contacts, private_key)
+        if (StorageCommand.STORAGE.equals(command)) {
+            return new StorageCommandProcessor(getMessenger());
+        } else if (StorageCommand.CONTACTS.equals(command) || StorageCommand.PRIVATE_KEY.equals(command)) {
+            CommandProcessor cpu = commandProcessors.get(StorageCommand.STORAGE);
+            if (cpu == null) {
+                cpu = new StorageCommandProcessor(getMessenger());
+                commandProcessors.put(StorageCommand.STORAGE, cpu);
+            }
+            return cpu;
+        }
+        // search
+        if (SearchCommand.SEARCH.equals(command)) {
+            return new SearchCommandProcessor(getMessenger());
+        } else if (SearchCommand.ONLINE_USERS.equals(command)) {
+            CommandProcessor cpu = commandProcessors.get(SearchCommand.SEARCH);
+            if (cpu == null) {
+                cpu = new SearchCommandProcessor(getMessenger());
+                commandProcessors.put(SearchCommand.SEARCH, cpu);
+            }
+            return cpu;
+        }
+        // others
+        return super.createProcessor(type, command);
+    }
+}

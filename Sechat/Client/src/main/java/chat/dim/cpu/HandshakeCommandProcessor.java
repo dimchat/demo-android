@@ -37,8 +37,8 @@ import chat.dim.utils.Log;
 
 public class HandshakeCommandProcessor extends CommandProcessor {
 
-    public HandshakeCommandProcessor() {
-        super();
+    public HandshakeCommandProcessor(chat.dim.Messenger messenger) {
+        super(messenger);
     }
 
     private List<Content> success() {
@@ -62,6 +62,7 @@ public class HandshakeCommandProcessor extends CommandProcessor {
         assert cmd instanceof HandshakeCommand : "handshake command error: " + cmd;
         HandshakeCommand hCmd = (HandshakeCommand) cmd;
         String message = hCmd.message;
+        Log.info("received 'handshake': " + rMsg.getSender() + ", " + message + ", " + hCmd.sessionKey);
         if ("DIM!".equals(message)) {
             // S -> C
             return success();

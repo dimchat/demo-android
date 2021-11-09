@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import java.util.List;
 
+import chat.dim.Messenger;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.MuteCommand;
@@ -34,8 +35,8 @@ import chat.dim.protocol.ReliableMessage;
 
 public class MuteCommandProcessor extends CommandProcessor {
 
-    public MuteCommandProcessor() {
-        super();
+    public MuteCommandProcessor(Messenger messenger) {
+        super(messenger);
     }
 
     private List<Content> getMuteList() {

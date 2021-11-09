@@ -123,8 +123,15 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private void sendMessage(InstantMessage iMsg) {
         // prepare to send
-        Messenger.Callback callback = (result, error) -> {
-            // TODO: check sending status
+        Messenger.Callback callback = new Messenger.Callback() {
+            @Override
+            public void onSuccess() {
+                // TODO: check sending status
+            }
+            @Override
+            public void onFailed(Error error) {
+                // TODO: check sending status
+            }
         };
         Messenger messenger = Messenger.getInstance();
         if (!messenger.sendMessage(iMsg, callback, 0)) {

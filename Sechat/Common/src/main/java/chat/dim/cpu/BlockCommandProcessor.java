@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import java.util.List;
 
+import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -34,8 +35,8 @@ import chat.dim.protocol.ReliableMessage;
 
 public class BlockCommandProcessor extends CommandProcessor {
 
-    public BlockCommandProcessor() {
-        super();
+    public BlockCommandProcessor(Messenger messenger) {
+        super(messenger);
     }
 
     private List<Content> getBlockList() {
