@@ -61,15 +61,6 @@ class StateMachine extends AutoMachine<StateMachine, BaseTransition<StateMachine
         addState(state.name, state);
     }
 
-    @Override
-    public ServerState getCurrentState() {
-        ServerState state = super.getCurrentState();
-        if (state == null) {
-            state = getDefaultState();
-        }
-        return state;
-    }
-
     Server getServer() {
         return (Server) getDelegate();
     }

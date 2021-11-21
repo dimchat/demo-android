@@ -102,7 +102,11 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
     }
 
     private ServerState getCurrentState() {
-        return fsm.getCurrentState();
+        ServerState state = fsm.getCurrentState();
+        if (state == null) {
+            state = fsm.getDefaultState();
+        }
+        return state;
     }
 
     Gate.Status getStatus() {
