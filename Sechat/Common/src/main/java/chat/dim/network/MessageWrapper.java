@@ -38,6 +38,8 @@ import chat.dim.utils.Log;
 
 final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
 
+    public static int EXPIRES = 600 * 1000;  // 10 minutes
+
     private long timestamp;
     private ReliableMessage msg;
 
@@ -45,6 +47,11 @@ final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
         super();
         timestamp = 0;
         msg = rMsg;
+    }
+
+    int getPriority() {
+        // TODO:
+        return 0;
     }
 
     ReliableMessage getMessage() {
@@ -62,16 +69,15 @@ final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
         return timestamp == 0;
     }
 
-    boolean isFailed() {
+    boolean isFailed(long now) {
         if (timestamp < 0) {
             return true;
         }
         if (timestamp == 0) {
             return false;
         }
-        Date now = new Date();
-        long delta = now.getTime() - timestamp;
-        return delta > BaseSession.EXPIRES;
+        long expired = timestamp + EXPIRES;
+        return now > expired;
     }
 
     //

@@ -26,6 +26,7 @@
 package chat.dim.network;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -42,6 +43,7 @@ final class MessageQueue {
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
+            // TODO: check duplicated?
             queue.add(new MessageWrapper(msg));
         } finally {
             writeLock.unlock();
@@ -81,13 +83,13 @@ final class MessageQueue {
         return wrapper;
     }
 
-    MessageWrapper eject() {
+    MessageWrapper eject(long now) {
         MessageWrapper wrapper = null;
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
             for (MessageWrapper item : queue) {
-                if (item.getMessage() == null || item.isFailed()) {
+                if (item.getMessage() == null || item.isFailed(now)) {
                     wrapper = item;
                     queue.remove(item);
                     break;
@@ -97,5 +99,17 @@ final class MessageQueue {
             writeLock.unlock();
         }
         return wrapper;
+    }
+
+    int purge() {
+        int count = 0;
+        long now = (new Date()).getTime();
+        MessageWrapper wrapper = eject(now);
+        while (wrapper != null) {
+            count += 1;
+            // TODO: callback for failed task?
+            wrapper = eject(now);
+        }
+        return count;
     }
 }

@@ -43,9 +43,18 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     }
 
     @Override
-    protected TCPClientGate createGate(String host, int port, Gate.Delegate delegate) {
-        SocketAddress remote = new InetSocketAddress(host, port);
-        return new TCPClientGate(delegate, remote, null);
+    protected GateKeeper<TCPClientGate, ClientHub> createGateKeeper(String host, int port, Messenger transceiver) {
+        return new GateKeeper<TCPClientGate, ClientHub>(host, port, this, transceiver) {
+            @Override
+            protected TCPClientGate createGate(String host, int port, Gate.Delegate delegate) {
+                SocketAddress remote = new InetSocketAddress(host, port);
+                return new TCPClientGate(delegate, remote, null);
+            }
+        };
+    }
+
+    public void start() {
+        new Thread(this).start();
     }
 
     @Override
