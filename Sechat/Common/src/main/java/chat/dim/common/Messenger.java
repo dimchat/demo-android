@@ -38,7 +38,6 @@ import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.FileContentProcessor;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.network.Callback;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
@@ -256,7 +255,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //
     //  Interfaces for Sending Commands
     //
-    public abstract boolean sendContent(ID sender, ID receiver, Content content, Callback callback, int priority);
+    public abstract boolean sendContent(ID sender, ID receiver, Content content, int priority);
 
     public abstract boolean queryMeta(ID identifier);
 

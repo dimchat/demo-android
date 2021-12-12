@@ -216,7 +216,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
                     throw new NullPointerException("user visa error: " + user.identifier);
                 }
                 Command cmd = DocumentCommand.response(user.identifier, visa);
-                getMessenger().sendContent(user.identifier, sMsg.getSender(), cmd, null, 0);
+                getMessenger().sendContent(user.identifier, sMsg.getSender(), cmd, 0);
             } else {
                 // FIXME: message error?
                 throw e;

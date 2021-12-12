@@ -35,22 +35,23 @@ import chat.dim.port.Ship;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
-final class MessageWrapper implements Ship.Delegate, Callback {
+final class MessageWrapper implements Ship.Delegate {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
     private long timestamp;
     private ReliableMessage msg;
+    private final int prior;
 
-    MessageWrapper(ReliableMessage rMsg) {
+    MessageWrapper(ReliableMessage rMsg, int priority) {
         super();
         timestamp = 0;
         msg = rMsg;
+        prior = priority;
     }
 
     int getPriority() {
-        // TODO:
-        return 0;
+        return prior;
     }
 
     ReliableMessage getMessage() {
@@ -79,6 +80,19 @@ final class MessageWrapper implements Ship.Delegate, Callback {
         return now > expired;
     }
 
+    // message appended to outgoing queue
+    public void onSuccess() {
+        // this message was assigned to the worker of StarGate,
+        // update sent time
+        timestamp = (new Date()).getTime();
+    }
+
+    // gate error, failed to append
+    public void onFailed(Error error) {
+        // failed
+        timestamp = -1;
+    }
+
     //
     //  Ship Delegate
     //
@@ -98,23 +112,6 @@ final class MessageWrapper implements Ship.Delegate, Callback {
     @Override
     public void onError(Throwable error, Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
         Log.error("connection error (" + source + ", " + destination + "): " + error.getLocalizedMessage());
-        // failed
-        timestamp = -1;
-    }
-
-    //
-    //  Messenger Callback
-    //
-
-    @Override
-    public void onSuccess() {
-        // this message was assigned to the worker of StarGate,
-        // update sent time
-        timestamp = (new Date()).getTime();
-    }
-
-    @Override
-    public void onFailed(Error error) {
         // failed
         timestamp = -1;
     }

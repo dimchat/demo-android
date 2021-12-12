@@ -27,7 +27,10 @@ package chat.dim.network;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -36,33 +39,48 @@ import chat.dim.protocol.ReliableMessage;
 
 final class MessageQueue {
 
-    private final List<MessageWrapper> queue = new ArrayList<>();
+    private final List<Integer> priorities = new ArrayList<>();
+    private final Map<Integer, List<MessageWrapper>> fleets = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    boolean append(ReliableMessage msg) {
+    boolean append(ReliableMessage msg, int priority) {
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
+            // 1. choose an array with priority
+            List<MessageWrapper> queue = fleets.get(priority);
+            if (queue == null) {
+                // 1.1. create new array for this priority
+                queue = new ArrayList<>();
+                fleets.put(priority, queue);
+                // 1.2. insert the priority in a sorted list
+                insertPriority(priority);
+            }
             // TODO: check duplicated?
-            queue.add(new MessageWrapper(msg));
+            queue.add(new MessageWrapper(msg, priority));
         } finally {
             writeLock.unlock();
         }
         return true;
     }
-
-    MessageWrapper shift() {
-        MessageWrapper wrapper = null;
-        Lock writeLock = lock.writeLock();
-        writeLock.lock();
-        try {
-            if (queue.size() > 0) {
-                wrapper = queue.remove(0);
+    private void insertPriority(int priority) {
+        int total = priorities.size();
+        int index = 0, value;
+        // seeking position for new priority
+        for (; index < total; ++index) {
+            value = priorities.get(index);
+            if (value == priority) {
+                // duplicated
+                return;
+            } else if (value > priority) {
+                // got it
+                break;
             }
-        } finally {
-            writeLock.unlock();
+            // current value is smaller than the new value,
+            // keep going
         }
-        return wrapper;
+        // insert new value before the bigger one
+        priorities.add(index, priority);
     }
 
     MessageWrapper next() {
@@ -70,10 +88,27 @@ final class MessageQueue {
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
-            for (MessageWrapper item : queue) {
-                if (item.isVirgin()) {
-                    wrapper = item;
-                    item.mark();  // mark sent
+            List<MessageWrapper> queue;
+            Iterator<MessageWrapper> iterator;
+            MessageWrapper item;
+            for (int priority : priorities) {
+                // 1. get tasks with priority
+                queue = fleets.get(priority);
+                if (queue == null) {
+                    continue;
+                }
+                // 2. seeking new task in this priority
+                iterator = queue.iterator();
+                while (iterator.hasNext()) {
+                    item = iterator.next();
+                    if (item.isVirgin()) {
+                        wrapper = item;
+                        item.mark();  // mark sent
+                        break;
+                    }
+                }
+                if (wrapper != null) {
+                    // got it
                     break;
                 }
             }
@@ -83,15 +118,32 @@ final class MessageQueue {
         return wrapper;
     }
 
-    MessageWrapper eject(long now) {
+    private MessageWrapper eject(long now) {
         MessageWrapper wrapper = null;
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
-            for (MessageWrapper item : queue) {
-                if (item.getMessage() == null || item.isFailed(now)) {
-                    wrapper = item;
-                    queue.remove(item);
+            List<MessageWrapper> queue;
+            Iterator<MessageWrapper> iterator;
+            MessageWrapper item;
+            for (int priority : priorities) {
+                // 1. get tasks with priority
+                queue = fleets.get(priority);
+                if (queue == null) {
+                    continue;
+                }
+                // 2. seeking new task in this priority
+                iterator = queue.iterator();
+                while (iterator.hasNext()) {
+                    item = iterator.next();
+                    if (item.getMessage() == null || item.isFailed(now)) {
+                        wrapper = item;
+                        iterator.remove();
+                        break;
+                    }
+                }
+                if (wrapper != null) {
+                    // got it
                     break;
                 }
             }

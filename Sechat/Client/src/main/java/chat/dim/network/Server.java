@@ -42,8 +42,8 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
-import chat.dim.port.Ship;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
@@ -193,7 +193,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         Messenger messenger = Messenger.getInstance();
         byte[] data = messenger.serializeMessage(rMsg);
         // Urgent Command
-        session.send(data, Departure.Priority.URGENT, null);
+        session.send(data, Departure.Priority.URGENT.value, null);
     }
 
     public void handshakeAccepted() {
@@ -255,22 +255,16 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         fsm.resume();
     }
 
-    public boolean sendPackage(byte[] data, Callback callback, int priority) {
-        Ship.Delegate delegate = null;
-        if (callback instanceof Ship.Delegate) {
-            delegate = (Ship.Delegate) callback;
-        }
+    public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
+        return session.sendContent(sender, receiver, content, priority);
+    }
 
-        // FIXME: what about the delegate?
-        boolean ok = session.send(data, priority, delegate);
-        if (callback != null) {
-            if (ok) {
-                callback.onSuccess();
-            } else {
-                callback.onFailed(new Error("Server error: failed to send data package"));
-            }
-        }
-        return ok;
+    public boolean sendMessage(InstantMessage iMsg, int priority) {
+        return session.sendMessage(iMsg, priority);
+    }
+
+    public boolean sendMessage(ReliableMessage rMsg, int priority) {
+        return session.sendMessage(rMsg, priority);
     }
 
     @Override

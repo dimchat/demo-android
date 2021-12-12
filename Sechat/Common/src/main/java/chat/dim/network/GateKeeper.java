@@ -28,15 +28,21 @@ package chat.dim.network;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Date;
 
+import chat.dim.User;
 import chat.dim.common.Messenger;
 import chat.dim.net.Hub;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 import chat.dim.skywalker.Runner;
 import chat.dim.stargate.CommonGate;
+import chat.dim.threading.BackgroundThreads;
 
 public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends Runner {
 
@@ -72,43 +78,6 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
         return messengerRef.get();
     }
 
-    protected void storeMessage(ReliableMessage msg) {
-        // TODO: store the stranded message?
-    }
-
-    private void flush() {
-        // store all messages
-        ReliableMessage msg;
-        MessageWrapper wrapper = queue.shift();
-        while (wrapper != null) {
-            msg = wrapper.getMessage();
-            if (msg != null) {
-                storeMessage(msg);
-            }
-            wrapper = queue.shift();
-        }
-    }
-
-    private void clean() {
-        long now = (new Date()).getTime();
-        // store expired message
-        ReliableMessage msg;
-        MessageWrapper wrapper = queue.eject(now);
-        while (wrapper != null) {
-            msg = wrapper.getMessage();
-            if (msg != null) {
-                storeMessage(msg);
-            }
-            wrapper = queue.eject(now);
-        }
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        flush();
-    }
-
     @Override
     public boolean process() {
         boolean incoming = gate.getHub().process();
@@ -121,7 +90,6 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
             queue.purge();
             return false;
         }
-        clean();
         // get next message
         ReliableMessage msg;
         MessageWrapper wrapper = queue.next();
@@ -151,10 +119,10 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
     /**
      *  Send data via the gate
      *
-     * @param payload
-     * @param priority
-     * @param delegate
-     * @return
+     * @param payload  - encode message
+     * @param priority - smaller is faster
+     * @param delegate - callback
+     * @return false on duplicated
      */
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
         return gate.send(null, remote, payload, priority, delegate);
@@ -163,10 +131,69 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
     /**
      *  Push message into a waiting queue
      *
-     * @param msg
-     * @return
+     * @param rMsg     - network message
+     * @param priority - smaller is faster
+     * @return True
      */
-    public boolean push(ReliableMessage msg) {
-        return queue.append(msg);
+    public boolean sendMessage(ReliableMessage rMsg, int priority) {
+        return queue.append(rMsg, priority);
+    }
+
+    /**
+     *  Push message into a waiting queue after encrypted and signed
+     *
+     * @param iMsg     - plain message
+     * @param priority - smaller is faster
+     * @return True
+     */
+    public boolean sendMessage(InstantMessage iMsg, int priority) {
+        BackgroundThreads.wait(() -> {
+            Messenger messenger = getMessenger();
+            // Send message (secured + certified) to target station
+            SecureMessage sMsg = messenger.encryptMessage(iMsg);
+            if (sMsg == null) {
+                // public key not found?
+                return ;
+                //throw new NullPointerException("failed to encrypt message: " + iMsg);
+            }
+            ReliableMessage rMsg = messenger.signMessage(sMsg);
+            if (rMsg == null) {
+                // TODO: set iMsg.state = error
+                throw new NullPointerException("failed to sign message: " + sMsg);
+            }
+
+            sendMessage(rMsg, priority);
+            // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
+
+            // save signature for receipt
+            iMsg.put("signature", rMsg.get("signature"));
+
+            messenger.saveMessage(iMsg);
+        });
+        return true;
+    }
+
+    /**
+     *  Send message content with priority
+     *
+     * @param sender   - from who
+     * @param receiver - to who
+     * @param content  - message content
+     * @param priority - smaller is faster
+     * @return True
+     */
+    public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
+        // Application Layer should make sure user is already login before it send message to server.
+        // Application layer should put message into queue so that it will send automatically after user login
+        if (sender == null) {
+            User user = getMessenger().getFacebook().getCurrentUser();
+            if (user == null) {
+                throw new NullPointerException("current user not set");
+            }
+            sender = user.identifier;
+        }
+        Envelope env = Envelope.create(sender, receiver, null);
+        InstantMessage iMsg = InstantMessage.create(env, content);
+        return sendMessage(iMsg, priority);
     }
 }

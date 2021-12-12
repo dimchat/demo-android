@@ -105,7 +105,7 @@ public class MessageDataSource implements Observer {
                         continue;
                     }
                     for (ReliableMessage res : responses) {
-                        messenger.sendMessage(res, null, Departure.Priority.SLOWER.value);
+                        messenger.sendMessage(res, Departure.Priority.SLOWER.value);
                     }
                 }
             }
@@ -114,7 +114,7 @@ public class MessageDataSource implements Observer {
             List<InstantMessage> outgoing = outgoingMessages.remove(entity);
             if (outgoing != null) {
                 for (InstantMessage item : outgoing) {
-                    messenger.sendMessage(item, null, Departure.Priority.SLOWER.value);
+                    messenger.sendMessage(item, Departure.Priority.SLOWER.value);
                 }
             }
         }

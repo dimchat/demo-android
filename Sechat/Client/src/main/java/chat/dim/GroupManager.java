@@ -64,7 +64,7 @@ public final class GroupManager {
         getMessenger().sendCommand(cmd, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, ID receiver) {
-        getMessenger().sendContent(null, receiver, cmd, null, Departure.Priority.NORMAL.value);
+        getMessenger().sendContent(null, receiver, cmd, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members == null) {

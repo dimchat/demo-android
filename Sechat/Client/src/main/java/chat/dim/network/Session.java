@@ -29,12 +29,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
-import chat.dim.port.Departure;
 import chat.dim.port.Gate;
-import chat.dim.port.Ship;
 import chat.dim.stargate.TCPClientGate;
 import chat.dim.tcp.ClientHub;
-import chat.dim.utils.Log;
 
 public class Session extends BaseSession<TCPClientGate, ClientHub> {
 
@@ -67,21 +64,6 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     public void finish() {
         super.finish();
         setActive(false);
-    }
-
-    public boolean send(byte[] payload, Departure.Priority priority, Ship.Delegate delegate) {
-        return send(payload, priority.value, delegate);
-    }
-
-    @Override
-    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
-        if (!isActive()) {
-            // FIXME: connection lost?
-            // java.nio.BufferOverflowException
-            Log.error("session inactive");
-        }
-        Log.info("sending " + payload.length + " byte(s)");
-        return getGate().sendMessage(payload, priority, delegate);
     }
 
     //

@@ -31,7 +31,6 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.common.Facebook;
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
@@ -41,6 +40,10 @@ import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
 import chat.dim.port.Gate;
 import chat.dim.port.Ship;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.skywalker.Runner;
 import chat.dim.stargate.CommonGate;
 import chat.dim.startrek.DepartureShip;
@@ -49,7 +52,7 @@ import chat.dim.utils.Log;
 public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         extends Runner implements Gate.Delegate {
 
-    public final GateKeeper<G, H> keeper;
+    private final GateKeeper<G, H> keeper;
 
     public BaseSession(String host, int port, Messenger transceiver) {
         super();
@@ -64,9 +67,6 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
 
     public Messenger getMessenger() {
         return keeper.getMessenger();
-    }
-    public Facebook getFacebook() {
-        return getMessenger().getFacebook();
     }
 
     public boolean isActive() {
@@ -103,7 +103,41 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         return keeper.process();
     }
 
-    public abstract boolean send(byte[] payload, int priority, Ship.Delegate delegate);
+    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
+        if (!isActive()) {
+            // FIXME: connection lost?
+            Log.error("session inactive");
+        }
+        Log.info("sending " + payload.length + " byte(s)");
+        return keeper.send(payload, priority, delegate);
+    }
+
+    public boolean sendMessage(ReliableMessage rMsg, int priority) {
+        if (!isActive()) {
+            // FIXME: connection lost?
+            Log.error("session inactive");
+        }
+        Log.info("sending content to: " + rMsg.getReceiver() + ", priority: " + priority);
+        return keeper.sendMessage(rMsg, priority);
+    }
+
+    public boolean sendMessage(InstantMessage iMsg, int priority) {
+        if (!isActive()) {
+            // FIXME: connection lost?
+            Log.error("session inactive");
+        }
+        Log.info("sending content to: " + iMsg.getReceiver() + ", priority: " + priority);
+        return keeper.sendMessage(iMsg, priority);
+    }
+
+    public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
+        if (!isActive()) {
+            // FIXME: connection lost?
+            Log.error("session inactive");
+        }
+        Log.info("sending content to: " + receiver + ", priority: " + priority);
+        return keeper.sendContent(sender, receiver, content, priority);
+    }
 
     //
     //  Gate Delegate
@@ -212,7 +246,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
                 // should not happen
                 continue;
             }
-            send(buffer, Departure.Priority.SLOWER.value, null);
+            keeper.send(buffer, Departure.Priority.SLOWER.value, null);
         }
     }
 
