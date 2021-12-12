@@ -35,6 +35,7 @@ import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
 import chat.dim.model.MessageDataSource;
+import chat.dim.network.Callback;
 import chat.dim.network.Server;
 import chat.dim.network.Terminal;
 import chat.dim.port.Departure;
@@ -42,14 +43,17 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.protocol.group.QueryCommand;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger {
@@ -106,6 +110,58 @@ public final class Messenger extends chat.dim.common.Messenger {
     public boolean saveMessage(InstantMessage iMsg) {
         MessageDataSource ds = MessageDataSource.getInstance();
         return ds.saveMessage(iMsg);
+    }
+
+    public boolean sendMessage(final ReliableMessage rMsg, final Callback callback, final int priority) {
+        final byte[] data = serializeMessage(rMsg);
+        Server server = getCurrentServer();
+        return server.sendPackage(data, callback, priority);
+    }
+
+    public boolean sendMessage(InstantMessage iMsg, Callback callback, int priority) {
+        Messenger messenger = this;
+        BackgroundThreads.wait(new Runnable() {
+            @Override
+            public void run() {
+                // Send message (secured + certified) to target station
+                SecureMessage sMsg = messenger.encryptMessage(iMsg);
+                if (sMsg == null) {
+                    // public key not found?
+                    return ;
+                    //throw new NullPointerException("failed to encrypt message: " + iMsg);
+                }
+                ReliableMessage rMsg = messenger.signMessage(sMsg);
+                if (rMsg == null) {
+                    // TODO: set iMsg.state = error
+                    throw new NullPointerException("failed to sign message: " + sMsg);
+                }
+
+                sendMessage(rMsg, callback, priority);
+                // TODO: if OK, set iMsg.state = sending; else set iMsg.state = waiting
+
+                // save signature for receipt
+                iMsg.put("signature", rMsg.get("signature"));
+
+                messenger.saveMessage(iMsg);
+            }
+        });
+        return true;
+    }
+
+    @Override
+    public boolean sendContent(ID sender, ID receiver, Content content, Callback callback, int priority) {
+        // Application Layer should make sure user is already login before it send message to server.
+        // Application layer should put message into queue so that it will send automatically after user login
+        if (sender == null) {
+            User user = getFacebook().getCurrentUser();
+            if (user == null) {
+                throw new NullPointerException("current user not set");
+            }
+            sender = user.identifier;
+        }
+        Envelope env = Envelope.create(sender, receiver, null);
+        InstantMessage iMsg = InstantMessage.create(env, content);
+        return sendMessage(iMsg, callback, priority);
     }
 
     /**

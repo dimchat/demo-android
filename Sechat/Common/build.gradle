@@ -3,7 +3,7 @@ apply plugin: 'java-library'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.6.1'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.6.2'
     implementation group: 'chat.dim', name: 'Plugins', version: '0.3.5'
 
     implementation group: 'chat.dim', name: 'StarGate', version: '0.3.10'

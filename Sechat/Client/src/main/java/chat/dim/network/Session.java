@@ -72,6 +72,8 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     public boolean send(byte[] payload, Departure.Priority priority, Ship.Delegate delegate) {
         return send(payload, priority.value, delegate);
     }
+
+    @Override
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
         if (!isActive()) {
             // FIXME: connection lost?

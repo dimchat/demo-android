@@ -34,11 +34,11 @@ import java.util.List;
 import chat.dim.CipherKeyDelegate;
 import chat.dim.Packer;
 import chat.dim.Processor;
-import chat.dim.Transmitter;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.FileContentProcessor;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.network.Callback;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
@@ -56,7 +56,6 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     private MessagePacker messagePacker = null;
     private MessageProcessor messageProcessor = null;
-    private MessageTransmitter messageTransmitter = null;
 
     public Messenger()  {
         super();
@@ -72,6 +71,11 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
     public Delegate getDelegate() {
         return delegateRef == null ? null : delegateRef.get();
+    }
+
+    @Override
+    public Facebook getFacebook() {
+        return (Facebook) super.getFacebook();
     }
 
     @Override
@@ -152,35 +156,6 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
     protected MessageProcessor createMessageProcessor() {
         return new MessageProcessor(this);
-    }
-
-    /**
-     *  Delegate for transmitting message
-     *
-     * @param transmitter - message transmitter
-     */
-    public void setTransmitter(Transmitter transmitter) {
-        super.setTransmitter(transmitter);
-        if (transmitter instanceof MessageTransmitter) {
-            messageTransmitter = (MessageTransmitter) transmitter;
-        }
-    }
-    protected Transmitter getTransmitter() {
-        Transmitter transmitter = super.getTransmitter();
-        if (transmitter == null) {
-            transmitter = getMessageTransmitter();
-            super.setTransmitter(transmitter);
-        }
-        return transmitter;
-    }
-    private MessageTransmitter getMessageTransmitter() {
-        if (messageTransmitter == null) {
-            messageTransmitter = createMessageTransmitter();
-        }
-        return messageTransmitter;
-    }
-    protected MessageTransmitter createMessageTransmitter() {
-        return new MessageTransmitter(this);
     }
 
     private FileContentProcessor getFileContentProcessor() {
@@ -281,6 +256,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     //
     //  Interfaces for Sending Commands
     //
+    public abstract boolean sendContent(ID sender, ID receiver, Content content, Callback callback, int priority);
 
     public abstract boolean queryMeta(ID identifier);
 
@@ -313,10 +289,6 @@ public abstract class Messenger extends chat.dim.Messenger {
         return getDelegate().downloadData(url, iMsg);
     }
 
-    public boolean sendPackage(byte[] data, Messenger.Callback handler, int priority) {
-        return getDelegate().sendPackage(data, handler, priority);
-    }
-
     /**
      *  Messenger Delegate
      *  ~~~~~~~~~~~~~~~~~~
@@ -340,16 +312,6 @@ public abstract class Messenger extends chat.dim.Messenger {
          * @return encrypted file data
          */
         byte[] downloadData(String url, InstantMessage iMsg);
-
-        /**
-         *  Send out a data package onto network
-         *
-         * @param data - package data
-         * @param handler - completion handler
-         * @param priority - task priority
-         * @return true on success
-         */
-        boolean sendPackage(byte[] data, Messenger.Callback handler, int priority);
     }
 
     static {

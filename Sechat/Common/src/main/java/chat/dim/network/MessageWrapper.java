@@ -28,7 +28,6 @@ package chat.dim.network;
 import java.net.SocketAddress;
 import java.util.Date;
 
-import chat.dim.Messenger;
 import chat.dim.net.Connection;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
@@ -36,7 +35,7 @@ import chat.dim.port.Ship;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
-final class MessageWrapper implements Ship.Delegate, Messenger.Callback {
+final class MessageWrapper implements Ship.Delegate, Callback {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 

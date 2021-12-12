@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.common.Facebook;
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
@@ -63,6 +64,9 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
 
     public Messenger getMessenger() {
         return keeper.getMessenger();
+    }
+    public Facebook getFacebook() {
+        return getMessenger().getFacebook();
     }
 
     public boolean isActive() {
@@ -98,6 +102,8 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     public boolean process() {
         return keeper.process();
     }
+
+    public abstract boolean send(byte[] payload, int priority, Ship.Delegate delegate);
 
     //
     //  Gate Delegate
@@ -206,7 +212,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
                 // should not happen
                 continue;
             }
-            messenger.sendPackage(buffer, null, Departure.Priority.SLOWER.value);
+            send(buffer, Departure.Priority.SLOWER.value, null);
         }
     }
 

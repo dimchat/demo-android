@@ -255,8 +255,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         fsm.resume();
     }
 
-    @Override
-    public boolean sendPackage(byte[] data, Messenger.Callback callback, int priority) {
+    public boolean sendPackage(byte[] data, Callback callback, int priority) {
         Ship.Delegate delegate = null;
         if (callback instanceof Ship.Delegate) {
             delegate = (Ship.Delegate) callback;

@@ -26,6 +26,7 @@ import chat.dim.digest.MD5;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
+import chat.dim.network.Callback;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -123,7 +124,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private void sendMessage(InstantMessage iMsg) {
         // prepare to send
-        Messenger.Callback callback = new Messenger.Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onSuccess() {
                 // TODO: check sending status
