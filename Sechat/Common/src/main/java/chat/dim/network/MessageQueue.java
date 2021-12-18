@@ -55,8 +55,18 @@ final class MessageQueue {
                 fleets.put(priority, queue);
                 // 1.2. insert the priority in a sorted list
                 insertPriority(priority);
+            } else {
+                // 1.3. check duplicated
+                String signature = (String) msg.get("signature");
+                ReliableMessage item;
+                for (MessageWrapper wrapper : queue) {
+                    item = wrapper.getMessage();
+                    if (item != null && item.get("signature").equals(signature)) {
+                        // duplicated message
+                        return true;
+                    }
+                }
             }
-            // TODO: check duplicated?
             queue.add(new MessageWrapper(msg, priority));
         } finally {
             writeLock.unlock();

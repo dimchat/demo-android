@@ -56,8 +56,12 @@ public class SearchCommandProcessor extends CommandProcessor {
         Meta meta;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
             identifier = ID.parse(entry.getKey());
+            if (identifier == null) {
+                // TODO: ID error
+                continue;
+            }
             meta = Meta.parse((Map<String, Object>) entry.getValue());
-            if (identifier == null || meta == null || !meta.matches(identifier)) {
+            if (meta == null || !Meta.matches(identifier, meta)) {
                 // TODO: meta error
                 continue;
             }

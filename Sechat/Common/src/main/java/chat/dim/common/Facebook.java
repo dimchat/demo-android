@@ -375,6 +375,11 @@ public class Facebook extends chat.dim.Facebook {
         Factories.idFactory = new ID.Factory() {
 
             @Override
+            public ID generateID(Meta meta, byte type, String terminal) {
+                return identifierFactory.generateID(meta, type, terminal);
+            }
+
+            @Override
             public ID createID(String name, Address address, String terminal) {
                 return identifierFactory.createID(name, address, terminal);
             }

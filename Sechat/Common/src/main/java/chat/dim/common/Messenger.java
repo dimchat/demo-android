@@ -78,11 +78,6 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     @Override
-    protected Facebook createFacebook() {
-        return new Facebook();
-    }
-
-    @Override
     public CipherKeyDelegate getCipherKeyDelegate() {
         CipherKeyDelegate keyCache = super.getCipherKeyDelegate();
         if (keyCache == null) {

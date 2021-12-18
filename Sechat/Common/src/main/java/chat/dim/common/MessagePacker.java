@@ -149,7 +149,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         Meta meta = rMsg.getMeta();
         if (meta == null) {
             meta = getFacebook().getMeta(sender);
-        } else if (!meta.matches(sender)) {
+        } else if (!Meta.matches(sender, meta)) {
             meta = null;
         }
         if (meta == null) {

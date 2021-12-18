@@ -82,6 +82,12 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     }
 
     @Override
+    public void stop() {
+        super.stop();
+        keeper.stop();
+    }
+
+    @Override
     public boolean isRunning() {
         return super.isRunning() && keeper.isRunning();
     }
@@ -106,7 +112,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.error("session inactive");
+            Log.warning("session inactive");
         }
         Log.info("sending " + payload.length + " byte(s)");
         return keeper.send(payload, priority, delegate);
@@ -115,7 +121,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.error("session inactive");
+            Log.warning("session inactive");
         }
         Log.info("sending content to: " + rMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(rMsg, priority);
@@ -124,7 +130,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     public boolean sendMessage(InstantMessage iMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.error("session inactive");
+            Log.warning("session inactive");
         }
         Log.info("sending content to: " + iMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(iMsg, priority);
@@ -133,7 +139,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.error("session inactive");
+            Log.warning("session inactive");
         }
         Log.info("sending content to: " + receiver + ", priority: " + priority);
         return keeper.sendContent(sender, receiver, content, priority);

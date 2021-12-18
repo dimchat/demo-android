@@ -54,8 +54,9 @@ public final class SechatApp extends Application {
 
         chat.dim.common.Facebook.ansTable = AddressNameTable.getInstance();
 
+        Facebook facebook = Facebook.getInstance();
         Messenger messenger = Messenger.getInstance();
-        Facebook facebook = messenger.getFacebook();
+        messenger.setFacebook(facebook);
 
         EntityDatabase.facebook = facebook;
         MessageDatabase.messenger = messenger;

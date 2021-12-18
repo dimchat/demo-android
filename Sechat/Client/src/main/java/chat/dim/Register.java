@@ -74,7 +74,7 @@ public final class Register {
         //
         //  Step 3. generate ID with meta
         //
-        ID identifier = meta.generateID(NetworkType.MAIN.value, null);
+        ID identifier = ID.generate(meta, NetworkType.MAIN.value, null);
         //
         //  Step 4. generate visa with ID and sign with private key
         //
@@ -111,7 +111,7 @@ public final class Register {
         // 2. generate meta
         Meta meta = Meta.generate(MetaType.DEFAULT.value, privateKey, seed);
         // 3. generate ID
-        ID identifier = meta.generateID(NetworkType.POLYLOGUE.value, null);
+        ID identifier = ID.generate(meta, NetworkType.POLYLOGUE.value, null);
         // 4. generate document
         Bulletin bulletin = createGroupDocument(identifier, name);
         // 5. save meta & bulletin in local storage

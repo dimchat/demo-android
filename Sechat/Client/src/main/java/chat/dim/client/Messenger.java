@@ -64,10 +64,6 @@ public final class Messenger extends chat.dim.common.Messenger {
     public Facebook getFacebook() {
         return (Facebook) super.getFacebook();
     }
-    @Override
-    protected Facebook createFacebook() {
-        return Facebook.getInstance();
-    }
 
     @Override
     protected MessageProcessor createMessageProcessor() {

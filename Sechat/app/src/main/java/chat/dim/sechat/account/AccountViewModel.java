@@ -208,7 +208,7 @@ public class AccountViewModel extends UserViewModel {
         Meta meta = Meta.generate(metaVersion, privateKey, seed);
 
         // generate ID
-        ID identifier = meta.generateID(network, null);
+        ID identifier = ID.generate(meta, network, null);
 
         // save private key with user ID
         if (!getFacebook().savePrivateKey(privateKey, identifier, "M")) {

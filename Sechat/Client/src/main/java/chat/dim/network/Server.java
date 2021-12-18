@@ -180,7 +180,7 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         Log.info("shaking hands with session key: " + sessionKey);
 
         // create handshake command
-        HandshakeCommand cmd = new HandshakeCommand(sessionKey);
+        HandshakeCommand cmd = HandshakeCommand.restart(sessionKey);
         setLastReceivedMessageTime(cmd);
         ReliableMessage rMsg = packCommand(cmd);
         // first handshake?

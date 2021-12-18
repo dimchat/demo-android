@@ -34,6 +34,13 @@ public final class Log {
         System.out.println("[" + method + ":" + line + "] " + msg);
     }
 
+    public static void warning(String msg) {
+        StackTraceElement[] traces = Thread.currentThread().getStackTrace();
+        String method = traces[3].getMethodName();
+        int line = traces[3].getLineNumber();
+        System.out.println("[ERROR][" + method + ":" + line + "] " + msg);
+    }
+
     public static void error(String msg) {
         StackTraceElement[] traces = Thread.currentThread().getStackTrace();
         String method = traces[3].getMethodName();
