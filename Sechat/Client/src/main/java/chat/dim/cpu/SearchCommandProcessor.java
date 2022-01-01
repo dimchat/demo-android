@@ -28,8 +28,8 @@ package chat.dim.cpu;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Facebook;
-import chat.dim.Messenger;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Command;
@@ -41,8 +41,13 @@ import chat.dim.protocol.SearchCommand;
 
 public class SearchCommandProcessor extends CommandProcessor {
 
-    public SearchCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public SearchCommandProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
+    }
+
+    @Override
+    protected Facebook getFacebook() {
+        return (Facebook) super.getFacebook();
     }
 
     @SuppressWarnings("unchecked")

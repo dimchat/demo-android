@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.Transmitter;
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
@@ -50,7 +51,7 @@ import chat.dim.startrek.DepartureShip;
 import chat.dim.utils.Log;
 
 public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
-        extends Runner implements Gate.Delegate {
+        extends Runner implements Transmitter, Gate.Delegate {
 
     private final GateKeeper<G, H> keeper;
 
@@ -118,6 +119,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         return keeper.send(payload, priority, delegate);
     }
 
+    @Override
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
@@ -127,6 +129,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         return keeper.sendMessage(rMsg, priority);
     }
 
+    @Override
     public boolean sendMessage(InstantMessage iMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
@@ -136,6 +139,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         return keeper.sendMessage(iMsg, priority);
     }
 
+    @Override
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
@@ -235,7 +239,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         byte[] buffer;
         for (byte[] data : packages) {
             try {
-                responses = messenger.process(data);
+                responses = messenger.processData(data);
             } catch (JSONException e) {
                 Log.info("JSON error: " + (new String(payload)));
                 continue;

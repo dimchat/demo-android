@@ -42,8 +42,8 @@ import chat.dim.protocol.group.ResetCommand;
 
 public class MessageProcessor extends chat.dim.MessageProcessor {
 
-    public MessageProcessor(Messenger messenger) {
-        super(messenger);
+    public MessageProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override
@@ -51,13 +51,14 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         return (Messenger) super.getMessenger();
     }
 
+    @Override
     protected Facebook getFacebook() {
-        return (Facebook) getMessenger().getFacebook();
+        return (Facebook) super.getFacebook();
     }
 
     @Override
     protected ProcessorFactory createProcessorFactory() {
-        return new CommonProcessorFactory(getMessenger());
+        return new CommonProcessorFactory(getFacebook(), getMessenger());
     }
 
     // check whether group info empty
@@ -123,7 +124,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     @Override
-    public List<Content> process(Content content, ReliableMessage rMsg) {
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
         ID sender = rMsg.getSender();
         if (isWaitingGroup(content, sender)) {
             // save this message in a queue to wait group meta response
@@ -133,7 +134,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             return null;
         }
         try {
-            return super.process(content, rMsg);
+            return super.processContent(content, rMsg);
         } catch (NullPointerException e) {
             e.printStackTrace();
             String text = e.getMessage();
@@ -154,7 +155,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     }
 
     @Override
-    public List<InstantMessage> process(InstantMessage iMsg, ReliableMessage rMsg) {
+    public List<InstantMessage> processMessage(InstantMessage iMsg, ReliableMessage rMsg) {
         final Messenger messenger = getMessenger();
         SecureMessage sMsg;
         // unwrap secret message circularly
@@ -174,7 +175,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
             content = iMsg.getContent();
         }
         // call super to process
-        final List<InstantMessage> responses = super.process(iMsg, rMsg);
+        final List<InstantMessage> responses = super.processMessage(iMsg, rMsg);
         // save instant/secret message
         if (!messenger.saveMessage(iMsg)) {
             // error

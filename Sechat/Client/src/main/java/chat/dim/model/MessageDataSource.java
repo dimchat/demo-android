@@ -100,7 +100,7 @@ public class MessageDataSource implements Observer {
             if (incoming != null) {
                 List<ReliableMessage> responses;
                 for (ReliableMessage item : incoming) {
-                    responses = messenger.process(item);
+                    responses = messenger.processMessage(item);
                     if (responses == null || responses.size() == 0) {
                         continue;
                     }

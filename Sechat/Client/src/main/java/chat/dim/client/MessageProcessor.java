@@ -42,8 +42,13 @@ import chat.dim.utils.Log;
 
 public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
-    public MessageProcessor(Messenger messenger) {
-        super(messenger);
+    public MessageProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
+    }
+
+    @Override
+    protected Facebook getFacebook() {
+        return (Facebook) super.getFacebook();
     }
 
     @Override
@@ -53,12 +58,12 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
 
     @Override
     protected ProcessorFactory createProcessorFactory() {
-        return new ClientProcessorFactory(getMessenger());
+        return new ClientProcessorFactory(getFacebook(), getMessenger());
     }
 
     @Override
-    public List<Content> process(Content content, ReliableMessage rMsg) {
-        List<Content> responses = super.process(content, rMsg);
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
+        List<Content> responses = super.processContent(content, rMsg);
         if (responses == null || responses.size() == 0) {
             // respond nothing
             return null;

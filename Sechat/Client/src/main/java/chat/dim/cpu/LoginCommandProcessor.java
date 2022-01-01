@@ -28,7 +28,8 @@ package chat.dim.cpu;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Messenger;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.database.LoginTable;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -40,8 +41,8 @@ import chat.dim.utils.Times;
 
 public class LoginCommandProcessor extends CommandProcessor {
 
-    public LoginCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public LoginCommandProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override

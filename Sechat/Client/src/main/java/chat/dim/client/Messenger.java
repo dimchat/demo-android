@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.Entity;
+import chat.dim.Transmitter;
 import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
@@ -61,13 +63,23 @@ public final class Messenger extends chat.dim.common.Messenger {
     }
 
     @Override
+    protected Entity.Delegate getEntityDelegate() {
+        return Facebook.getInstance();
+    }
+
+    @Override
     public Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
+        return Facebook.getInstance();
+    }
+
+    @Override
+    protected Transmitter getTransmitter() {
+        return getCurrentServer();
     }
 
     @Override
     protected MessageProcessor createMessageProcessor() {
-        return new MessageProcessor(this);
+        return new MessageProcessor(getFacebook(), this);
     }
 
     private WeakReference<Terminal> terminalRef = null;

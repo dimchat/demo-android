@@ -28,9 +28,9 @@ package chat.dim.cpu;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Facebook;
-import chat.dim.Messenger;
 import chat.dim.User;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.crypto.Password;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
@@ -43,8 +43,13 @@ import chat.dim.protocol.StorageCommand;
 
 public class StorageCommandProcessor extends CommandProcessor {
 
-    public StorageCommandProcessor(Messenger messenger) {
-        super(messenger);
+    public StorageCommandProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
+    }
+
+    @Override
+    protected Facebook getFacebook() {
+        return (Facebook) super.getFacebook();
     }
 
     private Object decryptData(StorageCommand cmd, SymmetricKey password) {

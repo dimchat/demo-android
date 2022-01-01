@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import chat.dim.Transmitter;
 import chat.dim.User;
 import chat.dim.common.Messenger;
 import chat.dim.net.Hub;
@@ -44,7 +45,8 @@ import chat.dim.skywalker.Runner;
 import chat.dim.stargate.CommonGate;
 import chat.dim.threading.BackgroundThreads;
 
-public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends Runner {
+public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
+        extends Runner implements Transmitter {
 
     private final SocketAddress remote;
 
@@ -135,6 +137,7 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
      * @param priority - smaller is faster
      * @return True
      */
+    @Override
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         return queue.append(rMsg, priority);
     }
@@ -146,6 +149,7 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
      * @param priority - smaller is faster
      * @return True
      */
+    @Override
     public boolean sendMessage(InstantMessage iMsg, int priority) {
         BackgroundThreads.wait(() -> {
             Messenger messenger = getMessenger();
@@ -182,6 +186,7 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub> extends
      * @param priority - smaller is faster
      * @return True
      */
+    @Override
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
         // Application Layer should make sure user is already login before it send message to server.
         // Application layer should put message into queue so that it will send automatically after user login

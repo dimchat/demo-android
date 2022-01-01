@@ -32,6 +32,7 @@ package chat.dim.cpu;
 
 import java.util.List;
 
+import chat.dim.Facebook;
 import chat.dim.common.Messenger;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
@@ -43,8 +44,8 @@ import chat.dim.protocol.SecureMessage;
 
 public class FileContentProcessor extends ContentProcessor {
 
-    public FileContentProcessor(Messenger messenger) {
-        super(messenger);
+    public FileContentProcessor(Facebook facebook, chat.dim.Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override

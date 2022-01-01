@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import java.util.List;
 
+import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.network.Server;
 import chat.dim.protocol.Command;
@@ -38,8 +39,8 @@ import chat.dim.utils.Log;
 
 public class HandshakeCommandProcessor extends CommandProcessor {
 
-    public HandshakeCommandProcessor(chat.dim.Messenger messenger) {
-        super(messenger);
+    public HandshakeCommandProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override

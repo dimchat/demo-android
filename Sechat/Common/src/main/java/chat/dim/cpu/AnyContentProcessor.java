@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.Messenger;
+import chat.dim.Facebook;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
@@ -41,8 +42,8 @@ import chat.dim.protocol.VideoContent;
 
 public class AnyContentProcessor extends ContentProcessor {
 
-    public AnyContentProcessor(Messenger messenger) {
-        super(messenger);
+    public AnyContentProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override

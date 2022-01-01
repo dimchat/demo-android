@@ -25,6 +25,7 @@
  */
 package chat.dim.cpu;
 
+import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
@@ -33,27 +34,28 @@ import chat.dim.protocol.MuteCommand;
 
 public class CommonProcessorFactory extends ProcessorFactory {
 
-    public CommonProcessorFactory(Messenger messenger) {
-        super(messenger);
+    public CommonProcessorFactory(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override
     protected ContentProcessor createProcessor(int type) {
         // file
         if (ContentType.FILE.equals(type)) {
-            return new FileContentProcessor((chat.dim.common.Messenger) getMessenger());
+            return new FileContentProcessor(getFacebook(), getMessenger());
         } else if (ContentType.IMAGE.equals(type) || ContentType.AUDIO.equals(type) || ContentType.VIDEO.equals(type)) {
             ContentProcessor cpu = contentProcessors.get(ContentType.FILE.value);
             if (cpu == null) {
-                cpu = new FileContentProcessor((chat.dim.common.Messenger) getMessenger());
+                cpu = new FileContentProcessor(getFacebook(), getMessenger());
                 contentProcessors.put(ContentType.FILE.value, cpu);
             }
             return cpu;
         }
+        // others
         ContentProcessor cpu = super.createProcessor(type);
         if (cpu == null) {
             // unknown
-            return new AnyContentProcessor(getMessenger());
+            return new AnyContentProcessor(getFacebook(), getMessenger());
         }
         return cpu;
     }
@@ -62,15 +64,15 @@ public class CommonProcessorFactory extends ProcessorFactory {
     protected CommandProcessor createProcessor(int type, String command) {
         // receipt
         if (Command.RECEIPT.equals(command)) {
-            return new ReceiptCommandProcessor(getMessenger());
+            return new ReceiptCommandProcessor(getFacebook(), getMessenger());
         }
         // mute
         if (MuteCommand.MUTE.equals(command)) {
-            return new MuteCommandProcessor(getMessenger());
+            return new MuteCommandProcessor(getFacebook(), getMessenger());
         }
         // block
         if (BlockCommand.BLOCK.equals(command)) {
-            return new BlockCommandProcessor(getMessenger());
+            return new BlockCommandProcessor(getFacebook(), getMessenger());
         }
         // others
         return super.createProcessor(type, command);

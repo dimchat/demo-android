@@ -49,8 +49,8 @@ public class MessagePacker extends chat.dim.MessagePacker {
     // Message Transfer Protocol
     public int mtpFormat = MTP_JSON;
 
-    public MessagePacker(Messenger messenger) {
-        super(messenger);
+    public MessagePacker(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
     }
 
     @Override

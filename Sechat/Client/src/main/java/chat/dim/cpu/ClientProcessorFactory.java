@@ -25,43 +25,54 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.Messenger;
+import chat.dim.client.Facebook;
+import chat.dim.client.Messenger;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 
 public class ClientProcessorFactory extends CommonProcessorFactory {
 
-    public ClientProcessorFactory(Messenger messenger) {
-        super(messenger);
+    public ClientProcessorFactory(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
+    }
+
+    @Override
+    protected Facebook getFacebook() {
+        return (Facebook) super.getFacebook();
+    }
+
+    @Override
+    protected Messenger getMessenger() {
+        return (Messenger) super.getMessenger();
     }
 
     @Override
     protected CommandProcessor createProcessor(int type, String command) {
         // handshake, login
         if (Command.HANDSHAKE.equals(command)) {
-            return new HandshakeCommandProcessor(getMessenger());
+            return new HandshakeCommandProcessor(getFacebook(), getMessenger());
         } else if (Command.LOGIN.equals(command)) {
-            return new LoginCommandProcessor(getMessenger());
+            return new LoginCommandProcessor(getFacebook(), getMessenger());
         }
         // storage (contacts, private_key)
         if (StorageCommand.STORAGE.equals(command)) {
-            return new StorageCommandProcessor(getMessenger());
+            return new StorageCommandProcessor(getFacebook(), getMessenger());
         } else if (StorageCommand.CONTACTS.equals(command) || StorageCommand.PRIVATE_KEY.equals(command)) {
             CommandProcessor cpu = commandProcessors.get(StorageCommand.STORAGE);
             if (cpu == null) {
-                cpu = new StorageCommandProcessor(getMessenger());
+                cpu = new StorageCommandProcessor(getFacebook(), getMessenger());
                 commandProcessors.put(StorageCommand.STORAGE, cpu);
             }
             return cpu;
         }
         // search
         if (SearchCommand.SEARCH.equals(command)) {
-            return new SearchCommandProcessor(getMessenger());
+            return new SearchCommandProcessor(getFacebook(), getMessenger());
         } else if (SearchCommand.ONLINE_USERS.equals(command)) {
             CommandProcessor cpu = commandProcessors.get(SearchCommand.SEARCH);
             if (cpu == null) {
-                cpu = new SearchCommandProcessor(getMessenger());
+                cpu = new SearchCommandProcessor(getFacebook(), getMessenger());
                 commandProcessors.put(SearchCommand.SEARCH, cpu);
             }
             return cpu;

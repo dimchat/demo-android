@@ -72,19 +72,11 @@ public abstract class Messenger extends chat.dim.Messenger {
         return delegateRef == null ? null : delegateRef.get();
     }
 
-    @Override
-    public Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
-    }
+    public abstract Facebook getFacebook();
 
     @Override
     public CipherKeyDelegate getCipherKeyDelegate() {
-        CipherKeyDelegate keyCache = super.getCipherKeyDelegate();
-        if (keyCache == null) {
-            keyCache = getKeyStore();
-            setCipherKeyDelegate(keyCache);
-        }
-        return keyCache;
+        return getKeyStore();
     }
     public KeyStore getKeyStore() {
         return KeyStore.getInstance();
@@ -92,24 +84,10 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     /**
      *  Delegate for packing message
-     *
-     * @param packer - message packer
      */
     @Override
-    public void setPacker(Packer packer) {
-        super.setPacker(packer);
-        if (packer instanceof MessagePacker) {
-            messagePacker = (MessagePacker) packer;
-        }
-    }
-    @Override
     protected Packer getPacker() {
-        Packer packer = super.getPacker();
-        if (packer == null) {
-            packer = getMessagePacker();
-            super.setPacker(packer);
-        }
-        return packer;
+        return getMessagePacker();
     }
     private MessagePacker getMessagePacker() {
         if (messagePacker == null) {
@@ -118,29 +96,15 @@ public abstract class Messenger extends chat.dim.Messenger {
         return messagePacker;
     }
     protected MessagePacker createMessagePacker() {
-        return new MessagePacker(this);
+        return new MessagePacker(getFacebook(), this);
     }
 
     /**
      *  Delegate for processing message
-     *
-     * @param processor - message processor
      */
     @Override
-    public void setProcessor(Processor processor) {
-        super.setProcessor(processor);
-        if (processor instanceof MessageProcessor) {
-            messageProcessor = (MessageProcessor) processor;
-        }
-    }
-    @Override
     protected Processor getProcessor() {
-        Processor processor = super.getProcessor();
-        if (processor == null) {
-            processor = getMessageProcessor();
-            super.setProcessor(processor);
-        }
-        return processor;
+        return getMessageProcessor();
     }
     private MessageProcessor getMessageProcessor() {
         if (messageProcessor == null) {
@@ -149,7 +113,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         return messageProcessor;
     }
     protected MessageProcessor createMessageProcessor() {
-        return new MessageProcessor(this);
+        return new MessageProcessor(getFacebook(), this);
     }
 
     private FileContentProcessor getFileContentProcessor() {

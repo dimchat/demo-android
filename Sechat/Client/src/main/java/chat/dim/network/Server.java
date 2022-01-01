@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import chat.dim.Transmitter;
 import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
@@ -54,7 +55,8 @@ import chat.dim.protocol.SecureMessage;
 import chat.dim.stargate.TCPClientGate;
 import chat.dim.utils.Log;
 
-public class Server extends Station implements Messenger.Delegate, Delegate<StateMachine, BaseTransition<StateMachine>, ServerState> {
+public class Server extends Station
+        implements Transmitter, Messenger.Delegate, Delegate<StateMachine, BaseTransition<StateMachine>, ServerState> {
 
     private User currentUser = null;
 
@@ -255,14 +257,17 @@ public class Server extends Station implements Messenger.Delegate, Delegate<Stat
         fsm.resume();
     }
 
+    @Override
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
         return session.sendContent(sender, receiver, content, priority);
     }
 
+    @Override
     public boolean sendMessage(InstantMessage iMsg, int priority) {
         return session.sendMessage(iMsg, priority);
     }
 
+    @Override
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         return session.sendMessage(rMsg, priority);
     }
