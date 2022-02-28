@@ -239,7 +239,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         byte[] buffer;
         for (byte[] data : packages) {
             try {
-                responses = messenger.processData(data);
+                responses = messenger.processPackage(data);
             } catch (JSONException e) {
                 Log.info("JSON error: " + (new String(payload)));
                 continue;
