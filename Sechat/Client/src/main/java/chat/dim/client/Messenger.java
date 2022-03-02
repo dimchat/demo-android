@@ -72,7 +72,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         return Facebook.getInstance();
     }
 
-    @Override
+    //@Override
     protected Transmitter getTransmitter() {
         return getCurrentServer();
     }

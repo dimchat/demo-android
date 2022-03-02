@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
+ *
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,42 +28,31 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim;
 
-import java.util.Map;
-
-import chat.dim.dkd.BaseCommand;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.ReliableMessage;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command  : "report",
- *      title    : "online",      // or "offline"
- *      //---- extra info
- *      time     : 1234567890,    // timestamp?
- *  }
+ *  Message Transmitter
+ *  ~~~~~~~~~~~~~~~~~~~
  */
-public class ReportCommand extends BaseCommand {
+public interface Transmitter {
 
-    public static final String REPORT = "report";
-    public static final String ONLINE = "online";
-    public static final String OFFLINE = "offline";
+    /**
+     *  Send content from sender to receiver with priority
+     *
+     * @param sender   - from where
+     * @param receiver - to where
+     * @param content  - message content
+     * @param priority - smaller is faster
+     * @return false on error
+     */
+    boolean sendContent(ID sender, ID receiver, Content content, int priority);
 
-    public ReportCommand(Map<String, Object> dictionary) {
-        super(dictionary);
-    }
+    boolean sendMessage(InstantMessage msg, int priority);
 
-    public ReportCommand(String title) {
-        super(REPORT);
-        setTitle(title);
-    }
-
-    public void setTitle(String title) {
-        put("title", title);
-    }
-    public String getTitle() {
-        return (String) get("title");
-    }
+    boolean sendMessage(ReliableMessage msg, int priority);
 }

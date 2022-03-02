@@ -28,6 +28,8 @@ package chat.dim.protocol;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.dkd.BaseCommand;
+
 /**
  *  Command message: {
  *      type : 0x88,
@@ -40,7 +42,7 @@ import java.util.Map;
  *      results  : {"ID": {meta}, } // user's meta map
  *  }
  */
-public class SearchCommand extends Command {
+public class SearchCommand extends BaseCommand {
 
     public static final String SEARCH = "search";
 
