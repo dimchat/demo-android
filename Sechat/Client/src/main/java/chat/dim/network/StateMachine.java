@@ -44,12 +44,12 @@ class StateMachine extends AutoMachine<StateMachine, BaseTransition<StateMachine
         setDelegate(server);
 
         // init states
-        setState(ServerState.getDefaultState());
-        setState(ServerState.getConnectingState());
-        setState(ServerState.getConnectedState());
-        setState(ServerState.getHandshakingState());
-        setState(ServerState.getRunningState());
-        setState(ServerState.getErrorState());
+        addState(ServerState.getDefaultState());
+        addState(ServerState.getConnectingState());
+        addState(ServerState.getConnectedState());
+        addState(ServerState.getHandshakingState());
+        addState(ServerState.getRunningState());
+        addState(ServerState.getErrorState());
     }
 
     @Override
@@ -57,8 +57,8 @@ class StateMachine extends AutoMachine<StateMachine, BaseTransition<StateMachine
         return this;
     }
 
-    private void setState(ServerState state) {
-        addState(state.name, state);
+    private void addState(ServerState state) {
+        setState(state.name, state);
     }
 
     Server getServer() {
