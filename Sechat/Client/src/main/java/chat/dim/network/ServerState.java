@@ -29,7 +29,7 @@ import java.util.Date;
 
 import chat.dim.fsm.BaseState;
 import chat.dim.fsm.BaseTransition;
-import chat.dim.startrek.StarGate;
+import chat.dim.port.Docker;
 import chat.dim.utils.Log;
 
 public class ServerState extends BaseState<StateMachine, BaseTransition<StateMachine>> {
@@ -105,8 +105,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                 if (machine.getCurrentUser() == null) {
                     return false;
                 }
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.PREPARING || status == StarGate.Status.READY;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.PREPARING || status == Docker.Status.READY;
             }
         });
 
@@ -121,8 +121,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
             @Override
             public boolean evaluate(StateMachine machine) {
                 assert machine.getCurrentUser() != null : "server/user error";
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.READY;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.READY;
             }
         });
 
@@ -130,8 +130,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         state.addTransition(new BaseTransition<StateMachine>(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.ERROR;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.ERROR;
             }
         });
 
@@ -153,8 +153,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         state.addTransition(new BaseTransition<StateMachine>(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.ERROR;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.ERROR;
             }
         });
 
@@ -191,8 +191,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
                     return false;
                 }
                 // handshake expired, return to 'connect' to do it again
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.READY;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.READY;
             }
         });
 
@@ -200,8 +200,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         state.addTransition(new BaseTransition<StateMachine>(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.ERROR;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.ERROR;
             }
         });
 
@@ -224,8 +224,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         state.addTransition(new BaseTransition<StateMachine>(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
-                StarGate.Status status = machine.getStatus();
-                return status == StarGate.Status.ERROR;
+                Docker.Status status = machine.getStatus();
+                return status == Docker.Status.ERROR;
             }
         });
 
@@ -239,8 +239,8 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         state.addTransition(new BaseTransition<StateMachine>(DEFAULT) {
             @Override
             public boolean evaluate(StateMachine machine) {
-                StarGate.Status status = machine.getStatus();
-                return status != StarGate.Status.ERROR;
+                Docker.Status status = machine.getStatus();
+                return status != Docker.Status.ERROR;
             }
         });
 

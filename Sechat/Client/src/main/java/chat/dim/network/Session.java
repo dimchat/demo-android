@@ -29,7 +29,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
-import chat.dim.port.Gate;
+import chat.dim.net.Connection;
+import chat.dim.port.Docker;
 import chat.dim.stargate.TCPClientGate;
 import chat.dim.tcp.ClientHub;
 
@@ -43,7 +44,7 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     protected GateKeeper<TCPClientGate, ClientHub> createGateKeeper(String host, int port, Messenger transceiver) {
         return new GateKeeper<TCPClientGate, ClientHub>(host, port, this, transceiver) {
             @Override
-            protected TCPClientGate createGate(String host, int port, Gate.Delegate delegate) {
+            protected TCPClientGate createGate(String host, int port, Docker.Delegate delegate) {
                 SocketAddress remote = new InetSocketAddress(host, port);
                 return new TCPClientGate(delegate, remote, null);
             }
@@ -71,9 +72,11 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     //
 
     @Override
-    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
-        super.onStatusChanged(oldStatus, newStatus, remote, local, gate);
-        if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
+    public void onStatusChanged(Docker.Status previous, Docker.Status current,
+                                SocketAddress remote, SocketAddress local, Connection conn,
+                                Docker docker) {
+        super.onStatusChanged(previous, current, remote, local, conn, docker);
+        if (current == null || current.equals(Docker.Status.ERROR)) {
             // connection lost, reconnecting
             ClientHub hub = getGate().getHub();
             hub.connect(remote, local);

@@ -42,7 +42,7 @@ import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.port.Departure;
-import chat.dim.port.Gate;
+import chat.dim.port.Docker;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
@@ -111,9 +111,10 @@ public class Server extends Station
         return state;
     }
 
-    Gate.Status getStatus() {
+    Docker.Status getStatus() {
         TCPClientGate gate = session.getGate();
-        return gate.getStatus(gate.remoteAddress, null);
+        Docker docker = gate.getDocker(gate.remoteAddress, null);
+        return docker == null ? Docker.Status.ERROR : docker.getStatus();
     }
 
     private ReliableMessage packCommand(Command cmd) {
@@ -169,7 +170,7 @@ public class Server extends Station
             return;
         }
         // check connection status == 'Connected'
-        if (getStatus() != Gate.Status.READY) {
+        if (getStatus() != Docker.Status.READY) {
             // FIXME: sometimes the connection will be lost while handshaking
             Log.error("server not connected");
             return;

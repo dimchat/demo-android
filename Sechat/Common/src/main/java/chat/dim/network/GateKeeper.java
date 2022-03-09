@@ -33,7 +33,7 @@ import chat.dim.Transmitter;
 import chat.dim.User;
 import chat.dim.common.Messenger;
 import chat.dim.net.Hub;
-import chat.dim.port.Gate;
+import chat.dim.port.Docker;
 import chat.dim.port.Ship;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
@@ -57,7 +57,7 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
 
     private boolean active;
 
-    public GateKeeper(String host, int port, Gate.Delegate delegate, Messenger transceiver) {
+    public GateKeeper(String host, int port, Docker.Delegate delegate, Messenger transceiver) {
         super();
         remote = new InetSocketAddress(host, port);
         gate = createGate(host, port, delegate);
@@ -67,7 +67,7 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
         active = false;
     }
 
-    protected abstract G createGate(String host, int port, Gate.Delegate delegate);
+    protected abstract G createGate(String host, int port, Docker.Delegate delegate);
 
     public boolean isActive() {
         return active;

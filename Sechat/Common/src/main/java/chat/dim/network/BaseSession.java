@@ -39,7 +39,7 @@ import chat.dim.net.Connection;
 import chat.dim.net.Hub;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
-import chat.dim.port.Gate;
+import chat.dim.port.Docker;
 import chat.dim.port.Ship;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -51,7 +51,7 @@ import chat.dim.startrek.DepartureShip;
 import chat.dim.utils.Log;
 
 public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
-        extends Runner implements Transmitter, Gate.Delegate {
+        extends Runner implements Transmitter, Docker.Delegate {
 
     private final GateKeeper<G, H> keeper;
 
@@ -150,15 +150,17 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     }
 
     //
-    //  Gate Delegate
+    //  Docker Delegate
     //
 
     @Override
-    public void onStatusChanged(Gate.Status oldStatus, Gate.Status newStatus, SocketAddress remote, SocketAddress local, Gate gate) {
-        if (newStatus == null || newStatus.equals(Gate.Status.ERROR)) {
+    public void onStatusChanged(Docker.Status previous, Docker.Status current,
+                                SocketAddress remote, SocketAddress local, Connection conn,
+                                Docker docker) {
+        if (current == null || current.equals(Docker.Status.ERROR)) {
             setActive(false);
             //close();
-        } else if (newStatus.equals(Gate.Status.READY)) {
+        } else if (current.equals(Docker.Status.READY)) {
             getMessenger().onConnected();
         }
     }

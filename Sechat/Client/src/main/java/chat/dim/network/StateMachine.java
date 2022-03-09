@@ -29,7 +29,7 @@ import chat.dim.User;
 import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Context;
-import chat.dim.startrek.StarGate;
+import chat.dim.port.Docker;
 
 /**
  *  Server state machine
@@ -73,10 +73,10 @@ class StateMachine extends AutoMachine<StateMachine, BaseTransition<StateMachine
         return server.getCurrentUser();
     }
 
-    StarGate.Status getStatus() {
+    Docker.Status getStatus() {
         Server server = getServer();
         if (server == null) {
-            return StarGate.Status.ERROR;
+            return Docker.Status.ERROR;
         }
         return server.getStatus();
     }
