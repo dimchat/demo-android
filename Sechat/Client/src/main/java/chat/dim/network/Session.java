@@ -29,7 +29,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import chat.dim.common.Messenger;
-import chat.dim.net.Connection;
 import chat.dim.port.Docker;
 import chat.dim.stargate.TCPClientGate;
 import chat.dim.tcp.ClientHub;
@@ -72,14 +71,12 @@ public class Session extends BaseSession<TCPClientGate, ClientHub> {
     //
 
     @Override
-    public void onStatusChanged(Docker.Status previous, Docker.Status current,
-                                SocketAddress remote, SocketAddress local, Connection conn,
-                                Docker docker) {
-        super.onStatusChanged(previous, current, remote, local, conn, docker);
-        if (current == null || current.equals(Docker.Status.ERROR)) {
-            // connection lost, reconnecting
-            ClientHub hub = getGate().getHub();
-            hub.connect(remote, local);
-        }
+    public void onDockerStatusChanged(Docker.Status previous, Docker.Status current, Docker docker) {
+        super.onDockerStatusChanged(previous, current, docker);
+//        if (current == null || current.equals(Docker.Status.ERROR)) {
+//            // connection lost, reconnecting
+//            ClientHub hub = getGate().getHub();
+//            hub.connect(remote, local);
+//        }
     }
 }

@@ -32,9 +32,15 @@ import java.net.SocketAddress;
 import chat.dim.Transmitter;
 import chat.dim.User;
 import chat.dim.common.Messenger;
+import chat.dim.mtp.DataType;
+import chat.dim.mtp.MTPHelper;
+import chat.dim.mtp.Package;
+import chat.dim.mtp.PackageDeparture;
+import chat.dim.mtp.PackageDocker;
+import chat.dim.mtp.StreamDocker;
 import chat.dim.net.Hub;
+import chat.dim.port.Departure;
 import chat.dim.port.Docker;
-import chat.dim.port.Ship;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
@@ -42,10 +48,13 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 import chat.dim.skywalker.Runner;
-import chat.dim.stargate.CommonGate;
+import chat.dim.stargate.BaseGate;
+import chat.dim.stargate.TCPClientGate;
+import chat.dim.stargate.UDPClientGate;
 import chat.dim.threading.BackgroundThreads;
+import chat.dim.type.Data;
 
-public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
+public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
         extends Runner implements Transmitter {
 
     private final SocketAddress remote;
@@ -108,12 +117,11 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
             return true;
         }
         // try to push
-        byte[] data = getMessenger().serializeMessage(msg);
-        if (send(data, wrapper.getPriority(), wrapper)) {
-            wrapper.onSuccess();
+        if (gate.send(wrapper, remote, null)) {
+            wrapper.onAppended();
         } else {
             Error error = new Error("gate error, failed to send data");
-            wrapper.onFailed(error);
+            wrapper.onGateError(error);
         }
         return true;
     }
@@ -123,11 +131,16 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
      *
      * @param payload  - encode message
      * @param priority - smaller is faster
-     * @param delegate - callback
      * @return false on duplicated
      */
-    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
-        return gate.send(null, remote, payload, priority, delegate);
+    public boolean send(byte[] payload, int priority) {
+        if (gate instanceof TCPClientGate) {
+            return ((TCPClientGate) gate).sendMessage(payload, priority);
+        } else if (gate instanceof UDPClientGate) {
+            return ((UDPClientGate) gate).sendMessage(payload, priority);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -139,7 +152,18 @@ public abstract class GateKeeper<G extends CommonGate<H>, H extends Hub>
      */
     @Override
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
-        return queue.append(rMsg, priority);
+        byte[] data = getMessenger().serializeMessage(rMsg);
+        Docker docker = gate.getDocker(remote, null, null);
+        Package pack;
+        if (docker instanceof StreamDocker) {  // TCP
+            pack = MTPHelper.createMessage(data);
+        } else if (docker instanceof PackageDocker) {  // UDP
+            pack = Package.create(DataType.MESSAGE, null, 1, 0, -1, new Data(data));
+        } else {
+            return false;
+        }
+        Departure ship = new PackageDeparture(pack, priority);
+        return queue.append(rMsg, ship);
     }
 
     /**

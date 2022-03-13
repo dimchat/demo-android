@@ -27,7 +27,6 @@ package chat.dim.network;
 
 import com.alibaba.fastjson.JSONException;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,22 +34,19 @@ import chat.dim.Transmitter;
 import chat.dim.common.Messenger;
 import chat.dim.mtp.Package;
 import chat.dim.mtp.StreamArrival;
-import chat.dim.net.Connection;
 import chat.dim.net.Hub;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
 import chat.dim.port.Docker;
-import chat.dim.port.Ship;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.skywalker.Runner;
-import chat.dim.stargate.CommonGate;
-import chat.dim.startrek.DepartureShip;
+import chat.dim.stargate.BaseGate;
 import chat.dim.utils.Log;
 
-public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
+public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
         extends Runner implements Transmitter, Docker.Delegate {
 
     private final GateKeeper<G, H> keeper;
@@ -110,13 +106,13 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
         return keeper.process();
     }
 
-    public boolean send(byte[] payload, int priority, Ship.Delegate delegate) {
+    public boolean send(byte[] payload, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
             Log.warning("session inactive");
         }
         Log.info("sending " + payload.length + " byte(s)");
-        return keeper.send(payload, priority, delegate);
+        return keeper.send(payload, priority);
     }
 
     @Override
@@ -154,9 +150,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     //
 
     @Override
-    public void onStatusChanged(Docker.Status previous, Docker.Status current,
-                                SocketAddress remote, SocketAddress local, Connection conn,
-                                Docker docker) {
+    public void onDockerStatusChanged(Docker.Status previous, Docker.Status current, Docker docker) {
         if (current == null || current.equals(Docker.Status.ERROR)) {
             setActive(false);
             //close();
@@ -219,7 +213,7 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
     private static final byte SEPARATOR = '\n';
 
     @Override
-    public void onReceived(Arrival arrival, SocketAddress source, SocketAddress destination, Connection connection) {
+    public void onDockerReceived(Arrival arrival, Docker docker) {
         assert arrival instanceof StreamArrival : "arrival ship error: " + arrival;
         StreamArrival ship = (StreamArrival) arrival;
         Package pack = ship.getPackage();
@@ -258,29 +252,40 @@ public abstract class BaseSession<G extends CommonGate<H>, H extends Hub>
                 // should not happen
                 continue;
             }
-            keeper.send(buffer, Departure.Priority.SLOWER.value, null);
+            keeper.send(buffer, Departure.Priority.SLOWER.value);
         }
     }
 
     @Override
-    public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
+    public void onDockerSent(Departure departure, Docker docker) {
         Log.info("message sent: " + departure);
-        if (departure instanceof DepartureShip) {
-            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
-            if (delegate != null && delegate != this) {
-                delegate.onSent(departure, source, destination, connection);
-            }
+//        if (departure instanceof DepartureShip) {
+//            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
+//            if (delegate != null && delegate != this) {
+//                delegate.onSent(departure, source, destination, connection);
+//            }
+//        }
+        if (departure instanceof MessageWrapper) {
+            ((MessageWrapper) departure).onSent(docker);
         }
     }
 
     @Override
-    public void onError(Throwable error, Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
-        Log.error("connection error (" + source + ", " + destination + "): " + error.getLocalizedMessage());
-        if (departure instanceof DepartureShip) {
-            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
-            if (delegate != null && delegate != this) {
-                delegate.onError(error, departure, source, destination, connection);
-            }
+    public void onDockerFailed(Throwable error, Departure departure, Docker docker) {
+        Log.error("connection failed: " + error.getLocalizedMessage());
+//        if (departure instanceof DepartureShip) {
+//            Ship.Delegate delegate = ((DepartureShip) departure).getDelegate();
+//            if (delegate != null && delegate != this) {
+//                delegate.onError(error, departure, source, destination, connection);
+//            }
+//        }
+        if (departure instanceof MessageWrapper) {
+            ((MessageWrapper) departure).onFailed(error, docker);
         }
+    }
+
+    @Override
+    public void onDockerError(Throwable error, Departure departure, Docker docker) {
+        Log.error("connection error: " + error.getLocalizedMessage());
     }
 }

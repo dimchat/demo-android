@@ -25,37 +25,29 @@
  */
 package chat.dim.network;
 
-import java.net.SocketAddress;
 import java.util.Date;
+import java.util.List;
 
-import chat.dim.net.Connection;
 import chat.dim.port.Arrival;
 import chat.dim.port.Departure;
-import chat.dim.port.Ship;
+import chat.dim.port.Docker;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
-final class MessageWrapper implements Ship.Delegate {
+final class MessageWrapper implements Departure {
 
     public static int EXPIRES = 600 * 1000;  // 10 minutes
 
     private long timestamp;
     private ReliableMessage msg;
-    private final int prior;
 
-    MessageWrapper(ReliableMessage rMsg, int priority) {
+    private final Departure departure;
+
+    MessageWrapper(ReliableMessage rMsg, Departure outgo) {
         super();
         timestamp = 0;
         msg = rMsg;
-        prior = priority;
-    }
-
-    int getPriority() {
-        return prior;
-    }
-
-    ReliableMessage getMessage() {
-        return msg;
+        departure = outgo;
     }
 
     void mark() {
@@ -69,7 +61,7 @@ final class MessageWrapper implements Ship.Delegate {
         return timestamp == 0;
     }
 
-    boolean isFailed(long now) {
+    boolean isExpired(long now) {
         if (timestamp < 0) {
             return true;
         }
@@ -80,38 +72,77 @@ final class MessageWrapper implements Ship.Delegate {
         return now > expired;
     }
 
+    ReliableMessage getMessage() {
+        return msg;
+    }
+
+    // Departure Ship
+
+    @Override
+    public int getPriority() {
+        return departure.getPriority();
+    }
+
+    @Override
+    public int getRetries() {
+        return departure.getRetries();
+    }
+
+    @Override
+    public boolean isTimeout(long now) {
+        return departure.isTimeout(now);
+    }
+
+    @Override
+    public List<byte[]> getFragments() {
+        return departure.getFragments();
+    }
+
+    @Override
+    public boolean checkResponse(Arrival response) {
+        return departure.checkResponse(response);
+    }
+
+    @Override
+    public Object getSN() {
+        return departure.getSN();
+    }
+
+    @Override
+    public boolean isFailed(long now) {
+        return departure.isFailed(now);
+    }
+
+    @Override
+    public boolean update(long now) {
+        return departure.update(now);
+    }
+
+    //
+    //  Callback
+    //
+
     // message appended to outgoing queue
-    public void onSuccess() {
+    public void onAppended() {
         // this message was assigned to the worker of StarGate,
         // update sent time
         timestamp = (new Date()).getTime();
     }
 
     // gate error, failed to append
-    public void onFailed(Error error) {
+    public void onGateError(Error error) {
         // failed
         timestamp = -1;
     }
 
-    //
-    //  Ship Delegate
-    //
-
-    @Override
-    public void onReceived(Arrival arrival, SocketAddress source, SocketAddress destination, Connection connection) {
-
-    }
-
-    @Override
-    public void onSent(Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
-        Log.info("message sent: " + source + " -> " + departure);
+    public void onSent(Docker docker) {
+        Log.info("message sent: " + docker + " -> " + departure);
         // success, remove message
         msg = null;
     }
 
-    @Override
-    public void onError(Throwable error, Departure departure, SocketAddress source, SocketAddress destination, Connection connection) {
-        Log.error("connection error (" + source + ", " + destination + "): " + error.getLocalizedMessage());
+    public void onFailed(Throwable error, Docker docker) {
+        Log.error("connection error: " + error.getLocalizedMessage() + ", " + docker);
         // failed
         timestamp = -1;
     }

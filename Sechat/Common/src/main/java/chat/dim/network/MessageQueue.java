@@ -35,6 +35,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.port.Departure;
 import chat.dim.protocol.ReliableMessage;
 
 final class MessageQueue {
@@ -43,7 +44,8 @@ final class MessageQueue {
     private final Map<Integer, List<MessageWrapper>> fleets = new HashMap<>();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    boolean append(ReliableMessage msg, int priority) {
+    boolean append(ReliableMessage msg, Departure ship) {
+        int priority = ship.getPriority();
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
@@ -67,7 +69,7 @@ final class MessageQueue {
                     }
                 }
             }
-            queue.add(new MessageWrapper(msg, priority));
+            queue.add(new MessageWrapper(msg, ship));
         } finally {
             writeLock.unlock();
         }
@@ -146,7 +148,7 @@ final class MessageQueue {
                 iterator = queue.iterator();
                 while (iterator.hasNext()) {
                     item = iterator.next();
-                    if (item.getMessage() == null || item.isFailed(now)) {
+                    if (item.getMessage() == null || item.isExpired(now)) {
                         wrapper = item;
                         iterator.remove();
                         break;

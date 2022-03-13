@@ -196,7 +196,7 @@ public class Server extends Station
         Messenger messenger = Messenger.getInstance();
         byte[] data = messenger.serializeMessage(rMsg);
         // Urgent Command
-        session.send(data, Departure.Priority.URGENT.value, null);
+        session.send(data, Departure.Priority.URGENT.value);
     }
 
     public void handshakeAccepted() {
