@@ -113,7 +113,7 @@ public class Server extends Station
 
     Docker.Status getStatus() {
         TCPClientGate gate = session.getGate();
-        Docker docker = gate.getDocker(gate.remoteAddress, null);
+        Docker docker = gate.getDocker(gate.remoteAddress, null, null);
         return docker == null ? Docker.Status.ERROR : docker.getStatus();
     }
 

@@ -117,7 +117,7 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
             return true;
         }
         // try to push
-        if (gate.send(wrapper, remote, null)) {
+        if (gate.sendShip(wrapper, remote, null)) {
             wrapper.onAppended();
         } else {
             Error error = new Error("gate error, failed to send data");
