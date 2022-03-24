@@ -79,18 +79,13 @@ final class MessageWrapper implements Departure {
     // Departure Ship
 
     @Override
+    public Object getSN() {
+        return departure.getSN();
+    }
+
+    @Override
     public int getPriority() {
         return departure.getPriority();
-    }
-
-    @Override
-    public int getRetries() {
-        return departure.getRetries();
-    }
-
-    @Override
-    public boolean isTimeout(long now) {
-        return departure.isTimeout(now);
     }
 
     @Override
@@ -104,8 +99,18 @@ final class MessageWrapper implements Departure {
     }
 
     @Override
-    public Object getSN() {
-        return departure.getSN();
+    public boolean isNew() {
+        return departure.isNew();
+    }
+
+    @Override
+    public boolean isDisposable() {
+        return departure.isDisposable();
+    }
+
+    @Override
+    public boolean isTimeout(long now) {
+        return departure.isTimeout(now);
     }
 
     @Override
@@ -114,8 +119,8 @@ final class MessageWrapper implements Departure {
     }
 
     @Override
-    public boolean update(long now) {
-        return departure.update(now);
+    public void touch(long now) {
+        departure.touch(now);
     }
 
     //
