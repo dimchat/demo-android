@@ -28,6 +28,10 @@ package chat.dim.network;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.Transmitter;
 import chat.dim.User;
@@ -59,6 +63,8 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
 
     private final SocketAddress remote;
 
+    private final ReadWriteLock gateLock = new ReentrantReadWriteLock();
+
     public final G gate;
     private final WeakReference<Messenger> messengerRef;
 
@@ -85,15 +91,36 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
         active = value;
     }
 
+    SocketAddress getRemoteAddress() {
+        return remote;
+    }
+
+    Docker.Status getStatus() {
+        Docker docker = getDocker(remote, null, null);
+        return docker == null ? Docker.Status.ERROR : docker.getStatus();
+    }
+
     public Messenger getMessenger() {
         return messengerRef.get();
     }
 
+    private boolean drive() {
+        boolean incoming;
+        boolean outgoing;
+        Lock writeLock = gateLock.writeLock();
+        writeLock.lock();
+        try {
+            incoming = gate.getHub().process();
+            outgoing = gate.process();
+        } finally {
+            writeLock.unlock();
+        }
+        return incoming || outgoing;
+    }
+
     @Override
     public boolean process() {
-        boolean incoming = gate.getHub().process();
-        boolean outgoing = gate.process();
-        if (incoming || outgoing) {
+        if (drive()) {
             // processed income/outgo packages
             return true;
         } else if (!isActive()) {
@@ -117,13 +144,37 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
             return true;
         }
         // try to push
-        if (gate.sendShip(wrapper, remote, null)) {
+        if (sendShip(wrapper, remote, null)) {
             wrapper.onAppended();
         } else {
             Error error = new Error("gate error, failed to send data");
             wrapper.onGateError(error);
         }
         return true;
+    }
+
+    private boolean sendShip(Departure outgo, SocketAddress remote, SocketAddress local) {
+        boolean sent;
+        Lock writeLock = gateLock.writeLock();
+        writeLock.lock();
+        try {
+            sent = gate.sendShip(outgo, remote, local);
+        } finally {
+            writeLock.unlock();
+        }
+        return sent;
+    }
+
+    public Docker getDocker(SocketAddress remote, SocketAddress local, List<byte[]> data) {
+        Docker docker;
+        Lock writeLock = gateLock.writeLock();
+        writeLock.lock();
+        try {
+            docker = gate.getDocker(remote, local, data);
+        } finally {
+            writeLock.unlock();
+        }
+        return docker;
     }
 
     /**
@@ -134,13 +185,21 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
      * @return false on duplicated
      */
     public boolean send(byte[] payload, int priority) {
-        if (gate instanceof TCPClientGate) {
-            return ((TCPClientGate) gate).sendMessage(payload, priority);
-        } else if (gate instanceof UDPClientGate) {
-            return ((UDPClientGate) gate).sendMessage(payload, priority);
-        } else {
-            return false;
+        boolean sent;
+        Lock writeLock = gateLock.writeLock();
+        writeLock.lock();
+        try {
+            if (gate instanceof TCPClientGate) {
+                sent = ((TCPClientGate) gate).sendMessage(payload, priority);
+            } else if (gate instanceof UDPClientGate) {
+                sent = ((UDPClientGate) gate).sendMessage(payload, priority);
+            } else {
+                sent = false;
+            }
+        } finally {
+            writeLock.unlock();
         }
+        return sent;
     }
 
     /**
@@ -153,7 +212,7 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
     @Override
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         byte[] data = getMessenger().serializeMessage(rMsg);
-        Docker docker = gate.getDocker(remote, null, null);
+        Docker docker = getDocker(remote, null, null);
         Package pack;
         if (docker instanceof StreamDocker) {  // TCP
             pack = MTPHelper.createMessage(data);

@@ -52,7 +52,6 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
-import chat.dim.stargate.TCPClientGate;
 import chat.dim.utils.Log;
 
 public class Server extends Station
@@ -112,9 +111,7 @@ public class Server extends Station
     }
 
     Docker.Status getStatus() {
-        TCPClientGate gate = session.getGate();
-        Docker docker = gate.getDocker(gate.remoteAddress, null, null);
-        return docker == null ? Docker.Status.ERROR : docker.getStatus();
+        return session.getStatus();
     }
 
     private ReliableMessage packCommand(Command cmd) {

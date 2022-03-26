@@ -58,10 +58,6 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
 
     protected abstract GateKeeper<G, H> createGateKeeper(String host, int port, Messenger transceiver);
 
-    public G getGate() {
-        return keeper.gate;
-    }
-
     public Messenger getMessenger() {
         return keeper.getMessenger();
     }
@@ -71,6 +67,10 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
     }
     public void setActive(boolean value) {
         keeper.setActive(value);
+    }
+
+    public Docker.Status getStatus() {
+        return keeper.getStatus();
     }
 
     public void close() {
@@ -109,7 +109,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
     public boolean send(byte[] payload, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.warning("session inactive");
+            Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
         Log.info("sending " + payload.length + " byte(s)");
         return keeper.send(payload, priority);
@@ -119,7 +119,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
     public boolean sendMessage(ReliableMessage rMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.warning("session inactive");
+            Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
         Log.info("sending content to: " + rMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(rMsg, priority);
@@ -129,7 +129,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
     public boolean sendMessage(InstantMessage iMsg, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.warning("session inactive");
+            Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
         Log.info("sending content to: " + iMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(iMsg, priority);
@@ -139,7 +139,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
         if (!isActive()) {
             // FIXME: connection lost?
-            Log.warning("session inactive");
+            Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
         Log.info("sending content to: " + receiver + ", priority: " + priority);
         return keeper.sendContent(sender, receiver, content, priority);
