@@ -40,7 +40,7 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.VideoContent;
 
-public class AnyContentProcessor extends ContentProcessor {
+public class AnyContentProcessor extends BaseContentProcessor {
 
     public AnyContentProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);

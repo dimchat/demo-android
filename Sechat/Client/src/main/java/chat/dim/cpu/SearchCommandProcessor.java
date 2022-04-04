@@ -32,14 +32,13 @@ import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 
-public class SearchCommandProcessor extends CommandProcessor {
+public class SearchCommandProcessor extends BaseCommandProcessor {
 
     public SearchCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
@@ -75,10 +74,10 @@ public class SearchCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof SearchCommand : "search command error: " + cmd;
-
-        parse((SearchCommand) cmd);
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof SearchCommand : "search command error: " + content;
+        SearchCommand cmd = (SearchCommand) content;
+        parse(cmd);
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.SearchUpdated, this, cmd);

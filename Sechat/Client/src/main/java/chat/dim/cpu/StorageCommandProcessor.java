@@ -28,20 +28,19 @@ package chat.dim.cpu;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.crypto.Password;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
-import chat.dim.protocol.Command;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.StorageCommand;
 
-public class StorageCommandProcessor extends CommandProcessor {
+public class StorageCommandProcessor extends BaseCommandProcessor {
 
     public StorageCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
@@ -135,14 +134,14 @@ public class StorageCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof StorageCommand : "storage command error: " + cmd;
-        StorageCommand sCmd = (StorageCommand) cmd;
-        String title = sCmd.getTitle();
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof StorageCommand : "storage command error: " + content;
+        StorageCommand cmd = (StorageCommand) content;
+        String title = cmd.getTitle();
         if (title.equals(StorageCommand.CONTACTS)) {
-            return processContacts(sCmd);
+            return processContacts(cmd);
         } else if (title.equals(StorageCommand.PRIVATE_KEY)) {
-            return processPrivateKey(sCmd);
+            return processPrivateKey(cmd);
         }
         throw new UnsupportedOperationException("Unsupported storage, title: " + title);
     }

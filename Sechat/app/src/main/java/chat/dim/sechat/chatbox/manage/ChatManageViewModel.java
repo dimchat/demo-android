@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.GroupManager;
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.mkm.User;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.EntityViewModel;

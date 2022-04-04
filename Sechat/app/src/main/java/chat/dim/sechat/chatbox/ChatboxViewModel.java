@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.User;
 import chat.dim.io.Resources;
+import chat.dim.mkm.User;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.network.FtpServer;

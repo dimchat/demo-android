@@ -32,36 +32,31 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MuteCommand;
 
-public class CommonProcessorFactory extends ProcessorFactory {
+public class CommonProcessorCreator extends ContentProcessorCreator {
 
-    public CommonProcessorFactory(Facebook facebook, Messenger messenger) {
+    public CommonProcessorCreator(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 
     @Override
-    protected ContentProcessor createProcessor(int type) {
+    public ContentProcessor createProcessor(int type) {
         // file
         if (ContentType.FILE.equals(type)) {
             return new FileContentProcessor(getFacebook(), getMessenger());
         } else if (ContentType.IMAGE.equals(type) || ContentType.AUDIO.equals(type) || ContentType.VIDEO.equals(type)) {
-            ContentProcessor cpu = contentProcessors.get(ContentType.FILE.value);
-            if (cpu == null) {
-                cpu = new FileContentProcessor(getFacebook(), getMessenger());
-                contentProcessors.put(ContentType.FILE.value, cpu);
-            }
-            return cpu;
+            return new FileContentProcessor(getFacebook(), getMessenger());
         }
         // others
         ContentProcessor cpu = super.createProcessor(type);
-        if (cpu == null) {
-            // unknown
-            return new AnyContentProcessor(getFacebook(), getMessenger());
+        if (cpu != null) {
+            return cpu;
         }
-        return cpu;
+        // unknown
+        return new AnyContentProcessor(getFacebook(), getMessenger());
     }
 
     @Override
-    protected CommandProcessor createProcessor(int type, String command) {
+    public ContentProcessor createProcessor(int type, String command) {
         // receipt
         if (Command.RECEIPT.equals(command)) {
             return new ReceiptCommandProcessor(getFacebook(), getMessenger());

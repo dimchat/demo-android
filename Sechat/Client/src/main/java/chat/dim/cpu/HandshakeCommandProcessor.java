@@ -30,25 +30,24 @@ import java.util.List;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.network.Server;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 
-public class HandshakeCommandProcessor extends CommandProcessor {
+public class HandshakeCommandProcessor extends BaseCommandProcessor {
 
     public HandshakeCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof HandshakeCommand : "handshake command error: " + cmd;
-        HandshakeCommand hCmd = (HandshakeCommand) cmd;
-        String message = hCmd.message;
-        String sessionKey = hCmd.sessionKey;
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof HandshakeCommand : "handshake command error: " + content;
+        HandshakeCommand cmd = (HandshakeCommand) content;
+        String message = cmd.message;
+        String sessionKey = cmd.sessionKey;
         ID sender = rMsg.getSender();
         Log.info("received 'handshake': " + sender + ", " + message + ", " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();

@@ -28,10 +28,10 @@ package chat.dim.model;
 import java.util.Date;
 import java.util.List;
 
-import chat.dim.Entity;
-import chat.dim.Group;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.Group;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;

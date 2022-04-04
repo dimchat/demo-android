@@ -25,6 +25,8 @@
  */
 package chat.dim.network;
 
+import chat.dim.mkm.Station;
+
 public interface ServerDelegate {
 
     /**

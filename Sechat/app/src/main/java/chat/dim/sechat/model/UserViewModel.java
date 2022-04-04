@@ -31,8 +31,8 @@ import android.net.Uri;
 import java.io.IOException;
 import java.util.List;
 
-import chat.dim.Entity;
-import chat.dim.User;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.SechatApp;

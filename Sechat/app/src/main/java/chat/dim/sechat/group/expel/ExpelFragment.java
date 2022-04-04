@@ -17,11 +17,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import chat.dim.GroupManager;
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;

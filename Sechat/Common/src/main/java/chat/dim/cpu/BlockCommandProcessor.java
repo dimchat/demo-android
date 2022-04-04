@@ -30,11 +30,10 @@ import java.util.List;
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ReliableMessage;
 
-public class BlockCommandProcessor extends CommandProcessor {
+public class BlockCommandProcessor extends BaseCommandProcessor {
 
     public BlockCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
@@ -51,10 +50,10 @@ public class BlockCommandProcessor extends CommandProcessor {
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof BlockCommand : "block command error: " + cmd;
-        BlockCommand bCmd = (BlockCommand) cmd;
-        List list = bCmd.getBlockCList();
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof BlockCommand : "block command error: " + content;
+        BlockCommand cmd = (BlockCommand) content;
+        List list = cmd.getBlockCList();
         if (list == null) {
             return getBlockList();
         } else {

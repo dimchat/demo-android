@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.Set;
 
 import chat.dim.GroupManager;
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
+import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Bulletin;

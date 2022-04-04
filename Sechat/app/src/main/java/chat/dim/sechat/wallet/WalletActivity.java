@@ -6,9 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.mkm.User;
 import chat.dim.sechat.R;
 
 public class WalletActivity extends AppCompatActivity {

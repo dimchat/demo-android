@@ -36,6 +36,8 @@ import chat.dim.crypto.PublicKey;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.BaseVisa;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;

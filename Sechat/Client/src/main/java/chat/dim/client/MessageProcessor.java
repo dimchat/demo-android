@@ -27,9 +27,9 @@ package chat.dim.client;
 
 import java.util.List;
 
-import chat.dim.User;
-import chat.dim.cpu.ClientProcessorFactory;
-import chat.dim.cpu.ProcessorFactory;
+import chat.dim.cpu.ClientProcessorCreator;
+import chat.dim.cpu.ContentProcessor;
+import chat.dim.mkm.User;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.HandshakeCommand;
@@ -57,8 +57,8 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
     }
 
     @Override
-    protected ProcessorFactory createProcessorFactory() {
-        return new ClientProcessorFactory(getFacebook(), getMessenger());
+    protected ContentProcessor.Creator createCreator() {
+        return new ClientProcessorCreator(getFacebook(), getMessenger());
     }
 
     @Override

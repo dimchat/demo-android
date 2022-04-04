@@ -277,11 +277,11 @@ public abstract class Messenger extends chat.dim.Messenger {
         MessageProcessor.registerAllFactories();
 
         // register command parsers
-        Command.register(SearchCommand.SEARCH, SearchCommand::new);
-        Command.register(SearchCommand.ONLINE_USERS, SearchCommand::new);
+        Command.setFactory(SearchCommand.SEARCH, SearchCommand::new);
+        Command.setFactory(SearchCommand.ONLINE_USERS, SearchCommand::new);
 
-        Command.register(ReportCommand.REPORT, ReportCommand::new);
-        Command.register(ReportCommand.ONLINE, ReportCommand::new);
-        Command.register(ReportCommand.OFFLINE, ReportCommand::new);
+        Command.setFactory(ReportCommand.REPORT, ReportCommand::new);
+        Command.setFactory(ReportCommand.ONLINE, ReportCommand::new);
+        Command.setFactory(ReportCommand.OFFLINE, ReportCommand::new);
     }
 }

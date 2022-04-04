@@ -31,11 +31,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
 import chat.dim.Transmitter;
-import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.User;
 import chat.dim.model.MessageDataSource;
 import chat.dim.network.Server;
 import chat.dim.network.Terminal;

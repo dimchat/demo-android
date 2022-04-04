@@ -25,10 +25,10 @@
  */
 package chat.dim.network;
 
-import chat.dim.User;
 import chat.dim.fsm.AutoMachine;
 import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Context;
+import chat.dim.mkm.User;
 import chat.dim.port.Docker;
 
 /**

@@ -34,8 +34,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import chat.dim.Transmitter;
-import chat.dim.User;
 import chat.dim.common.Messenger;
+import chat.dim.mkm.User;
 import chat.dim.mtp.DataType;
 import chat.dim.mtp.MTPHelper;
 import chat.dim.mtp.Package;

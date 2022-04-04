@@ -32,10 +32,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
+import chat.dim.mkm.Station;
+import chat.dim.mkm.User;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Command;

@@ -16,10 +16,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.Register;
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.crypto.SignKey;
+import chat.dim.mkm.User;
 import chat.dim.model.Configuration;
 import chat.dim.network.FtpServer;
 import chat.dim.protocol.ID;

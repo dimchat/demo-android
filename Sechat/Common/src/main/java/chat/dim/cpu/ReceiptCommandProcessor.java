@@ -29,20 +29,19 @@ import java.util.List;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 
-public class ReceiptCommandProcessor extends CommandProcessor {
+public class ReceiptCommandProcessor extends BaseCommandProcessor {
 
     public ReceiptCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof ReceiptCommand : "receipt command error: " + cmd;
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof ReceiptCommand : "receipt command error: " + content;
         // no need to response receipt command
         return null;
     }

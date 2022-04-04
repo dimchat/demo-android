@@ -31,8 +31,6 @@ import java.util.List;
 
 import chat.dim.AddressNameService;
 import chat.dim.Anonymous;
-import chat.dim.Group;
-import chat.dim.User;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
@@ -44,6 +42,8 @@ import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.UserTable;
 import chat.dim.mkm.Factories;
+import chat.dim.mkm.Group;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;

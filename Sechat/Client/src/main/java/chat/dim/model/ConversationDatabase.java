@@ -29,11 +29,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.cpu.MessageBuilder;
 import chat.dim.database.MessageTable;
+import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Envelope;

@@ -28,10 +28,10 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.User;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Base64;
+import chat.dim.mkm.User;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.DocumentCommand;

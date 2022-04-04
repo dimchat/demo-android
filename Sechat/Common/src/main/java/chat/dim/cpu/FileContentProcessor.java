@@ -42,7 +42,7 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
 
-public class FileContentProcessor extends ContentProcessor {
+public class FileContentProcessor extends BaseContentProcessor {
 
     public FileContentProcessor(Facebook facebook, chat.dim.Messenger messenger) {
         super(facebook, messenger);

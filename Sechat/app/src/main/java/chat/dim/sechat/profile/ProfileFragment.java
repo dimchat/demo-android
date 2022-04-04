@@ -21,9 +21,9 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

@@ -31,7 +31,6 @@ import java.util.Map;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.database.LoginTable;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
@@ -39,22 +38,22 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.utils.Log;
 import chat.dim.utils.Times;
 
-public class LoginCommandProcessor extends CommandProcessor {
+public class LoginCommandProcessor extends BaseCommandProcessor {
 
     public LoginCommandProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 
     @Override
-    public List<Content> execute(Command cmd, ReliableMessage rMsg) {
-        assert cmd instanceof LoginCommand : "login command error: " + cmd;
-        LoginCommand lCmd = (LoginCommand) cmd;
+    public List<Content> process(Content content, ReliableMessage rMsg) {
+        assert content instanceof LoginCommand : "login command error: " + content;
+        LoginCommand cmd = (LoginCommand) content;
 
         // update contact's login status
-        loginTable.saveLoginCommand(lCmd);
+        loginTable.saveLoginCommand(cmd);
 
-        ID identifier = lCmd.getIdentifier();
-        Map<String, Object> station = lCmd.getStation();
+        ID identifier = cmd.getIdentifier();
+        Map<String, Object> station = cmd.getStation();
         Log.info("[" + Times.getTimeString(cmd.getTime()) + "] user (" + identifier + ") login: " + station);
 
         // no need to response login command

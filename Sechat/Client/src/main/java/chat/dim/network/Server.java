@@ -32,12 +32,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.Transmitter;
-import chat.dim.User;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Delegate;
+import chat.dim.mkm.Station;
+import chat.dim.mkm.User;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;

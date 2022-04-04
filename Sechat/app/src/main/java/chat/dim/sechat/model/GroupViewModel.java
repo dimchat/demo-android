@@ -34,10 +34,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.Entity;
-import chat.dim.Group;
 import chat.dim.GroupManager;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.Group;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
