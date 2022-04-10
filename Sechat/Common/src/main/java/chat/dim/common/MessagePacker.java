@@ -34,6 +34,7 @@ import chat.dim.format.Base64;
 import chat.dim.mkm.User;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -126,7 +127,9 @@ public class MessagePacker extends chat.dim.MessagePacker {
         }
         if (data[0] == '{') {
             // JsON
-            return super.deserializeMessage(data);
+            ReliableMessage rMsg = super.deserializeMessage(data);
+            fixVisa(rMsg);
+            return rMsg;
         } else { // D-MTP
             return MsgUtils.deserializeMessage(data);
         }
@@ -204,7 +207,9 @@ public class MessagePacker extends chat.dim.MessagePacker {
     @Override
     public InstantMessage decryptMessage(SecureMessage sMsg) {
         try {
-            return super.decryptMessage(sMsg);
+            InstantMessage iMsg = super.decryptMessage(sMsg);
+            fixProfile(iMsg.getContent());
+            return iMsg;
         } catch (NullPointerException e) {
             // check exception thrown by DKD: chat.dim.dkd.EncryptedMessage.decrypt()
             if (e.getMessage().contains("failed to decrypt key in msg: ")) {
@@ -226,6 +231,60 @@ public class MessagePacker extends chat.dim.MessagePacker {
             // FIXME: cipher text error?
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void fixProfile(Content content) {
+        if (content instanceof DocumentCommand) {
+            // compatible for document command
+            Object doc = content.get("document");
+            if (doc != null) {
+                // (v2.0)
+                //    "ID"       : "{ID}",
+                //    "document" : {
+                //        "ID"        : "{ID}",
+                //        "data"      : "{JsON}",
+                //        "signature" : "{BASE64}"
+                //    }
+                return;
+            }
+            Object profile = content.get("profile");
+            if (profile != null) {
+                content.remove("profile");
+                // 1.* => 2.0
+                if (profile instanceof String) {
+                    // compatible with v1.0
+                    //    "ID"        : "{ID}",
+                    //    "profile"   : "{JsON}",
+                    //    "signature" : "{BASE64}"
+                    Map<String, Object> dict = new HashMap<>();
+                    dict.put("ID", content.get("ID"));
+                    dict.put("data", profile);
+                    dict.put("signature", content.get("signature"));
+                    content.put("document", dict);
+                } else {
+                    // compatible with v1.1
+                    //    "ID"       : "{ID}",
+                    //    "profile"  : {
+                    //        "ID"        : "{ID}",
+                    //        "data"      : "{JsON}",
+                    //        "signature" : "{BASE64}"
+                    //    }
+                    content.put("document", profile);
+                }
+            }
+        }
+    }
+
+    private void fixVisa(ReliableMessage rMsg) {
+        Object profile = rMsg.get("profile");
+        if (profile != null) {
+            rMsg.remove("profile");
+            // 1.* => 2.0
+            Object visa = rMsg.get("visa");
+            if (visa == null) {
+                rMsg.put("visa", profile);
+            }
         }
     }
 }
