@@ -34,6 +34,7 @@ import chat.dim.crypto.Password;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
@@ -63,7 +64,7 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
             throw new NullPointerException("failed to decrypt data: " + cmd);
         }
         // 3. decode data
-        return JSON.decode(data);
+        return JSON.decode(UTF8.decode(data));
     }
 
     @SuppressWarnings("unchecked")
@@ -86,7 +87,7 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
             throw new NullPointerException("failed to decrypt key: " + cmd);
         }
         // 4. decode key
-        Object dict = JSON.decode(key);
+        Object dict = JSON.decode(UTF8.decode(key));
         SymmetricKey password = SymmetricKey.parse((Map<String, Object>) dict);
         // 5. decrypt data
         return decryptData(cmd, password);

@@ -34,7 +34,6 @@ import java.util.Map;
 import chat.dim.crypto.VerifyKey;
 import chat.dim.format.Base64;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseMeta;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
@@ -64,7 +63,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
     }
 
     // memory caches
-    private Map<ID, Meta> metaTable = new HashMap<>();
+    private final Map<ID, Meta> metaTable = new HashMap<>();
 
     private final Meta empty = new BaseMeta(new HashMap<>()) {
         @Override
@@ -91,8 +90,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             return true;
         }
         VerifyKey key = meta.getKey();
-        byte[] data = JSON.encode(key);
-        String pk = UTF8.decode(data);
+        String pk = JSON.encode(key);
 
         // 1. save into database
         ContentValues values = new ContentValues();
@@ -111,7 +109,6 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Meta getMeta(ID entity) {
         // 1. try from memory cache
@@ -123,16 +120,14 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
                 int version;
                 String pk;
-                byte[] data;
-                Map<String, Object> key;
+                Object key;  // Map<String, Object>
                 String seed;
                 byte[] fp;
                 Map<String, Object> info;
                 if (cursor.moveToNext()) {
                     version = cursor.getInt(0);
                     pk = cursor.getString(1);
-                    data = UTF8.encode(pk);
-                    key = (Map<String, Object>) JSON.decode(data);
+                    key = JSON.decode(pk);
 
                     info = new HashMap<>();
                     info.put("version", version);

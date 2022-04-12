@@ -34,6 +34,7 @@ import java.util.Map;
 import chat.dim.Transmitter;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
 import chat.dim.model.MessageDataSource;
@@ -195,10 +196,10 @@ public final class Messenger extends chat.dim.common.Messenger {
         // 1. generate password
         SymmetricKey password = SymmetricKey.generate(SymmetricKey.AES);
         // 2. encrypt contacts list
-        byte[] data = JSON.encode(contacts);
+        byte[] data = UTF8.encode(JSON.encode(contacts));
         data = password.encrypt(data);
         // 3. encrypt key
-        byte[] key = JSON.encode(password);
+        byte[] key = UTF8.encode(JSON.encode(password));
         key = user.encrypt(key);
         // 4. pack 'storage' command
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);

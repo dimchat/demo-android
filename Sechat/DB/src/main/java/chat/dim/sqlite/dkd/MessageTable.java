@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
@@ -496,8 +495,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         values.put("receiver", receiver);
         values.put("time", time.getTime() / 1000);
         // content
-        byte[] data = JSON.encode(content);
-        String text = UTF8.decode(data);
+        String text = JSON.encode(content);
         values.put("content", text);
         values.put("type", type);
         values.put("sn", sn);

@@ -179,12 +179,12 @@ public class MsgUtils {
         ByteArray meta = msg.getMeta();
         if (meta != null && meta.getSize() > 0) {
             // JsON to dict
-            info.put("meta", JSON.decode(meta.getBytes()));
+            info.put("meta", JSON.decode(UTF8.decode(meta.getBytes())));
         }
         ByteArray visa = msg.getVisa();
         if (visa != null && visa.getSize() > 0) {
             // JsON to dict
-            info.put("visa", JSON.decode(visa.getBytes()));
+            info.put("visa", JSON.decode(UTF8.decode(visa.getBytes())));
         }
 
         return ReliableMessage.parse(info);

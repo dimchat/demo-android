@@ -28,11 +28,8 @@ package chat.dim.sqlite.key;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.util.Map;
-
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
@@ -60,7 +57,6 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
     //  chat.dim.database.PrivateKeyTable
     //
 
-    @SuppressWarnings("unchecked")
     @Override
     public SymmetricKey getKey(ID from, ID to) {
         SymmetricKey key = null;
@@ -68,10 +64,10 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
         String[] selectionArgs = {from.toString(), to.toString()};
         try (Cursor cursor = query(KeyDatabase.T_MESSAGE_KEY, columns,"sender=? AND receiver=?", selectionArgs, null, null,null)) {
             String sk;
-            Map<String, Object> info;
+            Object info;  // Map<String, Object>
             if (cursor.moveToNext()) {
                 sk = cursor.getString(0);
-                info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
+                info = JSON.decode(sk);
                 key = SymmetricKey.parse(info);
             }
         }
@@ -83,8 +79,7 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
         String[] whereArgs = {from.toString(), to.toString()};
         delete(KeyDatabase.T_MESSAGE_KEY, "sender=? AND receiver=?", whereArgs);
 
-        byte[] data = JSON.encode(key);
-        String text = UTF8.decode(data);
+        String text = JSON.encode(key);
         ContentValues values = new ContentValues();
         values.put("sender", from.toString());
         values.put("receiver", to.toString());

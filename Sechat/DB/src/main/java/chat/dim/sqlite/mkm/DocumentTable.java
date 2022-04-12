@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.format.Base64;
-import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseDocument;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -117,7 +116,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
                 if (cursor.moveToNext()) {
                     data = cursor.getString(0);
                     signature = cursor.getBlob(1);
-                    doc = Document.create(type, entity, UTF8.encode(data), signature);
+                    doc = Document.create(type, entity, data, signature);
                 }
             } catch (SQLiteCantOpenDatabaseException e) {
                 e.printStackTrace();

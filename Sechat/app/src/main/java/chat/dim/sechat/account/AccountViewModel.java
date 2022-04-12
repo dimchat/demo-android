@@ -11,7 +11,6 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.crypto.SignKey;
 import chat.dim.format.Hex;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseVisa;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
@@ -123,8 +122,7 @@ public class AccountViewModel extends UserViewModel {
             info.put("nickname", doc.getName());
         }
 
-        byte[] data = JSON.encode(info);
-        return UTF8.decode(data);
+        return JSON.encode(info);
     }
 
     @SuppressWarnings("unchecked")
@@ -138,8 +136,7 @@ public class AccountViewModel extends UserViewModel {
             info.put("version", MetaType.ETH.value);
         } else if (json.startsWith("{")) {
             // dictionary
-            byte[] data = UTF8.encode(json);
-            info = (Map<String, Object>) JSON.decode(data);
+            info = (Map<String, Object>) JSON.decode(json);
         }
         if (info == null) {
             return null;

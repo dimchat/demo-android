@@ -33,7 +33,6 @@ import java.util.Map;
 
 import chat.dim.Messenger;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.sqlite.Database;
 
@@ -87,11 +86,14 @@ public final class MessageDatabase extends Database {
     //  DaoKeDao
     //
 
+    @SuppressWarnings("unchecked")
     static InstantMessage getInstanceMessage(String sender, String receiver, long timestamp, String content) {
-        Map dict = (Map) JSON.decode(UTF8.encode(content));
+        Object dict = JSON.decode(content);
         if (dict == null) {
             throw new NullPointerException("message content error: " + content);
         }
+        // FIXME: fix a typo: 'tine' => 'time' in message content
+        fixTine((Map<String, Object>) dict);
         Map<String, Object> msg = new HashMap<>();
         msg.put("sender", sender);
         msg.put("receiver", receiver);
@@ -99,8 +101,18 @@ public final class MessageDatabase extends Database {
         msg.put("content", dict);
         return getInstanceMessage(msg);
     }
+    private static void fixTine(Map<String, Object> info) {
+        // copy 'time' from 'tine'
+        Object time = info.get("time");
+        if (time == null) {
+            Object tine = info.get("tine");
+            if (tine != null) {
+                info.put("time", tine);
+            }
+        }
+    }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private static InstantMessage getInstanceMessage(Map msg) {
         InstantMessage iMsg = InstantMessage.parse(msg);
         if (iMsg != null) {

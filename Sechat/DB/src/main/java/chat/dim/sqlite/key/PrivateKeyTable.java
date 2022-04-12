@@ -36,7 +36,6 @@ import java.util.Map;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
@@ -61,8 +60,8 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
     }
 
     // memory caches
-    private Map<ID, PrivateKey> signKeyTable = new HashMap<>();
-    private Map<ID, List<DecryptKey>> decryptKeysTable = new HashMap<>();
+    private final Map<ID, PrivateKey> signKeyTable = new HashMap<>();
+    private final Map<ID, List<DecryptKey>> decryptKeysTable = new HashMap<>();
 
     //
     //  chat.dim.database.PrivateKeyTable
@@ -80,8 +79,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             String[] whereArgs = {user.toString(), type};
             delete(KeyDatabase.T_PRIVATE_KEY, "uid=? AND type=?", whereArgs);
         //}
-        byte[] data = JSON.encode(key);
-        String text = UTF8.decode(data);
+        String text = JSON.encode(key);
         ContentValues values = new ContentValues();
         values.put("uid", user.toString());
         values.put("sk", text);
@@ -100,7 +98,6 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<DecryptKey> getPrivateKeysForDecryption(ID user) {
         // get from memory cache
@@ -112,10 +109,10 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND decrypt=1", selectionArgs, null, null,"type DESC")) {
                 PrivateKey key;
                 String sk;
-                Map<String, Object> info;
+                Object info;  // Map<String, Object>
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
-                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
+                    info = JSON.decode(sk);
                     key = PrivateKey.parse(info);
                     if (key instanceof DecryptKey) {
                         keys.add((DecryptKey) key);
@@ -136,7 +133,6 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
         return getPrivateKeyForVisaSignature(user);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public PrivateKey getPrivateKeyForVisaSignature(ID user) {
         // get from memory cache
@@ -146,10 +142,10 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
             String[] selectionArgs = {user.toString()};
             try (Cursor cursor = query(KeyDatabase.T_PRIVATE_KEY, columns,"uid=? AND type='M' AND sign=1", selectionArgs, null, null,"type DESC")) {
                 String sk;
-                Map<String, Object> info;
+                Object info;  // Map<String, Object>
                 if (cursor.moveToNext()) {
                     sk = cursor.getString(0);
-                    info = (Map<String, Object>) JSON.decode(UTF8.encode(sk));
+                    info = JSON.decode(sk);
                     key = PrivateKey.parse(info);
                 }
             }

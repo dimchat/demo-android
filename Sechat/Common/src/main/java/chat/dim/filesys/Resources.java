@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
 
 public class Resources {
 
@@ -58,6 +59,6 @@ public class Resources {
         if (data == null) {
             throw new NullPointerException("failed to load JSON: " + path);
         }
-        return JSON.decode(data);
+        return JSON.decode(UTF8.decode(data));
     }
 }

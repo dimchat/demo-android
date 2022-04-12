@@ -129,7 +129,7 @@ public class ExternalStorage {
         if (data == null) {
             return null;
         }
-        return JSON.decode(data);
+        return JSON.decode(UTF8.decode(data));
     }
 
     //-------- write
@@ -168,7 +168,7 @@ public class ExternalStorage {
      * @return true on success
      */
     public static boolean saveJSON(Object object, String pathname) throws IOException {
-        byte[] json = JSON.encode(object);
+        byte[] json = UTF8.encode(JSON.encode(object));
         return saveData(json, pathname);
     }
 

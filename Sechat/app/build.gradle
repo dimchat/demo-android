@@ -59,8 +59,8 @@ dependencies {
 
     implementation project(':BlockChain')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.6.5'
-    implementation group: 'chat.dim', name: 'Plugins', version: '0.3.8'
+    implementation group: 'chat.dim', name: 'SDK', version: '0.6.6'
+    implementation group: 'chat.dim', name: 'Plugins', version: '0.3.9'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 
     implementation 'org.web3j:core:4.6.0-android'

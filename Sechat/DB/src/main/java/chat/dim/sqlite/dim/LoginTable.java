@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.Map;
 
 import chat.dim.format.JSON;
-import chat.dim.format.UTF8;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sqlite.DataTable;
@@ -72,8 +71,10 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
             Object info;
             if (cursor.moveToNext()) {
                 text = cursor.getString(0);
-                info = JSON.decode(UTF8.encode(text));
+                info = JSON.decode(text);
                 if (info instanceof Map) {
+                    // FIXME: fix a typo: 'tine' => 'time' in message content
+                    fixTine((Map<String, Object>) info);
                     return new LoginCommand((Map<String, Object>) info);
                 }
             }
@@ -82,6 +83,16 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
         }
         return null;
     }
+    private static void fixTine(Map<String, Object> info) {
+        // copy 'time' from 'tine'
+        Object time = info.get("time");
+        if (time == null) {
+            Object tine = info.get("tine");
+            if (tine != null) {
+                info.put("time", tine);
+            }
+        }
+    }
 
     @Override
     public boolean saveLoginCommand(LoginCommand command) {
@@ -89,7 +100,7 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
         Date oldTime = getLoginTime(user);
         Map<String, Object> station = command.getStation();
         String sid = (String) station.get("ID");
-        String text = UTF8.decode(JSON.encode(command));
+        String text = JSON.encode(command);
 
         ContentValues values = new ContentValues();
         values.put("station", sid);
