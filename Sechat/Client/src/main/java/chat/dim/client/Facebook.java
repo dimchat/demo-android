@@ -89,7 +89,7 @@ public final class Facebook extends chat.dim.common.Facebook {
         if (!super.saveDocument(doc)) {
             return false;
         }
-        Map<String, Object> info = doc.getMap();
+        Map<String, Object> info = doc.toMap();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.DocumentUpdated, this, info);
         return true;

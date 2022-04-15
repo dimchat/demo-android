@@ -130,11 +130,11 @@ public class Server extends Station
         Messenger messenger = Messenger.getInstance();
         SecureMessage sMsg = messenger.encryptMessage(iMsg);
         if (sMsg == null) {
-            throw new NullPointerException("failed to encrypt message: " + iMsg.getMap());
+            throw new NullPointerException("failed to encrypt message: " + iMsg.toMap());
         }
         ReliableMessage rMsg = messenger.signMessage(sMsg);
         if (rMsg == null) {
-            throw new NullPointerException("failed to sign message: " + sMsg.getMap());
+            throw new NullPointerException("failed to sign message: " + sMsg.toMap());
         }
         return rMsg;
     }
