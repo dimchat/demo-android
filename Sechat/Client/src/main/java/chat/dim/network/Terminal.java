@@ -268,7 +268,7 @@ public abstract class Terminal implements ServerDelegate {
         assert user != null : "current user not found";
 
         // broadcast login command
-        LoginCommand login = new LoginCommand(user.identifier);
+        LoginCommand login = new LoginCommand(user.getIdentifier());
         login.setAgent(getUserAgent());
         login.setStation(server);
         // TODO: set provider

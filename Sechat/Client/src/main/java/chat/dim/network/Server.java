@@ -125,7 +125,7 @@ public class Server extends Station
             cmd.setGroup(ID.EVERYONE);
         }
 
-        Envelope env = Envelope.create(currentUser.identifier, identifier, null);
+        Envelope env = Envelope.create(currentUser.getIdentifier(), identifier, null);
         InstantMessage iMsg = InstantMessage.create(env, cmd);
         Messenger messenger = Messenger.getInstance();
         SecureMessage sMsg = messenger.encryptMessage(iMsg);

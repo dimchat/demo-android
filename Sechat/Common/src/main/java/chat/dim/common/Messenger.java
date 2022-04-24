@@ -32,8 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.CipherKeyDelegate;
-import chat.dim.Packer;
-import chat.dim.Processor;
+import chat.dim.core.Packer;
+import chat.dim.core.Processor;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.FileContentProcessor;
 import chat.dim.crypto.EncryptKey;
@@ -274,7 +274,7 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     static {
         // load factories from SDK
-        MessageProcessor.registerAllFactories();
+        registerAllFactories();
 
         // register command parsers
         Command.setFactory(SearchCommand.SEARCH, SearchCommand::new);

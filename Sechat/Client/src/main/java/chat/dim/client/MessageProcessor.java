@@ -97,7 +97,7 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
                 Log.info("text to sender: " + sender);
             }
             // pack & send
-            messenger.sendContent(user.identifier, sender, res, Departure.Priority.SLOWER.value);
+            messenger.sendContent(user.getIdentifier(), sender, res, Departure.Priority.SLOWER.value);
         }
 
         // DON'T respond to station directly

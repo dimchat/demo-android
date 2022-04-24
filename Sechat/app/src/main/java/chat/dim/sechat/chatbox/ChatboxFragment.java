@@ -22,6 +22,7 @@ import java.util.Map;
 
 import chat.dim.client.Messenger;
 import chat.dim.digest.MD5;
+import chat.dim.dkd.BaseTextContent;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Hex;
 import chat.dim.mkm.User;
@@ -33,10 +34,10 @@ import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Envelope;
+import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.TextContent;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
@@ -138,7 +139,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             throw new NullPointerException("conversation ID should not be empty");
         }
         // pack message content
-        ID sender = user.identifier;
+        ID sender = user.getIdentifier();
         ID receiver = chatBox.identifier;
         if (receiver.isGroup()) {
             content.setGroup(receiver);
@@ -153,7 +154,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         if (text.length() == 0) {
             return;
         }
-        sendContent(new TextContent(text));
+        sendContent(new BaseTextContent(text));
         // sent OK
         inputText.setText("");
     }
@@ -180,7 +181,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         //ftp.saveThumbnail(thumbnail, filename);
 
         // add image data length & thumbnail into message content
-        ImageContent content = new ImageContent(filename, jpeg);
+        ImageContent content = FileContent.image(filename, jpeg);
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
 
@@ -341,7 +342,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             e.printStackTrace();
         }
 
-        AudioContent content = new AudioContent(filename, mp4);
+        AudioContent content = FileContent.audio(filename, mp4);
         content.put("duration", duration);
         sendContent(content);
     }

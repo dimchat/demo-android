@@ -72,7 +72,7 @@ public class ChatboxViewModel extends EntityViewModel {
 
         List<User> users = getFacebook().getLocalUsers();
         for (User user : users) {
-            if (user.identifier.equals(sender)) {
+            if (user.getIdentifier().equals(sender)) {
                 return MsgType.SENT;
             }
         }

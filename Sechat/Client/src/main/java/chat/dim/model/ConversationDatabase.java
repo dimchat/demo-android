@@ -131,7 +131,7 @@ public final class ConversationDatabase extends MessageBuilder {
         if (user == null) {
             return null;
         }
-        return messageTable.lastReceivedMessage(user.identifier);
+        return messageTable.lastReceivedMessage(user.getIdentifier());
     }
 
     public InstantMessage messageAtIndex(int index, Conversation chatBox) {

@@ -218,10 +218,10 @@ public class MessagePacker extends chat.dim.MessagePacker {
                 Visa visa = user.getVisa();
                 if (visa == null || !visa.isValid()) {
                     // FIXME: user visa not found?
-                    throw new NullPointerException("user visa error: " + user.identifier);
+                    throw new NullPointerException("user visa error: " + user.getIdentifier());
                 }
-                Command cmd = DocumentCommand.response(user.identifier, visa);
-                getMessenger().sendContent(user.identifier, sMsg.getSender(), cmd, 0);
+                Command cmd = DocumentCommand.response(user.getIdentifier(), visa);
+                getMessenger().sendContent(user.getIdentifier(), sMsg.getSender(), cmd, 0);
             } else {
                 // FIXME: message error?
                 throw e;

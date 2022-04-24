@@ -50,12 +50,12 @@ public class Conversation {
     public Conversation(Entity entity) {
         super();
         this.entity = entity;
-        this.identifier = entity.identifier;
+        this.identifier = entity.getIdentifier();
         this.type = getType(entity);
     }
 
     private byte getType(Entity entity) {
-        ID identifier = entity.identifier;
+        ID identifier = entity.getIdentifier();
         if (identifier.isGroup()) {
             return GroupChat;
         }
@@ -64,8 +64,8 @@ public class Conversation {
 
     public String getTitle() {
         Facebook facebook = Messenger.getInstance().getFacebook();
-        String name = facebook.getName(entity.identifier);
-        ID identifier = entity.identifier;
+        ID identifier = entity.getIdentifier();
+        String name = facebook.getName(identifier);
         if (identifier.isGroup()) {
             Group group = (Group) entity;
             List<ID> members = group.getMembers();

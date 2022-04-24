@@ -45,6 +45,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
@@ -52,7 +53,6 @@ import chat.dim.protocol.MetaCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
-import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
 
 public final class Messenger extends chat.dim.common.Messenger {
@@ -146,7 +146,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         if (server == null) {
             return false;
         }
-        return sendContent(null, server.identifier, cmd, priority);
+        return sendContent(null, server.getIdentifier(), cmd, priority);
     }
 
     private boolean sendContent(ID receiver, Content content) {
@@ -170,14 +170,14 @@ public final class Messenger extends chat.dim.common.Messenger {
             throw new NullPointerException("login first");
         }
         ID identifier = visa.getIdentifier();
-        if (!user.identifier.equals(identifier)) {
+        if (!user.getIdentifier().equals(identifier)) {
             throw new IllegalArgumentException("visa document error: " + visa);
         }
         visa.remove(chat.dim.common.Facebook.EXPIRES_KEY);
         // pack and send user document to every contact
         List<ID> contacts = user.getContacts();
         if (contacts != null && contacts.size() > 0) {
-            Command cmd = new DocumentCommand(identifier, visa);
+            Command cmd = DocumentCommand.response(identifier, visa);
             for (ID contact : contacts) {
                 sendContent(contact, cmd);
             }
@@ -186,7 +186,7 @@ public final class Messenger extends chat.dim.common.Messenger {
 
     public boolean postDocument(Document doc, Meta meta) {
         doc.remove(chat.dim.common.Facebook.EXPIRES_KEY);
-        Command cmd = new DocumentCommand(doc.getIdentifier(), meta, doc);
+        Command cmd = DocumentCommand.response(doc.getIdentifier(), meta, doc);
         return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
@@ -203,7 +203,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         key = user.encrypt(key);
         // 4. pack 'storage' command
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
-        cmd.setIdentifier(user.identifier);
+        cmd.setIdentifier(user.getIdentifier());
         cmd.setData(data);
         cmd.setKey(key);
         sendCommand(cmd, Departure.Priority.SLOWER.value);
@@ -213,7 +213,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         User user = getFacebook().getCurrentUser();
         assert user != null : "current user empty";
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
-        cmd.setIdentifier(user.identifier);
+        cmd.setIdentifier(user.getIdentifier());
         sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
@@ -240,7 +240,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         Log.info("querying meta: " + identifier);
 
         // query from DIM network
-        Command cmd = new MetaCommand(identifier);
+        Command cmd = MetaCommand.query(identifier);
         return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
@@ -261,7 +261,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         Log.info("querying entity document: " + identifier);
 
         // query from DIM network
-        Command cmd = new DocumentCommand(identifier);
+        Command cmd = DocumentCommand.query(identifier);
         return sendCommand(cmd, Departure.Priority.SLOWER.value);
     }
 
@@ -283,7 +283,7 @@ public final class Messenger extends chat.dim.common.Messenger {
         long now = (new Date()).getTime();
 
         // query from members
-        Command cmd = new QueryCommand(group);
+        Command cmd = GroupCommand.query(group);
         boolean checking = false;
         Number expires;
         for (ID user : members) {

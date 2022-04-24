@@ -42,7 +42,7 @@ public class MembersFragment extends Fragment {
             Facebook facebook = Messenger.getInstance().getFacebook();
             User user = facebook.getCurrentUser();
             // TODO: check for administrators
-            return facebook.isOwner(user.identifier, identifier);
+            return facebook.isOwner(user.getIdentifier(), identifier);
         }
         return false;
     }

@@ -278,7 +278,7 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
             if (user == null) {
                 throw new NullPointerException("current user not set");
             }
-            sender = user.identifier;
+            sender = user.getIdentifier();
         }
         Envelope env = Envelope.create(sender, receiver, null);
         InstantMessage iMsg = InstantMessage.create(env, content);

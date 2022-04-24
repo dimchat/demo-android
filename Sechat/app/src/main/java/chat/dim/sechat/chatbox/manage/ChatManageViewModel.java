@@ -17,7 +17,7 @@ public class ChatManageViewModel extends EntityViewModel {
 
     public static int UNLIMITED = -1;
 
-    private List<ID> participants = new ArrayList<>();
+    private final List<ID> participants = new ArrayList<>();
 
     int getMaxItemCount() {
         if (isGroupAdmin()) {
@@ -32,7 +32,7 @@ public class ChatManageViewModel extends EntityViewModel {
         if (identifier != null && identifier.isGroup()) {
             Facebook facebook = Messenger.getInstance().getFacebook();
             User user = facebook.getCurrentUser();
-            return facebook.isOwner(user.identifier, identifier);
+            return facebook.isOwner(user.getIdentifier(), identifier);
         }
         return false;
     }

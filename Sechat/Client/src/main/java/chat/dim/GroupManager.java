@@ -35,12 +35,10 @@ import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.DocumentCommand;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaCommand;
-import chat.dim.protocol.group.ExpelCommand;
-import chat.dim.protocol.group.InviteCommand;
-import chat.dim.protocol.group.QuitCommand;
 
 /**
  *  This is for sending group message, or managing group members
@@ -101,9 +99,9 @@ public final class GroupManager {
         Command cmd;
         if (doc == null) {
             // empty document
-            cmd = new MetaCommand(group, meta);
+            cmd = MetaCommand.response(group, meta);
         } else {
-            cmd = new DocumentCommand(group, meta, doc);
+            cmd = DocumentCommand.response(group, meta, doc);
         }
         sendGroupCommand(cmd);                  // to current station
         sendGroupCommand(cmd, bots);            // to group assistants
@@ -113,7 +111,7 @@ public final class GroupManager {
             members = addMembers(newMembers, group);
             sendGroupCommand(cmd, members);     // to all members
             // 3. send 'invite' command with all members to all members
-            cmd = new InviteCommand(group, members);
+            cmd = GroupCommand.invite(group, members);
             sendGroupCommand(cmd, bots);        // to group assistants
             sendGroupCommand(cmd, members);     // to all members
         } else {
@@ -121,13 +119,13 @@ public final class GroupManager {
             //sendGroupCommand(cmd, members);     // to old members
             sendGroupCommand(cmd, newMembers);  // to new members
             // 2. send 'invite' command with new members to old members
-            cmd = new InviteCommand(group, newMembers);
+            cmd = GroupCommand.invite(group, newMembers);
             sendGroupCommand(cmd, bots);        // to group assistants
             sendGroupCommand(cmd, members);     // to old members
             // 3. update local storage
             members = addMembers(newMembers, group);
             // 4. send 'invite' command with all members to new members
-            cmd = new InviteCommand(group, members);
+            cmd = GroupCommand.invite(group, members);
             sendGroupCommand(cmd, newMembers);  // to new members
         }
 
@@ -161,7 +159,7 @@ public final class GroupManager {
         }
 
         // 1. send 'expel' command to all members
-        Command cmd = new ExpelCommand(group, outMembers);
+        Command cmd = GroupCommand.expel(group, outMembers);
         sendGroupCommand(cmd, bots);        // to assistants
         sendGroupCommand(cmd, members);     // to existed members
         if (owner != null && !members.contains(owner)) {
@@ -193,15 +191,15 @@ public final class GroupManager {
         }
 
         // 0. check members list
-        if (bots.contains(user.identifier)) {
-            throw new RuntimeException("Group assistant cannot quit: " + user.identifier);
+        if (bots.contains(user.getIdentifier())) {
+            throw new RuntimeException("Group assistant cannot quit: " + user.getIdentifier());
         }
-        if (user.identifier.equals(owner)) {
+        if (user.getIdentifier().equals(owner)) {
             throw new RuntimeException("Group owner cannot quit: " + owner);
         }
 
         // 1. send 'quit' command to all members
-        Command cmd = new QuitCommand(group);
+        Command cmd = GroupCommand.quit(group);
         sendGroupCommand(cmd, bots);        // to assistants
         sendGroupCommand(cmd, members);     // to existed members
         if (owner != null && !members.contains(owner)) {

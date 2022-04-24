@@ -167,7 +167,7 @@ public final class Register {
 
         // 2. create group
         Register groupRegister = new Register();
-        Group group = groupRegister.createGroup(user.identifier, "DIM Group");
+        Group group = groupRegister.createGroup(user.getIdentifier(), "DIM Group");
         Log.info("group: " + group);
         //groupRegister.upload(group.identifier, group.getMeta(), group.getDocument());
     }

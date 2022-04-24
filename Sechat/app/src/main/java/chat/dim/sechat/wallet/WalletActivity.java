@@ -28,7 +28,7 @@ public class WalletActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, WalletFragment.newInstance(user.identifier))
+                    .replace(R.id.container, WalletFragment.newInstance(user.getIdentifier()))
                     .commitNow();
         }
     }

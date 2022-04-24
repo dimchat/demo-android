@@ -167,7 +167,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        facebook.addContact(identifier, user.identifier);
+        facebook.addContact(identifier, user.getIdentifier());
         // open chat box
         Client.getInstance().startChat(identifier);
     }
@@ -176,7 +176,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        facebook.removeContact(identifier, user.identifier);
+        facebook.removeContact(identifier, user.getIdentifier());
         close();
     }
 
@@ -184,7 +184,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        if (user.identifier.equals(identifier)) {
+        if (user.getIdentifier().equals(identifier)) {
             Alert.tips(getContext(), R.string.remit_self);
             return;
         }

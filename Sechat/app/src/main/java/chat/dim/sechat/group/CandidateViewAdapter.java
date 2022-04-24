@@ -72,7 +72,7 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
         }
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        return identifier.equals(user.identifier);
+        return user.getIdentifier().equals(identifier);
     }
 
     public static class ViewHolder extends RecyclerViewHolder<CandidateList.Item> {

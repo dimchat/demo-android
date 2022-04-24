@@ -52,7 +52,7 @@ public class HandshakeCommandProcessor extends BaseCommandProcessor {
         Log.info("received 'handshake': " + sender + ", " + message + ", " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();
         Server server = messenger.getCurrentServer();
-        if (!server.identifier.equals(sender)) {
+        if (!server.getIdentifier().equals(sender)) {
             Log.error("!!! ignore error handshake from this sender: " + sender + ", " + server);
             return null;
         }

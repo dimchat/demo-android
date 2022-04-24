@@ -145,8 +145,8 @@ public class ChatManageFragment extends Fragment {
         Facebook facebook = Messenger.getInstance().getFacebook();
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        boolean isMember = facebook.containsMember(user.identifier, identifier);
-        boolean isOwner = facebook.isOwner(user.identifier, identifier);
+        boolean isMember = facebook.containsMember(user.getIdentifier(), identifier);
+        boolean isOwner = facebook.isOwner(user.getIdentifier(), identifier);
         // TODO: isAdmin? isAssistant?
         return isMember && !isOwner;
     }

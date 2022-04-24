@@ -160,10 +160,10 @@ public class RegisterFragment extends Fragment {
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            String avatarURL = ftp.uploadAvatar(imageData, user.identifier);
+            String avatarURL = ftp.uploadAvatar(imageData, user.getIdentifier());
             visa.setAvatar(avatarURL);
-            SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.identifier);
-            assert sKey != null : "failed to get private key: " + user.identifier;
+            SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.getIdentifier());
+            assert sKey != null : "failed to get private key: " + user.getIdentifier();
             visa.sign(sKey);
             facebook.saveDocument(visa);
         }
@@ -172,7 +172,7 @@ public class RegisterFragment extends Fragment {
         facebook.setCurrentUser(user);
 
         // 4. upload meta & visa to DIM station
-        userRegister.upload(user.identifier, meta, visa);
+        userRegister.upload(user.getIdentifier(), meta, visa);
 
         // 5. show main activity
         checkUser();

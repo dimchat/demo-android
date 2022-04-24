@@ -48,7 +48,6 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         identifier = conversation;
     }
 
-    @SuppressWarnings("NullableProblems")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
@@ -84,21 +83,21 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         Group group;
         if (identifier.isGroup()) {
-            if (!facebook.containsMember(user.identifier, identifier)) {
+            if (!facebook.containsMember(user.getIdentifier(), identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
             group = facebook.getGroup(identifier);
         } else {
             Register register = new Register();
-            group = register.createGroup(user.identifier, "Sophon Shield");
+            group = register.createGroup(user.getIdentifier(), "Sophon Shield");
         }
 
         // open Invite activity
         Context context = getContext();
         Intent intent = new Intent();
         intent.setClass(context, InviteActivity.class);
-        intent.putExtra("ID", group.identifier.toString());
+        intent.putExtra("ID", group.getIdentifier().toString());
         intent.putExtra("from", identifier.toString());
         context.startActivity(intent);
     }
@@ -111,7 +110,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             return;
         }
 
-        if (!facebook.isOwner(user.identifier, identifier)) {
+        if (!facebook.isOwner(user.getIdentifier(), identifier)) {
             Alert.tips(getContext(), "You are not admin of this group: " + identifier);
             return;
         }

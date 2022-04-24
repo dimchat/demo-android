@@ -41,7 +41,6 @@ import chat.dim.database.GroupTable;
 import chat.dim.database.MetaTable;
 import chat.dim.database.PrivateKeyTable;
 import chat.dim.database.UserTable;
-import chat.dim.mkm.Factories;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Address;
@@ -96,7 +95,7 @@ public class Facebook extends chat.dim.Facebook {
 
     public void setCurrentUser(User user) {
         users = null;
-        userTable.setCurrentUser(user.identifier);
+        userTable.setCurrentUser(user.getIdentifier());
     }
 
     public boolean addUser(ID user) {
@@ -365,14 +364,14 @@ public class Facebook extends chat.dim.Facebook {
         }
     };
 
-    private static final ID.Factory identifierFactory = Factories.idFactory;
+    private static final ID.Factory identifierFactory = ID.getFactory();
 
     static {
 
         // load plugins
         chat.dim.Plugins.registerAllPlugins();
 
-        Factories.idFactory = new ID.Factory() {
+        ID.setFactory(new ID.Factory() {
 
             @Override
             public ID generateID(Meta meta, byte type, String terminal) {
@@ -394,6 +393,6 @@ public class Facebook extends chat.dim.Facebook {
                 // parse by original factory
                 return identifierFactory.parseID(identifier);
             }
-        };
+        });
     }
 }

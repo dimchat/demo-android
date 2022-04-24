@@ -89,7 +89,7 @@ public class UserViewModel extends EntityViewModel {
         if (user == null) {
             return false;
         }
-        List<ID> contacts = getFacebook().getContacts(user.identifier);
+        List<ID> contacts = getFacebook().getContacts(user.getIdentifier());
         if (contacts == null) {
             return false;
         }

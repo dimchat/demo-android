@@ -69,7 +69,7 @@ public class EntityViewModel extends ViewModel {
         if (entity == null) {
             return null;
         }
-        return entity.identifier;
+        return entity.getIdentifier();
     }
 
     public String getAddressString() {

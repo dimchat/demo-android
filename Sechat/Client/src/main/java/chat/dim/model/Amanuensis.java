@@ -77,7 +77,7 @@ public final class Amanuensis {
         Facebook facebook = Messenger.getInstance().getFacebook();
         ID sender = iMsg.getSender();
         User user = facebook.getCurrentUser();
-        if (sender.equals(user.identifier)) {
+        if (user.getIdentifier().equals(sender)) {
             return getConversation(receiver);
         } else {
             return getConversation(sender);
