@@ -129,7 +129,6 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
             return false;
         }
         // get next message
-        ReliableMessage msg;
         MessageWrapper wrapper = queue.next();
         if (wrapper == null) {
             // no more new message
@@ -138,7 +137,7 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
         }
         // if msg in this wrapper is None (means sent successfully),
         // it must have been cleaned already, so it should not be empty here.
-        msg = wrapper.getMessage();
+        ReliableMessage msg = wrapper.getMessage();
         if (msg == null) {
             // msg sent?
             return true;
@@ -271,8 +270,9 @@ public abstract class GateKeeper<G extends BaseGate<H>, H extends Hub>
      */
     @Override
     public boolean sendContent(ID sender, ID receiver, Content content, int priority) {
-        // Application Layer should make sure user is already login before it send message to server.
-        // Application layer should put message into queue so that it will send automatically after user login
+        // Application layer should make sure user is already login before it send message to server.
+        // Application layer should put message into queue so that it will send automatically
+        // after user login.
         if (sender == null) {
             User user = getMessenger().getFacebook().getCurrentUser();
             if (user == null) {

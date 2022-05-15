@@ -75,7 +75,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
 
     public void close() {
         setActive(false);
-        //gate.stop();
+        //keeper.stop();
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
             // FIXME: connection lost?
             Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
-        Log.info("sending content to: " + rMsg.getReceiver() + ", priority: " + priority);
+        Log.info("sending message to: " + rMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(rMsg, priority);
     }
 
@@ -131,7 +131,7 @@ public abstract class BaseSession<G extends BaseGate<H>, H extends Hub>
             // FIXME: connection lost?
             Log.warning("session inactive: " + keeper.getRemoteAddress());
         }
-        Log.info("sending content to: " + iMsg.getReceiver() + ", priority: " + priority);
+        Log.info("sending message to: " + iMsg.getReceiver() + ", priority: " + priority);
         return keeper.sendMessage(iMsg, priority);
     }
 
