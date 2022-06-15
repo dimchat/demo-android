@@ -117,7 +117,7 @@ public abstract class Messenger extends chat.dim.Messenger {
     }
 
     private FileContentProcessor getFileContentProcessor() {
-        ContentProcessor cpu = getMessageProcessor().getProcessor(ContentType.FILE);
+        ContentProcessor cpu = getMessageProcessor().getContentProcessor(ContentType.FILE.value);
         assert cpu instanceof FileContentProcessor : "failed to get file content processor";
         return (FileContentProcessor) cpu;
     }

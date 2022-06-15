@@ -39,7 +39,7 @@ public class CommonProcessorCreator extends ContentProcessorCreator {
     }
 
     @Override
-    public ContentProcessor createProcessor(int type) {
+    public ContentProcessor createContentProcessor(int type) {
         // file
         if (ContentType.FILE.equals(type)) {
             return new FileContentProcessor(getFacebook(), getMessenger());
@@ -47,16 +47,16 @@ public class CommonProcessorCreator extends ContentProcessorCreator {
             return new FileContentProcessor(getFacebook(), getMessenger());
         }
         // others
-        ContentProcessor cpu = super.createProcessor(type);
-        if (cpu != null) {
-            return cpu;
+        ContentProcessor cpu = super.createContentProcessor(type);
+        if (cpu == null) {
+            // unknown type?
+            cpu = new AnyContentProcessor(getFacebook(), getMessenger());
         }
-        // unknown
-        return new AnyContentProcessor(getFacebook(), getMessenger());
+        return cpu;
     }
 
     @Override
-    public ContentProcessor createProcessor(int type, String command) {
+    public ContentProcessor createCommandProcessor(int type, String command) {
         // receipt
         if (Command.RECEIPT.equals(command)) {
             return new ReceiptCommandProcessor(getFacebook(), getMessenger());
@@ -70,6 +70,6 @@ public class CommonProcessorCreator extends ContentProcessorCreator {
             return new BlockCommandProcessor(getFacebook(), getMessenger());
         }
         // others
-        return super.createProcessor(type, command);
+        return super.createCommandProcessor(type, command);
     }
 }

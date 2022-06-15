@@ -48,7 +48,7 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
     }
 
     @Override
-    public ContentProcessor createProcessor(int type, String command) {
+    public ContentProcessor createCommandProcessor(int type, String command) {
         // handshake, login
         if (Command.HANDSHAKE.equals(command)) {
             return new HandshakeCommandProcessor(getFacebook(), getMessenger());
@@ -68,6 +68,6 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
         }
         // others
-        return super.createProcessor(type, command);
+        return super.createCommandProcessor(type, command);
     }
 }
