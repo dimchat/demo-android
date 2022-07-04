@@ -35,7 +35,6 @@ import chat.dim.Transmitter;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.fsm.BaseTransition;
 import chat.dim.fsm.Delegate;
 import chat.dim.mkm.Station;
 import chat.dim.mkm.User;
@@ -56,7 +55,7 @@ import chat.dim.protocol.SecureMessage;
 import chat.dim.utils.Log;
 
 public class Server extends Station
-        implements Transmitter, Messenger.Delegate, Delegate<StateMachine, BaseTransition<StateMachine>, ServerState> {
+        implements Transmitter, Messenger.Delegate, Delegate<StateMachine, StateTransition, ServerState> {
 
     private User currentUser = null;
 

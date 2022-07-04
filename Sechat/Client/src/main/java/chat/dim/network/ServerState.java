@@ -28,11 +28,11 @@ package chat.dim.network;
 import java.util.Date;
 
 import chat.dim.fsm.BaseState;
-import chat.dim.fsm.BaseTransition;
+import chat.dim.fsm.State;
 import chat.dim.port.Docker;
 import chat.dim.utils.Log;
 
-public class ServerState extends BaseState<StateMachine, BaseTransition<StateMachine>> {
+public class ServerState extends BaseState<StateMachine, StateTransition> {
 
     public static final String DEFAULT     = "default";
     public static final String CONNECTING  = "connecting";
@@ -44,10 +44,10 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
     public final String name;
     private Date enterTime;
 
-    ServerState(String name) {
+    ServerState(String stateName) {
         super();
-        this.name = name;
-        this.enterTime = null;
+        name = stateName;
+        enterTime = null;
     }
 
     @Override
@@ -72,15 +72,17 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
     }
 
     @Override
-    public void onEnter(StateMachine machine) {
+    public void onEnter(State<StateMachine, StateTransition> previous,
+                        StateMachine machine) {
         // do nothing
         Log.info("onEnter: " + name + " state");
-        this.enterTime = new Date();
+        enterTime = new Date();
     }
 
     @Override
-    public void onExit(StateMachine machine) {
-        this.enterTime = null;
+    public void onExit(State<StateMachine, StateTransition> next,
+                       StateMachine machine) {
+        enterTime = null;
     }
 
     @Override
@@ -99,7 +101,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(DEFAULT);
 
         // Default -> Connecting
-        state.addTransition(new BaseTransition<StateMachine>(CONNECTING) {
+        state.addTransition(new StateTransition(CONNECTING) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 if (machine.getCurrentUser() == null) {
@@ -117,7 +119,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(CONNECTING);
 
         // Connecting -> Connected
-        state.addTransition(new BaseTransition<StateMachine>(CONNECTED) {
+        state.addTransition(new StateTransition(CONNECTED) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 assert machine.getCurrentUser() != null : "server/user error";
@@ -127,7 +129,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         });
 
         // Connecting -> Error
-        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+        state.addTransition(new StateTransition(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 Docker.Status status = machine.getStatus();
@@ -142,7 +144,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(CONNECTED);
 
         // Connected -> Handshaking
-        state.addTransition(new BaseTransition<StateMachine>(HANDSHAKING) {
+        state.addTransition(new StateTransition(HANDSHAKING) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 return machine.getCurrentUser() != null;
@@ -150,7 +152,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         });
 
         // Connected -> Error
-        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+        state.addTransition(new StateTransition(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 Docker.Status status = machine.getStatus();
@@ -165,7 +167,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(HANDSHAKING);
 
         // Handshaking -> Running
-        state.addTransition(new BaseTransition<StateMachine>(RUNNING) {
+        state.addTransition(new StateTransition(RUNNING) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 // when current user changed, the server will clear this session, so
@@ -175,7 +177,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         });
 
         // Handshaking -> Connected
-        state.addTransition(new BaseTransition<StateMachine>(CONNECTED) {
+        state.addTransition(new StateTransition(CONNECTED) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 ServerState state = machine.getCurrentState();
@@ -197,7 +199,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         });
 
         // Handshaking -> Error
-        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+        state.addTransition(new StateTransition(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 Docker.Status status = machine.getStatus();
@@ -212,7 +214,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(RUNNING);
 
         // Running -> Default
-        state.addTransition(new BaseTransition<StateMachine>(DEFAULT) {
+        state.addTransition(new StateTransition(DEFAULT) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 // user switched?
@@ -221,7 +223,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         });
 
         // Running -> Error
-        state.addTransition(new BaseTransition<StateMachine>(ERROR) {
+        state.addTransition(new StateTransition(ERROR) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 Docker.Status status = machine.getStatus();
@@ -236,7 +238,7 @@ public class ServerState extends BaseState<StateMachine, BaseTransition<StateMac
         ServerState state = new ServerState(ERROR);
 
         // Error -> Default
-        state.addTransition(new BaseTransition<StateMachine>(DEFAULT) {
+        state.addTransition(new StateTransition(DEFAULT) {
             @Override
             public boolean evaluate(StateMachine machine) {
                 Docker.Status status = machine.getStatus();

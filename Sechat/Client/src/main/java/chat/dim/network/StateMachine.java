@@ -31,10 +31,17 @@ import chat.dim.fsm.Context;
 import chat.dim.mkm.User;
 import chat.dim.port.Docker;
 
+abstract class StateTransition extends BaseTransition<StateMachine> {
+
+    StateTransition(String target) {
+        super(target);
+    }
+}
+
 /**
  *  Server state machine
  */
-class StateMachine extends AutoMachine<StateMachine, BaseTransition<StateMachine>, ServerState> implements Context {
+class StateMachine extends AutoMachine<StateMachine, StateTransition, ServerState> implements Context {
 
     private String sessionKey = null;
 
