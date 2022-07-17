@@ -28,6 +28,7 @@ package chat.dim.cpu;
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
 import chat.dim.protocol.Command;
+import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 
@@ -52,7 +53,7 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
         // handshake, login
         if (Command.HANDSHAKE.equals(command)) {
             return new HandshakeCommandProcessor(getFacebook(), getMessenger());
-        } else if (Command.LOGIN.equals(command)) {
+        } else if (LoginCommand.LOGIN.equals(command)) {
             return new LoginCommandProcessor(getFacebook(), getMessenger());
         }
         // storage (contacts, private_key)

@@ -46,8 +46,8 @@ public class HandshakeCommandProcessor extends BaseCommandProcessor {
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof HandshakeCommand : "handshake command error: " + content;
         HandshakeCommand cmd = (HandshakeCommand) content;
-        String message = cmd.message;
-        String sessionKey = cmd.sessionKey;
+        String message = cmd.getMessage();
+        String sessionKey = cmd.getSessionKey();
         ID sender = rMsg.getSender();
         Log.info("received 'handshake': " + sender + ", " + message + ", " + sessionKey);
         Messenger messenger = (Messenger) getMessenger();

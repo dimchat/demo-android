@@ -48,6 +48,7 @@ import chat.dim.protocol.Content;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.HandshakeCommand;
+import chat.dim.protocol.HandshakeState;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
@@ -118,6 +119,7 @@ public class Server extends Station
         if (currentUser == null) {
             throw new NullPointerException("current user not set");
         }
+        ID identifier = getIdentifier();
 
         Facebook facebook = Facebook.getInstance();
         if (facebook.getPublicKeyForEncryption(identifier) == null) {
@@ -184,7 +186,7 @@ public class Server extends Station
         setLastReceivedMessageTime(cmd);
         ReliableMessage rMsg = packCommand(cmd);
         // first handshake?
-        if (cmd.state == HandshakeCommand.HandshakeState.START) {
+        if (cmd.getState() == HandshakeState.START) {
             // [Meta/Visa protocol]
             rMsg.setMeta(currentUser.getMeta());
             rMsg.setVisa(currentUser.getVisa());

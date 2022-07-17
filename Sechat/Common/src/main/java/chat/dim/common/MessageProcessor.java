@@ -161,7 +161,7 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
         // unwrap secret message circularly
         Content content = iMsg.getContent();
         while (content instanceof ForwardContent) {
-            rMsg = ((ForwardContent) content).getMessage();
+            rMsg = ((ForwardContent) content).getForward();//.getSecrets();
             sMsg = messenger.verifyMessage(rMsg);
             if (sMsg == null) {
                 // signature not matched

@@ -38,16 +38,21 @@ import chat.dim.cpu.ContentProcessor;
 import chat.dim.cpu.FileContentProcessor;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
+import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.SecureMessage;
+import chat.dim.protocol.StorageCommand;
 
 public abstract class Messenger extends chat.dim.Messenger {
 
@@ -277,11 +282,23 @@ public abstract class Messenger extends chat.dim.Messenger {
         registerAllFactories();
 
         // register command parsers
+        Command.setFactory(ReceiptCommand.RECEIPT, ReceiptCommand::new);
+        Command.setFactory(LoginCommand.LOGIN, LoginCommand::new);
+
+        Command.setFactory(MuteCommand.MUTE, MuteCommand::new);
+        Command.setFactory(BlockCommand.BLOCK, BlockCommand::new);
+
         Command.setFactory(SearchCommand.SEARCH, SearchCommand::new);
         Command.setFactory(SearchCommand.ONLINE_USERS, SearchCommand::new);
 
+        // report (online, offline)
         Command.setFactory(ReportCommand.REPORT, ReportCommand::new);
         Command.setFactory(ReportCommand.ONLINE, ReportCommand::new);
         Command.setFactory(ReportCommand.OFFLINE, ReportCommand::new);
+
+        // storage (contacts, private_key)
+        Command.setFactory(StorageCommand.STORAGE, StorageCommand::new);
+        Command.setFactory(StorageCommand.CONTACTS, StorageCommand::new);
+        Command.setFactory(StorageCommand.PRIVATE_KEY, StorageCommand::new);
     }
 }

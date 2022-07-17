@@ -28,9 +28,9 @@ package chat.dim.cpu;
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
-import chat.dim.protocol.Command;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.ReceiptCommand;
 
 public class CommonProcessorCreator extends ContentProcessorCreator {
 
@@ -46,19 +46,18 @@ public class CommonProcessorCreator extends ContentProcessorCreator {
         } else if (ContentType.IMAGE.equals(type) || ContentType.AUDIO.equals(type) || ContentType.VIDEO.equals(type)) {
             return new FileContentProcessor(getFacebook(), getMessenger());
         }
-        // others
-        ContentProcessor cpu = super.createContentProcessor(type);
-        if (cpu == null) {
-            // unknown type?
-            cpu = new AnyContentProcessor(getFacebook(), getMessenger());
+        // default
+        if (0 == type) {
+            return new AnyContentProcessor(getFacebook(), getMessenger());
         }
-        return cpu;
+        // others
+        return super.createContentProcessor(type);
     }
 
     @Override
     public ContentProcessor createCommandProcessor(int type, String command) {
         // receipt
-        if (Command.RECEIPT.equals(command)) {
+        if (ReceiptCommand.RECEIPT.equals(command)) {
             return new ReceiptCommandProcessor(getFacebook(), getMessenger());
         }
         // mute

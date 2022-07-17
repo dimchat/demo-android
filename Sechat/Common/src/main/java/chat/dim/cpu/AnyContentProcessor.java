@@ -25,7 +25,6 @@
  */
 package chat.dim.cpu;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.Messenger;
@@ -86,8 +85,6 @@ public class AnyContentProcessor extends BaseContentProcessor {
         Object signature = rMsg.get("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
         receipt.put("signature", signature);
-        List<Content> responses = new ArrayList<>();
-        responses.add(receipt);
-        return responses;
+        return respondContent(receipt);
     }
 }
