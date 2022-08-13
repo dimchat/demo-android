@@ -31,7 +31,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.CipherKeyDelegate;
+import chat.dim.core.CipherKeyDelegate;
 import chat.dim.core.Packer;
 import chat.dim.core.Processor;
 import chat.dim.cpu.ContentProcessor;
@@ -43,6 +43,7 @@ import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.FileContent;
+import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.LoginCommand;
@@ -284,6 +285,9 @@ public abstract class Messenger extends chat.dim.Messenger {
         // register command parsers
         Command.setFactory(ReceiptCommand.RECEIPT, ReceiptCommand::new);
         Command.setFactory(LoginCommand.LOGIN, LoginCommand::new);
+
+        // Handshake Command
+        Command.setFactory(HandshakeCommand.HANDSHAKE, HandshakeCommand::new);
 
         Command.setFactory(MuteCommand.MUTE, MuteCommand::new);
         Command.setFactory(BlockCommand.BLOCK, BlockCommand::new);

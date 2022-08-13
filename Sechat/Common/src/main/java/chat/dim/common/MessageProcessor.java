@@ -31,12 +31,10 @@ import java.util.List;
 import chat.dim.cpu.CommonProcessorCreator;
 import chat.dim.cpu.ContentProcessor;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ForwardContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.ResetCommand;
 
@@ -157,23 +155,6 @@ public class MessageProcessor extends chat.dim.MessageProcessor {
     @Override
     public List<InstantMessage> processMessage(InstantMessage iMsg, ReliableMessage rMsg) {
         final Messenger messenger = getMessenger();
-        SecureMessage sMsg;
-        // unwrap secret message circularly
-        Content content = iMsg.getContent();
-        while (content instanceof ForwardContent) {
-            rMsg = ((ForwardContent) content).getForward();//.getSecrets();
-            sMsg = messenger.verifyMessage(rMsg);
-            if (sMsg == null) {
-                // signature not matched
-                return null;
-            }
-            iMsg = messenger.decryptMessage(sMsg);
-            if (iMsg == null) {
-                // not for you?
-                return null;
-            }
-            content = iMsg.getContent();
-        }
         // call super to process
         final List<InstantMessage> responses = super.processMessage(iMsg, rMsg);
         // save instant/secret message

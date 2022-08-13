@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import chat.dim.AddressNameServer;
-import chat.dim.AddressNameService;
 import chat.dim.Anonymous;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -336,7 +335,7 @@ public class Facebook extends chat.dim.Facebook {
     // ANS
     public static AddressNameTable ansTable = null;
 
-    private static final AddressNameService ans = new AddressNameServer() {
+    private static final AddressNameServer ans = new AddressNameServer() {
 
         @Override
         public ID identifier(String name) {
