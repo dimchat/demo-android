@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import chat.dim.client.Facebook;
 import chat.dim.client.Messenger;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.SearchCommand;
@@ -46,6 +47,17 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
     @Override
     protected Messenger getMessenger() {
         return (Messenger) super.getMessenger();
+    }
+
+    @Override
+    public ContentProcessor createContentProcessor(int type) {
+        // application customized
+        if (ContentType.APPLICATION.equals(type)) {
+            return new ApplicationContentProcessor(getFacebook(), getMessenger());
+        //} else if (ContentType.CUSTOMIZED.equals(type)) {
+        //    return new ApplicationContentProcessor(getFacebook(), getMessenger());
+        }
+        return super.createContentProcessor(type);
     }
 
     @Override
