@@ -29,14 +29,10 @@ import chat.dim.dkd.AppCustomizedContent;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.CustomizedContent;
 
-public class ApplicationContent extends AppCustomizedContent {
+public class ApplicationContent {
 
     // Application ID for customized content
     public static final String APP_ID = "chat.dim.sechat";
-
-    public ApplicationContent(String mod, String act) {
-        super(ContentType.APPLICATION, APP_ID, mod, act);
-    }
 
     /**
      *  Create application customized content
@@ -46,6 +42,6 @@ public class ApplicationContent extends AppCustomizedContent {
      * @return application customized content
      */
     public static CustomizedContent create(String mod, String act) {
-        return new ApplicationContent(mod, act);
+        return new AppCustomizedContent(ContentType.APPLICATION, APP_ID, mod, act);
     }
 }

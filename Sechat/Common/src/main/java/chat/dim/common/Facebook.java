@@ -353,7 +353,7 @@ public class Facebook extends chat.dim.Facebook {
 
         @Override
         public boolean save(String name, ID identifier) {
-            if (!super.save(name, identifier)) {
+            if (!cache(name, identifier)) {
                 return false;
             }
             if (identifier == null) {

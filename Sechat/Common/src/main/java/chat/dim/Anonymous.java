@@ -50,8 +50,8 @@ public final class Anonymous {
         return name + " (" + getNumberString(identifier.getAddress()) + ")";
     }
     private static String getName(byte type) {
-        if (NetworkType.ROBOT.equals(type)) {
-            return "Robot";
+        if (NetworkType.BOT.equals(type)) {
+            return "Bot";
         }
         if (NetworkType.STATION.equals(type)) {
             return "Station";
