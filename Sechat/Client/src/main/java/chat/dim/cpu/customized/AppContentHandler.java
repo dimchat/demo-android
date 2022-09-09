@@ -33,18 +33,26 @@ import chat.dim.Messenger;
 import chat.dim.TwinsHelper;
 import chat.dim.cpu.CustomizedContentHandler;
 import chat.dim.cpu.CustomizedContentProcessor;
+import chat.dim.dkd.AppCustomizedContent;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.ContentType;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ReliableMessage;
 
-abstract class BaseHandler extends TwinsHelper implements CustomizedContentHandler {
+/**
+ *  Handler for App Customized Content
+ */
+public abstract class AppContentHandler extends TwinsHelper implements CustomizedContentHandler {
+
+    // Application ID for customized content
+    public static final String APP_ID = "chat.dim.sechat";
 
     public static String FMT_ACT_NOT_SUPPORT = CustomizedContentProcessor.FMT_ACT_NOT_SUPPORT;
     //public static String FMT_ACT_NOT_SUPPORT = "Customized Content (app: %s, mod: %s, act: %s) not support yet!";
 
-    protected BaseHandler(Facebook facebook, Messenger messenger) {
+    protected AppContentHandler(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
 
@@ -64,5 +72,16 @@ abstract class BaseHandler extends TwinsHelper implements CustomizedContentHandl
         List<Content> responses = new ArrayList<>();
         responses.add(res);
         return responses;
+    }
+
+    /**
+     *  Create application customized content
+     *
+     * @param mod - module name
+     * @param act - action name
+     * @return application customized content
+     */
+    public static CustomizedContent create(String mod, String act) {
+        return new AppCustomizedContent(ContentType.APPLICATION, APP_ID, mod, act);
     }
 }

@@ -53,9 +53,9 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
     public ContentProcessor createContentProcessor(int type) {
         // application customized
         if (ContentType.APPLICATION.equals(type)) {
-            return new ApplicationContentProcessor(getFacebook(), getMessenger());
+            return new AppContentProcessor(getFacebook(), getMessenger());
         //} else if (ContentType.CUSTOMIZED.equals(type)) {
-        //    return new ApplicationContentProcessor(getFacebook(), getMessenger());
+        //    return new AppContentProcessor(getFacebook(), getMessenger());
         }
         return super.createContentProcessor(type);
     }

@@ -29,7 +29,7 @@ import java.util.List;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
-import chat.dim.cpu.customized.ApplicationContent;
+import chat.dim.cpu.customized.AppContentHandler;
 import chat.dim.cpu.customized.DriftBottleHandler;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
@@ -41,19 +41,19 @@ import chat.dim.protocol.ReliableMessage;
  *
  *  Process customized contents for this application only
  */
-public class ApplicationContentProcessor extends CustomizedContentProcessor {
+public class AppContentProcessor extends CustomizedContentProcessor {
 
     // module(s) for customized contents
     private final CustomizedContentHandler driftBottle;
 
-    public ApplicationContentProcessor(Facebook facebook, Messenger messenger) {
+    public AppContentProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
         driftBottle = new DriftBottleHandler(facebook, messenger);
     }
 
     @Override
     protected List<Content> filter(String app, CustomizedContent content, ReliableMessage rMsg) {
-        if (app != null && app.equals(ApplicationContent.APP_ID)) {
+        if (app != null && app.equals(AppContentHandler.APP_ID)) {
             // App ID match
             // return null to fetch module handler
             return null;

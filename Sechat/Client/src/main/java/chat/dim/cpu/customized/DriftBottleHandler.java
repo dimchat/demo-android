@@ -40,7 +40,7 @@ import chat.dim.protocol.ReliableMessage;
  *
  *  Handler for customized content
  */
-public class DriftBottleHandler extends BaseHandler {
+public class DriftBottleHandler extends AppContentHandler {
 
     // module name
     public static final String MOD_NAME = "drift_bottle";
