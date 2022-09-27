@@ -32,8 +32,8 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
 
@@ -84,7 +84,7 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
         try (Cursor cursor = query(EntityDatabase.T_GROUP, columns, "gid=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 owner = ID.parse(cursor.getString(0));
-                if (owner == null && group.getType() == NetworkType.POLYLOGUE.value) {
+                if (owner == null && group.getType() == EntityType.GROUP.value) {
                     // Polylogue's owner is its founder
                     owner = ID.parse(cursor.getString(1));
                 }

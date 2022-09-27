@@ -33,13 +33,13 @@ import chat.dim.client.Messenger;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.protocol.ContentType;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.NetworkType;
 
 public class Conversation {
-    public static byte PersonalChat = NetworkType.MAIN.value;
-    public static byte GroupChat = NetworkType.GROUP.value;
+    public static byte PersonalChat = EntityType.USER.value;
+    public static byte GroupChat = EntityType.GROUP.value;
 
     private final Entity entity;
     public final ID identifier;

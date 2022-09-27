@@ -32,9 +32,9 @@ import chat.dim.cpu.ContentProcessor;
 import chat.dim.mkm.User;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
@@ -84,13 +84,13 @@ public class MessageProcessor extends chat.dim.common.MessageProcessor {
                 // should not happen
                 continue;
             } else if (res instanceof ReceiptCommand) {
-                if (NetworkType.STATION.equals(sender.getType())) {
+                if (sender.getType() == EntityType.STATION.value) {
                     // no need to respond receipt to station
                     continue;
                 }
                 Log.info("receipt to sender: " + sender);
             } else if (res instanceof TextContent) {
-                if (NetworkType.STATION.equals(sender.getType())) {
+                if (sender.getType() == EntityType.STATION.value) {
                     // no need to respond text message to station
                     continue;
                 }

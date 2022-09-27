@@ -37,8 +37,8 @@ import chat.dim.format.Hex;
 import chat.dim.mkm.BTCAddress;
 import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 
 public final class Anonymous {
 
@@ -50,19 +50,16 @@ public final class Anonymous {
         return name + " (" + getNumberString(identifier.getAddress()) + ")";
     }
     private static String getName(byte type) {
-        if (NetworkType.BOT.equals(type)) {
+        if (type == EntityType.BOT.value) {
             return "Bot";
-        }
-        if (NetworkType.STATION.equals(type)) {
+        } else if (type == EntityType.STATION.value) {
             return "Station";
+        } else if (type == EntityType.ISP.value) {
+            return "ISP";
         }
-        if (NetworkType.PROVIDER.equals(type)) {
-            return "SP";
-        }
-        if (NetworkType.isUser(type)) {
+        if (EntityType.isUser(type)) {
             return "User";
-        }
-        if (NetworkType.isGroup(type)) {
+        } else if (EntityType.isGroup(type)) {
             return "Group";
         }
         return "Unknown";

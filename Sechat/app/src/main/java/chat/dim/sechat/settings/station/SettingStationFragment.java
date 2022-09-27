@@ -23,8 +23,8 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.NetworkType;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.settings.SettingsViewModel;
@@ -174,7 +174,7 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     private void addStation() {
         String sid = newSID.getText().toString();
         ID identifier = ID.parse(sid);
-        if (identifier == null || !NetworkType.STATION.equals(identifier.getType())) {
+        if (identifier == null || identifier.getType() != EntityType.STATION.value) {
             Alert.tips(getContext(), "Station ID error: " + sid);
             return;
         }

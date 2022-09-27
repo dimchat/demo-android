@@ -17,7 +17,6 @@ import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Visa;
 import chat.dim.sechat.model.UserViewModel;
 
@@ -174,9 +173,6 @@ public class AccountViewModel extends UserViewModel {
         }
         if (value instanceof Number) {
             network = ((Number) value).byteValue();
-        }
-        if (network == 0) {
-            network = NetworkType.MAIN.value;
         }
 
         // ID.seed

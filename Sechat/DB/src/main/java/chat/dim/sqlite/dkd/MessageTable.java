@@ -39,10 +39,10 @@ import java.util.Map;
 
 import chat.dim.format.JSON;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
@@ -88,7 +88,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
                 identifier = ID.parse(cursor.getString(0));
                 if (identifier == null) {
                     continue;
-                } else if (identifier.getType() == NetworkType.STATION.value) {
+                } else if (identifier.getType() == EntityType.STATION.value) {
                     // TODO: set flag to ignore message from station
                     continue;
                 }

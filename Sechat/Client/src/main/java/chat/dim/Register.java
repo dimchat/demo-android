@@ -40,10 +40,10 @@ import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Document;
+import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
-import chat.dim.protocol.NetworkType;
 import chat.dim.protocol.Visa;
 import chat.dim.utils.Log;
 
@@ -76,7 +76,7 @@ public final class Register {
         //
         //  Step 3. generate ID with meta
         //
-        ID identifier = ID.generate(meta, NetworkType.MAIN.value, null);
+        ID identifier = ID.generate(meta, EntityType.USER.value, null);
         //
         //  Step 4. generate visa with ID and sign with private key
         //
@@ -113,7 +113,7 @@ public final class Register {
         // 2. generate meta
         Meta meta = Meta.generate(MetaType.DEFAULT.value, privateKey, seed);
         // 3. generate ID
-        ID identifier = ID.generate(meta, NetworkType.POLYLOGUE.value, null);
+        ID identifier = ID.generate(meta, EntityType.GROUP.value, null);
         // 4. generate document
         Bulletin bulletin = createGroupDocument(identifier, name);
         // 5. save meta & bulletin in local storage
