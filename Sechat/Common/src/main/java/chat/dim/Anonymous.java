@@ -49,7 +49,7 @@ public final class Anonymous {
         }
         return name + " (" + getNumberString(identifier.getAddress()) + ")";
     }
-    private static String getName(byte type) {
+    private static String getName(int type) {
         if (type == EntityType.BOT.value) {
             return "Bot";
         } else if (type == EntityType.STATION.value) {

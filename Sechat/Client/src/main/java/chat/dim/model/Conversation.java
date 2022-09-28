@@ -38,12 +38,12 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 
 public class Conversation {
-    public static byte PersonalChat = EntityType.USER.value;
-    public static byte GroupChat = EntityType.GROUP.value;
+    public static int PersonalChat = EntityType.USER.value;
+    public static int GroupChat = EntityType.GROUP.value;
 
     private final Entity entity;
     public final ID identifier;
-    public final byte type;
+    public final int type;
 
     public ConversationDatabase database = ConversationDatabase.getInstance();
 
@@ -54,7 +54,7 @@ public class Conversation {
         this.type = getType(entity);
     }
 
-    private byte getType(Entity entity) {
+    private int getType(Entity entity) {
         ID identifier = entity.getIdentifier();
         if (identifier.isGroup()) {
             return GroupChat;

@@ -374,7 +374,7 @@ public class Facebook extends chat.dim.Facebook {
         ID.setFactory(new ID.Factory() {
 
             @Override
-            public ID generateID(Meta meta, byte type, String terminal) {
+            public ID generateID(Meta meta, int type, String terminal) {
                 return identifierFactory.generateID(meta, type, terminal);
             }
 

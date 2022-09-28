@@ -67,7 +67,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
     private final Meta empty = new BaseMeta(new HashMap<>()) {
         @Override
-        public Address generateAddress(byte type) {
+        public Address generateAddress(int type) {
             return null;
         }
     };

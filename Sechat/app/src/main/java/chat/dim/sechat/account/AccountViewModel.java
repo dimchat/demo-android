@@ -166,13 +166,13 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // ID.type
-        byte network = 0;
+        int network = 0;
         value = info.get("type");
         if (value == null) {
             value = info.get("network");
         }
         if (value instanceof Number) {
-            network = ((Number) value).byteValue();
+            network = ((Number) value).intValue();
         }
 
         // ID.seed
@@ -187,7 +187,7 @@ public class AccountViewModel extends UserViewModel {
         return savePrivateInfo(base64, algorithm, version, network, seed, nickname);
     }
 
-    private ID savePrivateInfo(String keyData, String algorithm, int metaVersion, byte network, String seed, String nickname) {
+    private ID savePrivateInfo(String keyData, String algorithm, int metaVersion, int network, String seed, String nickname) {
         // generate private key
         Map<String, Object> keyInfo = new HashMap<>();
         keyInfo.put("algorithm", algorithm);
