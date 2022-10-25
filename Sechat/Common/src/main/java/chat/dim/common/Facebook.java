@@ -364,13 +364,14 @@ public class Facebook extends chat.dim.Facebook {
         }
     };
 
-    private static final ID.Factory identifierFactory = ID.getFactory();
+    private static final ID.Factory identifierFactory;
 
     static {
 
         // load plugins
         chat.dim.Plugins.registerAllPlugins();
 
+        identifierFactory = ID.getFactory();
         ID.setFactory(new ID.Factory() {
 
             @Override
