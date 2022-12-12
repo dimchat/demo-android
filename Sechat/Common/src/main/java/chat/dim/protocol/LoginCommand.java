@@ -37,8 +37,8 @@ import chat.dim.mkm.Station;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "login",
- *      time    : 0,
+ *      cmd  : "login",
+ *      time : 0,
  *      //---- client info ----
  *      ID       : "{UserID}",
  *      device   : "DeviceID",  // (optional)

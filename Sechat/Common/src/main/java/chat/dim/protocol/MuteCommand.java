@@ -35,8 +35,8 @@ import chat.dim.dkd.BaseCommand;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "mute",
- *      list    : []      // mute-list
+ *      cmd  : "mute",
+ *      list : []      // mute-list
  *  }
  */
 public class MuteCommand extends BaseCommand {

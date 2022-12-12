@@ -35,12 +35,12 @@ import java.util.Map;
 import chat.dim.dkd.BaseCommand;
 
 /**
- *  Command message: {
+ *  Handshake command message: {
  *      type : 0x88,
  *      sn   : 123,
  *
  *      cmd     : "handshake",    // command name
- *      message : "Hello world!",
+ *      title   : "Hello world!", // "DIM?", "DIM!"
  *      session : "{SESSION_KEY}" // session key
  *  }
  */
@@ -48,45 +48,41 @@ public class HandshakeCommand extends BaseCommand {
 
     public final static String HANDSHAKE = "handshake";
 
-    private final String message;
-    private final String sessionKey;
-    private final HandshakeState state;
-
     public HandshakeCommand(Map<String, Object> command) {
         super(command);
-        message    = (String) command.get("message");
-        sessionKey = (String) command.get("session");
-        state      = getState(message, sessionKey);
     }
 
     public HandshakeCommand(String text, String session) {
         super(HANDSHAKE);
-        // message
-        message = text;
-        put("message", text);
+        // text message
+        put("title", text);
+        put("message", text);  // TODO: remove after all servers upgraded
         // session key
-        sessionKey = session;
         if (session != null) {
             put("session", session);
         }
-        // state
-        state = getState(text, session);
     }
 
-    public String getMessage() {
-        return message;
+    public String getTitle() {
+        // TODO: modify after all servers upgraded
+        Object text = get("title");
+        if (text == null) {
+            // compatible with v1.0
+            text = get("message");
+        }
+        return (String) text;
     }
 
     public String getSessionKey() {
-        return sessionKey;
+        return (String) get("session");
     }
 
     public HandshakeState getState() {
-        return state;
+        return checkState(getTitle(), getSessionKey());
     }
 
-    private static HandshakeState getState(String text, String session) {
-        assert text != null : "handshake message should not be empty";
+    private static HandshakeState checkState(String text, String session) {
+        assert text != null : "handshake title should not be empty";
         if (text.equals("DIM!") || text.equals("OK!")) {
             return HandshakeState.SUCCESS;
         } else if (text.equals("DIM?")) {

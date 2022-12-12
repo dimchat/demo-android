@@ -41,11 +41,11 @@ import chat.dim.format.UTF8;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "storage",
- *      title   : "key name",  // "contacts", "private_key", ...
+ *      cmd   : "storage",
+ *      title : "key name",  // "contacts", "private_key", ...
  *
- *      data    : "...",       // base64_encode(symmetric)
- *      key     : "...",       // base64_encode(asymmetric)
+ *      data  : "...",       // base64_encode(symmetric)
+ *      key   : "...",       // base64_encode(asymmetric)
  *
  *      // -- extra info
  *      //...

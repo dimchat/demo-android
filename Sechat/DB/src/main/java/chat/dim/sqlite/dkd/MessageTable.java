@@ -553,7 +553,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         ID receiver = iMsg.getReceiver();
         // FIXME: check for origin conversation
         if (entity.isUser()) {
-            Envelope env = receipt.getEnvelope();
+            Envelope env = receipt.getOriginalEnvelope();
             if (env != null && receiver.equals(env.getSender())) {
                 receiver = env.getReceiver();
                 if (receiver != null) {

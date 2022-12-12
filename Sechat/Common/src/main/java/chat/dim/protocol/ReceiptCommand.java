@@ -25,30 +25,32 @@
  */
 package chat.dim.protocol;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.dkd.BaseCommand;
-import chat.dim.format.Base64;
 
 /**
- *  Command message: {
+ *  Receipt command message: {
  *      type : 0x88,
- *      sn   : 123,  // the same serial number with the original message
+ *      sn   : 456,
  *
- *      command   : "receipt",
- *      message   : "...",
- *      // -- extra info
- *      sender    : "...",
- *      receiver  : "...",
- *      time      : 0,
- *      signature : "..." // the same signature with the original message
+ *      cmc    : "receipt",
+ *      text   : "...",  // text message
+ *      origin : {       // original message envelope
+ *          sender    : "...",
+ *          receiver  : "...",
+ *          time      : 0,
+ *          sn        : 123,
+ *          signature : "..."
+ *      }
  *  }
  */
 public class ReceiptCommand extends BaseCommand {
 
     public static final String RECEIPT   = "receipt";
 
-    // original message info
+    // original message envelope
     private Envelope envelope;
 
     public ReceiptCommand(Map<String, Object> dictionary) {
@@ -56,79 +58,67 @@ public class ReceiptCommand extends BaseCommand {
         envelope = null;
     }
 
-    public ReceiptCommand(String message, long sn, Envelope env) {
+    public ReceiptCommand(String text, Envelope env, long sn, String signature) {
         super(RECEIPT);
-        // text
-        if (message != null) {
-            put("message", message);
+        // text message
+        if (text != null) {
+            put("text", text);
+        }
+        envelope = env;
+        // envelope of the message responding to
+        Map<String, Object> origin;
+        if (env == null) {
+            origin = new HashMap<>();
+        } else {
+            origin = env.copyMap(false);
         }
         // sn of the message responding to
         if (sn > 0) {
-            put("sn", sn);
+            origin.put("sn", sn);
         }
-        // envelope of the message responding to
-        if (env != null) {
-            setEnvelope(env);
+        // signature of the message responding to
+        if (signature != null) {
+            origin.put("signature", signature);
         }
-        envelope = env;
+        put("origin", origin);
     }
 
     //-------- setters/getters --------
 
-    public String getMessage() {
-        return (String) get("message");
+    public String getText() {
+        return (String) get("text");
     }
 
-    public Envelope getEnvelope() {
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getOrigin() {
+        Object origin = get("origin");
+        return origin == null ? null : (Map<String, Object>) origin;
+    }
+
+    public Envelope getOriginalEnvelope() {
         if (envelope == null) {
-            // envelope: { sender: "...", receiver: "...", time: 0 }
-            Object env = get("envelope");
-            if (env == null) {
-                Object sender = get("sender");
-                Object receiver = get("receiver");
-                if (sender != null && receiver != null) {
-                    env = toMap();
-                }
+            // origin: { sender: "...", receiver: "...", time: 0 }
+            Map<String, Object> origin = getOrigin();
+            if (origin != null && origin.get("sender") != null) {
+                envelope = Envelope.parse(origin);
             }
-            envelope = Envelope.parse(env);
         }
         return envelope;
     }
 
-    public void setEnvelope(Envelope env) {
-        if (env == null) {
-            remove("sender");
-            remove("receiver");
-            //remove("time");
-        } else {
-            put("sender", env.get("sender"));
-            put("receiver", env.get("receiver"));
-            /*/
-            Object time = env.get("time");
-            if (time != null) {
-                put("time", time);
-            }
-            /*/
-            Object group = env.get("group");
-            if (group != null) {
-                put("group", group);
-            }
+    public long getOriginalSerialNumber() {
+        Map<String, Object> origin = getOrigin();
+        if (origin == null) {
+            return 0;
         }
+        return (long) origin.get("sn");
     }
 
-    public byte[] getSignature() {
-        String signature = (String) get("signature");
-        if (signature == null) {
+    public String getOriginalSignature() {
+        Map<String, Object> origin = getOrigin();
+        if (origin == null) {
             return null;
         }
-        return Base64.decode(signature);
-    }
-
-    public void setSignature(byte[] signature) {
-        if (signature == null) {
-            remove("signature");
-        } else {
-            put("signature", Base64.encode(signature));
-        }
+        return (String) origin.get("signature");
     }
 }

@@ -123,7 +123,8 @@ public class Server extends Station
 
         Facebook facebook = Facebook.getInstance();
         if (facebook.getPublicKeyForEncryption(identifier) == null) {
-            cmd.setGroup(ID.EVERYONE);
+            cmd.setGroup(ID.parse("stations@everywhere"));
+            //cmd.setGroup(Station.EVERY);
         }
 
         Envelope env = Envelope.create(currentUser.getIdentifier(), identifier, null);

@@ -31,6 +31,7 @@ import chat.dim.Messenger;
 import chat.dim.Facebook;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.PageContent;
@@ -82,8 +83,10 @@ public class AnyContentProcessor extends BaseContentProcessor {
         }
 
         // response
-        Object signature = rMsg.get("signature");
-        ReceiptCommand receipt = new ReceiptCommand(text, content.getSerialNumber(), rMsg.getEnvelope());
+        Envelope env = rMsg.getEnvelope();
+        long sn = content.getSerialNumber();
+        String signature = (String) rMsg.get("signature");
+        ReceiptCommand receipt = new ReceiptCommand(text, env, sn, signature);
         receipt.put("signature", signature);
         return respondContent(receipt);
     }

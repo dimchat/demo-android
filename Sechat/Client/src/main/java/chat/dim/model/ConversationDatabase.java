@@ -177,7 +177,7 @@ public final class ConversationDatabase extends MessageBuilder {
             // FIXME: check for origin conversation
             if (entity.isUser()) {
                 ReceiptCommand receipt = (ReceiptCommand) iMsg.getContent();
-                Envelope env = receipt.getEnvelope();
+                Envelope env = receipt.getOriginalEnvelope();
                 if (env != null) {
                     ID sender = env.getSender();
                     if (sender != null && sender.equals(iMsg.getReceiver())) {

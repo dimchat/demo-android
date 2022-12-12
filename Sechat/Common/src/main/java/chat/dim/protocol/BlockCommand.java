@@ -35,8 +35,8 @@ import chat.dim.dkd.BaseCommand;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      command : "block",
- *      list    : []      // block-list
+ *      cmd  : "block",
+ *      list : []      // block-list
  *  }
  */
 public class BlockCommand extends BaseCommand {
