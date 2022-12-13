@@ -184,6 +184,7 @@ public class Server extends Station
 
         // create handshake command
         HandshakeCommand cmd = HandshakeCommand.restart(sessionKey);
+        cmd.setGroup(ID.parse("stations@everywhere"));  // FIXME:
         setLastReceivedMessageTime(cmd);
         ReliableMessage rMsg = packCommand(cmd);
         // first handshake?

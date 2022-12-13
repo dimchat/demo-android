@@ -131,6 +131,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
                     info = new HashMap<>();
                     info.put("version", version);
+                    info.put("type", version);
                     info.put("key", key);
                     if (MetaType.hasSeed(version)) {
                         seed = cursor.getString(2);

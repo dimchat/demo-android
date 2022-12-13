@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import chat.dim.AddressNameServer;
 import chat.dim.Anonymous;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;

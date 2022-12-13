@@ -128,6 +128,19 @@ public abstract class Messenger extends chat.dim.Messenger {
         return (FileContentProcessor) cpu;
     }
 
+    private Content fixCmd(Content content) {
+        if (content instanceof Command) {
+            String cmd = (String) content.get("command");
+            if (cmd == null) {
+                cmd = (String) content.get("cmd");
+            }
+            content.put("command", cmd);
+            content.put("cmd", cmd);
+            content = Content.parse(content.toMap());
+        }
+        return content;
+    }
+
     @Override
     public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
         // check attachment for File/Image/Audio/Video message content
@@ -135,6 +148,7 @@ public abstract class Messenger extends chat.dim.Messenger {
             FileContentProcessor fpu = getFileContentProcessor();
             fpu.uploadFileContent((FileContent) content, password, iMsg);
         }
+        content = fixCmd(content);
         return super.serializeContent(content, password, iMsg);
     }
 
@@ -143,6 +157,7 @@ public abstract class Messenger extends chat.dim.Messenger {
         Content content;
         try {
             content = super.deserializeContent(data, password, sMsg);
+            content = fixCmd(content);
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -280,7 +295,7 @@ public abstract class Messenger extends chat.dim.Messenger {
 
     static {
         // load factories from SDK
-        registerAllFactories();
+        registerCoreFactories();
 
         // register command parsers
         Command.setFactory(ReceiptCommand.RECEIPT, ReceiptCommand::new);

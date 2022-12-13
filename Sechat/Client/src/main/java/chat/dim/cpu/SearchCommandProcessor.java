@@ -58,13 +58,20 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
         Facebook facebook = getFacebook();
         ID identifier;
         Meta meta;
+        Map<String, Object> info;
+        Object version;
         for (Map.Entry<String, Object> entry : results.entrySet()) {
             identifier = ID.parse(entry.getKey());
             if (identifier == null) {
                 // TODO: ID error
                 continue;
             }
-            meta = Meta.parse((Map<String, Object>) entry.getValue());
+            info = (Map<String, Object>) entry.getValue();
+            version = info.get("version");
+            if (version != null) {
+                info.put("type", version);
+            }
+            meta = Meta.parse(info);
             if (meta == null || !Meta.matches(identifier, meta)) {
                 // TODO: meta error
                 continue;

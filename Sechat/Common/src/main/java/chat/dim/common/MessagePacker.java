@@ -111,6 +111,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
     @Override
     public byte[] serializeMessage(ReliableMessage rMsg) {
         attachKeyDigest(rMsg);
+        fixMeta(rMsg);
         if (mtpFormat == MTP_JSON) {
             // JsON
             return super.serializeMessage(rMsg);
@@ -128,6 +129,7 @@ public class MessagePacker extends chat.dim.MessagePacker {
         if (data[0] == '{') {
             // JsON
             ReliableMessage rMsg = super.deserializeMessage(data);
+            fixMeta(rMsg);
             fixVisa(rMsg);
             return rMsg;
         } else { // D-MTP
@@ -276,6 +278,19 @@ public class MessagePacker extends chat.dim.MessagePacker {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private void fixMeta(ReliableMessage rMsg) {
+        Object attachment = rMsg.get("meta");
+        if (attachment != null) {
+            Map<String, Object> meta = (Map<String, Object>) attachment;
+            Object version = meta.get("version");
+            if (version == null) {
+                version = meta.get("type");
+            }
+            meta.put("type", version);
+            meta.put("version", version);
+        }
+    }
     private void fixVisa(ReliableMessage rMsg) {
         Object profile = rMsg.get("profile");
         if (profile != null) {

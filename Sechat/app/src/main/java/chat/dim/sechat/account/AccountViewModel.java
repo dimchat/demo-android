@@ -99,6 +99,7 @@ public class AccountViewModel extends UserViewModel {
 
         // meta version
         info.put("version", meta.getType());
+        info.put("type", meta.getType());
 
         // key data
         info.put("data", pem);
@@ -158,6 +159,9 @@ public class AccountViewModel extends UserViewModel {
         // meta.version
         int version = 0;
         value = info.get("version");
+        if (value == null) {
+            value = info.get("type");
+        }
         if (value instanceof Number) {
             version = ((Number) value).intValue();
         }
