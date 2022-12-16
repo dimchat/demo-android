@@ -26,19 +26,26 @@
 package chat.dim.network;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
-import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.EntityStorage;
+import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
+import chat.dim.http.DownloadTask;
 import chat.dim.http.HTTPClient;
+import chat.dim.http.HTTPDelegate;
+import chat.dim.http.UploadTask;
 import chat.dim.model.Configuration;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 
-public final class FtpServer {
+public final class FtpServer implements HTTPDelegate {
     private static final FtpServer ourInstance = new FtpServer();
     public static FtpServer getInstance() { return ourInstance; }
     private FtpServer() {
@@ -60,8 +67,8 @@ public final class FtpServer {
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", identifier.getAddress().toString());
 
-        HTTPClient httpClient = HTTPClient.getInstance();
-        httpClient.upload(imageData, upload, filename, "avatar");
+        HTTPClient http = HTTPClient.getInstance();
+        http.upload(upload, "avatar", filename, imageData);
 
         // build download URL
         String download = config.getAvatarURL();
@@ -70,8 +77,8 @@ public final class FtpServer {
 
         try {
             // store in user's directory
-            String path = ExternalStorage.getEntityFilePath(identifier, "avatar.jpeg");
-            ExternalStorage.saveData(imageData, path);
+            String path = EntityStorage.getEntityFilePath(identifier, "avatar.jpeg");
+            EntityStorage.saveBinary(imageData, path);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,13 +100,9 @@ public final class FtpServer {
             }
         }
 
-        try {
-            path = ExternalStorage.getEntityFilePath(identifier, "avatar.jpeg");
-            if (ExternalStorage.exists(path)) {
-                return path;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        path = EntityStorage.getEntityFilePath(identifier, "avatar.jpeg");
+        if (EntityStorage.exists(path)) {
+            return path;
         }
         return null;
     }
@@ -108,14 +111,14 @@ public final class FtpServer {
     //  File data: Image, Audio, Video, ...
     //
 
-    public boolean saveFileData(byte[] data, String filename) {
+    public int saveFileData(byte[] data, String filename) {
         try {
             // save a copy to cache directory
-            String path = ExternalStorage.getCacheFilePath(filename);
-            return ExternalStorage.saveData(data, path);
+            String path = LocalCache.getCacheFilePath(filename);
+            return LocalCache.saveBinary(data, path);
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return -1;
         }
     }
 
@@ -133,8 +136,8 @@ public final class FtpServer {
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", sender.getAddress().toString());
 
-        HTTPClient httpClient = HTTPClient.getInstance();
-        httpClient.upload(data, upload, filename, "file");
+        HTTPClient http = HTTPClient.getInstance();
+        http.upload(upload, "file", filename, data);
 
         // build download URL
         String download = config.getDownloadURL();
@@ -148,16 +151,16 @@ public final class FtpServer {
         return httpClient.download(url);
     }
 
-    public String getFilePath(FileContent content) throws IOException {
+    public String getFilePath(FileContent content) {
         // check decrypted file
         String filename = content.getFilename();
-        String path1 = ExternalStorage.getCacheFilePath(filename);
-        if (ExternalStorage.exists(path1)) {
+        String path1 = LocalCache.getCacheFilePath(filename);
+        if (LocalCache.exists(path1)) {
             return path1;
         }
         // get encrypted data
         String url = content.getURL();
-        String path2 = HTTPClient.getCachePath(url);
+        String path2 = LocalCache.getCacheFilePath(url);
         byte[] data = null;
         try {
             data = decryptFile(path2, content.getPassword());
@@ -166,7 +169,7 @@ public final class FtpServer {
         }
         if (data != null) {
             try {
-                if (ExternalStorage.saveData(data, path1)) {
+                if (LocalCache.saveBinary(data, path1) == data.length) {
                     return path1;
                 }
             } catch (IOException e) {
@@ -179,10 +182,10 @@ public final class FtpServer {
     }
 
     private byte[] decryptFile(String path, Map<String, Object> password) throws IOException {
-        if (!ExternalStorage.exists(path)) {
+        if (!LocalCache.exists(path)) {
             return null;
         }
-        byte[] data = ExternalStorage.loadData(path);
+        byte[] data = LocalCache.loadBinary(path);
         if (data == null) {
             // file not found
             return null;
@@ -193,5 +196,51 @@ public final class FtpServer {
             return null;
         }
         return key.decrypt(data);
+    }
+
+    //
+    //  HTTP Delegate
+    //
+
+    @Override
+    public void uploadSuccess(UploadTask task, String response) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("URL", task.getUrlString());
+        info.put("filename", task.getFileName());
+        info.put("name", task.getVarName());
+        info.put("data", task.getFileData());
+        info.put("response", response);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.FileUploadSuccess, this, info);
+    }
+
+    @Override
+    public void uploadFailed(UploadTask task, IOException error) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("URL", task.getUrlString());
+        info.put("filename", task.getFileName());
+        info.put("name", task.getVarName());
+        info.put("data", task.getFileData());
+        info.put("error", error);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.FileUploadFailure, this, info);
+    }
+
+    @Override
+    public void downloadSuccess(DownloadTask task, String filePath) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("URL", task.getUrlString());
+        info.put("path", filePath);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.FileDownloadSuccess, this, info);
+    }
+
+    @Override
+    public void downloadFailed(DownloadTask task, IOException error) {
+        Map<String, Object> info = new HashMap<>();
+        info.put("URL", task.getUrlString());
+        info.put("error", error);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.FileDownloadFailure, this, info);
     }
 }

@@ -25,28 +25,21 @@
  */
 package chat.dim.cpu;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.Facebook;
+import chat.dim.Messenger;
+import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.HandshakeCommand;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.MuteCommand;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 
-public class ClientProcessorCreator extends CommonProcessorCreator {
+public class ClientProcessorCreator extends ClientContentProcessorCreator {
 
     public ClientProcessorCreator(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
-    }
-
-    @Override
-    protected Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
-    }
-
-    @Override
-    protected Messenger getMessenger() {
-        return (Messenger) super.getMessenger();
     }
 
     @Override
@@ -54,8 +47,12 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
         // application customized
         if (ContentType.APPLICATION.equals(type)) {
             return new AppContentProcessor(getFacebook(), getMessenger());
-        //} else if (ContentType.CUSTOMIZED.equals(type)) {
-        //    return new AppContentProcessor(getFacebook(), getMessenger());
+        } else if (ContentType.CUSTOMIZED.equals(type)) {
+            return new AppContentProcessor(getFacebook(), getMessenger());
+        }
+        // default
+        if (0 == type) {
+            return new AnyContentProcessor(getFacebook(), getMessenger());
         }
         return super.createContentProcessor(type);
     }
@@ -79,6 +76,18 @@ public class ClientProcessorCreator extends CommonProcessorCreator {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
         } else if (SearchCommand.ONLINE_USERS.equals(command)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
+        }
+        // receipt
+        if (ReceiptCommand.RECEIPT.equals(command)) {
+            return new ReceiptCommandProcessor(getFacebook(), getMessenger());
+        }
+        // mute
+        if (MuteCommand.MUTE.equals(command)) {
+            return new MuteCommandProcessor(getFacebook(), getMessenger());
+        }
+        // block
+        if (BlockCommand.BLOCK.equals(command)) {
+            return new BlockCommandProcessor(getFacebook(), getMessenger());
         }
         // others
         return super.createCommandProcessor(type, command);

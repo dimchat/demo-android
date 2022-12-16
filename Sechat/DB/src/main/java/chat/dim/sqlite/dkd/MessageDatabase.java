@@ -31,7 +31,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Messenger;
+import chat.dim.CommonMessenger;
+import chat.dim.SharedMessenger;
 import chat.dim.format.JSON;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.sqlite.Database;
@@ -42,7 +43,7 @@ public final class MessageDatabase extends Database {
         super(context, name, version);
     }
 
-    public static Messenger messenger = null;
+    public static SharedMessenger messenger = null;
 
     private static MessageDatabase ourInstance = null;
 
@@ -114,6 +115,7 @@ public final class MessageDatabase extends Database {
 
     @SuppressWarnings("rawtypes")
     private static InstantMessage getInstanceMessage(Map msg) {
+        CommonMessenger.registerAllFactories();
         InstantMessage iMsg = InstantMessage.parse(msg);
         if (iMsg != null) {
             iMsg.setDelegate(messenger);

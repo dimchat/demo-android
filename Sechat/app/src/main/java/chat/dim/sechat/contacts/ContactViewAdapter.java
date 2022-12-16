@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -21,6 +21,7 @@ import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
 import chat.dim.threading.MainThread;
+import chat.dim.type.Pair;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
 import chat.dim.ui.list.RecyclerViewHolder;
@@ -86,10 +87,11 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
                     MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                Facebook facebook = Messenger.getInstance().getFacebook();
-                String avatar = facebook.getAvatar(item.getIdentifier());
+                GlobalVariable shared = GlobalVariable.getInstance();
+                SharedFacebook facebook = shared.facebook;
+                Pair<String, String> avatars = facebook.getAvatar(item.getIdentifier());
                 String path = (String) info.get("path");
-                if (avatar != null && avatar.equals(path)) {
+                if (avatars.first != null && avatars.first.equals(path)) {
                     MainThread.call(this::refresh);
                 }
             }

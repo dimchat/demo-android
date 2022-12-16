@@ -27,8 +27,6 @@ package chat.dim;
 
 import java.util.Random;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -85,10 +83,12 @@ public final class Register {
         Visa visa = createUserDocument(identifier, name, avatar, (EncryptKey) msgKey);
         // 5. save private key, meta & visa in local storage
         //    don't forget to upload them onto the DIM station
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        SharedMessenger messenger = shared.messenger;
         facebook.saveMeta(meta, identifier);
-        facebook.savePrivateKey(privateKey, identifier, PrivateKeyTable.META);
-        facebook.savePrivateKey(priKey, identifier, PrivateKeyTable.VISA);
+        shared.adb.savePrivateKey(privateKey, PrivateKeyTable.META, identifier);
+        shared.adb.savePrivateKey(priKey, PrivateKeyTable.VISA, identifier);
         facebook.saveDocument(visa);
         // 6. create user
         return facebook.getUser(identifier);
@@ -107,7 +107,8 @@ public final class Register {
         return createGroup(founder, name, "Group-" + r);
     }
     public Group createGroup(ID founder, String name, String seed) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         // 1. get private key
         privateKey = (PrivateKey) facebook.getPrivateKeyForVisaSignature(founder);
         // 2. generate meta
@@ -149,7 +150,8 @@ public final class Register {
     public boolean upload(ID identifier, Meta meta, Document doc) {
         assert identifier != null : "ID error";
         assert identifier.equals(doc.getIdentifier()) : "document ID not match";
-        Messenger messenger = Messenger.getInstance();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
         return messenger.postDocument(doc, meta);
     }
 

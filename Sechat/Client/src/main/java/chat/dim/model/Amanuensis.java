@@ -25,8 +25,8 @@
  */
 package chat.dim.model;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
@@ -43,7 +43,8 @@ public final class Amanuensis {
 
     // conversation factory
     public Conversation getConversation(ID identifier) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         // create directly if we can find the entity
         Entity entity = null;
         if (identifier.isUser()) {
@@ -74,7 +75,8 @@ public final class Amanuensis {
             return getConversation(group);
         }
         // personal chat, get chat box with contact ID
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         ID sender = iMsg.getSender();
         User user = facebook.getCurrentUser();
         if (user.getIdentifier().equals(sender)) {

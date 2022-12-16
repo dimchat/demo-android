@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
 import chat.dim.database.ProviderTable;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -142,7 +140,6 @@ public final class NetworkDatabase {
     @SuppressWarnings("unchecked")
     private ProviderTable.ProviderInfo defaultProviderInfo() {
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
         Map<String, Object> spConfig = Configuration.getInstance().getDefaultProvider();
 
         ID sp = ID.parse(spConfig.get("ID"));

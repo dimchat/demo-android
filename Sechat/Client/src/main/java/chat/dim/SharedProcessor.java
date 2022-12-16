@@ -1,13 +1,8 @@
 /* license: https://mit-license.org
- *
- *  DIM-SDK : Decentralized Instant Messaging Software Development Kit
- *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
- *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,29 +25,39 @@
  */
 package chat.dim;
 
-import chat.dim.protocol.Content;
-import chat.dim.protocol.ID;
+import java.util.List;
+
+import chat.dim.cpu.ClientProcessorCreator;
+import chat.dim.cpu.ContentProcessor;
+import chat.dim.model.MessageDataSource;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 
-/**
- *  Message Transmitter
- *  ~~~~~~~~~~~~~~~~~~~
- */
-public interface Transmitter {
+public class SharedProcessor extends ClientProcessor {
 
-    /**
-     *  Send content from sender to receiver with priority
-     *
-     * @param sender   - from where
-     * @param receiver - to where
-     * @param content  - message content
-     * @param priority - smaller is faster
-     * @return false on error
-     */
-    boolean sendContent(ID sender, ID receiver, Content content, int priority);
+    public SharedProcessor(Facebook facebook, Messenger messenger) {
+        super(facebook, messenger);
+    }
 
-    boolean sendMessage(InstantMessage msg, int priority);
+    @Override
+    public SharedMessenger getMessenger() {
+        return (SharedMessenger) super.getMessenger();
+    }
 
-    boolean sendMessage(ReliableMessage msg, int priority);
+    @Override
+    public List<InstantMessage> processInstantMessage(InstantMessage iMsg, ReliableMessage rMsg) {
+        List<InstantMessage> responses = super.processInstantMessage(iMsg, rMsg);
+        // save instant message
+        MessageDataSource mds = MessageDataSource.getInstance();
+        if (!mds.saveMessage(iMsg)) {
+            // error
+            return null;
+        }
+        return responses;
+    }
+
+    @Override
+    protected ContentProcessor.Creator createCreator() {
+        return new ClientProcessorCreator(getFacebook(), getMessenger());
+    }
 }

@@ -27,8 +27,9 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.Anonymous;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -36,11 +37,9 @@ import chat.dim.threading.BackgroundThreads;
 
 public class EntityViewModel extends ViewModel {
 
-    public static Messenger getMessenger() {
-        return Messenger.getInstance();
-    }
-    public static Facebook getFacebook() {
-        return getMessenger().getFacebook();
+    public static SharedFacebook getFacebook() {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        return shared.facebook;
     }
 
     private Entity entity = null;
@@ -85,7 +84,16 @@ public class EntityViewModel extends ViewModel {
         if (identifier == null) {
             return null;
         }
-        return getFacebook().getName(identifier);
+        // get name from document
+        Document doc = getFacebook().getDocument(identifier, "*");
+        if (doc != null) {
+            String name = doc.getName();
+            if (name != null && name.length() > 0) {
+                return name;
+            }
+        }
+        // get name from ID
+        return Anonymous.getName(identifier);
     }
 
     public Document getDocument(String type) {

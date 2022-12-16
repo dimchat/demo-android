@@ -58,10 +58,10 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
     //
 
     @Override
-    public SymmetricKey getKey(ID from, ID to) {
+    public SymmetricKey getCipherKey(ID sender, ID receiver, boolean generate) {
         SymmetricKey key = null;
         String[] columns = {"pwd"};
-        String[] selectionArgs = {from.toString(), to.toString()};
+        String[] selectionArgs = {sender.toString(), receiver.toString()};
         try (Cursor cursor = query(KeyDatabase.T_MESSAGE_KEY, columns,"sender=? AND receiver=?", selectionArgs, null, null,null)) {
             String sk;
             Object info;  // Map<String, Object>
@@ -75,15 +75,15 @@ public final class MsgKeyTable extends DataTable implements chat.dim.database.Ms
     }
 
     @Override
-    public boolean addKey(ID from, ID to, SymmetricKey key) {
-        String[] whereArgs = {from.toString(), to.toString()};
+    public void cacheCipherKey(ID sender, ID receiver, SymmetricKey key) {
+        String[] whereArgs = {sender.toString(), receiver.toString()};
         delete(KeyDatabase.T_MESSAGE_KEY, "sender=? AND receiver=?", whereArgs);
 
         String text = JSON.encode(key);
         ContentValues values = new ContentValues();
-        values.put("sender", from.toString());
-        values.put("receiver", to.toString());
+        values.put("sender", sender.toString());
+        values.put("receiver", receiver.toString());
         values.put("pwd", text);
-        return insert(KeyDatabase.T_MESSAGE_KEY, null, values) >= 0;
+        insert(KeyDatabase.T_MESSAGE_KEY, null, values);
     }
 }

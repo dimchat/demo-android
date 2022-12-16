@@ -35,8 +35,10 @@ import java.util.Map;
 import chat.dim.format.JSON;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
+import chat.dim.type.Pair;
 
 public final class LoginTable extends DataTable implements chat.dim.database.LoginTable {
 
@@ -159,5 +161,16 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
             String[] whereArgs = {user.toString()};
             return update(MainDatabase.T_LOGIN, values, "uid=?", whereArgs) > 0;
         }
+    }
+
+    @Override
+    public Pair<LoginCommand, ReliableMessage> getLoginCommandMessage(ID identifier) {
+        LoginCommand cmd = getLoginCommand(identifier);
+        return new Pair<>(cmd, null);
+    }
+
+    @Override
+    public boolean saveLoginCommandMessage(ID identifier, LoginCommand cmd, ReliableMessage msg) {
+        return saveLoginCommand(cmd);
     }
 }

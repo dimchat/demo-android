@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,12 +80,7 @@ public class ChatboxViewModel extends EntityViewModel {
 
     static Uri getFileUri(FileContent content) {
         FtpServer ftp = FtpServer.getInstance();
-        String path = null;
-        try {
-            path = ftp.getFilePath(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String path = ftp.getFilePath(content);
         if (path != null) {
             return Uri.parse(path);
         }

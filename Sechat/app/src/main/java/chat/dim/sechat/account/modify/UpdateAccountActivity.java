@@ -7,9 +7,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 
-import java.io.IOException;
-
-import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.LocalCache;
 import chat.dim.sechat.R;
 import chat.dim.sechat.account.AccountViewModel;
 import chat.dim.ui.image.ImagePickerActivity;
@@ -62,8 +60,8 @@ public class UpdateAccountActivity extends ImagePickerActivity {
     //
 
     @Override
-    protected String getTemporaryDirectory() throws IOException {
-        return ExternalStorage.getTemporaryDirectory();
+    protected String getTemporaryDirectory() {
+        return LocalCache.getTemporaryDirectory();
     }
 
     @Override

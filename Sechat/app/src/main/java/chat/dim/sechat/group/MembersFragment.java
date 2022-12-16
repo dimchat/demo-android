@@ -13,8 +13,8 @@ import android.widget.GridView;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -39,7 +39,8 @@ public class MembersFragment extends Fragment {
 
     private boolean isGroupAdmin() {
         if (identifier != null && identifier.isGroup()) {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             User user = facebook.getCurrentUser();
             // TODO: check for administrators
             return facebook.isOwner(user.getIdentifier(), identifier);

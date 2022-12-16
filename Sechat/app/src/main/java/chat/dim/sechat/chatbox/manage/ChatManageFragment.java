@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -142,7 +142,8 @@ public class ChatManageFragment extends Fragment {
         if (!identifier.isGroup()) {
             return false;
         }
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
         boolean isMember = facebook.containsMember(user.getIdentifier(), identifier);

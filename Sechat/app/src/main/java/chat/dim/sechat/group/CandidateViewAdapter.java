@@ -10,8 +10,8 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -66,7 +66,8 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
     }
 
     private boolean isForbidden(ID identifier) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         if (facebook.isOwner(identifier, group)) {
             return true;
         }

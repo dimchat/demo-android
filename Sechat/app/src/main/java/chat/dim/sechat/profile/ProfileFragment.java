@@ -21,8 +21,8 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -32,6 +32,7 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.Client;
 import chat.dim.sechat.R;
 import chat.dim.sechat.wallet.transfer.TransferActivity;
+import chat.dim.threading.BackgroundThreads;
 import chat.dim.threading.MainThread;
 import chat.dim.ui.Alert;
 import chat.dim.ui.image.ImageViewerActivity;
@@ -120,6 +121,11 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         removeButton.setOnClickListener(v -> removeContact());
         addButton.setOnClickListener(v -> addContact());
 
+        BackgroundThreads.wait(() -> {
+            GlobalVariable shared = GlobalVariable.getInstance();
+            shared.messenger.queryDocument(identifier);
+        });
+
         return view;
     }
 
@@ -164,16 +170,19 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     }
 
     private void addContact() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
         facebook.addContact(identifier, user.getIdentifier());
         // open chat box
-        Client.getInstance().startChat(identifier);
+        Client client = Client.getInstance();
+        client.startChat(identifier);
     }
 
     private void removeContact() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
         facebook.removeContact(identifier, user.getIdentifier());
@@ -181,7 +190,8 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     }
 
     private void remitMoney() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
         if (user.getIdentifier().equals(identifier)) {

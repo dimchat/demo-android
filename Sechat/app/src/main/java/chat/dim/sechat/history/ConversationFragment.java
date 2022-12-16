@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import chat.dim.network.ServerState;
+import chat.dim.network.SessionState;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -104,7 +104,7 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         assert activity != null : "main activity not found";
 
         String serverState = activity.serverState;
-        if (serverState != null && !serverState.equals(ServerState.RUNNING)) {
+        if (serverState != null && !serverState.equals(SessionState.RUNNING)) {
             Alert.tips(activity, R.string.server_connecting);
             return false;
         }

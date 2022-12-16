@@ -4,8 +4,8 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
@@ -25,7 +25,8 @@ public class CandidateList extends DummyList<CandidateList.Item> {
     public synchronized void reloadData() {
         clearItems();
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user == null) {
             return;
@@ -66,7 +67,8 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         }
 
         String getTitle() {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             return facebook.getName(identifier);
         }
     }

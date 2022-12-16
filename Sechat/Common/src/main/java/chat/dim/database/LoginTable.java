@@ -25,10 +25,11 @@
  */
 package chat.dim.database;
 
+import chat.dim.dbi.LoginDBI;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 
-public interface LoginTable {
+public interface LoginTable extends LoginDBI {
 
     /**
      *  Get last login command for user

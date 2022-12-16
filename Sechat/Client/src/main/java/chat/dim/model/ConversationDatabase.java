@@ -29,13 +29,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.Anonymous;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.cpu.MessageBuilder;
 import chat.dim.database.MessageTable;
 import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
+import chat.dim.protocol.Document;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -61,13 +63,23 @@ public final class ConversationDatabase extends MessageBuilder {
         return Times.getTimeString(time);
     }
 
-    private Facebook getFacebook() {
-        return Messenger.getInstance().getFacebook();
+    private SharedFacebook getFacebook() {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        return shared.facebook;
     }
 
     @Override
-    protected String getName(ID identifier) {
-        return getFacebook().getName(identifier);
+    public String getName(ID identifier) {
+        // get name from document
+        Document doc = getFacebook().getDocument(identifier, "*");
+        if (doc != null) {
+            String name = doc.getName();
+            if (name != null && name.length() > 0) {
+                return name;
+            }
+        }
+        // get name from ID
+        return Anonymous.getName(identifier);
     }
 
     //-------- ConversationDataSource

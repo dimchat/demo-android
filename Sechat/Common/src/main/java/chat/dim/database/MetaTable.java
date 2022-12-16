@@ -25,12 +25,7 @@
  */
 package chat.dim.database;
 
-import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
+import chat.dim.dbi.MetaDBI;
 
-public interface MetaTable {
-
-    boolean saveMeta(Meta meta, ID entity);
-
-    Meta getMeta(ID entity);
+public interface MetaTable extends MetaDBI {
 }

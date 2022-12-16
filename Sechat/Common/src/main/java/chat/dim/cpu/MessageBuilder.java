@@ -45,7 +45,7 @@ import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.protocol.group.QuitCommand;
 import chat.dim.protocol.group.ResetCommand;
-import chat.dim.utils.Strings;
+import chat.dim.utils.ArrayUtils;
 
 public abstract class MessageBuilder {
 
@@ -148,7 +148,7 @@ public abstract class MessageBuilder {
         for (ID item : members) {
             names.add(getName(item));
         }
-        String string = Strings.join(names, ", ");
+        String string = ArrayUtils.join(", ", names);
         return String.format("%s has invited members: %s", getName(commander), string);
     }
 
@@ -163,7 +163,7 @@ public abstract class MessageBuilder {
         for (ID item : members) {
             names.add(getName(item));
         }
-        String string = Strings.join(names, ", ");
+        String string = ArrayUtils.join(", ", names);
         return String.format("%s has removed members: %s", getName(commander), string);
     }
 
@@ -184,7 +184,7 @@ public abstract class MessageBuilder {
             for (ID item : members) {
                 names.add(getName(item));
             }
-            string = string + ", removed: " + Strings.join(names, ", ");
+            string = string + ", removed: " + ArrayUtils.join(", ", names);
         }
         if (addedList != null && addedList.size() > 0) {
             List<ID> members = ID.convert(addedList);
@@ -192,7 +192,7 @@ public abstract class MessageBuilder {
             for (ID item : members) {
                 names.add(getName(item));
             }
-            string = string + ", added: " + Strings.join(names, ", ");
+            string = string + ", added: " + ArrayUtils.join(", ", names);
         }
         return String.format("%s has updated members %s", getName(commander), string);
     }

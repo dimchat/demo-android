@@ -25,23 +25,14 @@
  */
 package chat.dim.database;
 
-import java.util.List;
-
+import chat.dim.dbi.GroupDBI;
 import chat.dim.protocol.ID;
 
-public interface GroupTable {
-
-    ID getFounder(ID group);
-
-    ID getOwner(ID group);
-
-    List<ID> getMembers(ID group);
+public interface GroupTable extends GroupDBI {
 
     boolean addMember(ID member, ID group);
 
     boolean removeMember(ID member, ID group);
-
-    boolean saveMembers(List<ID> members, ID group);
 
     boolean removeGroup(ID group);
 }

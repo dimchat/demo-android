@@ -36,8 +36,12 @@ import chat.dim.dkd.BaseCommand;
  *      sn   : 123,
  *
  *      command  : "search",        // or "users"
- *
  *      keywords : "keywords",      // keyword string
+ *
+ *      start    : 0,
+ *      limit    : 20,
+ *
+ *      station  : "STATION_ID",    // station ID
  *      users    : ["ID"],          // user ID list
  *      results  : {"ID": {meta}, } // user's meta map
  *  }
@@ -58,6 +62,55 @@ public class SearchCommand extends BaseCommand {
 
         if (!ONLINE_USERS.equals(keywords)) {
             put("keywords", keywords);
+        }
+    }
+
+    public String getKeywords() {
+        String keywords = (String) get("keywords");
+        if (keywords == null && ONLINE_USERS.equals(getCmd())) {
+            keywords = ONLINE_USERS;
+        }
+        return keywords;
+    }
+    public void setKeywords(String keywords) {
+        if (keywords == null) {
+            remove("keywords");
+        } else {
+            put("keywords", keywords);
+        }
+    }
+    public void setKeywords(List<String> keywords) {
+        if (keywords == null || keywords.size() == 0) {
+            remove("keywords");
+        } else {
+            put("keywords", String.join(" ", keywords));
+        }
+    }
+
+    public int getStart() {
+        Object start = get("start");
+        return start == null ? 0 : ((Number) start).intValue();
+    }
+    public void setStart(int start) {
+        put("start", start);
+    }
+
+    public int getLimit() {
+        Object limit = get("limit");
+        return limit == null ? 20 : ((Number) limit).intValue();
+    }
+    public void setLimit(int limit) {
+        put("limit", limit);
+    }
+
+    public ID getStation() {
+        return ID.parse(get("station"));
+    }
+    public void setStation(ID station) {
+        if (station == null) {
+            remove("station");
+        } else {
+            put("station", station.toString());
         }
     }
 

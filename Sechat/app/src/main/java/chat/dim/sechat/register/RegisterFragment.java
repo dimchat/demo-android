@@ -15,9 +15,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import chat.dim.GlobalVariable;
 import chat.dim.Register;
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.SharedFacebook;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.User;
 import chat.dim.model.Configuration;
@@ -154,7 +154,8 @@ public class RegisterFragment extends Fragment {
         Meta meta = user.getMeta();
         Visa visa = user.getVisa();
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
 
         // 2. upload avatar
         if (avatarImage != null) {

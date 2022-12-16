@@ -28,8 +28,8 @@ package chat.dim.cpu;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.Facebook;
+import chat.dim.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Content;

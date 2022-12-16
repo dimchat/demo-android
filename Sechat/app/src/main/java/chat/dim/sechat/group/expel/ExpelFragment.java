@@ -16,9 +16,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import chat.dim.GlobalVariable;
 import chat.dim.GroupManager;
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.User;
@@ -79,7 +80,9 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         }
 
         // save group name
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        SharedMessenger messenger = shared.messenger;
         String oldName = facebook.getName(identifier);
         String newName = groupName.getText().toString();
         if (oldName == null || !oldName.equals(newName)) {

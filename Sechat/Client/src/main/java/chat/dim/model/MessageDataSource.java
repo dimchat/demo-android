@@ -30,8 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -84,8 +85,9 @@ public class MessageDataSource implements Observer {
         Map info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
-            Messenger messenger = Messenger.getInstance();
-            Facebook facebook = messenger.getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
+            SharedMessenger messenger = shared.messenger;
             ID entity = ID.parse(info.get("ID"));
             if (entity.isUser()) {
                 // check user
@@ -100,12 +102,12 @@ public class MessageDataSource implements Observer {
             if (incoming != null) {
                 List<ReliableMessage> responses;
                 for (ReliableMessage item : incoming) {
-                    responses = messenger.processMessage(item);
+                    responses = messenger.processReliableMessage(item);
                     if (responses == null || responses.size() == 0) {
                         continue;
                     }
                     for (ReliableMessage res : responses) {
-                        messenger.sendMessage(res, Departure.Priority.SLOWER.value);
+                        messenger.sendReliableMessage(res, Departure.Priority.SLOWER.value);
                     }
                 }
             }
@@ -114,7 +116,7 @@ public class MessageDataSource implements Observer {
             List<InstantMessage> outgoing = outgoingMessages.remove(entity);
             if (outgoing != null) {
                 for (InstantMessage item : outgoing) {
-                    messenger.sendMessage(item, Departure.Priority.SLOWER.value);
+                    messenger.sendInstantMessage(item, Departure.Priority.SLOWER.value);
                 }
             }
         }
@@ -167,8 +169,8 @@ public class MessageDataSource implements Observer {
             // send keys again
             ID me = iMsg.getReceiver();
             ID group = content.getGroup();
-            Messenger messenger = Messenger.getInstance();
-            SymmetricKey key = messenger.getCipherKeyDelegate().getCipherKey(me, group, false);
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SymmetricKey key = shared.mdb.getCipherKey(me, group, false);
             if (key != null) {
                 //key.put("reused", null);
                 key.remove("reused");

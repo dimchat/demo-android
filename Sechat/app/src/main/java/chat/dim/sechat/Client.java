@@ -4,25 +4,45 @@ import android.content.ContextWrapper;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import chat.dim.network.Terminal;
+import chat.dim.ClientMessenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
+import chat.dim.SharedPacker;
+import chat.dim.SharedProcessor;
+import chat.dim.Terminal;
+import chat.dim.dbi.SessionDBI;
+import chat.dim.mkm.User;
+import chat.dim.model.NetworkDatabase;
+import chat.dim.network.ClientSession;
+import chat.dim.network.SessionState;
+import chat.dim.network.StateMachine;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.GroupViewModel;
+import chat.dim.sqlite.dim.ProviderTable;
+import chat.dim.threading.BackgroundThreads;
+import chat.dim.utils.Log;
 
 public final class Client extends Terminal implements Observer {
 
-    private static final Client ourInstance = new Client();
-    public static Client getInstance() { return ourInstance; }
-    private Client() {
-        super();
+    public Client(SharedFacebook facebook, SessionDBI database) {
+        super(facebook, database);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MembersUpdated);
+    }
+
+    public static Client getInstance() {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        return (Client) shared.terminal;
     }
 
     @Override
@@ -104,10 +124,142 @@ public final class Client extends Terminal implements Observer {
         return android.os.Build.MANUFACTURER;
     }
 
+    @Override
+    protected ClientMessenger createMessenger(ClientSession session) {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        // 1. create messenger with session and MessageDB
+        SharedMessenger messenger = new SharedMessenger(session, facebook, shared.mdb);
+        // 2. create packer, processor for messenger
+        //    they have weak references to facebook & messenger
+        messenger.setPacker(new SharedPacker(facebook, messenger));
+        messenger.setProcessor(new SharedProcessor(facebook, messenger));
+        // 3. set weak reference to messenger
+        session.setMessenger(messenger);
+        shared.messenger = messenger;
+        return messenger;
+    }
+
     public void startChat(ID entity) {
         Map<String, Object> info = new HashMap<>();
         info.put("ID", entity);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.StartChat, this, info);
+    }
+
+    //--------
+
+    private void startServer(ProviderTable.StationInfo stationInfo) {
+        ID identifier = stationInfo.identifier;
+        String name = stationInfo.name;
+        String host = stationInfo.host;
+        int port = stationInfo.port;
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("ID", identifier);
+        options.put("host", host);
+        options.put("port", port);
+
+        if (host != null) {
+            options.put("LongLinkAddress", "dim.chat");
+            List<String> list = new ArrayList<>();
+            list.add(stationInfo.host);
+            Map<String, Object> ipTable = new HashMap<>();
+            ipTable.put("dim.chat", list);
+            options.put("NewDNS", ipTable);
+        }
+        if (port != 0) {
+            options.put("LongLinkPort", stationInfo.port);
+        }
+
+        // TODO: config FTP server
+
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+
+        // FIXME: debug
+        //host = "192.168.31.91";
+        host = "106.52.25.169";
+        port = 9394;
+
+        // connect server
+        connect(host, port);
+
+        // get user from database and login
+        User user = facebook.getCurrentUser();
+        if (user != null) {
+            login(user.getIdentifier());
+        }
+    }
+
+    private void startServer() {
+        NetworkDatabase database = NetworkDatabase.getInstance();
+        List<ProviderTable.ProviderInfo> providers = database.allProviders();
+        if (providers.size() > 0) {
+            // choose the default sp
+            ProviderTable.ProviderInfo sp = providers.get(0);
+            List<ProviderTable.StationInfo> stations = database.allStations(sp.identifier);
+            if (stations != null && stations.size() > 0) {
+                // choose the default station
+                ProviderTable.StationInfo srv = stations.get(0);
+                startServer(srv);
+            }
+        }
+    }
+
+    //-------- AppDelegate
+
+    public void launch(Map<String, Object> options) {
+        Log.info("launch client: " + options);
+
+
+        //
+        //  launch server in background
+        //
+        BackgroundThreads.rush(this::startServer);
+
+
+        // TODO: notice("DocumentUpdated")
+
+        // APNs?
+        // Icon badge?
+    }
+
+
+    //
+    //  FSM Delegate
+    //
+
+    @Override
+    public void enterState(SessionState next, StateMachine ctx) {
+        super.enterState(next, ctx);
+        // called after state changed
+    }
+
+    @Override
+    public void exitState(SessionState previous, StateMachine ctx) {
+        super.exitState(previous, ctx);
+        // called after state changed
+        Log.info("state changed: " + previous + " => " + ctx.getCurrentState());
+        SessionState current = ctx.getCurrentState();
+        Log.info("server state changed: " + previous + " -> " + current);
+        if (current == null) {
+            return;
+        }
+        Map<String, Object> info = new HashMap<>();
+        info.put("state", current.name);
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.postNotification(NotificationNames.ServerStateChanged, this, info);
+    }
+
+    @Override
+    public void pauseState(SessionState current, StateMachine ctx) {
+        super.pauseState(current, ctx);
+    }
+
+    @Override
+    public void resumeState(SessionState current, StateMachine ctx) {
+        super.resumeState(current, ctx);
+        // TODO: clear session key for re-login?
     }
 }

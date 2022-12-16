@@ -3,7 +3,8 @@ package chat.dim.sechat.account;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedMessenger;
 import chat.dim.crypto.AsymmetricKey;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
@@ -49,7 +50,8 @@ public class AccountViewModel extends UserViewModel {
         if (!getFacebook().saveDocument(visa)) {
             return;
         }
-        Messenger messenger = Messenger.getInstance();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
         // upload to server
         Meta meta = getFacebook().getMeta(identifier);
         messenger.postDocument(visa, meta);
@@ -208,7 +210,7 @@ public class AccountViewModel extends UserViewModel {
         ID identifier = ID.generate(meta, network, null);
 
         // save private key with user ID
-        if (!getFacebook().savePrivateKey(privateKey, identifier, "M")) {
+        if (!getFacebook().savePrivateKey(privateKey, "M", identifier)) {
             return null;
         }
 
@@ -217,7 +219,7 @@ public class AccountViewModel extends UserViewModel {
             msgKey = null;
         } else {
             PrivateKey rsaKey = PrivateKey.generate(AsymmetricKey.RSA);
-            if (!getFacebook().savePrivateKey(rsaKey, identifier, "P")) {
+            if (!getFacebook().savePrivateKey(rsaKey, "P", identifier)) {
                 return null;
             }
             msgKey = (EncryptKey) rsaKey.getPublicKey();

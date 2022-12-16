@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
@@ -35,7 +35,8 @@ public class ContactList extends DummyList<ContactList.Item> {
     public synchronized void reloadData() {
         clearItems();
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user != null) {
             List<ID> contacts = user.getContacts();
@@ -88,7 +89,8 @@ public class ContactList extends DummyList<ContactList.Item> {
         }
 
         String getTitle() {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             // TODO: show group title with format "group name (members count)"
             return facebook.getName(identifier);
         }
@@ -99,7 +101,8 @@ public class ContactList extends DummyList<ContactList.Item> {
             }
             LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
             if (cmd != null) {
-                Facebook facebook = Messenger.getInstance().getFacebook();
+                GlobalVariable shared = GlobalVariable.getInstance();
+                SharedFacebook facebook = shared.facebook;
                 Map<String, Object> info = cmd.getStation();
                 ID sid = ID.parse(info.get("ID"));
                 Date time = cmd.getTime();

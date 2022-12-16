@@ -11,17 +11,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
-import chat.dim.network.ServerState;
+import chat.dim.network.SessionState;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.Visa;
 import chat.dim.sechat.account.AccountFragment;
 import chat.dim.sechat.chatbox.ChatboxActivity;
 import chat.dim.sechat.contacts.ContactFragment;
@@ -82,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     private User checkCurrentUser() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user == null) {
             // show register
@@ -94,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
     }
 
     public static void startChat(ID entity, Context context) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         if (entity.isUser()) {
             if (facebook.getUser(entity) == null) {
                 Alert.tips(context, "User not ready");
@@ -118,17 +119,17 @@ public class MainActivity extends AppCompatActivity implements Observer {
         CharSequence status;
         if (serverState == null) {
             status = "...";
-        } else if (serverState.equals(ServerState.DEFAULT)) {
+        } else if (serverState.equals(SessionState.DEFAULT)) {
             status = getText(R.string.server_default);
-        } else if (serverState.equals(ServerState.CONNECTING)) {
+        } else if (serverState.equals(SessionState.CONNECTING)) {
             status = getText(R.string.server_connecting);
-        } else if (serverState.equals(ServerState.CONNECTED)) {
+        } else if (serverState.equals(SessionState.CONNECTED)) {
             status = getText(R.string.server_connected);
-        } else if (serverState.equals(ServerState.HANDSHAKING)) {
+        } else if (serverState.equals(SessionState.HANDSHAKING)) {
             status = getText(R.string.server_handshaking);
-        } else if (serverState.equals(ServerState.ERROR)) {
+        } else if (serverState.equals(SessionState.ERROR)) {
             status = getText(R.string.server_error);
-        } else if (serverState.equals(ServerState.RUNNING)) {
+        } else if (serverState.equals(SessionState.RUNNING)) {
             status = null;
         } else {
             status = "?";
@@ -196,11 +197,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
             Meta meta = user.getMeta();
             if (meta == null) {
                 throw new NullPointerException("failed to get user meta: " + user);
-            }
-            Visa visa = user.getVisa();
-            if (visa != null) {
-                Messenger messenger = Messenger.getInstance();
-                messenger.postDocument(visa, meta);
             }
 //            //将用户地址设为别名
 //            JPushManager.getInstance().setAlias(user.identifier.getAddress().toString());

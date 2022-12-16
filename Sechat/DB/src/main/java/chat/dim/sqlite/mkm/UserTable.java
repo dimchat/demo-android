@@ -63,7 +63,7 @@ public final class UserTable extends DataTable implements chat.dim.database.User
     //
 
     @Override
-    public List<ID> allUsers() {
+    public List<ID> getLocalUsers() {
         if (users != null) {
             return users;
         }
@@ -81,6 +81,21 @@ public final class UserTable extends DataTable implements chat.dim.database.User
             e.printStackTrace();
         }
         return users;
+    }
+
+    @Override
+    public boolean saveLocalUsers(List<ID> users) {
+        throw new NoSuchMethodError("implement me!");
+    }
+
+    @Override
+    public List<ID> getContacts(ID user) {
+        throw new AssertionError("Call ContactTable!");
+    }
+
+    @Override
+    public boolean saveContacts(List<ID> contacts, ID user) {
+        throw new AssertionError("Call ContactTable!");
     }
 
     private boolean isUserExists(ID user) {

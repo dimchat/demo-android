@@ -2,6 +2,8 @@ package chat.dim.sechat.settings.station;
 
 import java.util.List;
 
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
@@ -33,7 +35,9 @@ public class StationViewModel extends UserViewModel {
                 return null;
             }
         }
-        return getFacebook().getName(spid);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        return facebook.getName(spid);
     }
 
     public static ProviderTable.StationInfo getCurrentStationInfo() {
@@ -54,7 +58,9 @@ public class StationViewModel extends UserViewModel {
         if (info == null || info.identifier == null) {
             return null;
         }
-        return getFacebook().getName(info.identifier);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        return facebook.getName(info.identifier);
     }
 
     static List<ProviderTable.StationInfo> getStations(ID sp) {
@@ -86,8 +92,10 @@ public class StationViewModel extends UserViewModel {
                 }
             }
         }
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         stations = null;
-        return database.addStation(sp, station, host, port, getFacebook().getName(station), 0);
+        return database.addStation(sp, station, host, port, facebook.getName(station), 0);
     }
 
     static boolean chooseStation(ID station) {

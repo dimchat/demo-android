@@ -33,13 +33,12 @@ package chat.dim.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.core.CipherKeyDelegate;
 import chat.dim.crypto.PlainKey;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.MsgKeyTable;
 import chat.dim.protocol.ID;
 
-public final class KeyStore implements CipherKeyDelegate {
+public final class KeyStore implements MsgKeyTable {
 
     private static final KeyStore ourInstance = new KeyStore();
     public static KeyStore getInstance() { return ourInstance; }
@@ -75,14 +74,14 @@ public final class KeyStore implements CipherKeyDelegate {
             }
         }
         // try from database
-        key = keyTable.getKey(sender, receiver);
+        key = keyTable.getCipherKey(sender, receiver, generate);
         if (key != null) {
             // cache it
             table.put(receiver, key);
         } else if (generate) {
             // generate new key and store it
             key = SymmetricKey.generate(SymmetricKey.AES);
-            keyTable.addKey(sender, receiver, key);
+            keyTable.cacheCipherKey(sender, receiver, key);
             // cache it
             table.put(receiver, key);
         }
@@ -96,14 +95,13 @@ public final class KeyStore implements CipherKeyDelegate {
             return;
         }
         // save into database
-        if (keyTable.addKey(sender, receiver, key)) {
-            // store into memory cache
-            Map<ID, SymmetricKey> table = keyMap.get(sender);
-            if (table == null) {
-                table = new HashMap<>();
-                keyMap.put(sender, table);
-            }
-            table.put(receiver, key);
+        keyTable.cacheCipherKey(sender, receiver, key);
+        // store into memory cache
+        Map<ID, SymmetricKey> table = keyMap.get(sender);
+        if (table == null) {
+            table = new HashMap<>();
+            keyMap.put(sender, table);
         }
+        table.put(receiver, key);
     }
 }

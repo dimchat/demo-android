@@ -28,8 +28,8 @@ package chat.dim.model;
 import java.util.Date;
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.protocol.ContentType;
@@ -63,7 +63,8 @@ public class Conversation {
     }
 
     public String getTitle() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         ID identifier = entity.getIdentifier();
         String name = facebook.getName(identifier);
         if (identifier.isGroup()) {

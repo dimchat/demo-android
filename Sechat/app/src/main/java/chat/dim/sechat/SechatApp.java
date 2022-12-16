@@ -8,9 +8,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
-import chat.dim.cpu.LoginCommandProcessor;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
+import chat.dim.common.KeyStore;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.format.Base64;
 import chat.dim.format.DataCoder;
@@ -18,12 +18,10 @@ import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.NetworkDatabase;
-//import chat.dim.sechat.push.jpush.JPushManager;
 import chat.dim.sqlite.Database;
 import chat.dim.sqlite.ans.AddressNameTable;
 import chat.dim.sqlite.dim.LoginTable;
 import chat.dim.sqlite.dim.ProviderTable;
-import chat.dim.sqlite.dkd.MessageDatabase;
 import chat.dim.sqlite.dkd.MessageTable;
 import chat.dim.sqlite.key.MsgKeyTable;
 import chat.dim.sqlite.key.PrivateKeyTable;
@@ -52,31 +50,34 @@ public final class SechatApp extends Application {
         // set context for databases
         Database.context = this;
 
-        chat.dim.common.Facebook.ansTable = AddressNameTable.getInstance();
+        SharedFacebook.ansTable = AddressNameTable.getInstance();
+        KeyStore keyStore = KeyStore.getInstance();
+        keyStore.keyTable = MsgKeyTable.getInstance();
 
-        Facebook facebook = Facebook.getInstance();
-        Messenger messenger = Messenger.getInstance();
+        GlobalVariable shared = GlobalVariable.getInstance();
 
-        EntityDatabase.facebook = facebook;
-        MessageDatabase.messenger = messenger;
+        EntityDatabase.facebook = shared.facebook;
+        //MessageDatabase.messenger = messenger;
 
         // tables
         NetworkDatabase netDB = NetworkDatabase.getInstance();
         netDB.providerTable = ProviderTable.getInstance();
 
-        facebook.privateTable = PrivateKeyTable.getInstance();
-        facebook.metaTable = MetaTable.getInstance();
-        facebook.docsTable = DocumentTable.getInstance();
-        facebook.userTable = UserTable.getInstance();
-        facebook.contactTable = ContactTable.getInstance();
-        facebook.groupTable = GroupTable.getInstance();
+        shared.database.privateKeyTable = PrivateKeyTable.getInstance();
+        shared.database.metaTable = MetaTable.getInstance();
+        shared.database.documentTable = DocumentTable.getInstance();
+        shared.database.userTable = UserTable.getInstance();
+        shared.database.contactTable = ContactTable.getInstance();
+        shared.database.groupTable = GroupTable.getInstance();
+
+        shared.database.msgKeyTable = keyStore;
+        shared.database.loginTable = LoginTable.getInstance();
+        shared.database.providerTable = ProviderTable.getInstance();
 
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
 
-        messenger.getKeyStore().keyTable = MsgKeyTable.getInstance();
-
-        LoginCommandProcessor.loginTable = LoginTable.getInstance();
+        shared.terminal = new Client(shared.facebook, shared.sdb);
     }
 
     @Override
@@ -92,13 +93,17 @@ public final class SechatApp extends Application {
     @Override
     protected void onEnterForeground(Activity activity) {
         Client client = Client.getInstance();
-        client.enterForeground();
+        if (client != null) {
+            client.enterForeground();
+        }
     }
 
     @Override
     protected void onEnterBackground(Activity activity) {
         Client client = Client.getInstance();
-        client.enterBackground();
+        if (client != null) {
+            client.enterBackground();
+        }
     }
 
     public static boolean launch(android.app.Application app, Activity activity) {

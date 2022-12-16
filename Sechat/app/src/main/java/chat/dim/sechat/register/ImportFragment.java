@@ -15,8 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -70,8 +71,9 @@ public class ImportFragment extends Fragment {
             return;
         }
 
-        Messenger messenger = Messenger.getInstance();
-        Facebook facebook = messenger.getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        SharedMessenger messenger = shared.messenger;
         User user = facebook.getUser(identifier);
         if (user == null) {
             Alert.tips(activity, R.string.register_account_error);

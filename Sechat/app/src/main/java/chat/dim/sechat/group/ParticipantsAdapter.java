@@ -16,9 +16,9 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.GlobalVariable;
 import chat.dim.Register;
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.SharedFacebook;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
@@ -32,6 +32,7 @@ import chat.dim.sechat.group.invite.InviteActivity;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.threading.MainThread;
+import chat.dim.type.Pair;
 import chat.dim.ui.Alert;
 
 public class ParticipantsAdapter extends ArrayAdapter<ID> {
@@ -74,7 +75,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void invite() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
@@ -103,7 +105,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
     }
 
     private void expel() {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user == null) {
             Alert.tips(getContext(), "Current user not found");
@@ -166,17 +169,19 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
                     MainThread.call(this::refresh);
                 }
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                Facebook facebook = Messenger.getInstance().getFacebook();
-                String avatar = facebook.getAvatar(identifier);
+                GlobalVariable shared = GlobalVariable.getInstance();
+                SharedFacebook facebook = shared.facebook;
+                Pair<String, String> avatars = facebook.getAvatar(identifier);
                 String path = (String) info.get("path");
-                if (avatar != null && avatar.equals(path)) {
+                if (avatars.first != null && avatars.first.equals(path)) {
                     MainThread.call(this::refresh);
                 }
             }
         }
 
         private void refresh() {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             String nickname = facebook.getName(identifier);
             nameView.setText(nickname);
 

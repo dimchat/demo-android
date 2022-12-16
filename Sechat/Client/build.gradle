@@ -5,11 +5,9 @@ dependencies {
 
     implementation project(':Common')
 
-    implementation group: 'chat.dim', name: 'SDK', version: '0.8.1'
-    implementation group: 'chat.dim', name: 'Plugins', version: '0.4.1'
+    implementation group: 'chat.dim', name: 'Client', version: '0.0.1'
 
     implementation group: 'chat.dim', name: 'StarGate', version: '0.3.16'
-    implementation group: 'chat.dim', name: 'DOS', version: '0.1.2'
     implementation group: 'chat.dim', name: 'LNC', version: '0.1.0'
 }
 

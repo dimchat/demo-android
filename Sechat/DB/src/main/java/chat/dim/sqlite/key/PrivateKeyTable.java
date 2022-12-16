@@ -90,7 +90,7 @@ public final class PrivateKeyTable extends DataTable implements chat.dim.databas
     }
 
     @Override
-    public boolean savePrivateKey(ID user, PrivateKey key, String type) {
+    public boolean savePrivateKey(PrivateKey key, String type, ID user) {
         if (key instanceof DecryptKey) {
             return savePrivateKey(user, key, type, 1, 1);
         } else {

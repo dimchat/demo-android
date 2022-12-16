@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
@@ -81,7 +81,8 @@ public class ConversationList extends DummyList<ConversationList.Item> {
         }
 
         String getTitle() {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             return facebook.getName(chatBox.identifier);
         }
 

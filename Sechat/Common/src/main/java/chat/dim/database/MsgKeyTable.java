@@ -25,12 +25,7 @@
  */
 package chat.dim.database;
 
-import chat.dim.crypto.SymmetricKey;
-import chat.dim.protocol.ID;
+import chat.dim.dbi.CipherKeyDBI;
 
-public interface MsgKeyTable {
-
-    SymmetricKey getKey(ID from, ID to);
-
-    boolean addKey(ID from, ID to, SymmetricKey key);
+public interface MsgKeyTable extends CipherKeyDBI {
 }

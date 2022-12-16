@@ -27,9 +27,10 @@ package chat.dim.database;
 
 import java.util.List;
 
+import chat.dim.dbi.ProviderDBI;
 import chat.dim.protocol.ID;
 
-public interface ProviderTable {
+public interface ProviderTable extends ProviderDBI {
 
     class ProviderInfo {
         public ID identifier;

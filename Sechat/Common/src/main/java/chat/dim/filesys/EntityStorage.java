@@ -1,8 +1,13 @@
 /* license: https://mit-license.org
+ *
+ *  File System
+ *
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2019 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +28,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.network;
+package chat.dim.filesys;
 
-import chat.dim.mkm.Station;
+import chat.dim.protocol.Address;
+import chat.dim.protocol.ID;
 
-public interface ServerDelegate {
+/**
+ *  RAM access
+ */
+public abstract class EntityStorage extends ExternalStorage {
 
     /**
-     *  Callback for handshake accepted
+     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{YY}/{address}/{filename}"
      *
-     * @param sessionKey - session ID
-     * @param server - current station
+     * @param entity   - user or group ID
+     * @param filename - entity file name
+     * @return entity file path
      */
-    void onHandshakeAccepted(String sessionKey, Station server);
+    public static String getEntityFilePath(ID entity, String filename) {
+        String dir = getEntityDirectory(entity.getAddress());
+        return appendPathComponent(dir, filename);
+    }
+
+    public static String getEntityDirectory(ID identifier) {
+        return getEntityDirectory(identifier.getAddress());
+    }
+
+    public static String getEntityDirectory(Address address) {
+        String string = address.toString();
+        String dir = getEntityDirectory();
+        String xx = string.substring(0, 2);
+        String yy = string.substring(2, 4);
+        return appendPathComponent(dir, xx, yy, string);
+    }
+
+    public static String getEntityDirectory() {
+        return appendPathComponent(getRoot(), "mkm");
+    }
 }

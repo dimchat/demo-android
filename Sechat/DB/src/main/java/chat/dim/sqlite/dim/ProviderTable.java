@@ -31,10 +31,12 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
+import chat.dim.type.Triplet;
 
 public final class ProviderTable extends DataTable implements chat.dim.database.ProviderTable {
 
@@ -177,5 +179,29 @@ public final class ProviderTable extends DataTable implements chat.dim.database.
     public boolean removeStations(ID sp) {
         String[] whereArgs = {sp.toString()};
         return delete(MainDatabase.T_STATION, "spid=?", whereArgs) > 0;
+    }
+
+    //
+    //  Provider DBI
+    //
+
+    @Override
+    public Set<Triplet<String, Integer, ID>> allNeighbors() {
+        return null;
+    }
+
+    @Override
+    public ID getNeighbor(String ip, int port) {
+        return null;
+    }
+
+    @Override
+    public boolean addNeighbor(String ip, int port, ID station) {
+        return false;
+    }
+
+    @Override
+    public boolean removeNeighbor(String ip, int port) {
+        return false;
     }
 }

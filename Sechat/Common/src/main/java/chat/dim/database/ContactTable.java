@@ -25,17 +25,12 @@
  */
 package chat.dim.database;
 
-import java.util.List;
-
+import chat.dim.dbi.UserDBI;
 import chat.dim.protocol.ID;
 
-public interface ContactTable {
-
-    List<ID> getContacts(ID user);
+public interface ContactTable extends UserDBI {
 
     boolean addContact(ID contact, ID user);
 
     boolean removeContact(ID contact, ID user);
-
-    boolean saveContacts(List<ID> contacts, ID user);
 }

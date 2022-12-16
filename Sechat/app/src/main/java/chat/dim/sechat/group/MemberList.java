@@ -2,8 +2,8 @@ package chat.dim.sechat.group;
 
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.protocol.ID;
 
 public class MemberList extends CandidateList {
@@ -19,7 +19,8 @@ public class MemberList extends CandidateList {
     public synchronized void reloadData() {
         clearItems();
 
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         List<ID> members = facebook.getMembers(group);
         if (members != null) {
             for (ID member : members) {

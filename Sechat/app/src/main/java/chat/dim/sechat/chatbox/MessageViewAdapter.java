@@ -14,16 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.filesys.ExternalStorage;
-import chat.dim.http.HTTPClient;
+import chat.dim.filesys.LocalCache;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -177,13 +176,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             if (filename == null) {
                 return;
             }
-            String path;
-            try {
-                path = ExternalStorage.getCacheFilePath(filename);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+            String path = LocalCache.getCacheFilePath(filename);
             if (ExternalStorage.exists(path)) {
                 Log.info("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
@@ -193,20 +186,15 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showImage(InstantMessage iMsg, Context context) {
         if (iMsg.getContent() instanceof ImageContent) {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             ImageContent content = (ImageContent) iMsg.getContent();
             showImage(content.getFilename(), facebook.getName(iMsg.getSender()), context);
         }
     }
 
     private void showImage(String filename, String sender, Context context) {
-        String path;
-        try {
-            path = HTTPClient.getCachePath(filename);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
+        String path = LocalCache.getCacheFilePath(filename);
         if (!ExternalStorage.exists(path)) {
             return;
         }
@@ -236,7 +224,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         // name
         if (viewHolder.nameView != null) {
-            Facebook facebook = Messenger.getInstance().getFacebook();
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedFacebook facebook = shared.facebook;
             String name = facebook.getName(sender);
             viewHolder.nameView.setText(name);
         }

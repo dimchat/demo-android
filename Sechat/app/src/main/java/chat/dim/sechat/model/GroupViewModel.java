@@ -34,7 +34,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.GlobalVariable;
 import chat.dim.GroupManager;
+import chat.dim.SharedFacebook;
+import chat.dim.filesys.EntityStorage;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
@@ -62,8 +65,10 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             return null;
         }
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         ID owner = group.getOwner();
-        return getFacebook().getName(owner);
+        return facebook.getName(owner);
     }
 
     public List<ID> getMembers() {
@@ -116,13 +121,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        String path;
-        try {
-            path = ExternalStorage.getEntityFilePath(group, "logo.png");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        String path = EntityStorage.getEntityFilePath(group, "logo.png");
         BackgroundThreads.wait(() -> {
             try {
                 Bitmap bitmap = drawLogo(group);
@@ -130,7 +129,7 @@ public class GroupViewModel extends EntityViewModel {
                     return;
                 }
                 byte[] png = Images.png(bitmap);
-                if (ExternalStorage.saveData(png, path)) {
+                if (ExternalStorage.saveBinary(png, path) == png.length) {
                     logos.put(group, path);
                 }
             } catch (IOException e) {

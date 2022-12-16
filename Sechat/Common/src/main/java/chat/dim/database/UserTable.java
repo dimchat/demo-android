@@ -25,14 +25,11 @@
  */
 package chat.dim.database;
 
-import java.util.List;
-
+import chat.dim.dbi.UserDBI;
 import chat.dim.protocol.ID;
 
 
-public interface UserTable {
-
-    List<ID> allUsers();
+public interface UserTable extends UserDBI {
 
     boolean addUser(ID user);
 

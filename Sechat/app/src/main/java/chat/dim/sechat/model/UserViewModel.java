@@ -37,6 +37,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sqlite.dim.LoginTable;
+import chat.dim.type.Pair;
 import chat.dim.ui.image.Images;
 
 public class UserViewModel extends EntityViewModel {
@@ -54,10 +55,10 @@ public class UserViewModel extends EntityViewModel {
     }
 
     public static Bitmap getAvatar(ID identifier) {
-        String avatar = getFacebook().getAvatar(identifier);
-        if (avatar != null) {
+        Pair<String, String> avatars = getFacebook().getAvatar(identifier);
+        if (avatars.first != null) {
             try {
-                return Images.bitmapFromPath(avatar, new Images.Size(128, 128));
+                return Images.bitmapFromPath(avatars.first, new Images.Size(128, 128));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -77,11 +78,11 @@ public class UserViewModel extends EntityViewModel {
         if (identifier == null) {
             return null;
         }
-        String avatar = getFacebook().getAvatar(identifier);
-        if (avatar == null) {
+        Pair<String, String> avatars = getFacebook().getAvatar(identifier);
+        if (avatars.first == null) {
             return null;
         }
-        return Uri.parse(avatar);
+        return Uri.parse(avatars.first);
     }
 
     public boolean containsContact(ID contact) {

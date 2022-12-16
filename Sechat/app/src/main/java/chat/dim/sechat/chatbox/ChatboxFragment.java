@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,28 +21,30 @@ import android.widget.ImageButton;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedMessenger;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.LocalCache;
 import chat.dim.format.Hex;
-import chat.dim.mkm.User;
 import chat.dim.model.Conversation;
+import chat.dim.model.MessageDataSource;
 import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
-import chat.dim.sechat.Client;
+import chat.dim.protocol.ReliableMessage;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
+import chat.dim.type.Pair;
 import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
@@ -122,31 +125,19 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     //  Send Message
     //
 
-    private void sendMessage(InstantMessage iMsg) {
-        Messenger messenger = Messenger.getInstance();
-        if (!messenger.sendMessage(iMsg, 0)) {
-            throw new RuntimeException("failed to send message: " + iMsg);
-        }
-    }
-
     private void sendContent(chat.dim.protocol.Content content) {
-        Client client = Client.getInstance();
-        User user = client.getCurrentUser();
-        if (user == null) {
-            throw new NullPointerException("current user cannot be empty");
-        }
         if (chatBox == null) {
             throw new NullPointerException("conversation ID should not be empty");
         }
-        // pack message content
-        ID sender = user.getIdentifier();
         ID receiver = chatBox.identifier;
-        if (receiver.isGroup()) {
-            content.setGroup(receiver);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
+        Pair<InstantMessage, ReliableMessage> result;
+        result = messenger.sendContent(null, receiver, content, 0);
+        if (result.second != null) {
+            MessageDataSource mds = MessageDataSource.getInstance();
+            mds.saveMessage(result.first);
         }
-        Envelope env = Envelope.create(sender, receiver, null);
-        InstantMessage iMsg = InstantMessage.create(env, content);
-        sendMessage(iMsg);
     }
 
     private void send() {
@@ -291,12 +282,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     private final String mp4FilePath = getTemporaryFilePath();
 
     private static String getTemporaryFilePath() {
-        try {
-            return ExternalStorage.getTemporaryFilePath("audio.mp4");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return LocalCache.getTemporaryFilePath("audio.mp4");
     }
 
     private void startRecord() {
@@ -321,7 +307,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         String path = recorder.stopRecord();
         if (path != null && ExternalStorage.exists(path)) {
             try {
-                byte[] mp4 = ExternalStorage.loadData(path);
+                byte[] mp4 = LocalCache.loadBinary(path);
                 sendVoice(mp4, recorder.getDuration());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -336,8 +322,8 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         }
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
         try {
-            String path = ExternalStorage.getCacheFilePath(filename);
-            ExternalStorage.saveData(mp4, path);
+            String path = LocalCache.getCacheFilePath(filename);
+            LocalCache.saveBinary(mp4, path);
         } catch (IOException e) {
             e.printStackTrace();
         }

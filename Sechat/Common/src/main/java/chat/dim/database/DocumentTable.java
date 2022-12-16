@@ -25,12 +25,7 @@
  */
 package chat.dim.database;
 
-import chat.dim.protocol.Document;
-import chat.dim.protocol.ID;
+import chat.dim.dbi.DocumentDBI;
 
-public interface DocumentTable {
-
-    boolean saveDocument(Document doc);
-
-    Document getDocument(ID entity, String type);
+public interface DocumentTable extends DocumentDBI {
 }

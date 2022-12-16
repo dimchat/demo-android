@@ -17,8 +17,8 @@ import android.widget.TextView;
 
 import java.util.Map;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -76,19 +76,15 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     @Override
     public void onDestroy() {
         Client client = Client.getInstance();
-        client.reportOffline();
+        if (client != null) {
+            client.enterBackground();
 
-        _sleep(2000);
+            _sleep(2000);
 
-        // reconnect to new station
-        try {
-            // reconnect
-            client.launch(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // FIXME:
+            // TODO: reconnect to new station
+
+            client.enterForeground();
         }
-        client.enterForeground();
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.ServiceProviderUpdated);
@@ -129,7 +125,8 @@ public class SettingStationFragment extends ListFragment<StationViewAdapter, Sta
     }
 
     private void showCurrentStation(ProviderTable.StationInfo stationInfo) {
-        Facebook facebook = Messenger.getInstance().getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         String name = facebook.getName(stationInfo.identifier);
         String host = stationInfo.host;
         String port = "" + stationInfo.port;

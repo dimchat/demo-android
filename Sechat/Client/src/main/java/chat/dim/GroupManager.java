@@ -28,8 +28,6 @@ package chat.dim;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.client.Facebook;
-import chat.dim.client.Messenger;
 import chat.dim.mkm.User;
 import chat.dim.port.Departure;
 import chat.dim.protocol.Command;
@@ -47,23 +45,21 @@ public final class GroupManager {
 
     private final ID group;
 
-    public GroupManager(ID group) {
-        this.group = group;
-    }
-
-    private static Messenger getMessenger() {
-        return Messenger.getInstance();
-    }
-    private static Facebook getFacebook() {
-        return getMessenger().getFacebook();
+    public GroupManager(ID gid) {
+        super();
+        group = gid;
     }
 
     // send command to current station
     private static void sendGroupCommand(Command cmd) {
-        getMessenger().sendCommand(cmd, Departure.Priority.NORMAL.value);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
+        messenger.sendCommand(cmd, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, ID receiver) {
-        getMessenger().sendContent(null, receiver, cmd, Departure.Priority.NORMAL.value);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
+        messenger.sendContent(null, receiver, cmd, Departure.Priority.NORMAL.value);
     }
     private static void sendGroupCommand(Command cmd, List<ID> members) {
         if (members == null) {
@@ -82,7 +78,9 @@ public final class GroupManager {
      * @return true on success
      */
     public boolean invite(List<ID> newMembers) {
-        Facebook facebook = getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        SharedMessenger messenger = shared.messenger;
         List<ID> bots = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
         if (members == null) {
@@ -140,7 +138,8 @@ public final class GroupManager {
      * @return true on success
      */
     public boolean expel(List<ID> outMembers) {
-        Facebook facebook = getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         ID owner = facebook.getOwner(group);
         List<ID> bots = facebook.getAssistants(group);
         List<ID> members = facebook.getMembers(group);
@@ -177,7 +176,8 @@ public final class GroupManager {
      * @return true on success
      */
     public boolean quit() {
-        Facebook facebook = getFacebook();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         if (user == null) {
             throw new NullPointerException("failed to get current user");
@@ -216,15 +216,20 @@ public final class GroupManager {
      * @return false on error
      */
     public boolean query() {
-        List<ID> assistants = getFacebook().getAssistants(group);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        SharedMessenger messenger = shared.messenger;
+        List<ID> assistants = facebook.getAssistants(group);
         assert assistants != null : "failed to get assistants for group: " + group;
-        return getMessenger().queryGroupInfo(group, assistants);
+        return messenger.queryGroupInfo(group, assistants);
     }
 
     //-------- local storage
 
     private static List<ID> addMembers(List<ID> newMembers, ID group) {
-        List<ID> members = getFacebook().getMembers(group);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
         for (ID member : newMembers) {
@@ -235,12 +240,14 @@ public final class GroupManager {
             ++count;
         }
         if (count > 0) {
-            getFacebook().saveMembers(members, group);
+            facebook.saveMembers(members, group);
         }
         return members;
     }
     private static boolean removeMembers(List<ID> outMembers, ID group) {
-        List<ID> members = getFacebook().getMembers(group);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+        List<ID> members = facebook.getMembers(group);
         assert members != null : "failed to get members for group: " + group;
         int count = 0;
         for (ID member : outMembers) {
@@ -253,6 +260,6 @@ public final class GroupManager {
         if (count == 0) {
             return false;
         }
-        return getFacebook().saveMembers(members, group);
+        return facebook.saveMembers(members, group);
     }
 }

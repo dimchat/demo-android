@@ -11,7 +11,8 @@ import android.widget.SearchView;
 
 import java.util.Map;
 
-import chat.dim.client.Messenger;
+import chat.dim.GlobalVariable;
+import chat.dim.SharedMessenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -87,10 +88,11 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
         dummyList.clearData();
 
         SearchCommand cmd = new SearchCommand(keywords);
-        Messenger messenger = Messenger.getInstance();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedMessenger messenger = shared.messenger;
 //        return messenger.sendCommand(cmd, StarShip.NORMAL);
         ID bot = ID.parse("archivist@anywhere");
-        return messenger.sendContent(null, bot, cmd, 0);
+        return messenger.sendContent(null, bot, cmd, 0).second != null;
     }
 
     @Override

@@ -25,16 +25,11 @@
  */
 package chat.dim.database;
 
-import java.util.List;
-
-import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
+import chat.dim.dbi.PrivateKeyDBI;
 import chat.dim.protocol.ID;
 
-public interface PrivateKeyTable {
-
-    String META = "M";
-    String VISA = "V";
+public interface PrivateKeyTable extends PrivateKeyDBI {
 
     /**
      *  Save private key for user
@@ -47,30 +42,4 @@ public interface PrivateKeyTable {
      * @return false on error
      */
     boolean savePrivateKey(ID user, PrivateKey key, String type, int sign, int decrypt);
-
-    boolean savePrivateKey(ID user, PrivateKey key, String type);
-
-    /**
-     *  Get private keys for user
-     *
-     * @param user - user ID
-     * @return all keys marked for decryption
-     */
-    List<DecryptKey> getPrivateKeysForDecryption(ID user);
-
-    /**
-     *  Get private key for user
-     *
-     * @param user - user ID
-     * @return first key marked for signature
-     */
-    PrivateKey getPrivateKeyForSignature(ID user);
-
-    /**
-     *  Get private key for user
-     *
-     * @param user - user ID
-     * @return the private key matched with meta.key
-     */
-    PrivateKey getPrivateKeyForVisaSignature(ID user);
 }

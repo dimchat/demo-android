@@ -7,10 +7,9 @@ import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.LocalCache;
 import chat.dim.model.Amanuensis;
 import chat.dim.model.Conversation;
 import chat.dim.notification.Notification;
@@ -143,8 +142,8 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
     //
 
     @Override
-    protected String getTemporaryDirectory() throws IOException {
-        return ExternalStorage.getTemporaryDirectory();
+    protected String getTemporaryDirectory() {
+        return LocalCache.getTemporaryDirectory();
     }
 
     @Override
