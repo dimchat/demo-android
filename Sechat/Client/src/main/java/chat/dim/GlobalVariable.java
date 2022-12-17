@@ -22,8 +22,8 @@ public enum  GlobalVariable {
         database = db;
         facebook = new SharedFacebook(db);
 
-        FtpServer ftp = FtpServer.getInstance();
         HTTPClient http = HTTPClient.getInstance();
+        FtpServer ftp = FtpServer.getInstance();
         http.setDelegate(ftp);
     }
 

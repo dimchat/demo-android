@@ -45,6 +45,9 @@ import chat.dim.crypto.VerifyKey;
 import chat.dim.filesys.Paths;
 import chat.dim.filesys.Resource;
 import chat.dim.format.JSON;
+import chat.dim.format.UTF8;
+import chat.dim.mkm.BaseUser;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -91,7 +94,7 @@ public final class Immortals implements User.DataSource {
         Resource resource = new Resource();
         resource.read(path);
         byte[] data = resource.getData();
-        return (Map) JSON.decode(data);
+        return (Map) JSON.decode(UTF8.decode(data));
     }
 
     private void loadBuiltInAccount(ID identifier) throws IOException {
@@ -175,7 +178,7 @@ public final class Immortals implements User.DataSource {
     }
 
     private boolean cache(Meta meta, ID identifier) {
-        assert meta.matches(identifier) : "meta not match: " + identifier + ", " + meta;
+        assert Meta.matches(identifier, meta) : "meta not match: " + identifier + ", " + meta;
         metaMap.put(identifier, meta);
         return true;
     }
@@ -196,7 +199,7 @@ public final class Immortals implements User.DataSource {
         if (user.getDataSource() == null) {
             user.setDataSource(this);
         }
-        userMap.put(user.identifier, user);
+        userMap.put(user.getIdentifier(), user);
         return true;
     }
 
@@ -217,7 +220,7 @@ public final class Immortals implements User.DataSource {
         if (user == null) {
             // only create exists account
             if (idMap.containsValue(identifier)) {
-                user = new User(identifier);
+                user = new BaseUser(identifier);
                 boolean OK = cache(user);
                 assert OK : "failed to cache user: " + user;
             }

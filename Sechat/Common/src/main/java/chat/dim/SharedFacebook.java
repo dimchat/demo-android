@@ -248,9 +248,6 @@ public final class SharedFacebook extends CommonFacebook {
 
     static {
 
-        // load plugins
-        chat.dim.Plugins.registerAllPlugins();
-
         identifierFactory = ID.getFactory();
         ID.setFactory(new ID.Factory() {
 
