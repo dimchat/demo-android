@@ -104,6 +104,9 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
 
     @Override
     public Document getDocument(ID entity, String type) {
+        if (type == null || type.length() == 0) {
+            type = "*";
+        }
         // 1. try from memory cache
         Document doc = docsTable.get(entity.toString());
         if (doc == null) {
@@ -132,6 +135,14 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         if (doc == empty) {
             return null;
         }
+        if (type.equals("*")) {
+            if (entity.isGroup()) {
+                type = Document.BULLETIN;
+            } else {
+                type = Document.VISA;
+            }
+        }
+        doc.put("type", type);
         return doc;
     }
 }

@@ -29,10 +29,7 @@ import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.ContentType;
-import chat.dim.protocol.HandshakeCommand;
-import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.MuteCommand;
-import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
 
@@ -59,12 +56,6 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
 
     @Override
     public ContentProcessor createCommandProcessor(int type, String command) {
-        // handshake, login
-        if (HandshakeCommand.HANDSHAKE.equals(command)) {
-            return new HandshakeCommandProcessor(getFacebook(), getMessenger());
-        } else if (LoginCommand.LOGIN.equals(command)) {
-            return new LoginCommandProcessor(getFacebook(), getMessenger());
-        }
         // storage (contacts, private_key)
         if (StorageCommand.STORAGE.equals(command)) {
             return new StorageCommandProcessor(getFacebook(), getMessenger());
@@ -76,10 +67,6 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
         } else if (SearchCommand.ONLINE_USERS.equals(command)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
-        }
-        // receipt
-        if (ReceiptCommand.RECEIPT.equals(command)) {
-            return new ReceiptCommandProcessor(getFacebook(), getMessenger());
         }
         // mute
         if (MuteCommand.MUTE.equals(command)) {

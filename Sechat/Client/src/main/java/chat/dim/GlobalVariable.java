@@ -6,7 +6,7 @@ import chat.dim.dbi.SessionDBI;
 import chat.dim.http.HTTPClient;
 import chat.dim.network.FtpServer;
 
-public enum  GlobalVariable {
+public enum GlobalVariable {
 
     INSTANCE;
 
@@ -22,9 +22,12 @@ public enum  GlobalVariable {
         database = db;
         facebook = new SharedFacebook(db);
 
+        CryptoPlugins.registerCryptoPlugins();
+
         HTTPClient http = HTTPClient.getInstance();
         FtpServer ftp = FtpServer.getInstance();
         http.setDelegate(ftp);
+        http.start();
     }
 
     public AccountDBI adb;

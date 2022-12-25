@@ -10,12 +10,15 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.ClientMessenger;
+import chat.dim.CommonFacebook;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
 import chat.dim.SharedPacker;
 import chat.dim.SharedProcessor;
 import chat.dim.Terminal;
+import chat.dim.core.Packer;
+import chat.dim.core.Processor;
 import chat.dim.dbi.SessionDBI;
 import chat.dim.mkm.User;
 import chat.dim.model.NetworkDatabase;
@@ -125,19 +128,20 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
-    protected ClientMessenger createMessenger(ClientSession session) {
+    protected Packer createPacker(CommonFacebook facebook, ClientMessenger messenger) {
+        return new SharedPacker(facebook, messenger);
+    }
+
+    @Override
+    protected Processor createProcessor(CommonFacebook facebook, ClientMessenger messenger) {
+        return new SharedProcessor(facebook, messenger);
+    }
+
+    @Override
+    protected ClientMessenger createMessenger(ClientSession session, CommonFacebook facebook) {
         GlobalVariable shared = GlobalVariable.getInstance();
-        SharedFacebook facebook = shared.facebook;
-        // 1. create messenger with session and MessageDB
-        SharedMessenger messenger = new SharedMessenger(session, facebook, shared.mdb);
-        // 2. create packer, processor for messenger
-        //    they have weak references to facebook & messenger
-        messenger.setPacker(new SharedPacker(facebook, messenger));
-        messenger.setProcessor(new SharedProcessor(facebook, messenger));
-        // 3. set weak reference to messenger
-        session.setMessenger(messenger);
-        shared.messenger = messenger;
-        return messenger;
+        shared.messenger = new SharedMessenger(session, facebook, shared.mdb);
+        return shared.messenger;
     }
 
     public void startChat(ID entity) {

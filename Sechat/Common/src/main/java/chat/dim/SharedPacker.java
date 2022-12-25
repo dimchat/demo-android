@@ -28,7 +28,7 @@ package chat.dim;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.ReliableMessage;
 
-public class SharedPacker extends CommonPacker {
+public class SharedPacker extends ClientMessagePacker {
 
     public static final int MTP_JSON = 0x01;
     public static final int MTP_DMTP = 0x02;

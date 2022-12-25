@@ -33,7 +33,7 @@ import chat.dim.model.MessageDataSource;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 
-public class SharedProcessor extends ClientProcessor {
+public class SharedProcessor extends ClientMessageProcessor {
 
     public SharedProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
