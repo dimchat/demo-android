@@ -19,7 +19,6 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -83,15 +82,15 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             return;
         }
 
-        Group group;
+        ID group;
         if (identifier.isGroup()) {
             if (!facebook.containsMember(user.getIdentifier(), identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
-            group = facebook.getGroup(identifier);
+            group = identifier;
         } else {
-            Register register = new Register();
+            Register register = new Register(facebook.getDatabase());
             group = register.createGroup(user.getIdentifier(), "Sophon Shield");
         }
 
@@ -99,7 +98,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
         Context context = getContext();
         Intent intent = new Intent();
         intent.setClass(context, InviteActivity.class);
-        intent.putExtra("ID", group.getIdentifier().toString());
+        intent.putExtra("ID", group.toString());
         intent.putExtra("from", identifier.toString());
         context.startActivity(intent);
     }

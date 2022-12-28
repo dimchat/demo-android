@@ -18,6 +18,7 @@ import android.widget.TextView;
 import chat.dim.GlobalVariable;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.User;
 import chat.dim.model.Configuration;
@@ -144,18 +145,19 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
+        GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
+
         // 1. create user
-        Register userRegister = new Register();
-        User user = userRegister.createUser(nickname, null);
-        if (user == null) {
+        Register userRegister = new Register(facebook.getDatabase());
+        ID uid = userRegister.createUser(nickname, null);
+        if (uid == null) {
             Alert.tips(activity, R.string.register_failed);
             return;
         }
+        User user = facebook.getUser(uid);
         Meta meta = user.getMeta();
         Visa visa = user.getVisa();
-
-        GlobalVariable shared = GlobalVariable.getInstance();
-        SharedFacebook facebook = shared.facebook;
 
         // 2. upload avatar
         if (avatarImage != null) {
@@ -173,7 +175,8 @@ public class RegisterFragment extends Fragment {
         facebook.setCurrentUser(user);
 
         // 4. upload meta & visa to DIM station
-        userRegister.upload(user.getIdentifier(), meta, visa);
+        SharedMessenger messenger = shared.messenger;
+        messenger.postDocument(visa, meta);
 
         // 5. show main activity
         checkUser();

@@ -25,8 +25,6 @@
  */
 package chat.dim;
 
-import com.alibaba.fastjson.JSONException;
-
 import java.util.List;
 
 import chat.dim.core.Session;
@@ -179,16 +177,7 @@ public class SharedMessenger extends ClientMessenger {
 
     @Override
     public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
-        Content content;
-        try {
-            content = super.deserializeContent(data, password, sMsg);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-        if (content == null) {
-            throw new NullPointerException("failed to deserialize message content: " + sMsg);
-        }
+        Content content = super.deserializeContent(data, password, sMsg);
         if (content instanceof Command) {
             content = Compatible.fixCommand((Command) content);
         }

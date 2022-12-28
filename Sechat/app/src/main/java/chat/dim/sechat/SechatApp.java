@@ -130,6 +130,11 @@ public final class SechatApp extends Application {
     }
 
     static {
+
+        // prepare plugins
+        GlobalVariable shared = GlobalVariable.getInstance();
+        assert shared != null;
+
         // android.Base64
         Base64.coder = new DataCoder() {
             @Override

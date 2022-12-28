@@ -17,9 +17,9 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
+import chat.dim.type.Time;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
-import chat.dim.utils.Times;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -108,9 +108,9 @@ public class ContactList extends DummyList<ContactList.Item> {
                 Date time = cmd.getTime();
                 if (time != null) {
                     if (sid != null) {
-                        return "Last login [" + Times.getTimeString(time) + "]: " + facebook.getName(sid);
+                        return "Last login [" + Time.getTimeString(time) + "]: " + facebook.getName(sid);
                     } else {
-                        return "Last login [" + Times.getTimeString(time) + "]";
+                        return "Last login [" + Time.getTimeString(time) + "]";
                     }
                 } else if (sid != null) {
                     return "Last login station: " + facebook.getName(sid);
