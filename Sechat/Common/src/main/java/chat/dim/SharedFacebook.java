@@ -32,6 +32,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.http.HTTPClient;
+import chat.dim.mkm.FactoryManager;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -248,7 +249,8 @@ public final class SharedFacebook extends CommonFacebook {
 
     static {
 
-        identifierFactory = ID.getFactory();
+        FactoryManager man = FactoryManager.getInstance();
+        identifierFactory = man.generalFactory.idFactory;
         ID.setFactory(new ID.Factory() {
 
             @Override

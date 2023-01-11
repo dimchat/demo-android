@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.core.AddressNameService;
 import chat.dim.protocol.ID;
 
 public abstract class AddressNameServer implements AddressNameService {

@@ -28,7 +28,8 @@ package chat.dim.protocol;
 import java.util.List;
 import java.util.Map;
 
-import chat.dim.dkd.BaseCommand;
+import chat.dim.dkd.cmd.BaseCommand;
+import chat.dim.utils.ArrayUtils;
 
 /**
  *  Command message: {
@@ -83,7 +84,7 @@ public class SearchCommand extends BaseCommand {
         if (keywords == null || keywords.size() == 0) {
             remove("keywords");
         } else {
-            put("keywords", String.join(" ", keywords));
+            put("keywords", ArrayUtils.join(" ", keywords));
         }
     }
 

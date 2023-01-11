@@ -8,7 +8,6 @@ import java.util.Random;
  */
 import chat.dim.digest.SHA256;
 import chat.dim.format.Hex;
-import chat.dim.format.Plugins;
 import chat.dim.format.UTF8;
 
 public class SeedBox {

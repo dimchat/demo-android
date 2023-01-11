@@ -30,6 +30,7 @@
  */
 package chat.dim.filesys;
 
+import chat.dim.http.HTTPClient;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 
@@ -37,6 +38,11 @@ import chat.dim.protocol.ID;
  *  RAM access
  */
 public abstract class EntityStorage extends ExternalStorage {
+
+    public static String getRoot() {
+        HTTPClient http = HTTPClient.getInstance();
+        return http.getRoot();
+    }
 
     /**
      *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{YY}/{address}/{filename}"

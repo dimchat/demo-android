@@ -1,4 +1,9 @@
 /* license: https://mit-license.org
+ *
+ *  File System
+ *
+ *                                Written in 2019 by Moky <albert.moky@gmail.com>
+ *
  * ==============================================================================
  * The MIT License (MIT)
  *
@@ -23,69 +28,50 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.protocol;
+package chat.dim.filesys;
 
-import java.util.List;
-import java.util.Map;
-
-import chat.dim.dkd.cmd.BaseCommand;
+import chat.dim.http.HTTPClient;
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      cmd  : "mute",
- *      list : []      // mute-list
- *  }
+ *  RAM access
  */
-public class MuteCommand extends BaseCommand {
+public abstract class LocalCache extends ExternalStorage {
 
-    public static final String MUTE   = "mute";
-
-    // mute-list
-    private List<ID> muteList = null;
-
-    public MuteCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public static String getRoot() {
+        HTTPClient http = HTTPClient.getInstance();
+        return http.getRoot();
     }
 
     /**
-     *  Send mute-list
+     *  Get cache file path: "/sdcard/chat.dim.sechat/caches/{XX}/{YY}/{filename}"
      *
-     * @param list - mute list
+     * @param filename - cache file name
+     * @return cache file path
      */
-    public MuteCommand(List<ID> list) {
-        super(MUTE);
-        setMuteList(list);
+    public static String getCacheFilePath(String filename) {
+        assert filename.length() > 4 : "filename too short " + filename;
+        String dir = getCachesDirectory();
+        String xx = filename.substring(0, 2);
+        String yy = filename.substring(2, 4);
+        return appendPathComponent(dir, xx, yy, filename);
+    }
+
+    public static String getCachesDirectory() {
+        return appendPathComponent(getRoot(), "caches");
     }
 
     /**
-     *  Query mute-list
+     *  Get temporary file path: "/sdcard/chat.dim.sechat/tmp/{filename}"
+     *
+     * @param filename - temporary file name
+     * @return temporary file path
      */
-    public MuteCommand() {
-        super(MUTE);
+    public static String getTemporaryFilePath(String filename) {
+        String dir = getTemporaryDirectory();
+        return appendPathComponent(dir, filename);
     }
 
-    //-------- setters/getters --------
-
-    @SuppressWarnings("unchecked")
-    public List<ID> getMuteList() {
-        if (muteList == null) {
-            Object list = get("list");
-            if (list != null) {
-                muteList = ID.convert((List<String>) list);
-            }
-        }
-        return muteList;
-    }
-
-    public void setMuteList(List<ID> list) {
-        if (list == null) {
-            remove("list");
-        } else {
-            put("list", ID.revert(list));
-        }
-        muteList = list;
+    public static String getTemporaryDirectory() {
+        return appendPathComponent(getRoot(), "tmp");
     }
 }

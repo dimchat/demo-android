@@ -27,7 +27,6 @@ package chat.dim;
 
 import java.util.List;
 
-import chat.dim.core.Session;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.format.JSON;
