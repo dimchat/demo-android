@@ -33,7 +33,6 @@ package chat.dim.dmtp;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -322,7 +321,7 @@ public class Contact {
         if (timestamp <= 0) {
             return true;
         }
-        long now = (new Date()).getTime();
+        long now = System.currentTimeMillis();
         return now > (timestamp * 1000 + EXPIRES);
     }
 }

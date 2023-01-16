@@ -30,7 +30,7 @@ import java.util.List;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
-import chat.dim.TwinsHelper;
+import chat.dim.core.TwinsHelper;
 import chat.dim.cpu.CustomizedContentHandler;
 import chat.dim.cpu.CustomizedContentProcessor;
 import chat.dim.dkd.AppCustomizedContent;

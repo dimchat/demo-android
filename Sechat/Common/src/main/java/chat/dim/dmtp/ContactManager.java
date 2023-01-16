@@ -32,7 +32,6 @@ package chat.dim.dmtp;
 
 import java.lang.ref.WeakReference;
 import java.net.SocketAddress;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,11 +191,11 @@ public class ContactManager implements LocationDelegate {
             return null;
         }
         // timestamp
-        long now = (new Date()).getTime() / 1000;
+        long now = System.currentTimeMillis();
         // location value to be signed
         LocationValue value = LocationValue.create(location.getIdentifier(),
                 sourceAddress, location.getMappedAddress(), location.getRelayedAddress(),
-                now, null, nat);
+                now / 1000, null, nat);
         Contact contact = getContact(identifier);
         return contact.signLocation(value);
     }
