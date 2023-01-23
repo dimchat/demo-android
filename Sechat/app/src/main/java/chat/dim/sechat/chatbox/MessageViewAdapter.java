@@ -21,8 +21,8 @@ import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.LocalCache;
+import chat.dim.filesys.Paths;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -177,7 +177,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
                 return;
             }
             String path = LocalCache.getCacheFilePath(filename);
-            if (ExternalStorage.exists(path)) {
+            if (Paths.exists(path)) {
                 Log.info("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
             }
@@ -195,7 +195,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showImage(String filename, String sender, Context context) {
         String path = LocalCache.getCacheFilePath(filename);
-        if (!ExternalStorage.exists(path)) {
+        if (!Paths.exists(path)) {
             return;
         }
         ImageViewerActivity.show(context, Uri.parse(path), sender);

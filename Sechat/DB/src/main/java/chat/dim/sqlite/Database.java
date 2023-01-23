@@ -40,6 +40,6 @@ public abstract class Database extends SQLiteOpenHelper {
     }
 
     protected static String getFilePath(String dbName) {
-        return Paths.appendPathComponent(EntityStorage.getRoot(), "sqlite", dbName);
+        return Paths.append(EntityStorage.getRoot(), "sqlite", dbName);
     }
 }

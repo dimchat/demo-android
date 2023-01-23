@@ -27,6 +27,7 @@ import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.LocalCache;
+import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
 import chat.dim.model.MessageDataSource;
@@ -287,13 +288,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private void startRecord() {
         String path = mp4FilePath;
-        if (ExternalStorage.exists(path)) {
-            try {
-                ExternalStorage.delete(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        Paths.delete(path);
 
         if (recorder == null) {
             recorder = new AudioRecorder(getActivity());
@@ -305,7 +300,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         String path = recorder.stopRecord();
-        if (path != null && ExternalStorage.exists(path)) {
+        if (path != null && Paths.exists(path)) {
             try {
                 byte[] mp4 = LocalCache.loadBinary(path);
                 sendVoice(mp4, recorder.getDuration());

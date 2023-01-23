@@ -39,6 +39,7 @@ import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
 import chat.dim.filesys.EntityStorage;
 import chat.dim.filesys.ExternalStorage;
+import chat.dim.filesys.Paths;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.protocol.ID;
@@ -148,7 +149,7 @@ public class GroupViewModel extends EntityViewModel {
             // refresh group logo in background
             path = refreshLogo(group);
         }
-        if (ExternalStorage.exists(path)) {
+        if (Paths.exists(path)) {
             logos.put(group, path);
             return BitmapFactory.decodeFile(path);
         }

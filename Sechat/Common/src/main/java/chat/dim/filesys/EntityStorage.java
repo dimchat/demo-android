@@ -53,7 +53,7 @@ public abstract class EntityStorage extends ExternalStorage {
      */
     public static String getEntityFilePath(ID entity, String filename) {
         String dir = getEntityDirectory(entity.getAddress());
-        return appendPathComponent(dir, filename);
+        return Paths.append(dir, filename);
     }
 
     public static String getEntityDirectory(ID identifier) {
@@ -65,10 +65,10 @@ public abstract class EntityStorage extends ExternalStorage {
         String dir = getEntityDirectory();
         String xx = string.substring(0, 2);
         String yy = string.substring(2, 4);
-        return appendPathComponent(dir, xx, yy, string);
+        return Paths.append(dir, xx, yy, string);
     }
 
     public static String getEntityDirectory() {
-        return appendPathComponent(getRoot(), "mkm");
+        return Paths.append(getRoot(), "mkm");
     }
 }

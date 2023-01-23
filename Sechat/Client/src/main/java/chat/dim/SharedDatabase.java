@@ -30,7 +30,7 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.type.Pair;
 import chat.dim.type.Triplet;
 
-public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI {
+public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserTable {
 
     public PrivateKeyTable privateKeyTable;
     public MetaTable metaTable;
@@ -43,6 +43,30 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI {
 
     public LoginTable loginTable;
     public ProviderTable providerTable;
+
+    //
+    //  User Table
+    //
+
+    @Override
+    public boolean addUser(ID user) {
+        return userTable.addUser(user);
+    }
+
+    @Override
+    public boolean removeUser(ID user) {
+        return userTable.removeUser(user);
+    }
+
+    @Override
+    public void setCurrentUser(ID user) {
+        userTable.setCurrentUser(user);
+    }
+
+    @Override
+    public ID getCurrentUser() {
+        return userTable.getCurrentUser();
+    }
 
     //
     //  Account DBI

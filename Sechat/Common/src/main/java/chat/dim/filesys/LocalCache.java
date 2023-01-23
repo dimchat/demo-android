@@ -53,11 +53,11 @@ public abstract class LocalCache extends ExternalStorage {
         String dir = getCachesDirectory();
         String xx = filename.substring(0, 2);
         String yy = filename.substring(2, 4);
-        return appendPathComponent(dir, xx, yy, filename);
+        return Paths.append(dir, xx, yy, filename);
     }
 
     public static String getCachesDirectory() {
-        return appendPathComponent(getRoot(), "caches");
+        return Paths.append(getRoot(), "caches");
     }
 
     /**
@@ -68,10 +68,10 @@ public abstract class LocalCache extends ExternalStorage {
      */
     public static String getTemporaryFilePath(String filename) {
         String dir = getTemporaryDirectory();
-        return appendPathComponent(dir, filename);
+        return Paths.append(dir, filename);
     }
 
     public static String getTemporaryDirectory() {
-        return appendPathComponent(getRoot(), "tmp");
+        return Paths.append(getRoot(), "tmp");
     }
 }

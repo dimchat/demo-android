@@ -90,7 +90,7 @@ public final class Immortals implements User.DataSource {
     private static String root = File.separator + "mkm";
 
     private static Map loadJSON(String filename) throws IOException {
-        String path = Paths.appendPathComponent(root, filename);
+        String path = Paths.append(root, filename);
         Resource resource = new Resource();
         resource.read(path);
         byte[] data = resource.getData();

@@ -101,7 +101,7 @@ public final class FtpServer implements HTTPDelegate {
         }
 
         path = EntityStorage.getEntityFilePath(identifier, "avatar.jpeg");
-        if (EntityStorage.exists(path)) {
+        if (Paths.exists(path)) {
             return path;
         }
         return null;
@@ -125,7 +125,7 @@ public final class FtpServer implements HTTPDelegate {
     public String uploadEncryptedData(byte[] data, String filename, ID sender) {
 
         // prepare filename (make sure that filenames won't conflict)
-        String ext = Paths.getExtension(filename);
+        String ext = Paths.extension(filename);
         filename = Hex.encode(MD5.digest(data));
         if (ext != null && ext.length() > 0) {
             filename = filename + "." + ext;
@@ -155,7 +155,7 @@ public final class FtpServer implements HTTPDelegate {
         // check decrypted file
         String filename = content.getFilename();
         String path1 = LocalCache.getCacheFilePath(filename);
-        if (LocalCache.exists(path1)) {
+        if (Paths.exists(path1)) {
             return path1;
         }
         // get encrypted data
@@ -170,6 +170,7 @@ public final class FtpServer implements HTTPDelegate {
         if (data != null) {
             try {
                 if (LocalCache.saveBinary(data, path1) == data.length) {
+                    // TODO: remove path2
                     return path1;
                 }
             } catch (IOException e) {
@@ -182,7 +183,7 @@ public final class FtpServer implements HTTPDelegate {
     }
 
     private byte[] decryptFile(String path, Map<String, Object> password) throws IOException {
-        if (!LocalCache.exists(path)) {
+        if (!Paths.exists(path)) {
             return null;
         }
         byte[] data = LocalCache.loadBinary(path);

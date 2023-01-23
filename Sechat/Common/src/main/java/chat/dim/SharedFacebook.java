@@ -30,9 +30,10 @@ import java.util.List;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
+import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.http.HTTPClient;
-import chat.dim.mkm.FactoryManager;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -117,6 +118,14 @@ public final class SharedFacebook extends CommonFacebook {
         }
         allUsers.add(user);
         return db.saveLocalUsers(allUsers);
+    }
+
+    @Override
+    public void setCurrentUser(User user) {
+        AccountDBI db = getDatabase();
+        UserTable table = (UserTable) db;
+        table.setCurrentUser(user.getIdentifier());
+        super.setCurrentUser(user);
     }
 
     //-------- Contacts
@@ -249,8 +258,7 @@ public final class SharedFacebook extends CommonFacebook {
 
     static {
 
-        FactoryManager man = FactoryManager.getInstance();
-        identifierFactory = man.generalFactory.idFactory;
+        identifierFactory = ID.getFactory();
         ID.setFactory(new ID.Factory() {
 
             @Override
