@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.filesys.Resources;
+import chat.dim.format.Hex;
 import chat.dim.protocol.ID;
 
 public final class Configuration {
@@ -55,7 +56,7 @@ public final class Configuration {
     private void loadConfig() {
         Map<String, String> apis = null;
         try {
-            info = (Map) Resources.loadJSON("gsp.js");
+            info = (Map) Resources.loadJSON("/gsp.js");
             if (info != null) {
                 apis = (Map) info.get("APIs");
             }
@@ -117,6 +118,11 @@ public final class Configuration {
             contacts.add(identifier);
         }
         return contacts;
+    }
+
+    public byte[] getMD5Secret() {
+        // TODO: load from config.ini
+        return Hex.decode("12345678");
     }
 
     // "https://sechat.dim.chat/{ID}}/upload"

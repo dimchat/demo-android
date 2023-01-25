@@ -41,6 +41,7 @@ import chat.dim.sechat.contacts.ContactList;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sechat.profile.ProfileActivity;
 import chat.dim.threading.MainThread;
+import chat.dim.ui.Alert;
 import chat.dim.ui.image.ImageViewerActivity;
 import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
@@ -125,7 +126,13 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.msgView = view.findViewById(R.id.cmd_text);
             holder.imgView = null;
         }
-        showMessage(iMsg, holder);
+        try {
+            showMessage(iMsg, holder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // FIXME:
+            Alert.tips(context, e.getMessage());
+        }
 
         if (MsgType.SENT == type) {
             List traces = (List) iMsg.get("traces");

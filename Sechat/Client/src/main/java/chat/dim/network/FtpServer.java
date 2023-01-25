@@ -28,6 +28,7 @@ package chat.dim.network;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
@@ -44,6 +45,8 @@ import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
+import chat.dim.type.MutableData;
+import chat.dim.utils.Log;
 
 public final class FtpServer implements HTTPDelegate {
     private static final FtpServer ourInstance = new FtpServer();
@@ -54,11 +57,29 @@ public final class FtpServer implements HTTPDelegate {
 
     private final Configuration config = Configuration.getInstance();
 
+    private static byte[] generateSalt() {
+        byte[] salt = new byte[16];
+        Random random = new Random();
+        random.nextBytes(salt);
+        return salt;
+    }
+    private static byte[] getDigest(byte[] data, byte[] secret, byte[] salt) {
+        MutableData concat = new MutableData(data.length + secret.length + salt.length);
+        concat.append(data);
+        concat.append(secret);
+        concat.append(salt);
+        return MD5.digest(concat.getBytes());
+    }
+
     //
     //  Avatar
     //
 
     public String uploadAvatar(byte[] imageData, ID identifier) {
+
+        byte[] secret = config.getMD5Secret();
+        byte[] salt = generateSalt();
+        byte[] digest = getDigest(imageData, secret, salt);
 
         String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
 
@@ -66,6 +87,8 @@ public final class FtpServer implements HTTPDelegate {
         String upload = config.getUploadURL();
         assert upload != null : "upload API error";
         upload = upload.replaceAll("\\{ID\\}", identifier.getAddress().toString());
+        upload = upload.replaceAll("\\{MD5\\}", Hex.encode(digest));
+        upload = upload.replaceAll("\\{SALT\\}", Hex.encode(salt));
 
         HTTPClient http = HTTPClient.getInstance();
         http.upload(upload, "avatar", filename, imageData);
@@ -152,33 +175,36 @@ public final class FtpServer implements HTTPDelegate {
     }
 
     public String getFilePath(FileContent content) {
+        String filePath;
         // check decrypted file
         String filename = content.getFilename();
-        String path1 = LocalCache.getCacheFilePath(filename);
-        if (Paths.exists(path1)) {
-            return path1;
+        if (filename == null) {
+            filePath = null;
+        } else {
+            filePath = LocalCache.getCacheFilePath(filename);
+            if (Paths.exists(filePath)) {
+                return filePath;
+            }
         }
         // get encrypted data
         String url = content.getURL();
-        String path2 = LocalCache.getCacheFilePath(url);
-        byte[] data = null;
-        try {
-            data = decryptFile(path2, content.getPassword());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (data != null) {
+        if (url != null) {
+            String cachePath = LocalCache.getCacheFilePath(url);
             try {
-                if (LocalCache.saveBinary(data, path1) == data.length) {
-                    // TODO: remove path2
-                    return path1;
+                byte[] data = decryptFile(cachePath, content.getPassword());
+                if (data != null) {
+                    if (LocalCache.saveBinary(data, filePath) == data.length) {
+                        // success
+                        return filePath;
+                    }
+                    // TODO: remove cachePath
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            // download again
+            downloadEncryptedData(url);
         }
-        // download again
-        downloadEncryptedData(url);
         return null;
     }
 
@@ -205,6 +231,7 @@ public final class FtpServer implements HTTPDelegate {
 
     @Override
     public void uploadSuccess(UploadTask task, String response) {
+        Log.info("upload respond: " + response);
         Map<String, Object> info = new HashMap<>();
         info.put("URL", task.getUrlString());
         info.put("filename", task.getFileName());
