@@ -39,4 +39,6 @@ public enum GlobalVariable {
 
     public SharedMessenger messenger = null;
     public Terminal terminal = null;
+
+    public Emitter emitter = new Emitter().start();
 }

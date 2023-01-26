@@ -71,32 +71,41 @@ public final class FtpServer implements HTTPDelegate {
         return MD5.digest(concat.getBytes());
     }
 
+    public String upload(byte[] data, String var, String filename, ID identifier, String url) {
+        // prepare filename (make sure that filenames won't conflict)
+        String ext = Paths.extension(filename);
+        filename = Hex.encode(MD5.digest(data));
+        if (ext != null && ext.length() > 0) {
+            filename = filename + "." + ext;
+        }
+        // md5(data + secret + salt)
+        byte[] secret = config.getMD5Secret();
+        byte[] salt = generateSalt();
+        byte[] digest = getDigest(data, secret, salt);
+        // upload to CDN
+        url = url.replaceAll("\\{ID\\}", identifier.getAddress().toString());
+        url = url.replaceAll("\\{MD5\\}", Hex.encode(digest));
+        url = url.replaceAll("\\{SALT\\}", Hex.encode(salt));
+
+        HTTPClient http = HTTPClient.getInstance();
+        http.upload(url, var, filename, data);
+        return filename;
+    }
+
     //
     //  Avatar
     //
 
     public String uploadAvatar(byte[] imageData, ID identifier) {
-
-        byte[] secret = config.getMD5Secret();
-        byte[] salt = generateSalt();
-        byte[] digest = getDigest(imageData, secret, salt);
-
-        String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
-
-        // upload to CDN
-        String upload = config.getUploadURL();
-        assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", identifier.getAddress().toString());
-        upload = upload.replaceAll("\\{MD5\\}", Hex.encode(digest));
-        upload = upload.replaceAll("\\{SALT\\}", Hex.encode(salt));
-
-        HTTPClient http = HTTPClient.getInstance();
-        http.upload(upload, "avatar", filename, imageData);
+        String url = config.getUploadURL();
+        assert url != null : "upload API error";
+        String filename = upload(imageData, "avatar", "avatar.jpeg", identifier, url);
 
         // build download URL
         String download = config.getAvatarURL();
         assert download != null : "download API error";
-        download = download.replaceAll("\\{ID\\}", identifier.getAddress().toString()).replaceAll("\\{filename\\}", filename);
+        download = download.replaceAll("\\{ID\\}", identifier.getAddress().toString());
+        download = download.replaceAll("\\{filename\\}", filename);
 
         try {
             // store in user's directory
@@ -146,21 +155,9 @@ public final class FtpServer implements HTTPDelegate {
     }
 
     public String uploadEncryptedData(byte[] data, String filename, ID sender) {
-
-        // prepare filename (make sure that filenames won't conflict)
-        String ext = Paths.extension(filename);
-        filename = Hex.encode(MD5.digest(data));
-        if (ext != null && ext.length() > 0) {
-            filename = filename + "." + ext;
-        }
-
-        // upload to CDN
-        String upload = config.getUploadURL();
-        assert upload != null : "upload API error";
-        upload = upload.replaceAll("\\{ID\\}", sender.getAddress().toString());
-
-        HTTPClient http = HTTPClient.getInstance();
-        http.upload(upload, "file", filename, data);
+        String url = config.getUploadURL();
+        assert url != null : "upload API error";
+        filename = upload(data, "file", filename, sender, url);
 
         // build download URL
         String download = config.getDownloadURL();

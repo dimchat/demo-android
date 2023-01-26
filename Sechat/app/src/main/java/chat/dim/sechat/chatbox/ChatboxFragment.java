@@ -22,35 +22,23 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
-import chat.dim.SharedMessenger;
-import chat.dim.digest.MD5;
-import chat.dim.dkd.BaseTextContent;
-import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
-import chat.dim.format.Hex;
 import chat.dim.model.Conversation;
-import chat.dim.model.MessageDataSource;
-import chat.dim.network.FtpServer;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
-import chat.dim.protocol.AudioContent;
-import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.ImageContent;
-import chat.dim.protocol.InstantMessage;
-import chat.dim.protocol.ReliableMessage;
 import chat.dim.sechat.R;
 import chat.dim.sechat.SechatApp;
 import chat.dim.threading.BackgroundThreads;
-import chat.dim.type.Pair;
 import chat.dim.ui.OnKeyboardListener;
 import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.media.AudioPlayer;
 import chat.dim.ui.media.AudioRecorder;
+import chat.dim.utils.Log;
 
 public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageList> implements Observer {
 
@@ -126,28 +114,13 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     //  Send Message
     //
 
-    private void sendContent(chat.dim.protocol.Content content) {
-        if (chatBox == null) {
-            throw new NullPointerException("conversation ID should not be empty");
-        }
-        ID receiver = chatBox.identifier;
-        GlobalVariable shared = GlobalVariable.getInstance();
-        SharedMessenger messenger = shared.messenger;
-        Pair<InstantMessage, ReliableMessage> result;
-        result = messenger.sendContent(null, receiver, content, 0);
-        if (result.second != null) {
-            MessageDataSource mds = MessageDataSource.getInstance();
-            mds.saveMessage(result.first);
-        }
-    }
-
     private void send() {
         String text = inputText.getText().toString();
-        if (text.length() == 0) {
-            return;
+        if (text.length() > 0) {
+            GlobalVariable shared = GlobalVariable.getInstance();
+            shared.emitter.sendText(text, chatBox.identifier);
         }
-        sendContent(new BaseTextContent(text));
-        // sent OK
+        // clear text after sent
         inputText.setText("");
     }
 
@@ -164,20 +137,11 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         // image file
         byte[] jpeg = Images.jpeg(bitmap);
-        String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
-        FtpServer ftp = FtpServer.getInstance();
-        ftp.saveFileData(jpeg, filename);
-
         // thumbnail
         byte[] thumbnail = Images.thumbnail(bitmap);
-        //ftp.saveThumbnail(thumbnail, filename);
 
-        // add image data length & thumbnail into message content
-        ImageContent content = FileContent.image(filename, jpeg);
-        content.put("length", jpeg.length);
-        content.setThumbnail(thumbnail);
-
-        sendContent(content);
+        GlobalVariable shared = GlobalVariable.getInstance();
+        shared.emitter.sendImage(jpeg, thumbnail, chatBox.identifier);
     }
 
     @Nullable
@@ -300,31 +264,17 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         String path = recorder.stopRecord();
-        if (path != null && Paths.exists(path)) {
-            try {
-                byte[] mp4 = LocalCache.loadBinary(path);
-                sendVoice(mp4, recorder.getDuration());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         recorder = null;
-    }
-
-    private void sendVoice(byte[] mp4, int duration) {
-        if (mp4 == null) {
+        if (path == null || !Paths.exists(path)) {
+            Log.error("voice file not found: " + path);
             return;
         }
-        String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
         try {
-            String path = LocalCache.getCacheFilePath(filename);
-            LocalCache.saveBinary(mp4, path);
+            byte[] mp4 = LocalCache.loadBinary(path);
+            GlobalVariable shared = GlobalVariable.getInstance();
+            shared.emitter.sendVoice(mp4, recorder.getDuration(), chatBox.identifier);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        AudioContent content = FileContent.audio(filename, mp4);
-        content.put("duration", duration);
-        sendContent(content);
     }
 }
