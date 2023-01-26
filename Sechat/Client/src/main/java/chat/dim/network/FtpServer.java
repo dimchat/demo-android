@@ -36,6 +36,7 @@ import chat.dim.filesys.EntityStorage;
 import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
+import chat.dim.format.UTF8;
 import chat.dim.http.DownloadTask;
 import chat.dim.http.HTTPClient;
 import chat.dim.http.HTTPDelegate;
@@ -166,9 +167,25 @@ public final class FtpServer implements HTTPDelegate {
     }
 
     public String downloadEncryptedData(String url) {
+        Log.info("downloading encrypt data: " + url);
 
         HTTPClient httpClient = HTTPClient.getInstance();
         return httpClient.download(url);
+    }
+
+    // chat.dim.http.DownloadTask.getCachePath()
+    private static String getCachePath(String urlString) {
+        // get file ext
+        String filename = Paths.filename(urlString);
+        String ext = Paths.extension(filename);
+        if (ext == null || ext.length() == 0) {
+            ext = "tmp";
+        }
+        // get filename
+        byte[] data = UTF8.encode(urlString);
+        String hash = Hex.encode(MD5.digest(data));
+        HTTPClient client = HTTPClient.getInstance();
+        return client.getCacheFilePath(hash + "." + ext);
     }
 
     public String getFilePath(FileContent content) {
@@ -186,7 +203,9 @@ public final class FtpServer implements HTTPDelegate {
         // get encrypted data
         String url = content.getURL();
         if (url != null) {
-            String cachePath = LocalCache.getCacheFilePath(url);
+            //filename = Paths.filename(url);
+            //String cachePath = LocalCache.getCacheFilePath(filename);
+            String cachePath = getCachePath(url);
             try {
                 byte[] data = decryptFile(cachePath, content.getPassword());
                 if (data != null) {

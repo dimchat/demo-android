@@ -25,8 +25,14 @@
  */
 package chat.dim;
 
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.mtp.MsgUtils;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.FileContent;
+import chat.dim.protocol.ID;
+import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.SecureMessage;
 
 public class SharedPacker extends ClientMessagePacker {
 
@@ -76,10 +82,24 @@ public class SharedPacker extends ClientMessagePacker {
         return rMsg;
     }
 
-    /*/
     @Override
     public SecureMessage encryptMessage(InstantMessage iMsg) {
         // make sure visa.key exists before encrypting message
+        Content content = iMsg.getContent();
+        if (content instanceof FileContent) {
+            if (content.get("data") != null/* && content.get("URL") == null*/) {
+                ID sender = iMsg.getSender();
+                ID receiver = iMsg.getReceiver();
+                Messenger messenger = getMessenger();
+                SymmetricKey key = messenger.getCipherKey(sender, receiver, true);
+                assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
+                // call emitter to encrypt & upload file data before send out
+                GlobalVariable shared = GlobalVariable.getInstance();
+                shared.emitter.sendFileContentMessage(iMsg, key);
+                return null;
+            }
+        }
+
         SecureMessage sMsg = super.encryptMessage(iMsg);
         ID receiver = iMsg.getReceiver();
         if (receiver.isGroup()) {
@@ -94,5 +114,24 @@ public class SharedPacker extends ClientMessagePacker {
 
         return sMsg;
     }
-    /*/
+
+    @Override
+    public InstantMessage decryptMessage(SecureMessage sMsg) {
+        InstantMessage iMsg = super.decryptMessage(sMsg);
+        if (iMsg != null) {
+            Content content = iMsg.getContent();
+            if (content instanceof FileContent) {
+                if (content.get("data") == null && content.get("URL") != null) {
+                    ID sender = iMsg.getSender();
+                    ID receiver = iMsg.getReceiver();
+                    Messenger messenger = getMessenger();
+                    SymmetricKey key = messenger.getCipherKey(sender, receiver, false);
+                    assert key != null : "failed to get password: " + sender + " -> " + receiver;
+                    // keep password to decrypt data after downloaded
+                    ((FileContent) content).setPassword(key);
+                }
+            }
+        }
+        return iMsg;
+    }
 }

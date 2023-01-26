@@ -33,8 +33,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
+import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.format.JSONMap;
 import chat.dim.model.MessageDataSource;
@@ -86,7 +88,7 @@ public class Emitter extends Runner implements Observer {
         // add image data length & thumbnail into message content
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
-        sendFileContent(content, receiver);
+        sendContent(content, receiver);
     }
 
     public void sendVoice(byte[] mp4, int duration, ID receiver) {
@@ -96,40 +98,58 @@ public class Emitter extends Runner implements Observer {
         // add voice data length & duration into message content
         content.put("length", mp4.length);
         content.put("duration", duration);
-        sendFileContent(content, receiver);
+        sendContent(content, receiver);
     }
 
     private void sendContent(Content content, ID receiver) {
         assert receiver != null : "receiver should not empty";
-        CommonMessenger messenger = getMessenger();
-        Pair<InstantMessage, ReliableMessage> result;
-        result = messenger.sendContent(null, receiver, content, 0);
-        if (result.second != null) {
-            MessageDataSource mds = MessageDataSource.getInstance();
-            mds.saveMessage(result.first);
-        }
-    }
-
-    private void sendFileContent(FileContent content, ID receiver) {
-        assert receiver != null : "receiver should not empty";
-        Task task = new Task(content, receiver);
-        addTask(task);
-    }
-
-    private CommonMessenger getMessenger() {
         GlobalVariable shared = GlobalVariable.getInstance();
-        return shared.messenger;
+        Pair<InstantMessage, ReliableMessage> result;
+        result = shared.messenger.sendContent(null, receiver, content, 0);
+        assert result.first != null : "failed to pack instant message: " + receiver;
+        // save instant message
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.saveInstantMessage(result.first);
+    }
+
+    public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) {
+        FileContent content = (FileContent) iMsg.getContent();
+        // 1. save origin file data
+        byte[] data = content.getData();
+        String filename = content.getFilename();
+        FtpServer ftp = FtpServer.getInstance();
+        int len = ftp.saveFileData(data, filename);
+        if (len != data.length) {
+            Log.error("failed to save file data (len=" + data.length + "): " + filename);
+            return;
+        }
+        // 2. save instant message without file data
+        content.setData(null);
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.saveInstantMessage(iMsg);
+        // 3. add upload task with encrypted data
+        byte[] encrypted = password.encrypt(data);
+        String ext = Paths.extension(filename);
+        filename = Hex.encode(MD5.digest(encrypted));
+        if (ext != null && ext.length() > 0) {
+            filename = filename + "." + ext;
+        }
+        Log.info("task filename: " + content.getFilename() + " -> " + filename);
+        Task task = new Task(filename, encrypted, iMsg);
+        addTask(task);
     }
 
     private static class Task {
         static final long EXPIRES = 300 * 1000;  // 5 minutes
 
-        final FileContent content;
-        final ID receiver;
+        final String filename;
+        final byte[] encrypted;
+        final InstantMessage iMsg;
         long time = 0;
-        Task(FileContent content, ID receiver) {
-            this.content = content;
-            this.receiver = receiver;
+        Task(String filename, byte[] encrypted, InstantMessage iMsg) {
+            this.filename = filename;
+            this.encrypted = encrypted;
+            this.iMsg = iMsg;
         }
     }
     private final List<Task> tasks = new ArrayList<>();
@@ -141,8 +161,7 @@ public class Emitter extends Runner implements Observer {
         writeLock.lock();
         try {
             tasks.add(item);
-            String filename = item.content.getFilename();
-            map.put(filename, item);
+            map.put(item.filename, item);
         } finally {
             writeLock.unlock();
         }
@@ -177,8 +196,7 @@ public class Emitter extends Runner implements Observer {
                     break;
                 } else if (item.time < expired) {
                     // expired, remove it
-                    String filename = item.content.getFilename();
-                    map.remove(filename);
+                    map.remove(item.filename);
                     iterator.remove();
                 }
             }
@@ -208,21 +226,13 @@ public class Emitter extends Runner implements Observer {
             // nothing to do now, return false to have a rest
             return false;
         }
-        FileContent content = next.content;
-        byte[] data = content.getData();
-        if (data == null) {
-            // should not happen
-            return true;
-        }
         try {
-            String filename = content.getFilename();
+            byte[] encrypted = next.encrypted;
+            String filename = next.filename;
+            ID sender = next.iMsg.getSender();
+            Log.info("uploading file: " + filename + ", sender: " + sender);
             FtpServer ftp = FtpServer.getInstance();
-            int len = ftp.saveFileData(data, filename);
-            if (len == data.length) {
-                ftp.uploadEncryptedData(data, filename, next.receiver);
-            } else {
-                Log.error("failed to save data (" + len + "/" + data.length + ") to " + filename);
-            }
+            ftp.uploadEncryptedData(encrypted, filename, sender);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,15 +258,19 @@ public class Emitter extends Runner implements Observer {
                 if (url == null) {
                     Log.error("url not found: " + response);
                 } else {
-                    Log.info("get task for file: " + filename);
                     Task task = getTask(filename);
-                    if (task != null) {
+                    if (task == null) {
+                        Log.error("failed to get task: " + filename + ", url: " + url);
+                    } else {
+                        Log.info("get task for file: " + filename + ", url: " + url);
                         // file data uploaded to FTP server, replace it with download URL
                         // and send the content to station
-                        FileContent content = task.content;
-                        content.setData(null);
+                        InstantMessage iMsg = task.iMsg;
+                        FileContent content = (FileContent) iMsg.getContent();
+                        //content.setData(null);
                         content.setURL(url);
-                        sendContent(content, task.receiver);
+                        GlobalVariable shared = GlobalVariable.getInstance();
+                        shared.messenger.sendInstantMessage(iMsg, 0);
                         // set expired to be removed
                         task.time = -1;
                         return;

@@ -49,7 +49,7 @@ public class SharedProcessor extends ClientMessageProcessor {
         List<InstantMessage> responses = super.processInstantMessage(iMsg, rMsg);
         // save instant message
         MessageDataSource mds = MessageDataSource.getInstance();
-        if (!mds.saveMessage(iMsg)) {
+        if (!mds.saveInstantMessage(iMsg)) {
             // error
             return null;
         }

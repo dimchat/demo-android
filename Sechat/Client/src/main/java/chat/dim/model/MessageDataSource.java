@@ -122,7 +122,7 @@ public class MessageDataSource implements Observer {
         }
     }
 
-    public boolean saveMessage(InstantMessage iMsg) {
+    public boolean saveInstantMessage(InstantMessage iMsg) {
         Content content = iMsg.getContent();
         // TODO: check message type
         //       only save normal message and group commands
@@ -186,7 +186,7 @@ public class MessageDataSource implements Observer {
         if (content instanceof ReceiptCommand) {
             return clerk.saveReceipt(iMsg);
         } else {
-            return clerk.saveMessage(iMsg);
+            return clerk.saveInstantMessage(iMsg);
         }
     }
 

@@ -86,7 +86,7 @@ public final class Amanuensis {
         }
     }
 
-    public boolean saveMessage(InstantMessage iMsg) {
+    public boolean saveInstantMessage(InstantMessage iMsg) {
         if (iMsg.getContent() instanceof ReceiptCommand) {
             // it's a receipt
             return saveReceipt(iMsg);
