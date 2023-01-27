@@ -26,6 +26,7 @@
 package chat.dim;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -106,10 +107,25 @@ public class Emitter extends Runner implements Observer {
         GlobalVariable shared = GlobalVariable.getInstance();
         Pair<InstantMessage, ReliableMessage> result;
         result = shared.messenger.sendContent(null, receiver, content, 0);
+        if (result.second == null) {
+            Log.warning("not send yet (type=" + content.getType() + "): " + receiver);
+            return;
+        }
         assert result.first != null : "failed to pack instant message: " + receiver;
         // save instant message
         MessageDataSource mds = MessageDataSource.getInstance();
         mds.saveInstantMessage(result.first);
+    }
+
+    private void sendInstantMessage(InstantMessage iMsg) {
+        Log.info("send instant message (type=" + iMsg.getContent().getType() + "): "
+                + iMsg.getSender() + " -> " + iMsg.getReceiver());
+        // send by shared messenger
+        GlobalVariable shared = GlobalVariable.getInstance();
+        shared.messenger.sendInstantMessage(iMsg, 0);
+        // save instant message
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.saveInstantMessage(iMsg);
     }
 
     public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) {
@@ -134,10 +150,22 @@ public class Emitter extends Runner implements Observer {
         if (ext != null && ext.length() > 0) {
             filename = filename + "." + ext;
         }
-        Log.info("task filename: " + content.getFilename() + " -> " + filename);
-        Task task = new Task(filename, encrypted, iMsg);
-        addTask(task);
+        // 3. check for same file
+        String url = cdn.get(filename);
+        if (url == null) {
+            // add task for upload
+            Log.info("task filename: " + content.getFilename() + " -> " + filename);
+            Task task = new Task(filename, encrypted, iMsg);
+            addTask(task);
+        } else {
+            // already upload before, set URL and send out immediately
+            Log.info("sent filename: " + content.getFilename() + " -> " + filename + " => " + url);
+            content.setURL(url);
+            sendInstantMessage(iMsg);
+        }
     }
+
+    private final Map<String, String> cdn = new HashMap<>();  // filename => url
 
     private static class Task {
         static final long EXPIRES = 300 * 1000;  // 5 minutes
@@ -258,6 +286,7 @@ public class Emitter extends Runner implements Observer {
                 if (url == null) {
                     Log.error("url not found: " + response);
                 } else {
+                    cdn.put(filename, url);
                     Task task = getTask(filename);
                     if (task == null) {
                         Log.error("failed to get task: " + filename + ", url: " + url);
@@ -269,8 +298,7 @@ public class Emitter extends Runner implements Observer {
                         FileContent content = (FileContent) iMsg.getContent();
                         //content.setData(null);
                         content.setURL(url);
-                        GlobalVariable shared = GlobalVariable.getInstance();
-                        shared.messenger.sendInstantMessage(iMsg, 0);
+                        sendInstantMessage(iMsg);
                         // set expired to be removed
                         task.time = -1;
                         return;

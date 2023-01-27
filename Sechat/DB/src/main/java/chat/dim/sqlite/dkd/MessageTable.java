@@ -480,7 +480,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         try (Cursor cursor = query(MessageDatabase.T_MESSAGE, columns, "cid=? AND sender=? AND sn=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
                 // record exists
-                Log.info("drop duplicated msg: " + iMsg);
+                Log.info("drop duplicated msg: " + iMsg.getSender() + " -> " + iMsg.getReceiver());
                 return false;
             }
         } catch (SQLiteCantOpenDatabaseException e) {
