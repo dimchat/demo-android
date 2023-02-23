@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
+import chat.dim.protocol.AnsCommand;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.MuteCommand;
@@ -55,28 +56,32 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
     }
 
     @Override
-    public ContentProcessor createCommandProcessor(int type, String command) {
+    public ContentProcessor createCommandProcessor(int type, String cmd) {
         // storage (contacts, private_key)
-        if (StorageCommand.STORAGE.equals(command)) {
+        if (StorageCommand.STORAGE.equals(cmd)) {
             return new StorageCommandProcessor(getFacebook(), getMessenger());
-        } else if (StorageCommand.CONTACTS.equals(command) || StorageCommand.PRIVATE_KEY.equals(command)) {
+        } else if (StorageCommand.CONTACTS.equals(cmd) || StorageCommand.PRIVATE_KEY.equals(cmd)) {
             return new StorageCommandProcessor(getFacebook(), getMessenger());
         }
         // search
-        if (SearchCommand.SEARCH.equals(command)) {
+        if (SearchCommand.SEARCH.equals(cmd)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
-        } else if (SearchCommand.ONLINE_USERS.equals(command)) {
+        } else if (SearchCommand.ONLINE_USERS.equals(cmd)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
         }
         // mute
-        if (MuteCommand.MUTE.equals(command)) {
+        if (MuteCommand.MUTE.equals(cmd)) {
             return new MuteCommandProcessor(getFacebook(), getMessenger());
         }
         // block
-        if (BlockCommand.BLOCK.equals(command)) {
+        if (BlockCommand.BLOCK.equals(cmd)) {
             return new BlockCommandProcessor(getFacebook(), getMessenger());
         }
+        // ans
+        if (AnsCommand.ANS.equals(cmd)) {
+            return new AnsCommandProcessor(getFacebook(), getMessenger());
+        }
         // others
-        return super.createCommandProcessor(type, command);
+        return super.createCommandProcessor(type, cmd);
     }
 }

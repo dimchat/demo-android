@@ -12,6 +12,7 @@ import android.widget.SearchView;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -89,9 +90,13 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
 
         SearchCommand cmd = new SearchCommand(keywords);
         GlobalVariable shared = GlobalVariable.getInstance();
+        SharedFacebook facebook = shared.facebook;
         SharedMessenger messenger = shared.messenger;
-//        return messenger.sendCommand(cmd, StarShip.NORMAL);
-        ID bot = ID.parse("archivist@anywhere");
+        ID bot = facebook.ansIdentifier("archivist");
+        // check visa.key
+        if (bot == null || facebook.getPublicKeyForEncryption(bot) == null) {
+            bot = ID.parse("archivist@anywhere");
+        }
         return messenger.sendContent(null, bot, cmd, 0).second != null;
     }
 

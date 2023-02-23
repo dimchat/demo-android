@@ -25,6 +25,7 @@
  */
 package chat.dim;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.crypto.SymmetricKey;
@@ -35,6 +36,7 @@ import chat.dim.mkm.Station;
 import chat.dim.mkm.User;
 import chat.dim.network.ClientSession;
 import chat.dim.port.Departure;
+import chat.dim.protocol.AnsCommand;
 import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
@@ -169,6 +171,17 @@ public class SharedMessenger extends ClientMessenger {
     public boolean queryGroupInfo(ID group, List<ID> members) {
         // TODO:
         return false;
+    }
+
+    @Override
+    public void handshakeSuccess() {
+        super.handshakeSuccess();
+        // query bot ID
+        List<String> names = new ArrayList<>();
+        names.add("archivist");
+        names.add("assistant");
+        AnsCommand command = AnsCommand.query(names);
+        sendCommand(command, 1);
     }
 
     @Override

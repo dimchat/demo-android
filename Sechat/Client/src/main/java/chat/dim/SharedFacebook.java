@@ -27,6 +27,7 @@ package chat.dim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
@@ -187,7 +188,7 @@ public final class SharedFacebook extends CommonFacebook {
         }
         // get from ANS
         assistants = new ArrayList<>();
-        ID bot = ID.parse("assistant");
+        ID bot = ansIdentifier("assistant");
         if (bot != null) {
             assistants.add(bot);
         }
@@ -200,7 +201,7 @@ public final class SharedFacebook extends CommonFacebook {
                 return;
             }
         }
-        ID bot = ID.parse("assistant");
+        ID bot = ansIdentifier("assistant");
         if (bot != null && bot.equals(assistant)) {
             groupAssistants.add(0, assistant);
         } else {
@@ -219,6 +220,13 @@ public final class SharedFacebook extends CommonFacebook {
     //
     //  ANS
     //
+
+    public ID ansIdentifier(String name) {
+        return ans.identifier(name);
+    }
+    public int ansSaveRecords(Map<String, String> records) {
+        return ans.fix(records);
+    }
 
     public static AddressNameTable ansTable = null;
 
@@ -254,6 +262,9 @@ public final class SharedFacebook extends CommonFacebook {
     private static final ID.Factory identifierFactory;
 
     static {
+
+        // load plugins
+        Register.prepare();
 
         identifierFactory = ID.getFactory();
         ID.setFactory(new ID.Factory() {
