@@ -72,7 +72,7 @@ public final class FtpServer implements HTTPDelegate {
         return MD5.digest(concat.getBytes());
     }
 
-    public String upload(byte[] data, String var, String filename, ID identifier, String url) {
+    private String upload(byte[] data, String var, String filename, ID identifier, String url) {
         // prepare filename (make sure that filenames won't conflict)
         String ext = Paths.extension(filename);
         filename = Hex.encode(MD5.digest(data));

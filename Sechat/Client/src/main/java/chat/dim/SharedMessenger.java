@@ -70,7 +70,8 @@ public class SharedMessenger extends ClientMessenger {
     /**
      *  Pack and send command to station
      *
-     * @param cmd - command should be sent to station
+     * @param cmd - command sending to the neighbor station
+     * @param priority - task priority, smaller is faster
      * @return true on success
      */
     public boolean sendCommand(Command cmd, int priority) {
@@ -93,9 +94,13 @@ public class SharedMessenger extends ClientMessenger {
      *
      * @param content - message content
      */
-    public void broadcastContent(Content content) {
-        content.setGroup(ID.EVERYONE);
-        sendContent(ID.EVERYONE, content, 1);
+    public boolean broadcastContent(Content content) {
+        ID group = content.getGroup();
+        if (group == null || !group.isBroadcast()) {
+            group = ID.EVERYONE;
+            content.setGroup(group);
+        }
+        return sendContent(group, content, 1);
     }
 
     public void broadcastVisa(Visa visa) {
@@ -143,7 +148,7 @@ public class SharedMessenger extends ClientMessenger {
     }
 
     public void queryContacts() {
-        User user = getFacebook().getCurrentUser();
+        User user = getCurrentUser();
         assert user != null : "current user empty";
         StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
         cmd.setIdentifier(user.getIdentifier());

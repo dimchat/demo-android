@@ -44,11 +44,6 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
         super(facebook, messenger);
     }
 
-    @Override
-    protected Facebook getFacebook() {
-        return (Facebook) super.getFacebook();
-    }
-
     @SuppressWarnings("unchecked")
     private void parse(SearchCommand cmd) {
         Map<String, Object> results = cmd.getResults();

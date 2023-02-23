@@ -134,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements Observer {
         } else {
             status = "?";
         }
+        if (originTitle == null) {
+            originTitle = (String) getTitle();
+        }
         if (status == null) {
             setTitle(originTitle);
         } else {

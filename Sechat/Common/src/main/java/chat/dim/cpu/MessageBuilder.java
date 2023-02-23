@@ -93,7 +93,7 @@ public abstract class MessageBuilder {
         }
         if (cmd instanceof GroupCommand) {
             text = getGroupCommandText((GroupCommand) cmd, commander);
-            //} else if (cmd instanceof HistoryCommand) {
+        //} else if (cmd instanceof HistoryCommand) {
             // TODO: process history command
         } else if (cmd instanceof LoginCommand) {
             text = getLoginCommandText((LoginCommand) cmd, commander);

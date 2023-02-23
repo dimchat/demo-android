@@ -31,7 +31,6 @@ import java.util.List;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
-import chat.dim.mkm.Group;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.EntityType;
 import chat.dim.protocol.ID;
@@ -41,7 +40,6 @@ public class Conversation {
     public static int PersonalChat = EntityType.USER.value;
     public static int GroupChat = EntityType.GROUP.value;
 
-    private final Entity entity;
     public final ID identifier;
     public final int type;
 
@@ -49,12 +47,11 @@ public class Conversation {
 
     public Conversation(Entity entity) {
         super();
-        this.entity = entity;
         this.identifier = entity.getIdentifier();
         this.type = getType(entity);
     }
 
-    private int getType(Entity entity) {
+    private static int getType(Entity entity) {
         ID identifier = entity.getIdentifier();
         if (identifier.isGroup()) {
             return GroupChat;
@@ -65,11 +62,9 @@ public class Conversation {
     public String getTitle() {
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
-        ID identifier = entity.getIdentifier();
         String name = facebook.getName(identifier);
         if (identifier.isGroup()) {
-            Group group = (Group) entity;
-            List<ID> members = group.getMembers();
+            List<ID> members = facebook.getMembers(identifier);
             int count = (members == null) ? 0 : members.size();
             if (count == 0) {
                 return name + " (...)";

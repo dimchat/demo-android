@@ -116,7 +116,7 @@ public final class SharedFacebook extends CommonFacebook {
             // not exists
             return false;
         }
-        allUsers.add(user);
+        allUsers.remove(user);
         return db.saveLocalUsers(allUsers);
     }
 
@@ -131,7 +131,6 @@ public final class SharedFacebook extends CommonFacebook {
     //-------- Contacts
 
     public boolean addContact(ID contact, ID user) {
-        // TODO: save into db
         List<ID> allContatcs = getContacts(user);
         if (allContatcs == null) {
             allContatcs = new ArrayList<>();
@@ -141,7 +140,6 @@ public final class SharedFacebook extends CommonFacebook {
     }
 
     public boolean removeContact(ID contact, ID user) {
-        // TODO: save into db
         List<ID> allContatcs = getContacts(user);
         if (allContatcs == null || !allContatcs.contains(contact)) {
             return false;
@@ -154,7 +152,6 @@ public final class SharedFacebook extends CommonFacebook {
 
     public void addMember(ID member, ID group) {
         assert member.isUser() && group.isGroup() : "ID error: " + member + ", " + group;
-        // TODO: save into db
         List<ID> allMembers = getMembers(group);
         if (allMembers == null) {
             allMembers = new ArrayList<>();

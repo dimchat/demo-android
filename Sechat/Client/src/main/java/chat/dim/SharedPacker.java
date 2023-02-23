@@ -49,12 +49,12 @@ public class SharedPacker extends ClientMessagePacker {
     @Override
     public byte[] serializeMessage(ReliableMessage rMsg) {
         Compatible.fixMetaAttachment(rMsg);
-        attachKeyDigest(rMsg, getMessenger());
         if (mtpFormat == MTP_JSON) {
             // JsON
             return super.serializeMessage(rMsg);
         } else {
             // D-MTP
+            attachKeyDigest(rMsg, getMessenger());
             return MsgUtils.serializeMessage(rMsg);
         }
     }

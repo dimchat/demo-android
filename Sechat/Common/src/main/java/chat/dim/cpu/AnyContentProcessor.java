@@ -87,7 +87,7 @@ public class AnyContentProcessor extends BaseContentProcessor {
         long sn = content.getSerialNumber();
         String signature = (String) rMsg.get("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, env, sn, signature);
-        receipt.put("signature", signature);
+        //receipt.put("signature", signature);
         return respondContent(receipt);
     }
 }
