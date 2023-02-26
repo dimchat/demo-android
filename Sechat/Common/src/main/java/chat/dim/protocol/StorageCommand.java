@@ -41,11 +41,11 @@ import chat.dim.format.UTF8;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      cmd   : "storage",
- *      title : "key name",  // "contacts", "private_key", ...
+ *      command : "storage",
+ *      title   : "key name",  // "contacts", "private_key", ...
  *
- *      data  : "...",       // base64_encode(symmetric)
- *      key   : "...",       // base64_encode(asymmetric)
+ *      data    : "...",       // base64_encode(symmetric)
+ *      key     : "...",       // base64_encode(asymmetric)
  *
  *      // -- extra info
  *      //...
@@ -68,8 +68,8 @@ public class StorageCommand extends BaseCommand {
     private byte[] plaintext;
     private SymmetricKey password;
 
-    public StorageCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public StorageCommand(Map<String, Object> content) {
+        super(content);
         // lazy
         title = null;
         data = null;

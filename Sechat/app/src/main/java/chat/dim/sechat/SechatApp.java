@@ -32,6 +32,7 @@ import chat.dim.sqlite.mkm.GroupTable;
 import chat.dim.sqlite.mkm.MetaTable;
 import chat.dim.sqlite.mkm.UserTable;
 import chat.dim.ui.Application;
+import chat.dim.utils.Log;
 
 public final class SechatApp extends Application {
 
@@ -130,6 +131,8 @@ public final class SechatApp extends Application {
     }
 
     static {
+
+        Log.LEVEL = Log.DEVELOP;
 
         // prepare plugins
         GlobalVariable shared = GlobalVariable.getInstance();

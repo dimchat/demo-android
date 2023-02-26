@@ -45,8 +45,8 @@ public class AnsCommandProcessor extends BaseCommandProcessor {
     @Override
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof AnsCommand : "search command error: " + content;
-        AnsCommand cmd = (AnsCommand) content;
-        Map<String, String> records = cmd.getRecords();
+        AnsCommand command = (AnsCommand) content;
+        Map<String, String> records = command.getRecords();
         SharedFacebook facebook = (SharedFacebook) getFacebook();
         int count = facebook.ansSaveRecords(records);
         Log.info("ANS: update " + count + " record(s), " + records);

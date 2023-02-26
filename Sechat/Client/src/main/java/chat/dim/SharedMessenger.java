@@ -72,13 +72,13 @@ public class SharedMessenger extends ClientMessenger {
     /**
      *  Pack and send command to station
      *
-     * @param cmd - command sending to the neighbor station
+     * @param content  - command sending to the neighbor station
      * @param priority - task priority, smaller is faster
      * @return true on success
      */
-    public boolean sendCommand(Command cmd, int priority) {
+    public boolean sendCommand(Command content, int priority) {
         ID sid = getCurrentStation().getIdentifier();
-        return sendContent(sid, cmd, priority);
+        return sendContent(sid, content, priority);
     }
 
     private boolean sendContent(ID receiver, Content content, int priority) {
@@ -118,16 +118,16 @@ public class SharedMessenger extends ClientMessenger {
         // pack and send user document to every contact
         List<ID> contacts = user.getContacts();
         if (contacts != null && contacts.size() > 0) {
-            Command cmd = DocumentCommand.response(identifier, visa);
+            Content content = DocumentCommand.response(identifier, visa);
             for (ID contact : contacts) {
-                sendContent(contact, cmd, 1);
+                sendContent(contact, content, 1);
             }
         }
     }
 
     public boolean postDocument(Document doc, Meta meta) {
-        Command cmd = DocumentCommand.response(doc.getIdentifier(), meta, doc);
-        return sendCommand(cmd, Departure.Priority.SLOWER.value);
+        Command content = DocumentCommand.response(doc.getIdentifier(), meta, doc);
+        return sendCommand(content, Departure.Priority.SLOWER.value);
     }
 
     public void postContacts(List<ID> contacts) {
@@ -142,19 +142,19 @@ public class SharedMessenger extends ClientMessenger {
         byte[] key = UTF8.encode(JSON.encode(password));
         key = user.encrypt(key);
         // 4. pack 'storage' command
-        StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
-        cmd.setIdentifier(user.getIdentifier());
-        cmd.setData(data);
-        cmd.setKey(key);
-        sendCommand(cmd, Departure.Priority.SLOWER.value);
+        StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
+        content.setIdentifier(user.getIdentifier());
+        content.setData(data);
+        content.setKey(key);
+        sendCommand(content, Departure.Priority.SLOWER.value);
     }
 
     public void queryContacts() {
         User user = getCurrentUser();
         assert user != null : "current user empty";
-        StorageCommand cmd = new StorageCommand(StorageCommand.CONTACTS);
-        cmd.setIdentifier(user.getIdentifier());
-        sendCommand(cmd, Departure.Priority.SLOWER.value);
+        StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
+        content.setIdentifier(user.getIdentifier());
+        sendCommand(content, Departure.Priority.SLOWER.value);
     }
 
     @Override

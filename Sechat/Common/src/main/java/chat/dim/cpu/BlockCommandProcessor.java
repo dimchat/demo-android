@@ -52,8 +52,8 @@ public class BlockCommandProcessor extends BaseCommandProcessor {
     @Override
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof BlockCommand : "block command error: " + content;
-        BlockCommand cmd = (BlockCommand) content;
-        List list = cmd.getBlockCList();
+        BlockCommand command = (BlockCommand) content;
+        List list = command.getBlockCList();
         if (list == null) {
             return getBlockList();
         } else {

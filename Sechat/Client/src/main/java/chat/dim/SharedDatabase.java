@@ -283,13 +283,13 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public boolean cacheReliableMessage(ID receiver, ReliableMessage msg) {
+    public boolean cacheReliableMessage(ID receiver, ReliableMessage rMsg) {
         // TODO:
         return false;
     }
 
     @Override
-    public boolean removeReliableMessage(ID receiver, ReliableMessage msg) {
+    public boolean removeReliableMessage(ID receiver, ReliableMessage rMsg) {
         // TODO:
         return false;
     }
@@ -304,8 +304,8 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public boolean saveLoginCommandMessage(ID identifier, LoginCommand cmd, ReliableMessage msg) {
-        return loginTable.saveLoginCommandMessage(identifier, cmd, msg);
+    public boolean saveLoginCommandMessage(ID identifier, LoginCommand content, ReliableMessage rMsg) {
+        return loginTable.saveLoginCommandMessage(identifier, content, rMsg);
     }
 
     @Override

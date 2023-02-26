@@ -86,31 +86,31 @@ public abstract class MessageBuilder {
         return text;
     }
 
-    public String getCommandText(Command cmd, ID commander) {
-        String text = (String) cmd.get("text");
+    public String getCommandText(Command content, ID commander) {
+        String text = (String) content.get("text");
         if (text != null) {
             return text;
         }
-        if (cmd instanceof GroupCommand) {
-            text = getGroupCommandText((GroupCommand) cmd, commander);
-        //} else if (cmd instanceof HistoryCommand) {
+        if (content instanceof GroupCommand) {
+            text = getGroupCommandText((GroupCommand) content, commander);
+        //} else if (content instanceof HistoryCommand) {
             // TODO: process history command
-        } else if (cmd instanceof LoginCommand) {
-            text = getLoginCommandText((LoginCommand) cmd, commander);
+        } else if (content instanceof LoginCommand) {
+            text = getLoginCommandText((LoginCommand) content, commander);
         } else {
-            text = String.format("Current version doesn't support this command: %s", cmd.getCmd());
+            text = String.format("Current version doesn't support this command: %s", content.getCmd());
         }
         // store message text
-        cmd.put("text", text);
+        content.put("text", text);
         return text;
     }
 
     //-------- System commands
 
-    private String getLoginCommandText(LoginCommand cmd, ID commander) {
+    private String getLoginCommandText(LoginCommand content, ID commander) {
         assert commander != null : "commander error";
-        ID identifier = cmd.getIdentifier();
-        Map<String, Object> station = cmd.getStation();
+        ID identifier = content.getIdentifier();
+        Map<String, Object> station = content.getStation();
         return String.format("%s login: %s", getName(identifier), station);
     }
 
@@ -118,28 +118,28 @@ public abstract class MessageBuilder {
 
     //-------- Group Commands
 
-    private String getGroupCommandText(GroupCommand cmd, ID commander) {
-        if (cmd instanceof InviteCommand) {
-            return getInviteCommandText((InviteCommand) cmd, commander);
+    private String getGroupCommandText(GroupCommand content, ID commander) {
+        if (content instanceof InviteCommand) {
+            return getInviteCommandText((InviteCommand) content, commander);
         }
-        if (cmd instanceof ExpelCommand) {
-            return getExpelCommandText((ExpelCommand) cmd, commander);
+        if (content instanceof ExpelCommand) {
+            return getExpelCommandText((ExpelCommand) content, commander);
         }
-        if (cmd instanceof QuitCommand) {
-            return getQuitCommandText((QuitCommand) cmd, commander);
+        if (content instanceof QuitCommand) {
+            return getQuitCommandText((QuitCommand) content, commander);
         }
-        if (cmd instanceof ResetCommand) {
-            return getResetCommandText((ResetCommand) cmd, commander);
+        if (content instanceof ResetCommand) {
+            return getResetCommandText((ResetCommand) content, commander);
         }
-        if (cmd instanceof QueryCommand) {
-            return getQueryCommandText((QueryCommand) cmd, commander);
+        if (content instanceof QueryCommand) {
+            return getQueryCommandText((QueryCommand) content, commander);
         }
-        return String.format("unsupported group command: %s", cmd);
+        return String.format("unsupported group command: %s", content);
     }
 
     @SuppressWarnings("unchecked")
-    private String getInviteCommandText(InviteCommand cmd, ID commander) {
-        List<String> addedList = (List<String>) cmd.get("added");
+    private String getInviteCommandText(InviteCommand content, ID commander) {
+        List<String> addedList = (List<String>) content.get("added");
         if (addedList == null) {
             addedList = new ArrayList<>();
         }
@@ -153,8 +153,8 @@ public abstract class MessageBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private String getExpelCommandText(ExpelCommand cmd, ID commander) {
-        List<String> removedList = (List<String>) cmd.get("removed");
+    private String getExpelCommandText(ExpelCommand content, ID commander) {
+        List<String> removedList = (List<String>) content.get("removed");
         if (removedList == null) {
             removedList = new ArrayList<>();
         }
@@ -167,15 +167,15 @@ public abstract class MessageBuilder {
         return String.format("%s has removed members: %s", getName(commander), string);
     }
 
-    private String getQuitCommandText(QuitCommand cmd, ID commander) {
-        assert cmd.getGroup() != null : "quit command error: " + cmd;
+    private String getQuitCommandText(QuitCommand content, ID commander) {
+        assert content.getGroup() != null : "quit command error: " + content;
         return String.format("%s has quit group chat.", getName(commander));
     }
 
     @SuppressWarnings("unchecked")
-    private String getResetCommandText(ResetCommand cmd, ID commander) {
-        List<String> addedList = (List<String>) cmd.get("added");
-        List<String> removedList = (List<String>) cmd.get("removed");
+    private String getResetCommandText(ResetCommand content, ID commander) {
+        List<String> addedList = (List<String>) content.get("added");
+        List<String> removedList = (List<String>) content.get("removed");
 
         String string = "";
         if (removedList != null && removedList.size() > 0) {
@@ -197,8 +197,8 @@ public abstract class MessageBuilder {
         return String.format("%s has updated members %s", getName(commander), string);
     }
 
-    private String getQueryCommandText(QueryCommand cmd, ID commander) {
-        assert cmd.getGroup() != null : "quit command error: " + cmd;
+    private String getQueryCommandText(QueryCommand content, ID commander) {
+        assert content.getGroup() != null : "quit command error: " + content;
         return String.format("%s was querying group info, responding...", getName(commander));
     }
 }

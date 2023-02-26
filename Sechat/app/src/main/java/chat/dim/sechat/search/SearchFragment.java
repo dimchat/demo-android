@@ -18,6 +18,7 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
+import chat.dim.protocol.Content;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.sechat.R;
@@ -88,7 +89,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
     private boolean search(String keywords) {
         dummyList.clearData();
 
-        SearchCommand cmd = new SearchCommand(keywords);
+        Content content = new SearchCommand(keywords);
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
         SharedMessenger messenger = shared.messenger;
@@ -97,7 +98,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
         if (bot == null || facebook.getPublicKeyForEncryption(bot) == null) {
             bot = ID.parse("archivist@anywhere");
         }
-        return messenger.sendContent(null, bot, cmd, 0).second != null;
+        return messenger.sendContent(null, bot, content, 0).second != null;
     }
 
     @Override

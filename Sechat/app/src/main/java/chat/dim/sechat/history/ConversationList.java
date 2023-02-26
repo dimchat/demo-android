@@ -104,9 +104,9 @@ public class ConversationList extends DummyList<ConversationList.Item> {
             if (iMsg != null) {
                 Content content = iMsg.getContent();
                 if (content instanceof Command) {
-                    Command cmd = (Command) content;
+                    Command command = (Command) content;
                     ID sender = iMsg.getSender();
-                    text = msgDB.getCommandText(cmd, sender);
+                    text = msgDB.getCommandText(command, sender);
                 } else {
                     text = msgDB.getContentText(iMsg.getContent());
                 }

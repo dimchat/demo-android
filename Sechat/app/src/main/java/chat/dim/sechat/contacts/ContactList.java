@@ -99,13 +99,13 @@ public class ContactList extends DummyList<ContactList.Item> {
             if (identifier.isGroup()) {
                 return null;
             }
-            LoginCommand cmd = UserViewModel.getLoginCommand(identifier);
-            if (cmd != null) {
+            LoginCommand content = UserViewModel.getLoginCommand(identifier);
+            if (content != null) {
                 GlobalVariable shared = GlobalVariable.getInstance();
                 SharedFacebook facebook = shared.facebook;
-                Map<String, Object> info = cmd.getStation();
+                Map<String, Object> info = content.getStation();
                 ID sid = ID.parse(info.get("ID"));
-                Date time = cmd.getTime();
+                Date time = content.getTime();
                 if (time != null) {
                     if (sid != null) {
                         return "Last login [" + Time.getTimeString(time) + "]: " + facebook.getName(sid);

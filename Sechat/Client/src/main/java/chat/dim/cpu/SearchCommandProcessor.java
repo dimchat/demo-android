@@ -45,8 +45,8 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private void parse(SearchCommand cmd) {
-        Map<String, Object> results = cmd.getResults();
+    private void parse(SearchCommand content) {
+        Map<String, Object> results = content.getResults();
         if (results == null) {
             return;
         }
@@ -78,11 +78,11 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
     @Override
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof SearchCommand : "search command error: " + content;
-        SearchCommand cmd = (SearchCommand) content;
-        parse(cmd);
+        SearchCommand command = (SearchCommand) content;
+        parse(command);
 
         NotificationCenter nc = NotificationCenter.getInstance();
-        nc.postNotification(NotificationNames.SearchUpdated, this, cmd);
+        nc.postNotification(NotificationNames.SearchUpdated, this, command);
 
         return null;
     }

@@ -165,12 +165,12 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
 
     @Override
     public Pair<LoginCommand, ReliableMessage> getLoginCommandMessage(ID identifier) {
-        LoginCommand cmd = getLoginCommand(identifier);
-        return new Pair<>(cmd, null);
+        LoginCommand content = getLoginCommand(identifier);
+        return new Pair<>(content, null);
     }
 
     @Override
-    public boolean saveLoginCommandMessage(ID identifier, LoginCommand cmd, ReliableMessage msg) {
-        return saveLoginCommand(cmd);
+    public boolean saveLoginCommandMessage(ID identifier, LoginCommand content, ReliableMessage rMsg) {
+        return saveLoginCommand(content);
     }
 }

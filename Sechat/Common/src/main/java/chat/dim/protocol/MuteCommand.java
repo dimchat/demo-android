@@ -35,8 +35,8 @@ import chat.dim.dkd.cmd.BaseCommand;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      cmd  : "mute",
- *      list : []      // mute-list
+ *      command : "mute",
+ *      list    : []      // mute-list
  *  }
  */
 public class MuteCommand extends BaseCommand {
@@ -46,8 +46,8 @@ public class MuteCommand extends BaseCommand {
     // mute-list
     private List<ID> muteList = null;
 
-    public MuteCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public MuteCommand(Map<String, Object> content) {
+        super(content);
     }
 
     /**

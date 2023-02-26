@@ -42,8 +42,8 @@ public interface LoginTable extends LoginDBI {
     /**
      *  Save last login command for user
      *
-     * @param command - login command with user ID
+     * @param content - login command with user ID
      * @return false on failed
      */
-    boolean saveLoginCommand(LoginCommand command);
+    boolean saveLoginCommand(LoginCommand content);
 }

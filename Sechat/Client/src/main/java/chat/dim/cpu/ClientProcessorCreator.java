@@ -56,32 +56,32 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
     }
 
     @Override
-    public ContentProcessor createCommandProcessor(int type, String cmd) {
+    public ContentProcessor createCommandProcessor(int type, String name) {
         // storage (contacts, private_key)
-        if (StorageCommand.STORAGE.equals(cmd)) {
+        if (StorageCommand.STORAGE.equals(name)) {
             return new StorageCommandProcessor(getFacebook(), getMessenger());
-        } else if (StorageCommand.CONTACTS.equals(cmd) || StorageCommand.PRIVATE_KEY.equals(cmd)) {
+        } else if (StorageCommand.CONTACTS.equals(name) || StorageCommand.PRIVATE_KEY.equals(name)) {
             return new StorageCommandProcessor(getFacebook(), getMessenger());
         }
         // search
-        if (SearchCommand.SEARCH.equals(cmd)) {
+        if (SearchCommand.SEARCH.equals(name)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
-        } else if (SearchCommand.ONLINE_USERS.equals(cmd)) {
+        } else if (SearchCommand.ONLINE_USERS.equals(name)) {
             return new SearchCommandProcessor(getFacebook(), getMessenger());
         }
         // mute
-        if (MuteCommand.MUTE.equals(cmd)) {
+        if (MuteCommand.MUTE.equals(name)) {
             return new MuteCommandProcessor(getFacebook(), getMessenger());
         }
         // block
-        if (BlockCommand.BLOCK.equals(cmd)) {
+        if (BlockCommand.BLOCK.equals(name)) {
             return new BlockCommandProcessor(getFacebook(), getMessenger());
         }
         // ans
-        if (AnsCommand.ANS.equals(cmd)) {
+        if (AnsCommand.ANS.equals(name)) {
             return new AnsCommandProcessor(getFacebook(), getMessenger());
         }
         // others
-        return super.createCommandProcessor(type, cmd);
+        return super.createCommandProcessor(type, name);
     }
 }

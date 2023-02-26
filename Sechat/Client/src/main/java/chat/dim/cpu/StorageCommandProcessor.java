@@ -47,45 +47,45 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
         super(facebook, messenger);
     }
 
-    private Object decryptData(StorageCommand cmd, SymmetricKey password) {
+    private Object decryptData(StorageCommand content, SymmetricKey password) {
         // 1. get encrypted data
-        byte[] data = cmd.getData();
+        byte[] data = content.getData();
         if (data == null) {
-            throw new NullPointerException("data not found: " + cmd);
+            throw new NullPointerException("data not found: " + content);
         }
         // 2. decrypt data
         data = password.decrypt(data);
         if (data == null) {
-            throw new NullPointerException("failed to decrypt data: " + cmd);
+            throw new NullPointerException("failed to decrypt data: " + content);
         }
         // 3. decode data
         return JSON.decode(UTF8.decode(data));
     }
 
     @SuppressWarnings("unchecked")
-    private Object decryptData(StorageCommand cmd) {
+    private Object decryptData(StorageCommand content) {
         // 1. get encrypt key
-        byte[] key = cmd.getKey();
+        byte[] key = content.getKey();
         if (key == null) {
-            throw new NullPointerException("key not found: " + cmd);
+            throw new NullPointerException("key not found: " + content);
         }
         // 2. get user ID
-        ID identifier = cmd.getIdentifier();
+        ID identifier = content.getIdentifier();
         if (identifier == null) {
-            throw new NullPointerException("ID not found: " + cmd);
+            throw new NullPointerException("ID not found: " + content);
         }
         // 3. decrypt key
         Facebook facebook = getFacebook();
         User user = facebook.getUser(identifier);
         key = user.decrypt(key);
         if (key == null) {
-            throw new NullPointerException("failed to decrypt key: " + cmd);
+            throw new NullPointerException("failed to decrypt key: " + content);
         }
         // 4. decode key
         Object dict = JSON.decode(UTF8.decode(key));
         SymmetricKey password = SymmetricKey.parse((Map<String, Object>) dict);
         // 5. decrypt data
-        return decryptData(cmd, password);
+        return decryptData(content, password);
     }
 
     //---- Contacts
@@ -97,15 +97,15 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
 
     // decrypt and save contacts for user
     @SuppressWarnings("unchecked")
-    private List<Content> processContacts(StorageCommand cmd) {
-        List<String> contacts = (List) cmd.get("contacts");
+    private List<Content> processContacts(StorageCommand content) {
+        List<String> contacts = (List) content.get("contacts");
         if (contacts == null) {
-            contacts = (List) decryptData(cmd);
+            contacts = (List) decryptData(content);
             if (contacts == null) {
-                throw new NullPointerException("failed to decrypt contacts: " + cmd);
+                throw new NullPointerException("failed to decrypt contacts: " + content);
             }
         }
-        ID identifier = cmd.getIdentifier();
+        ID identifier = content.getIdentifier();
         return saveContacts(contacts, identifier);
     }
 
@@ -117,27 +117,27 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Content> processPrivateKey(StorageCommand cmd) {
+    private List<Content> processPrivateKey(StorageCommand content) {
         String string = "<TODO: input your password>";
         SymmetricKey password = Password.generate(string);
-        Object dict = decryptData(cmd, password);
+        Object dict = decryptData(content, password);
         PrivateKey key = PrivateKey.parse((Map<String, Object>) dict);
         if (key == null) {
-            throw new NullPointerException("failed to decrypt private key: " + cmd);
+            throw new NullPointerException("failed to decrypt private key: " + content);
         }
-        ID identifier = cmd.getIdentifier();
+        ID identifier = content.getIdentifier();
         return savePrivateKey(key, identifier);
     }
 
     @Override
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof StorageCommand : "storage command error: " + content;
-        StorageCommand cmd = (StorageCommand) content;
-        String title = cmd.getTitle();
+        StorageCommand command = (StorageCommand) content;
+        String title = command.getTitle();
         if (title.equals(StorageCommand.CONTACTS)) {
-            return processContacts(cmd);
+            return processContacts(command);
         } else if (title.equals(StorageCommand.PRIVATE_KEY)) {
-            return processPrivateKey(cmd);
+            return processPrivateKey(command);
         }
         throw new UnsupportedOperationException("Unsupported storage, title: " + title);
     }

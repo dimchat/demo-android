@@ -240,8 +240,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         // show by content type
         Content content = iMsg.getContent();
         if (content instanceof Command) {
-            Command cmd = (Command) content;
-            String text = msgDB.getCommandText(cmd, sender);
+            Command command = (Command) content;
+            String text = msgDB.getCommandText(command, sender);
             //viewHolder.frameLayout.setVisibility(View.VISIBLE);
             viewHolder.msgView.setVisibility(View.VISIBLE);
             viewHolder.msgView.setText(text);

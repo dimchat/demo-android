@@ -36,7 +36,7 @@ import chat.dim.utils.ArrayUtils;
  *      type : 0x88,
  *      sn   : 123,
  *
- *      cmd      : "search",        // or "users"
+ *      command  : "search",        // or "users"
  *      keywords : "keywords",      // keyword string
  *
  *      start    : 0,
@@ -54,8 +54,8 @@ public class SearchCommand extends BaseCommand {
     // search online users
     public static final String ONLINE_USERS = "users";
 
-    public SearchCommand(Map<String, Object> dictionary) {
-        super(dictionary);
+    public SearchCommand(Map<String, Object> content) {
+        super(content);
     }
 
     public SearchCommand(String keywords) {

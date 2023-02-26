@@ -75,14 +75,13 @@ interface Compatible {
         return content;
     }
     static Command fixCmd(Command content) {
-        String cmd = (String) content.get("cmd");
+        Object cmd = content.get("cmd");
         if (cmd == null) {
-            // copy 'command' to 'cmd' and recreate it
-            cmd = (String) content.get("command");
+            cmd = content.get("command");
             content.put("cmd", cmd);
-            content = Command.parse(content.toMap());
         } else if (!content.containsKey("command")) {
             content.put("command", cmd);
+            content = Command.parse(content.toMap());
         }
         return content;
     }

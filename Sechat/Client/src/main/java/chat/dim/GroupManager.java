@@ -51,22 +51,22 @@ public final class GroupManager {
     }
 
     // send command to current station
-    private static void sendGroupCommand(Command cmd) {
+    private static void sendGroupCommand(Command content) {
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedMessenger messenger = shared.messenger;
-        messenger.sendCommand(cmd, Departure.Priority.NORMAL.value);
+        messenger.sendCommand(content, Departure.Priority.NORMAL.value);
     }
-    private static void sendGroupCommand(Command cmd, ID receiver) {
+    private static void sendGroupCommand(Command content, ID receiver) {
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedMessenger messenger = shared.messenger;
-        messenger.sendContent(null, receiver, cmd, Departure.Priority.NORMAL.value);
+        messenger.sendContent(null, receiver, content, Departure.Priority.NORMAL.value);
     }
-    private static void sendGroupCommand(Command cmd, List<ID> members) {
+    private static void sendGroupCommand(Command content, List<ID> members) {
         if (members == null) {
             return;
         }
         for (ID receiver : members) {
-            sendGroupCommand(cmd, receiver);
+            sendGroupCommand(content, receiver);
         }
     }
 
@@ -94,37 +94,37 @@ public final class GroupManager {
             throw new NullPointerException("failed to get meta for group: " + group);
         }
         Document doc = facebook.getDocument(group, "*");
-        Command cmd;
+        Command command;
         if (doc == null) {
             // empty document
-            cmd = MetaCommand.response(group, meta);
+            command = MetaCommand.response(group, meta);
         } else {
-            cmd = DocumentCommand.response(group, meta, doc);
+            command = DocumentCommand.response(group, meta, doc);
         }
-        sendGroupCommand(cmd);                  // to current station
-        sendGroupCommand(cmd, bots);            // to group assistants
+        sendGroupCommand(command);                  // to current station
+        sendGroupCommand(command, bots);            // to group assistants
         if (count <= 2) { // new group?
             // 1. send 'meta/document' to station and bots
             // 2. update local storage
             members = addMembers(newMembers, group);
-            sendGroupCommand(cmd, members);     // to all members
+            sendGroupCommand(command, members);     // to all members
             // 3. send 'invite' command with all members to all members
-            cmd = GroupCommand.invite(group, members);
-            sendGroupCommand(cmd, bots);        // to group assistants
-            sendGroupCommand(cmd, members);     // to all members
+            command = GroupCommand.invite(group, members);
+            sendGroupCommand(command, bots);        // to group assistants
+            sendGroupCommand(command, members);     // to all members
         } else {
             // 1. send 'meta/document' to station, bots and all members
-            //sendGroupCommand(cmd, members);     // to old members
-            sendGroupCommand(cmd, newMembers);  // to new members
+            //sendGroupCommand(command, members);     // to old members
+            sendGroupCommand(command, newMembers);  // to new members
             // 2. send 'invite' command with new members to old members
-            cmd = GroupCommand.invite(group, newMembers);
-            sendGroupCommand(cmd, bots);        // to group assistants
-            sendGroupCommand(cmd, members);     // to old members
+            command = GroupCommand.invite(group, newMembers);
+            sendGroupCommand(command, bots);        // to group assistants
+            sendGroupCommand(command, members);     // to old members
             // 3. update local storage
             members = addMembers(newMembers, group);
             // 4. send 'invite' command with all members to new members
-            cmd = GroupCommand.invite(group, members);
-            sendGroupCommand(cmd, newMembers);  // to new members
+            command = GroupCommand.invite(group, members);
+            sendGroupCommand(command, newMembers);  // to new members
         }
 
         return true;
@@ -158,11 +158,11 @@ public final class GroupManager {
         }
 
         // 1. send 'expel' command to all members
-        Command cmd = GroupCommand.expel(group, outMembers);
-        sendGroupCommand(cmd, bots);        // to assistants
-        sendGroupCommand(cmd, members);     // to existed members
+        Command command = GroupCommand.expel(group, outMembers);
+        sendGroupCommand(command, bots);        // to assistants
+        sendGroupCommand(command, members);     // to existed members
         if (owner != null && !members.contains(owner)) {
-            sendGroupCommand(cmd, owner);   // to owner
+            sendGroupCommand(command, owner);   // to owner
         }
 
         // 2. update local storage
@@ -199,11 +199,11 @@ public final class GroupManager {
         }
 
         // 1. send 'quit' command to all members
-        Command cmd = GroupCommand.quit(group);
-        sendGroupCommand(cmd, bots);        // to assistants
-        sendGroupCommand(cmd, members);     // to existed members
+        Command command = GroupCommand.quit(group);
+        sendGroupCommand(command, bots);        // to assistants
+        sendGroupCommand(command, members);     // to existed members
         if (owner != null && !members.contains(owner)) {
-            sendGroupCommand(cmd, owner);   // to owner
+            sendGroupCommand(command, owner);   // to owner
         }
 
         // 2. update local storage
