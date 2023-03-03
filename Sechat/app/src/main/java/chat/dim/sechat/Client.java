@@ -235,14 +235,14 @@ public final class Client extends Terminal implements Observer {
     //
 
     @Override
-    public void enterState(SessionState next, StateMachine ctx) {
-        super.enterState(next, ctx);
+    public void enterState(SessionState next, StateMachine ctx, long now) {
+        super.enterState(next, ctx, now);
         // called after state changed
     }
 
     @Override
-    public void exitState(SessionState previous, StateMachine ctx) {
-        super.exitState(previous, ctx);
+    public void exitState(SessionState previous, StateMachine ctx, long now) {
+        super.exitState(previous, ctx, now);
         // called after state changed
         Log.info("state changed: " + previous + " => " + ctx.getCurrentState());
         SessionState current = ctx.getCurrentState();
@@ -257,13 +257,13 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
-    public void pauseState(SessionState current, StateMachine ctx) {
-        super.pauseState(current, ctx);
+    public void pauseState(SessionState current, StateMachine ctx, long now) {
+        super.pauseState(current, ctx, now);
     }
 
     @Override
-    public void resumeState(SessionState current, StateMachine ctx) {
-        super.resumeState(current, ctx);
+    public void resumeState(SessionState current, StateMachine ctx, long now) {
+        super.resumeState(current, ctx, now);
         // TODO: clear session key for re-login?
     }
 }

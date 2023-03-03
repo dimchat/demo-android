@@ -32,7 +32,6 @@ import java.util.Map;
 import chat.dim.Anonymous;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.cpu.MessageBuilder;
 import chat.dim.database.MessageTable;
 import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;

@@ -98,9 +98,9 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
     // decrypt and save contacts for user
     @SuppressWarnings("unchecked")
     private List<Content> processContacts(StorageCommand content) {
-        List<String> contacts = (List) content.get("contacts");
+        List<String> contacts = (List<String>) content.get("contacts");
         if (contacts == null) {
-            contacts = (List) decryptData(content);
+            contacts = (List<String>) decryptData(content);
             if (contacts == null) {
                 throw new NullPointerException("failed to decrypt contacts: " + content);
             }

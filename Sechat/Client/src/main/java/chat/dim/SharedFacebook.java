@@ -27,7 +27,6 @@ package chat.dim;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
@@ -35,32 +34,17 @@ import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.http.HTTPClient;
 import chat.dim.mkm.User;
-import chat.dim.protocol.Address;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
 import chat.dim.protocol.Visa;
 import chat.dim.type.Pair;
 
-public final class SharedFacebook extends CommonFacebook {
+public final class SharedFacebook extends ClientFacebook {
 
     private final List<ID> groupAssistants = new ArrayList<>();
 
     public SharedFacebook(AccountDBI db) {
         super(db);
-    }
-
-    public String getName(ID identifier) {
-        // get name from document
-        Document doc = getDocument(identifier, "*");
-        if (doc != null) {
-            String name = doc.getName();
-            if (name != null && name.length() > 0) {
-                return name;
-            }
-        }
-        // get name from ID
-        return Anonymous.getName(identifier);
     }
 
     /**
@@ -132,21 +116,21 @@ public final class SharedFacebook extends CommonFacebook {
     //-------- Contacts
 
     public boolean addContact(ID contact, ID user) {
-        List<ID> allContatcs = getContacts(user);
-        if (allContatcs == null) {
-            allContatcs = new ArrayList<>();
+        List<ID> allContacts = getContacts(user);
+        if (allContacts == null) {
+            allContacts = new ArrayList<>();
         }
-        allContatcs.add(contact);
-        return saveContacts(allContatcs, user);
+        allContacts.add(contact);
+        return saveContacts(allContacts, user);
     }
 
     public boolean removeContact(ID contact, ID user) {
-        List<ID> allContatcs = getContacts(user);
-        if (allContatcs == null || !allContatcs.contains(contact)) {
+        List<ID> allContacts = getContacts(user);
+        if (allContacts == null || !allContacts.contains(contact)) {
             return false;
         }
-        allContatcs.remove(contact);
-        return saveContacts(allContatcs, user);
+        allContacts.remove(contact);
+        return saveContacts(allContacts, user);
     }
 
     //-------- Members
@@ -188,7 +172,7 @@ public final class SharedFacebook extends CommonFacebook {
         }
         // get from ANS
         assistants = new ArrayList<>();
-        ID bot = ansIdentifier("assistant");
+        ID bot = ans.identifier("assistant");
         if (bot != null) {
             assistants.add(bot);
         }
@@ -201,7 +185,7 @@ public final class SharedFacebook extends CommonFacebook {
                 return;
             }
         }
-        ID bot = ansIdentifier("assistant");
+        ID bot = ans.identifier("assistant");
         if (bot != null && bot.equals(assistant)) {
             groupAssistants.add(0, assistant);
         } else {
@@ -218,77 +202,38 @@ public final class SharedFacebook extends CommonFacebook {
     }
 
     //
-    //  ANS
+    //  Address Name Service
     //
-
-    public ID ansIdentifier(String name) {
-        return ans.identifier(name);
-    }
-    public int ansSaveRecords(Map<String, String> records) {
-        return ans.fix(records);
-    }
-
     public static AddressNameTable ansTable = null;
 
-    private static final AddressNameServer ans = new AddressNameServer() {
+    static {
+        ans = new AddressNameServer() {
 
-        @Override
-        public ID identifier(String name) {
-            ID identifier = super.identifier(name);
-            if (identifier != null) {
+            @Override
+            public ID identifier(String name) {
+                ID identifier = super.identifier(name);
+                if (identifier != null) {
+                    return identifier;
+                }
+                identifier = ansTable.getIdentifier(name);
+                if (identifier != null) {
+                    // FIXME: is reserved name?
+                    cache(name, identifier);
+                }
                 return identifier;
             }
-            identifier = ansTable.getIdentifier(name);
-            if (identifier != null) {
-                // FIXME: is reserved name?
-                cache(name, identifier);
-            }
-            return identifier;
-        }
-
-        @Override
-        public boolean save(String name, ID identifier) {
-            if (!cache(name, identifier)) {
-                return false;
-            }
-            if (identifier == null) {
-                return ansTable.removeRecord(name);
-            } else {
-                return ansTable.addRecord(identifier, name);
-            }
-        }
-    };
-
-    private static final ID.Factory identifierFactory;
-
-    static {
-
-        // load plugins
-        Register.prepare();
-
-        identifierFactory = ID.getFactory();
-        ID.setFactory(new ID.Factory() {
 
             @Override
-            public ID generateID(Meta meta, int type, String terminal) {
-                return identifierFactory.generateID(meta, type, terminal);
-            }
-
-            @Override
-            public ID createID(String name, Address address, String terminal) {
-                return identifierFactory.createID(name, address, terminal);
-            }
-
-            @Override
-            public ID parseID(String identifier) {
-                // try ANS record
-                ID id = ans.identifier(identifier);
-                if (id != null) {
-                    return id;
+            public boolean save(String name, ID identifier) {
+                if (!cache(name, identifier)) {
+                    return false;
                 }
-                // parse by original factory
-                return identifierFactory.parseID(identifier);
+                if (identifier == null) {
+                    return ansTable.removeRecord(name);
+                } else {
+                    return ansTable.addRecord(identifier, name);
+                }
             }
-        });
+        };
     }
 }

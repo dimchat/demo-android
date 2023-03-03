@@ -73,7 +73,12 @@ public class ChatManageViewModel extends EntityViewModel {
 
     boolean quitGroup(ID group) {
         clearHistory(group);
-        GroupManager gm = new GroupManager(group);
-        return gm.quit();
+        GlobalVariable shared = GlobalVariable.getInstance();
+        GroupManager gm = new GroupManager(group, shared.messenger);
+        if (gm.quit()) {
+            return shared.facebook.removeGroup(group);
+        } else {
+            return false;
+        }
     }
 }

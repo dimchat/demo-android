@@ -37,6 +37,7 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedMessenger;
 import chat.dim.filesys.EntityStorage;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
@@ -87,7 +88,13 @@ public class GroupViewModel extends EntityViewModel {
         }
         List<ID> members = getMembers();
         if (members == null || members.size() < 1) {
-            BackgroundThreads.wait(() -> (new GroupManager(getIdentifier())).query());
+            BackgroundThreads.wait(() -> {
+                GlobalVariable shared = GlobalVariable.getInstance();
+                SharedMessenger messenger = shared.messenger;
+                GroupManager man = new GroupManager(identifier, messenger);
+                boolean ok = man.query();
+                assert ok : "failed to query group info: " + identifier;
+            });
         }
     }
 

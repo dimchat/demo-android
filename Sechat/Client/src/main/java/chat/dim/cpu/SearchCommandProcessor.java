@@ -26,15 +26,12 @@
 package chat.dim.cpu;
 
 import java.util.List;
-import java.util.Map;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SearchCommand;
 
@@ -44,42 +41,10 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
         super(facebook, messenger);
     }
 
-    @SuppressWarnings("unchecked")
-    private void parse(SearchCommand content) {
-        Map<String, Object> results = content.getResults();
-        if (results == null) {
-            return;
-        }
-        Facebook facebook = getFacebook();
-        ID identifier;
-        Meta meta;
-        Map<String, Object> info;
-        Object version;
-        for (Map.Entry<String, Object> entry : results.entrySet()) {
-            identifier = ID.parse(entry.getKey());
-            if (identifier == null) {
-                // TODO: ID error
-                continue;
-            }
-            info = (Map<String, Object>) entry.getValue();
-            version = info.get("version");
-            if (version != null) {
-                info.put("type", version);
-            }
-            meta = Meta.parse(info);
-            if (meta == null || !Meta.matches(identifier, meta)) {
-                // TODO: meta error
-                continue;
-            }
-            facebook.saveMeta(meta, identifier);
-        }
-    }
-
     @Override
     public List<Content> process(Content content, ReliableMessage rMsg) {
         assert content instanceof SearchCommand : "search command error: " + content;
         SearchCommand command = (SearchCommand) content;
-        parse(command);
 
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.SearchUpdated, this, command);

@@ -37,14 +37,13 @@ import chat.dim.utils.ArrayUtils;
  *      sn   : 123,
  *
  *      command  : "search",        // or "users"
- *      keywords : "keywords",      // keyword string
+ *      keywords : "{keywords}",    // keyword string
  *
  *      start    : 0,
  *      limit    : 20,
  *
- *      station  : "STATION_ID",    // station ID
- *      users    : ["ID"],          // user ID list
- *      results  : {"ID": {meta}, } // user's meta map
+ *      station  : "{STATION_ID}",  // station ID
+ *      users    : ["{ID}"]         // user ID list
  *  }
  */
 public class SearchCommand extends BaseCommand {
@@ -127,19 +126,5 @@ public class SearchCommand extends BaseCommand {
             return null;
         }
         return ID.convert(users);
-    }
-
-    /**
-     *  Get user metas mapping to ID strings
-     *
-     * @return meta dictionary
-     */
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> getResults() {
-        Map<String, Object> results = (Map) get("results");
-        if (results == null) {
-            return null;
-        }
-        return results;
     }
 }

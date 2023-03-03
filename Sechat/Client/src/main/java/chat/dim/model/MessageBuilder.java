@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.cpu;
+package chat.dim.model;
 
 import java.util.ArrayList;
 import java.util.List;

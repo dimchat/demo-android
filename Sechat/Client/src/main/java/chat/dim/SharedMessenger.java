@@ -37,7 +37,6 @@ import chat.dim.mkm.User;
 import chat.dim.network.ClientSession;
 import chat.dim.port.Departure;
 import chat.dim.protocol.AnsCommand;
-import chat.dim.protocol.BlockCommand;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
@@ -45,7 +44,6 @@ import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
-import chat.dim.protocol.MuteCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
@@ -168,11 +166,6 @@ public class SharedMessenger extends ClientMessenger {
         return ok;
     }
 
-    public boolean queryGroupInfo(ID group, List<ID> members) {
-        // TODO:
-        return false;
-    }
-
     @Override
     public void handshakeSuccess() {
         super.handshakeSuccess();
@@ -206,11 +199,6 @@ public class SharedMessenger extends ClientMessenger {
         //
         //  Register command parsers
         //
-
-        // Mute
-        Command.setFactory(MuteCommand.MUTE, MuteCommand::new);
-        // Block
-        Command.setFactory(BlockCommand.BLOCK, BlockCommand::new);
 
         // Report (online, offline)
         Command.setFactory("broadcast", ReportCommand::new);

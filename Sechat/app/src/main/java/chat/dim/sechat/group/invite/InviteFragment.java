@@ -114,7 +114,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         }
 
         // invite group member(s)
-        GroupManager gm = new GroupManager(identifier);
+        GroupManager gm = new GroupManager(identifier, shared.messenger);
         if (gm.invite(new ArrayList<>(selected))) {
             if (from.isUser()) {
                 Map<String, Object> info = new HashMap<>();
