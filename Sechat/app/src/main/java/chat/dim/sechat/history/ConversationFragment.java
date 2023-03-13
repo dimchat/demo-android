@@ -103,8 +103,8 @@ public class ConversationFragment extends ListFragment<ConversationViewAdapter, 
         MainActivity activity = (MainActivity) getActivity();
         assert activity != null : "main activity not found";
 
-        String serverState = activity.serverState;
-        if (serverState != null && !serverState.equals(SessionState.RUNNING)) {
+        SessionState serverState = activity.serverState;
+        if (serverState != null && !serverState.equals(SessionState.Order.RUNNING)) {
             Alert.tips(activity, R.string.server_connecting);
             return false;
         }

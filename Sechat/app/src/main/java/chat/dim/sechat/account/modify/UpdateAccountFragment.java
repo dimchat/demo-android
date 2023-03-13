@@ -123,18 +123,20 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         Visa visa = (Visa) mViewModel.getDocument("*");
         assert visa != null : "visa object should not be null: " + identifier;
 
-        // upload avatar
-        if (avatarImage != null) {
-            FtpServer ftp = FtpServer.getInstance();
-            byte[] imageData = Images.jpeg(avatarImage);
-            String avatarURL = ftp.uploadAvatar(imageData, identifier);
-            visa.setAvatar(avatarURL);
-        }
-
         // update nickname
         String nickname = nicknameText.getText().toString();
         if (nickname.length() > 0) {
             visa.setName(nickname);
+        }
+
+        // upload avatar
+        if (avatarImage != null) {
+            FtpServer ftp = FtpServer.getInstance();
+            byte[] imageData = Images.jpeg(avatarImage);
+            ftp.uploadAvatar(imageData, identifier);
+
+            // TODO: update visa after avatar uploaded
+            //visa.setAvatar(avatarURL);
         }
 
         mViewModel.updateVisa(visa);

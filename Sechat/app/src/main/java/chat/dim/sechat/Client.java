@@ -251,7 +251,7 @@ public final class Client extends Terminal implements Observer {
             return;
         }
         Map<String, Object> info = new HashMap<>();
-        info.put("state", current.name);
+        info.put("state", current);
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.ServerStateChanged, this, info);
     }

@@ -313,7 +313,7 @@ public class Contact {
             return true;
         }
         ConnectionState state = conn.getState();
-        return state != null && state.equals(ConnectionState.ERROR);
+        return state != null && state.equals(ConnectionState.Order.ERROR);
     }
 
     public static boolean isExpired(LocationValue location) {

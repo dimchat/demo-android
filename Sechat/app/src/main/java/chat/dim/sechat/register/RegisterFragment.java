@@ -163,8 +163,9 @@ public class RegisterFragment extends Fragment {
         if (avatarImage != null) {
             FtpServer ftp = FtpServer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            String avatarURL = ftp.uploadAvatar(imageData, user.getIdentifier());
-            visa.setAvatar(avatarURL);
+            ftp.uploadAvatar(imageData, user.getIdentifier());
+            // TODO: waiting for avatar uploaded
+            //visa.setAvatar(avatarURL);
             SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.getIdentifier());
             assert sKey != null : "failed to get private key: " + user.getIdentifier();
             visa.sign(sKey);

@@ -97,16 +97,10 @@ public final class FtpServer implements HTTPDelegate {
     //  Avatar
     //
 
-    public String uploadAvatar(byte[] imageData, ID identifier) {
+    public void uploadAvatar(byte[] imageData, ID identifier) {
         String url = config.getUploadURL();
         assert url != null : "upload API error";
         String filename = upload(imageData, "avatar", "avatar.jpeg", identifier, url);
-
-        // build download URL
-        String download = config.getAvatarURL();
-        assert download != null : "download API error";
-        download = download.replaceAll("\\{ID\\}", identifier.getAddress().toString());
-        download = download.replaceAll("\\{filename\\}", filename);
 
         try {
             // store in user's directory
@@ -118,8 +112,6 @@ public final class FtpServer implements HTTPDelegate {
 
         // save a copy to cache directory
         saveFileData(imageData, filename);
-
-        return download;
     }
 
     public String downloadAvatar(String url, ID identifier) {
@@ -155,22 +147,17 @@ public final class FtpServer implements HTTPDelegate {
         }
     }
 
-    public String uploadEncryptedData(byte[] data, String filename, ID sender) {
+    public void uploadEncryptedData(byte[] data, String filename, ID sender) {
         String url = config.getUploadURL();
         assert url != null : "upload API error";
-        filename = upload(data, "file", filename, sender, url);
-
-        // build download URL
-        String download = config.getDownloadURL();
-        assert download != null : "download API error";
-        return download.replaceAll("\\{ID\\}", sender.getAddress().toString()).replaceAll("\\{filename\\}", filename);
+        upload(data, "file", filename, sender, url);
     }
 
-    public String downloadEncryptedData(String url) {
+    public void downloadEncryptedData(String url) {
         Log.info("downloading encrypt data: " + url);
 
         HTTPClient httpClient = HTTPClient.getInstance();
-        return httpClient.download(url);
+        httpClient.download(url);
     }
 
     // chat.dim.http.DownloadTask.getCachePath()

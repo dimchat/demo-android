@@ -85,7 +85,7 @@ public class AnyContentProcessor extends BaseContentProcessor {
         // response
         Envelope env = rMsg.getEnvelope();
         long sn = content.getSerialNumber();
-        String signature = (String) rMsg.get("signature");
+        String signature = rMsg.getString("signature");
         ReceiptCommand receipt = new ReceiptCommand(text, env, sn, signature);
         //receipt.put("signature", signature);
         return respondContent(receipt);

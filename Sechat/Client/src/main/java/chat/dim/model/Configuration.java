@@ -46,8 +46,6 @@ public final class Configuration {
     private Map<String, Object> info = null;
 
     private String apiUpload = null;
-    private String apiDownload = null;
-    private String apiAvatar = null;
 
     private String apiTerms = null;
     private String apiAbout = null;
@@ -70,14 +68,6 @@ public final class Configuration {
         String upload = apis.get("upload");
         if (upload != null) {
             apiUpload = upload;
-        }
-        String download = apis.get("download");
-        if (download != null) {
-            apiDownload = download;
-        }
-        String avatar = apis.get("avatar");
-        if (avatar != null) {
-            apiAvatar = avatar;
         }
 
         String terms = apis.get("terms");
@@ -131,22 +121,6 @@ public final class Configuration {
             loadConfig();
         }
         return apiUpload;
-    }
-
-    // "https://sechat.dim.chat/download/{ID}/{filename}"
-    public String getDownloadURL() {
-        if (apiDownload == null) {
-            loadConfig();
-        }
-        return apiDownload;
-    }
-
-    // "https://sechat.dim.chat/avatar/{ID}/{filename}"
-    public String getAvatarURL() {
-        if (apiAvatar == null) {
-            loadConfig();
-        }
-        return apiAvatar;
     }
 
     // "https://wallet.dim.chat/dimchat/sechat/privacy.html"
