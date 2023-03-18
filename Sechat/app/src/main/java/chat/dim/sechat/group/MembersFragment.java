@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.GlobalVariable;
+import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
@@ -43,7 +44,8 @@ public class MembersFragment extends Fragment {
             SharedFacebook facebook = shared.facebook;
             User user = facebook.getCurrentUser();
             // TODO: check for administrators
-            return facebook.isOwner(user.getIdentifier(), identifier);
+            GroupManager manager = GroupManager.getInstance();
+            return manager.isOwner(user.getIdentifier(), identifier);
         }
         return false;
     }

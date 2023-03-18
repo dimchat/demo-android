@@ -33,7 +33,8 @@ public class ChatManageViewModel extends EntityViewModel {
             GlobalVariable shared = GlobalVariable.getInstance();
             SharedFacebook facebook = shared.facebook;
             User user = facebook.getCurrentUser();
-            return facebook.isOwner(user.getIdentifier(), identifier);
+            GroupManager manager = GroupManager.getInstance();
+            return manager.isOwner(user.getIdentifier(), identifier);
         }
         return false;
     }
@@ -50,7 +51,8 @@ public class ChatManageViewModel extends EntityViewModel {
                 --count;
                 participants.add(owner);
             }
-            List<ID> members = getFacebook().getMembers(identifier);
+            GroupManager manager = GroupManager.getInstance();
+            List<ID> members = manager.getMembers(identifier);
             if (members != null) {
                 for (ID item : members) {
                     if (participants.contains(item)) {
@@ -73,10 +75,9 @@ public class ChatManageViewModel extends EntityViewModel {
 
     boolean quitGroup(ID group) {
         clearHistory(group);
-        GlobalVariable shared = GlobalVariable.getInstance();
-        GroupManager gm = new GroupManager(group, shared.messenger);
-        if (gm.quit()) {
-            return shared.facebook.removeGroup(group);
+        GroupManager manager = GroupManager.getInstance();
+        if (manager.quit(group)) {
+            return manager.removeGroup(group);
         } else {
             return false;
         }

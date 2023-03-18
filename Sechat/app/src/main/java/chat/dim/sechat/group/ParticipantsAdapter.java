@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
+import chat.dim.GroupManager;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
@@ -84,7 +85,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
 
         ID group;
         if (identifier.isGroup()) {
-            if (!facebook.containsMember(user.getIdentifier(), identifier)) {
+            GroupManager manager = GroupManager.getInstance();
+            if (!manager.containsMember(user.getIdentifier(), identifier)) {
                 Alert.tips(getContext(), "You are not a member of this group: " + identifier);
                 return;
             }
@@ -112,7 +114,8 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             return;
         }
 
-        if (!facebook.isOwner(user.getIdentifier(), identifier)) {
+        GroupManager manager = GroupManager.getInstance();
+        if (!manager.isOwner(user.getIdentifier(), identifier)) {
             Alert.tips(getContext(), "You are not admin of this group: " + identifier);
             return;
         }

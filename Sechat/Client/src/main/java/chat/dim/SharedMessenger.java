@@ -27,6 +27,7 @@ package chat.dim;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dbi.MessageDBI;
@@ -34,6 +35,7 @@ import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.Station;
 import chat.dim.mkm.User;
+import chat.dim.model.MessageDataSource;
 import chat.dim.network.ClientSession;
 import chat.dim.port.Departure;
 import chat.dim.protocol.AnsCommand;
@@ -164,6 +166,20 @@ public class SharedMessenger extends ClientMessenger {
             Log.info("document query not expired: " + identifier);
         }
         return ok;
+    }
+
+    @Override
+    protected void suspendMessage(ReliableMessage rMsg, Map<String, ?> info) {
+        rMsg.put("error", info);
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.suspendMessage(rMsg);
+    }
+
+    @Override
+    protected void suspendMessage(InstantMessage iMsg, Map<String, ?> info) {
+        iMsg.put("error", info);
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.suspendMessage(iMsg);
     }
 
     @Override

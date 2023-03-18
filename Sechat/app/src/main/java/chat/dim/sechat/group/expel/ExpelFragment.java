@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import chat.dim.GlobalVariable;
@@ -82,7 +83,6 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         // save group name
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
-        SharedMessenger messenger = shared.messenger;
         String oldName = facebook.getName(identifier);
         String newName = groupName.getText().toString();
         if (oldName == null || !oldName.equals(newName)) {
@@ -99,8 +99,9 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         }
 
         // expel group member(s)
-        GroupManager gm = new GroupManager(identifier, messenger);
-        if (gm.expel(new ArrayList<>(selected))) {
+        List<ID> members = new ArrayList<>(selected);
+        GroupManager manager = GroupManager.getInstance();
+        if (manager.expel(members, identifier)) {
             Alert.tips(getContext(), R.string.group_members_updated);
             close();
         } else {

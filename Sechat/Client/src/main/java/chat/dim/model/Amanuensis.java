@@ -29,6 +29,8 @@ import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReceiptCommand;
@@ -61,15 +63,15 @@ public final class Amanuensis {
         return chatBox;
     }
 
-    private Conversation getConversation(InstantMessage iMsg) {
+    private Conversation getConversation(Envelope env) {
         // check receiver
-        ID receiver = iMsg.getReceiver();
+        ID receiver = env.getReceiver();
         if (receiver.isGroup()) {
             // group chat, get chat box with group ID
             return getConversation(receiver);
         }
         // check group
-        ID group = iMsg.getGroup();
+        ID group = env.getGroup();
         if (group != null) {
             // group chat, get chat box with group ID
             return getConversation(group);
@@ -77,7 +79,7 @@ public final class Amanuensis {
         // personal chat, get chat box with contact ID
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
-        ID sender = iMsg.getSender();
+        ID sender = env.getSender();
         User user = facebook.getCurrentUser();
         if (user.getIdentifier().equals(sender)) {
             return getConversation(receiver);
@@ -91,7 +93,7 @@ public final class Amanuensis {
             // it's a receipt
             return saveReceipt(iMsg);
         }
-        Conversation chatBox = getConversation(iMsg);
+        Conversation chatBox = getConversation(iMsg.getEnvelope());
         if (chatBox == null) {
             return false;
         }
@@ -99,7 +101,16 @@ public final class Amanuensis {
     }
 
     public boolean saveReceipt(InstantMessage iMsg) {
-        Conversation chatBox = getConversation(iMsg);
+        Envelope env = null;
+        Content content = iMsg.getContent();
+        if (content instanceof ReceiptCommand) {
+            ReceiptCommand cmd = (ReceiptCommand) content;
+            env = cmd.getOriginalEnvelope();
+        }
+        if (env == null) {
+            env = iMsg.getEnvelope();
+        }
+        Conversation chatBox = getConversation(env);
         if (chatBox == null) {
             return false;
         }

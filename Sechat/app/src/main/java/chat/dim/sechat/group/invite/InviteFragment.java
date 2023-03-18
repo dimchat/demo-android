@@ -15,6 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -114,8 +115,9 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         }
 
         // invite group member(s)
-        GroupManager gm = new GroupManager(identifier, shared.messenger);
-        if (gm.invite(new ArrayList<>(selected))) {
+        List<ID> members = new ArrayList<>(selected);
+        GroupManager manager = GroupManager.getInstance();
+        if (manager.invite(members, identifier)) {
             if (from.isUser()) {
                 Map<String, Object> info = new HashMap<>();
                 info.put("ID", identifier);

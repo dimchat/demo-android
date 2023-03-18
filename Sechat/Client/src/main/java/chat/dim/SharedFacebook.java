@@ -26,7 +26,9 @@
 package chat.dim;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
@@ -41,7 +43,8 @@ import chat.dim.type.Pair;
 
 public final class SharedFacebook extends ClientFacebook {
 
-    private final List<ID> groupAssistants = new ArrayList<>();
+    private final List<User> localUsers = new ArrayList<>();
+    private final Map<ID, List<ID>> userContacts = new HashMap<>();
 
     public SharedFacebook(AccountDBI db) {
         super(db);
@@ -71,14 +74,20 @@ public final class SharedFacebook extends ClientFacebook {
         return new Pair<>(path, url);
     }
 
-    public boolean saveContacts(List<ID> contacts, ID user) {
-        AccountDBI db = getDatabase();
-        return db.saveContacts(contacts, user);
-    }
-
     public boolean savePrivateKey(PrivateKey key, String type, ID user) {
         AccountDBI db = getDatabase();
         return db.savePrivateKey(key, type, user);
+    }
+
+    //-------- Users
+
+    @Override
+    public List<User> getLocalUsers() {
+        if (localUsers.size() == 0) {
+            List<User> users = super.getLocalUsers();
+            localUsers.addAll(users);
+        }
+        return localUsers;
     }
 
     public boolean addUser(ID user) {
@@ -91,7 +100,13 @@ public final class SharedFacebook extends ClientFacebook {
             return false;
         }
         allUsers.add(user);
-        return db.saveLocalUsers(allUsers);
+        if (db.saveLocalUsers(allUsers)) {
+            // clear cache for reload
+            localUsers.clear();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean removeUser(ID user) {
@@ -102,7 +117,13 @@ public final class SharedFacebook extends ClientFacebook {
             return false;
         }
         allUsers.remove(user);
-        return db.saveLocalUsers(allUsers);
+        if (db.saveLocalUsers(allUsers)) {
+            // clear cache for reload
+            localUsers.clear();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -110,15 +131,43 @@ public final class SharedFacebook extends ClientFacebook {
         AccountDBI db = getDatabase();
         UserTable table = (UserTable) db;
         table.setCurrentUser(user.getIdentifier());
+        // clear cache for reload
+        localUsers.clear();
         super.setCurrentUser(user);
     }
 
     //-------- Contacts
 
+    @Override
+    public List<ID> getContacts(ID user) {
+        List<ID> contacts = userContacts.get(user);
+        if (contacts == null) {
+            contacts = super.getContacts(user);
+            if (contacts == null) {
+                contacts = new ArrayList<>();
+            }
+            userContacts.put(user, contacts);
+        }
+        return contacts;
+    }
+
+    public boolean saveContacts(List<ID> contacts, ID user) {
+        AccountDBI db = getDatabase();
+        if (db.saveContacts(contacts, user)) {
+            // erase cache for reload
+            userContacts.remove(user);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean addContact(ID contact, ID user) {
         List<ID> allContacts = getContacts(user);
-        if (allContacts == null) {
-            allContacts = new ArrayList<>();
+        int pos = allContacts.indexOf(contact);
+        if (pos >= 0) {
+            // already exists
+            return false;
         }
         allContacts.add(contact);
         return saveContacts(allContacts, user);
@@ -126,80 +175,16 @@ public final class SharedFacebook extends ClientFacebook {
 
     public boolean removeContact(ID contact, ID user) {
         List<ID> allContacts = getContacts(user);
-        if (allContacts == null || !allContacts.contains(contact)) {
+        int pos = allContacts.indexOf(contact);
+        if (pos < 0) {
+            // not exists
             return false;
         }
-        allContacts.remove(contact);
+        allContacts.remove(pos);
         return saveContacts(allContacts, user);
     }
 
     //-------- Members
-
-    public void addMember(ID member, ID group) {
-        assert member.isUser() && group.isGroup() : "ID error: " + member + ", " + group;
-        List<ID> allMembers = getMembers(group);
-        if (allMembers == null) {
-            allMembers = new ArrayList<>();
-        }
-        allMembers.add(member);
-        saveMembers(allMembers, group);
-    }
-
-    public boolean containsMember(ID member, ID group) {
-        List<ID> members = getMembers(group);
-        if (members != null && members.contains(member)) {
-            return true;
-        }
-        ID owner = getOwner(group);
-        return owner != null && owner.equals(member);
-    }
-
-    public boolean removeGroup(ID group) {
-        // TODO:
-        //return groupTable.removeGroup(group);
-        return false;
-    }
-
-    @Override
-    public List<ID> getAssistants(ID group) {
-        List<ID> assistants = super.getAssistants(group);
-        if (assistants != null && assistants.size() > 0) {
-            return assistants;
-        }
-        // get from global setting
-        if (groupAssistants.size() > 0) {
-            return groupAssistants;
-        }
-        // get from ANS
-        assistants = new ArrayList<>();
-        ID bot = ans.identifier("assistant");
-        if (bot != null) {
-            assistants.add(bot);
-        }
-        return assistants;
-    }
-    public void addAssistant(ID assistant) {
-        assert assistant != null : "bot ID empty";
-        for (ID item : groupAssistants) {
-            if (item.equals(assistant)) {
-                return;
-            }
-        }
-        ID bot = ans.identifier("assistant");
-        if (bot != null && bot.equals(assistant)) {
-            groupAssistants.add(0, assistant);
-        } else {
-            groupAssistants.add(assistant);
-        }
-    }
-
-    public boolean containsAssistant(ID user, ID group) {
-        List<ID> assistants = getAssistants(group);
-        if (assistants == null) {
-            return false;
-        }
-        return assistants.contains(user);
-    }
 
     //
     //  Address Name Service

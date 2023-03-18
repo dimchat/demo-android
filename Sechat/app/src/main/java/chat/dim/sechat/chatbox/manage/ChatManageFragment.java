@@ -18,6 +18,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import chat.dim.GlobalVariable;
+import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
@@ -146,8 +147,9 @@ public class ChatManageFragment extends Fragment {
         SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        boolean isMember = facebook.containsMember(user.getIdentifier(), identifier);
-        boolean isOwner = facebook.isOwner(user.getIdentifier(), identifier);
+        GroupManager manager = GroupManager.getInstance();
+        boolean isMember = manager.containsMember(user.getIdentifier(), identifier);
+        boolean isOwner = manager.isOwner(user.getIdentifier(), identifier);
         // TODO: isAdmin? isAssistant?
         return isMember && !isOwner;
     }
