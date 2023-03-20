@@ -25,6 +25,8 @@
  */
 package chat.dim;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +36,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
-import chat.dim.http.HTTPClient;
+import chat.dim.http.FileTransfer;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -56,21 +58,28 @@ public final class SharedFacebook extends ClientFacebook {
      * @param user - user ID
      * @return cache path & remote URL
      */
-    public Pair<String, String> getAvatar(ID user) {
-        String url = null;
+    public Pair<String, URL> getAvatar(ID user) {
+        String urlString = null;
         Document doc = getDocument(user, "*");
         if (doc != null) {
             if (doc instanceof Visa) {
-                url = ((Visa) doc).getAvatar();
+                urlString = ((Visa) doc).getAvatar();
             } else {
-                url = (String) doc.getProperty("avatar");
+                urlString = (String) doc.getProperty("avatar");
             }
         }
-        if (url == null || url.length() == 0) {
-            return new Pair<>(null, null);
+        String path = null;
+        URL url = null;
+        if (urlString != null && urlString.length() > 0) {
+            try {
+                url = new URL(urlString);
+                FileTransfer ftp = FileTransfer.getInstance();
+                // TODO: download delegate
+                path = ftp.downloadAvatar(url, null);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
-        HTTPClient http = HTTPClient.getInstance();
-        String path = http.download(url);
         return new Pair<>(path, url);
     }
 

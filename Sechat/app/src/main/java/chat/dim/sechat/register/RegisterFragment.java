@@ -15,14 +15,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import chat.dim.GlobalVariable;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
 import chat.dim.crypto.SignKey;
+import chat.dim.digest.MD5;
+import chat.dim.format.Hex;
+import chat.dim.http.FileTransfer;
 import chat.dim.mkm.User;
 import chat.dim.model.Configuration;
-import chat.dim.network.FtpServer;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.Visa;
@@ -72,7 +76,13 @@ public class RegisterFragment extends Fragment {
 
         imageView.setOnClickListener(v -> showImagePicker());
         terms.setOnClickListener(v -> showTerms());
-        okBtn.setOnClickListener(v -> register());
+        okBtn.setOnClickListener(v -> {
+            try {
+                register();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         importBtn.setOnClickListener(v -> showImportPage());
 
         checkUser();
@@ -121,7 +131,7 @@ public class RegisterFragment extends Fragment {
         WebViewActivity.open(getActivity(), title, url);
     }
 
-    private void register() {
+    private void register() throws IOException {
         RegisterActivity activity = (RegisterActivity) getActivity();
         assert activity != null : "failed to get register activity";
         if (!activity.tryLaunch()) {
@@ -161,9 +171,11 @@ public class RegisterFragment extends Fragment {
 
         // 2. upload avatar
         if (avatarImage != null) {
-            FtpServer ftp = FtpServer.getInstance();
+            FileTransfer ftp = FileTransfer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            ftp.uploadAvatar(imageData, user.getIdentifier());
+            String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
+            // TODO: upload delegate
+            ftp.uploadAvatar(imageData, filename, user.getIdentifier(), null);
             // TODO: waiting for avatar uploaded
             //visa.setAvatar(avatarURL);
             SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.getIdentifier());

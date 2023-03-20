@@ -29,6 +29,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import chat.dim.mkm.Entity;
@@ -55,7 +56,7 @@ public class UserViewModel extends EntityViewModel {
     }
 
     public static Bitmap getAvatar(ID identifier) {
-        Pair<String, String> avatars = getFacebook().getAvatar(identifier);
+        Pair<String, URL> avatars = getFacebook().getAvatar(identifier);
         if (avatars.first != null) {
             try {
                 return Images.bitmapFromPath(avatars.first, new Images.Size(128, 128));
@@ -78,7 +79,7 @@ public class UserViewModel extends EntityViewModel {
         if (identifier == null) {
             return null;
         }
-        Pair<String, String> avatars = getFacebook().getAvatar(identifier);
+        Pair<String, URL> avatars = getFacebook().getAvatar(identifier);
         if (avatars.first == null) {
             return null;
         }

@@ -25,8 +25,10 @@
  */
 package chat.dim;
 
+import java.io.IOError;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +41,11 @@ import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
-import chat.dim.format.JSONMap;
+import chat.dim.http.FileTransfer;
+import chat.dim.http.UploadDelegate;
+import chat.dim.http.UploadRequest;
+import chat.dim.model.Configuration;
 import chat.dim.model.MessageDataSource;
-import chat.dim.network.FtpServer;
-import chat.dim.notification.Notification;
-import chat.dim.notification.NotificationCenter;
-import chat.dim.notification.NotificationNames;
-import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
@@ -60,21 +60,10 @@ import chat.dim.type.Pair;
 import chat.dim.type.WeakMap;
 import chat.dim.utils.Log;
 
-public class Emitter extends Runner implements Observer {
+public class Emitter extends Runner implements UploadDelegate {
 
     public Emitter() {
         super();
-        NotificationCenter nc = NotificationCenter.getInstance();
-        nc.addObserver(this, NotificationNames.FileUploadSuccess);
-        nc.addObserver(this, NotificationNames.FileUploadFailure);
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        NotificationCenter nc = NotificationCenter.getInstance();
-        nc.removeObserver(this, NotificationNames.FileUploadFailure);
-        nc.removeObserver(this, NotificationNames.FileUploadSuccess);
-        super.finalize();
     }
 
     public void sendText(String text, ID receiver) {
@@ -128,13 +117,13 @@ public class Emitter extends Runner implements Observer {
         mds.saveInstantMessage(iMsg);
     }
 
-    public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) {
+    public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) throws IOException {
         FileContent content = (FileContent) iMsg.getContent();
         // 1. save origin file data
         byte[] data = content.getData();
         String filename = content.getFilename();
-        FtpServer ftp = FtpServer.getInstance();
-        int len = ftp.saveFileData(data, filename);
+        FileTransfer ftp = FileTransfer.getInstance();
+        int len = ftp.cacheFileData(data, filename);
         if (len != data.length) {
             Log.error("failed to save file data (len=" + data.length + "): " + filename);
             return;
@@ -151,7 +140,11 @@ public class Emitter extends Runner implements Observer {
             filename = filename + "." + ext;
         }
         // 3. check for same file
-        String url = cdn.get(filename);
+        ID sender = iMsg.getSender();
+        Configuration config = Configuration.getInstance();
+        ftp.api = config.getUploadURL();
+        ftp.secret = config.getMD5Secret();
+        URL url = ftp.uploadEncryptData(encrypted, filename, sender, this);
         if (url == null) {
             // add task for upload
             Log.info("task filename: " + content.getFilename() + " -> " + filename);
@@ -160,12 +153,10 @@ public class Emitter extends Runner implements Observer {
         } else {
             // already upload before, set URL and send out immediately
             Log.info("sent filename: " + content.getFilename() + " -> " + filename + " => " + url);
-            content.setURL(url);
+            content.setURL(url.toString());
             sendInstantMessage(iMsg);
         }
     }
-
-    private final Map<String, String> cdn = new HashMap<>();  // filename => url
 
     private static class Task {
         static final long EXPIRES = 300 * 1000;  // 5 minutes
@@ -259,8 +250,8 @@ public class Emitter extends Runner implements Observer {
             String filename = next.filename;
             ID sender = next.iMsg.getSender();
             Log.info("uploading file: " + filename + ", sender: " + sender);
-            FtpServer ftp = FtpServer.getInstance();
-            ftp.uploadEncryptedData(encrypted, filename, sender);
+            FileTransfer ftp = FileTransfer.getInstance();
+            ftp.uploadEncryptData(encrypted, filename, sender, this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -268,62 +259,48 @@ public class Emitter extends Runner implements Observer {
     }
 
     @Override
-    public void onReceiveNotification(Notification notification) {
-        String name = notification.name;
-        Map<String, Object> userInfo = notification.userInfo;
-
-        String filename = null;
-        if (name == null) {
-            Log.error("notification error: " + notification);
-        } else if (name.equals(NotificationNames.FileUploadSuccess)) {
-            String response = (String) userInfo.get("response");
-            if (response == null) {
-                Log.error("response not found: " + userInfo);
-            } else {
-                Map res = JSONMap.decode(response);
-                filename = (String) res.get("filename");
-                String url = (String) res.get("url");
-                if (url == null) {
-                    Log.error("url not found: " + response);
-                } else {
-                    cdn.put(filename, url);
-                    Task task = getTask(filename);
-                    if (task == null) {
-                        Log.error("failed to get task: " + filename + ", url: " + url);
-                    } else {
-                        Log.info("get task for file: " + filename + ", url: " + url);
-                        // file data uploaded to FTP server, replace it with download URL
-                        // and send the content to station
-                        InstantMessage iMsg = task.iMsg;
-                        FileContent content = (FileContent) iMsg.getContent();
-                        //content.setData(null);
-                        content.setURL(url);
-                        sendInstantMessage(iMsg);
-                        // set expired to be removed
-                        task.time = -1;
-                        return;
-                    }
-                }
-            }
-        } else if (name.equals(NotificationNames.FileUploadFailure)) {
-            String response = (String) userInfo.get("response");
-            if (response == null) {
-                Log.error("response not found: " + userInfo);
-            } else {
-                Map res = JSONMap.decode(response);
-                filename = (String) res.get("filename");
-            }
+    public void onUploadSuccess(UploadRequest request, URL url) {
+        Log.info("onUploadSuccess: " + request + ", url: " + url);
+        String path = request.path;
+        String filename = Paths.filename(path);
+        Task task = getTask(filename);
+        if (task == null) {
+            Log.error("failed to get task: " + filename + ", url: " + url);
         } else {
-            Log.warning("notification name error: " + name);
+            Log.info("get task for file: " + filename + ", url: " + url);
+            // file data uploaded to FTP server, replace it with download URL
+            // and send the content to station
+            InstantMessage iMsg = task.iMsg;
+            FileContent content = (FileContent) iMsg.getContent();
+            //content.setData(null);
+            content.setURL(url.toString());
+            sendInstantMessage(iMsg);
+            // set expired to be removed
+            task.time = -1;
         }
+    }
 
-        if (filename != null) {
-            Log.error("upload failed: " + filename);
-            Task task = getTask(filename);
-            if (task != null) {
-                // set expired to be removed
-                task.time = -1;
-            }
+    @Override
+    public void onUploadFailed(UploadRequest request, IOException error) {
+        Log.error("onUploadFailed: " + request + ", error: " + error);
+        String path = request.path;
+        String filename = Paths.filename(path);
+        Task task = getTask(filename);
+        if (task != null) {
+            // set expired to be removed
+            task.time = -1;
+        }
+    }
+
+    @Override
+    public void onUploadError(UploadRequest request, IOError error) {
+        Log.error("onUploadError: " + request + ", error: " + error);
+        String path = request.path;
+        String filename = Paths.filename(path);
+        Task task = getTask(filename);
+        if (task != null) {
+            // set expired to be removed
+            task.time = -1;
         }
     }
 }

@@ -37,9 +37,9 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
-import chat.dim.filesys.EntityStorage;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
+import chat.dim.http.FileTransfer;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.protocol.ID;
@@ -127,7 +127,8 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        String path = EntityStorage.getEntityFilePath(group, "logo.png");
+        FileTransfer ftp = FileTransfer.getInstance();
+        String path = ftp.getEntityFilePath(group, "logo.png");
         BackgroundThreads.wait(() -> {
             try {
                 Bitmap bitmap = drawLogo(group);

@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -183,7 +184,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             if (filename == null) {
                 return;
             }
-            String path = LocalCache.getCacheFilePath(filename);
+            LocalCache cache = LocalCache.getInstance();
+            String path = cache.getCacheFilePath(filename);
             if (Paths.exists(path)) {
                 Log.info("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
@@ -201,7 +203,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
     }
 
     private void showImage(String filename, String sender, Context context) {
-        String path = LocalCache.getCacheFilePath(filename);
+        LocalCache cache = LocalCache.getInstance();
+        String path = cache.getCacheFilePath(filename);
         if (!Paths.exists(path)) {
             return;
         }
@@ -210,7 +213,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
-    private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
+    private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) throws MalformedURLException {
 
         ID sender = iMsg.getSender();
 
@@ -269,7 +272,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         holder.msgView.setText(content.getText());
     }
-    private void showImageMessage(ImageContent content, ViewHolder holder) {
+    private void showImageMessage(ImageContent content, ViewHolder holder) throws MalformedURLException {
         holder.frameLayout.setVisibility(View.GONE);
         holder.speakerView.setVisibility(View.GONE);
         holder.msgView.setVisibility(View.GONE);
@@ -290,7 +293,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.imgView.setImageURI(uri);
         }
     }
-    private void showAudioMessage(AudioContent content, ViewHolder holder) {
+    private void showAudioMessage(AudioContent content, ViewHolder holder) throws MalformedURLException {
         holder.frameLayout.setVisibility(View.VISIBLE);
         holder.speakerView.setVisibility(View.VISIBLE);
         holder.msgView.setVisibility(View.VISIBLE);
@@ -359,7 +362,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             nc.addObserver(this, NotificationNames.FileDownloadFailure);
         }
 
-        void onDownloadSuccess() {
+        void onDownloadSuccess() throws MalformedURLException {
             Log.info("success to download: " + downloadingURL);
             Uri uri = ChatboxViewModel.getFileUri(fileContent);
             if (uri == null) {
@@ -399,7 +402,13 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             String url = (String) info.get("URL");
             if (url != null && url.equals(downloadingURL)) {
                 if (name.equals(NotificationNames.FileDownloadSuccess)) {
-                    MainThread.call(this::onDownloadSuccess);
+                    MainThread.call(() -> {
+                        try {
+                            onDownloadSuccess();
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                 } else if (name.equals(NotificationNames.FileDownloadFailure)) {
                     MainThread.call(this::onDownloadFailure);
                 }

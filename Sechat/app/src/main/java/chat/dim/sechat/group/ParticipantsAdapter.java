@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -173,7 +174,7 @@ public class ParticipantsAdapter extends ArrayAdapter<ID> {
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
                 GlobalVariable shared = GlobalVariable.getInstance();
                 SharedFacebook facebook = shared.facebook;
-                Pair<String, String> avatars = facebook.getAvatar(identifier);
+                Pair<String, URL> avatars = facebook.getAvatar(identifier);
                 String path = (String) info.get("path");
                 if (avatars.first != null && avatars.first.equals(path)) {
                     MainThread.call(this::refresh);

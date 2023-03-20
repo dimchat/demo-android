@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.filesys.Resources;
-import chat.dim.format.Hex;
+import chat.dim.http.FileTransfer;
 import chat.dim.protocol.ID;
 
 public final class Configuration {
@@ -68,6 +68,8 @@ public final class Configuration {
         String upload = apis.get("upload");
         if (upload != null) {
             apiUpload = upload;
+            FileTransfer ftp = FileTransfer.getInstance();
+            ftp.api = upload;
         }
 
         String terms = apis.get("terms");
@@ -110,9 +112,9 @@ public final class Configuration {
         return contacts;
     }
 
-    public byte[] getMD5Secret() {
+    public String getMD5Secret() {
         // TODO: load from config.ini
-        return Hex.decode("12345678");
+        return "12345678";
     }
 
     // "https://sechat.dim.chat/{ID}}/upload"

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.net.URL;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
@@ -89,7 +90,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
             } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
                 GlobalVariable shared = GlobalVariable.getInstance();
                 SharedFacebook facebook = shared.facebook;
-                Pair<String, String> avatars = facebook.getAvatar(item.getIdentifier());
+                Pair<String, URL> avatars = facebook.getAvatar(item.getIdentifier());
                 String path = (String) info.get("path");
                 if (avatars.first != null && avatars.first.equals(path)) {
                     MainThread.call(this::refresh);

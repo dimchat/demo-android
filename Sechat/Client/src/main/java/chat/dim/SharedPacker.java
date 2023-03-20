@@ -25,6 +25,8 @@
  */
 package chat.dim;
 
+import java.io.IOException;
+
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Content;
@@ -95,7 +97,11 @@ public class SharedPacker extends ClientMessagePacker {
                 assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
                 // call emitter to encrypt & upload file data before send out
                 GlobalVariable shared = GlobalVariable.getInstance();
-                shared.emitter.sendFileContentMessage(iMsg, key);
+                try {
+                    shared.emitter.sendFileContentMessage(iMsg, key);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 return null;
             }
         }

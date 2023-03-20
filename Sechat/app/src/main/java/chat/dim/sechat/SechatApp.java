@@ -11,9 +11,9 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.common.KeyStore;
+import chat.dim.filesys.LocalCache;
 import chat.dim.format.Base64;
 import chat.dim.format.DataCoder;
-import chat.dim.http.HTTPClient;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
 import chat.dim.model.ConversationDatabase;
@@ -153,7 +153,7 @@ public final class SechatApp extends Application {
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath();
         path += File.separator + "chat.dim.sechat";
-        HTTPClient http = HTTPClient.getInstance();
-        http.setRoot(path);
+        LocalCache cache = LocalCache.getInstance();
+        cache.setRoot(path);
     }
 }

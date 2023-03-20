@@ -28,7 +28,7 @@ package chat.dim.sqlite;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import chat.dim.filesys.EntityStorage;
+import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
 
 public abstract class Database extends SQLiteOpenHelper {
@@ -40,6 +40,7 @@ public abstract class Database extends SQLiteOpenHelper {
     }
 
     protected static String getFilePath(String dbName) {
-        return Paths.append(EntityStorage.getRoot(), "sqlite", dbName);
+        LocalCache cache = LocalCache.getInstance();
+        return Paths.append(cache.getRoot(), "sqlite", dbName);
     }
 }

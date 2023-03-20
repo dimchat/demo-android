@@ -19,10 +19,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.network.FtpServer;
+import chat.dim.digest.MD5;
+import chat.dim.format.Hex;
+import chat.dim.http.FileTransfer;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.ID;
@@ -103,7 +106,13 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         // ID.number & address
         addressView.setText(mViewModel.getAddressString());
 
-        saveButton.setOnClickListener(v -> save());
+        saveButton.setOnClickListener(v -> {
+            try {
+                save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         exportButton.setOnClickListener(v -> activity.exportAccount(mViewModel));
         deleteButton.setOnClickListener(v -> deleteAccount());
     }
@@ -115,7 +124,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         }
     }
 
-    private void save() {
+    private void save() throws IOException {
         ID identifier = mViewModel.getIdentifier();
         if (identifier == null) {
             throw new NullPointerException("current user ID empty");
@@ -131,9 +140,11 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
 
         // upload avatar
         if (avatarImage != null) {
-            FtpServer ftp = FtpServer.getInstance();
+            FileTransfer ftp = FileTransfer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
-            ftp.uploadAvatar(imageData, identifier);
+            String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
+            // TODO: upload delegate
+            ftp.uploadAvatar(imageData, filename, identifier, null);
 
             // TODO: update visa after avatar uploaded
             //visa.setAvatar(avatarURL);

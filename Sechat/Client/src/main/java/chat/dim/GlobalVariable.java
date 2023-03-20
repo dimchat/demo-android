@@ -3,8 +3,6 @@ package chat.dim;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.SessionDBI;
-import chat.dim.http.HTTPClient;
-import chat.dim.network.FtpServer;
 
 public enum GlobalVariable {
 
@@ -24,10 +22,7 @@ public enum GlobalVariable {
 
         CryptoPlugins.registerCryptoPlugins();
 
-        HTTPClient http = HTTPClient.getInstance();
-        FtpServer ftp = FtpServer.getInstance();
-        http.setDelegate(ftp);
-        http.start();
+        Register.prepare();
     }
 
     public AccountDBI adb;

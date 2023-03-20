@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
+import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
 import chat.dim.model.Conversation;
@@ -247,7 +248,9 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     private final String mp4FilePath = getTemporaryFilePath();
 
     private static String getTemporaryFilePath() {
-        return LocalCache.getTemporaryFilePath("audio.mp4");
+        LocalCache cache = LocalCache.getInstance();
+        String dir = cache.getTemporaryDirectory();
+        return Paths.append(dir, "audio.mp4");
     }
 
     private void startRecord() {
@@ -270,7 +273,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
             return;
         }
         try {
-            byte[] mp4 = LocalCache.loadBinary(path);
+            byte[] mp4 = ExternalStorage.loadBinary(path);
             GlobalVariable shared = GlobalVariable.getInstance();
             shared.emitter.sendVoice(mp4, recorder.getDuration(), chatBox.identifier);
         } catch (IOException e) {

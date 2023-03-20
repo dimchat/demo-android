@@ -77,7 +77,8 @@ public class RegisterActivity extends ImagePickerActivity {
 
     @Override
     protected String getTemporaryDirectory() {
-        return LocalCache.getTemporaryDirectory();
+        LocalCache cache = LocalCache.getInstance();
+        return cache.getTemporaryDirectory();
     }
 
     @Override
