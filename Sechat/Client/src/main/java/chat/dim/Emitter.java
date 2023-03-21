@@ -28,9 +28,7 @@ package chat.dim;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -39,7 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
-import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.http.FileTransfer;
 import chat.dim.http.UploadDelegate;
@@ -54,24 +51,21 @@ import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
-import chat.dim.skywalker.Runner;
-import chat.dim.threading.Daemon;
 import chat.dim.type.Pair;
-import chat.dim.type.WeakMap;
 import chat.dim.utils.Log;
 
-public class Emitter extends Runner implements UploadDelegate {
+public class Emitter implements UploadDelegate {
 
-    public Emitter() {
+    Emitter() {
         super();
     }
 
-    public void sendText(String text, ID receiver) {
+    public void sendText(String text, ID receiver) throws IOException {
         TextContent content = new BaseTextContent(text);
         sendContent(content, receiver);
     }
 
-    public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) {
+    public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
         assert jpeg != null && jpeg.length > 0 : "image data empty";
         String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
         ImageContent content = FileContent.image(filename, jpeg);
@@ -81,7 +75,7 @@ public class Emitter extends Runner implements UploadDelegate {
         sendContent(content, receiver);
     }
 
-    public void sendVoice(byte[] mp4, int duration, ID receiver) {
+    public void sendVoice(byte[] mp4, int duration, ID receiver) throws IOException {
         assert mp4 != null && mp4.length > 0 : "voice data empty";
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
         AudioContent content = FileContent.audio(filename, mp4);
@@ -91,7 +85,7 @@ public class Emitter extends Runner implements UploadDelegate {
         sendContent(content, receiver);
     }
 
-    private void sendContent(Content content, ID receiver) {
+    private void sendContent(Content content, ID receiver) throws IOException {
         assert receiver != null : "receiver should not empty";
         GlobalVariable shared = GlobalVariable.getInstance();
         Pair<InstantMessage, ReliableMessage> result;
@@ -102,19 +96,17 @@ public class Emitter extends Runner implements UploadDelegate {
         }
         assert result.first != null : "failed to pack instant message: " + receiver;
         // save instant message
-        MessageDataSource mds = MessageDataSource.getInstance();
-        mds.saveInstantMessage(result.first);
+        saveInstantMessage(result.first);
     }
 
-    private void sendInstantMessage(InstantMessage iMsg) {
+    private void sendInstantMessage(InstantMessage iMsg) throws IOException {
         Log.info("send instant message (type=" + iMsg.getContent().getType() + "): "
                 + iMsg.getSender() + " -> " + iMsg.getReceiver());
         // send by shared messenger
         GlobalVariable shared = GlobalVariable.getInstance();
         shared.messenger.sendInstantMessage(iMsg, 0);
         // save instant message
-        MessageDataSource mds = MessageDataSource.getInstance();
-        mds.saveInstantMessage(iMsg);
+        saveInstantMessage(iMsg);
     }
 
     public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) throws IOException {
@@ -122,185 +114,142 @@ public class Emitter extends Runner implements UploadDelegate {
         // 1. save origin file data
         byte[] data = content.getData();
         String filename = content.getFilename();
-        FileTransfer ftp = FileTransfer.getInstance();
-        int len = ftp.cacheFileData(data, filename);
+        int len = FileTransfer.cacheFileData(data, filename);
         if (len != data.length) {
             Log.error("failed to save file data (len=" + data.length + "): " + filename);
             return;
         }
         // 2. save instant message without file data
         content.setData(null);
-        MessageDataSource mds = MessageDataSource.getInstance();
-        mds.saveInstantMessage(iMsg);
+        saveInstantMessage(iMsg);
         // 3. add upload task with encrypted data
         byte[] encrypted = password.encrypt(data);
-        String ext = Paths.extension(filename);
-        filename = Hex.encode(MD5.digest(encrypted));
-        if (ext != null && ext.length() > 0) {
-            filename = filename + "." + ext;
-        }
-        // 3. check for same file
+        filename = FileTransfer.getFilename(encrypted, filename);
         ID sender = iMsg.getSender();
-        Configuration config = Configuration.getInstance();
-        ftp.api = config.getUploadURL();
-        ftp.secret = config.getMD5Secret();
-        URL url = ftp.uploadEncryptData(encrypted, filename, sender, this);
+        URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender, this);
         if (url == null) {
             // add task for upload
-            Log.info("task filename: " + content.getFilename() + " -> " + filename);
-            Task task = new Task(filename, encrypted, iMsg);
-            addTask(task);
+            addTask(filename, iMsg);
+            Log.info("waiting upload filename: " + content.getFilename() + " -> " + filename);
         } else {
             // already upload before, set URL and send out immediately
-            Log.info("sent filename: " + content.getFilename() + " -> " + filename + " => " + url);
+            Log.info("uploaded filename: " + content.getFilename() + " -> " + filename + " => " + url);
             content.setURL(url.toString());
             sendInstantMessage(iMsg);
         }
     }
 
-    private static class Task {
-        static final long EXPIRES = 300 * 1000;  // 5 minutes
+    private FileTransfer getFileTransfer() {
+        if (ftp == null) {
+            ftp = FileTransfer.getInstance();
+            Configuration config = Configuration.getInstance();
+            ftp.api = config.getUploadURL();
+            ftp.secret = config.getMD5Secret();
+        }
+        return ftp;
+    }
+    private FileTransfer ftp = null;
 
-        final String filename;
-        final byte[] encrypted;
-        final InstantMessage iMsg;
-        long time = 0;
-        Task(String filename, byte[] encrypted, InstantMessage iMsg) {
-            this.filename = filename;
-            this.encrypted = encrypted;
-            this.iMsg = iMsg;
+    private static void saveInstantMessage(InstantMessage iMsg) throws IOException {
+        // save instant message
+        MessageDataSource mds = MessageDataSource.getInstance();
+        boolean ok = mds.saveInstantMessage(iMsg);
+        if (!ok) {
+            throw new IOException("failed to save message: " + iMsg);
         }
     }
-    private final List<Task> tasks = new ArrayList<>();
-    private final Map<String, Task> map = new WeakMap<>();  // filename => task
+
+    private final Map<String, InstantMessage> map = new HashMap<>();  // filename => task
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private void addTask(Task item) {
+    private void addTask(String filename, InstantMessage item) {
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
-            tasks.add(item);
-            map.put(item.filename, item);
+            map.put(filename, item);
         } finally {
             writeLock.unlock();
         }
     }
-    private Task getTask(String filename) {
-        Task item;
+    private InstantMessage popTask(String filename) {
+        InstantMessage item;
         Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
             item = map.get(filename);
+            if (item != null) {
+                map.remove(filename);
+            }
         } finally {
             writeLock.unlock();
         }
         return item;
     }
-    private Task nextTask() {
-        Task next = null;
-        long now = System.currentTimeMillis();
-        long expired = now - Task.EXPIRES;
-
-        Lock writeLock = lock.writeLock();
-        writeLock.lock();
-        try {
-            Iterator<Task> iterator = tasks.iterator();
-            Task item;
-            while (iterator.hasNext()) {
-                item = iterator.next();
-                if (item.time == 0) {
-                    // got it
-                    item.time = now;
-                    next = item;
-                    break;
-                } else if (item.time < expired) {
-                    // expired, remove it
-                    map.remove(item.filename);
-                    iterator.remove();
-                }
-            }
-        } finally {
-            writeLock.unlock();
-        }
-        return next;
-    }
-
-    private final Daemon daemon = new Daemon(this);
-
-    public Emitter start() {
-        daemon.start();
-        return this;
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
-        daemon.stop();
-    }
-
-    @Override
-    public boolean process() {
-        Task next = nextTask();
-        if (next == null) {
-            // nothing to do now, return false to have a rest
-            return false;
-        }
-        try {
-            byte[] encrypted = next.encrypted;
-            String filename = next.filename;
-            ID sender = next.iMsg.getSender();
-            Log.info("uploading file: " + filename + ", sender: " + sender);
-            FileTransfer ftp = FileTransfer.getInstance();
-            ftp.uploadEncryptData(encrypted, filename, sender, this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
+    public void purge() {
+        // TODO: remove expired messages in the map
     }
 
     @Override
     public void onUploadSuccess(UploadRequest request, URL url) {
         Log.info("onUploadSuccess: " + request + ", url: " + url);
-        String path = request.path;
-        String filename = Paths.filename(path);
-        Task task = getTask(filename);
-        if (task == null) {
+        String filename = FileTransfer.getFilename(request);
+        InstantMessage iMsg = popTask(filename);
+        if (iMsg == null) {
             Log.error("failed to get task: " + filename + ", url: " + url);
         } else {
             Log.info("get task for file: " + filename + ", url: " + url);
             // file data uploaded to FTP server, replace it with download URL
             // and send the content to station
-            InstantMessage iMsg = task.iMsg;
             FileContent content = (FileContent) iMsg.getContent();
             //content.setData(null);
             content.setURL(url.toString());
-            sendInstantMessage(iMsg);
-            // set expired to be removed
-            task.time = -1;
+            try {
+                sendInstantMessage(iMsg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onUploadFailed(UploadRequest request, IOException error) {
         Log.error("onUploadFailed: " + request + ", error: " + error);
-        String path = request.path;
-        String filename = Paths.filename(path);
-        Task task = getTask(filename);
-        if (task != null) {
-            // set expired to be removed
-            task.time = -1;
+        String filename = FileTransfer.getFilename(request);
+        InstantMessage iMsg = popTask(filename);
+        if (iMsg == null) {
+            Log.error("failed to get task: " + filename);
+        } else {
+            Log.info("get task for file: " + filename);
+            // file data failed to upload, mark it error
+            Map<String, Object> info = new HashMap<>();
+            info.put("message", "failed to upload file");
+            iMsg.put("error", info);
+            try {
+                saveInstantMessage(iMsg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onUploadError(UploadRequest request, IOError error) {
         Log.error("onUploadError: " + request + ", error: " + error);
-        String path = request.path;
-        String filename = Paths.filename(path);
-        Task task = getTask(filename);
-        if (task != null) {
-            // set expired to be removed
-            task.time = -1;
+        String filename = FileTransfer.getFilename(request);
+        InstantMessage iMsg = popTask(filename);
+        if (iMsg == null) {
+            Log.error("failed to get task: " + filename);
+        } else {
+            Log.info("get task for file: " + filename);
+            // file data failed to upload, mark it error
+            Map<String, Object> info = new HashMap<>();
+            info.put("message", "failed to upload file");
+            iMsg.put("error", info);
+            try {
+                saveInstantMessage(iMsg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

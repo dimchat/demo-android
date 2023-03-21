@@ -35,7 +35,7 @@ public class AccountViewModel extends UserViewModel {
         return user;
     }
 
-    public void updateVisa(Visa visa) {
+    public void updateVisa(Visa visa, boolean broadcast) {
         ID identifier = getIdentifier();
         if (identifier == null || !identifier.equals(visa.getIdentifier())) {
             return;
@@ -50,13 +50,15 @@ public class AccountViewModel extends UserViewModel {
         if (!getFacebook().saveDocument(visa)) {
             return;
         }
-        GlobalVariable shared = GlobalVariable.getInstance();
-        SharedMessenger messenger = shared.messenger;
-        // upload to server
-        Meta meta = getFacebook().getMeta(identifier);
-        messenger.postDocument(visa, meta);
-        // broadcast to all contacts
-        messenger.broadcastVisa(visa);
+        if (broadcast) {
+            GlobalVariable shared = GlobalVariable.getInstance();
+            SharedMessenger messenger = shared.messenger;
+            // upload to server
+            Meta meta = getFacebook().getMeta(identifier);
+            messenger.postDocument(visa, meta);
+            // broadcast to all contacts
+            messenger.broadcastVisa(visa);
+        }
     }
 
     public String serializePrivateInfo() {
@@ -219,10 +221,11 @@ public class AccountViewModel extends UserViewModel {
             msgKey = null;
         } else {
             PrivateKey rsaKey = PrivateKey.generate(AsymmetricKey.RSA);
-            if (!getFacebook().savePrivateKey(rsaKey, "P", identifier)) {
+            if (getFacebook().savePrivateKey(rsaKey, "P", identifier)) {
+                msgKey = (EncryptKey) rsaKey.getPublicKey();
+            } else {
                 return null;
             }
-            msgKey = (EncryptKey) rsaKey.getPublicKey();
         }
 
         // save meta with user ID

@@ -7,6 +7,7 @@ import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.filesys.LocalCache;
@@ -53,22 +54,28 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
-        if (name.equals(NotificationNames.MembersUpdated)) {
-            ID group = (ID) info.get("group");
-            if (identifier.equals(group)) {
-                refresh();
+        switch (name) {
+            case NotificationNames.MembersUpdated: {
+                ID group = (ID) info.get("group");
+                if (identifier.equals(group)) {
+                    refresh();
+                }
+                break;
             }
-        } else if (name.equals(NotificationNames.GroupCreated)) {
-            ID from = (ID) info.get("from");
-            if (identifier.equals(from)) {
-                finish();
-            }
-        } else if (name.equals(NotificationNames.GroupRemoved)) {
-            ID group = (ID) info.get("group");
-            if (identifier.equals(group)) {
-                finish();
+            case NotificationNames.GroupCreated:
+                ID from = (ID) info.get("from");
+                if (identifier.equals(from)) {
+                    finish();
+                }
+                break;
+            case NotificationNames.GroupRemoved: {
+                ID group = (ID) info.get("group");
+                if (identifier.equals(group)) {
+                    finish();
+                }
+                break;
             }
         }
     }
@@ -121,18 +128,14 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.more: {
-                Intent intent = new Intent();
-                intent.setClass(getApplicationContext(), ChatManageActivity.class);
-                intent.putExtra("ID", identifier.toString());
-                startActivity(intent);
-                break;
-            }
-            case android.R.id.home: {
-                finish();
-                break;
-            }
+        int itemId = item.getItemId();
+        if (itemId == R.id.more) {
+            Intent intent = new Intent();
+            intent.setClass(getApplicationContext(), ChatManageActivity.class);
+            intent.putExtra("ID", identifier.toString());
+            startActivity(intent);
+        } else if (itemId == android.R.id.home) {
+            finish();
         }
         return true;
     }
@@ -150,7 +153,11 @@ public class ChatboxActivity extends ImagePickerActivity implements Observer {
     @Override
     protected void fetchImage(Bitmap bitmap) {
         if (bitmap != null) {
-            chatboxFragment.sendImage(bitmap);
+            try {
+                chatboxFragment.sendImage(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

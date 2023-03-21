@@ -26,13 +26,9 @@
 package chat.dim.model;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import chat.dim.filesys.Resources;
-import chat.dim.http.FileTransfer;
-import chat.dim.protocol.ID;
 
 public final class Configuration {
 
@@ -54,9 +50,9 @@ public final class Configuration {
     private void loadConfig() {
         Map<String, String> apis = null;
         try {
-            info = (Map) Resources.loadJSON("/gsp.js");
+            info = (Map<String, Object>) Resources.loadJSON("/gsp.js");
             if (info != null) {
-                apis = (Map) info.get("APIs");
+                apis = (Map<String, String>) info.get("APIs");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -68,8 +64,6 @@ public final class Configuration {
         String upload = apis.get("upload");
         if (upload != null) {
             apiUpload = upload;
-            FileTransfer ftp = FileTransfer.getInstance();
-            ftp.api = upload;
         }
 
         String terms = apis.get("terms");
@@ -87,29 +81,6 @@ public final class Configuration {
             loadConfig();
         }
         return info;
-    }
-
-    public List<ID> getDefaultContacts() {
-        if (info == null) {
-            loadConfig();
-            if (info == null) {
-                return null;
-            }
-        }
-        List array = (List) info.get("contacts");
-        if (array == null) {
-            return null;
-        }
-        ID identifier;
-        List<ID> contacts = new ArrayList<>();
-        for (Object item : array) {
-            identifier = ID.parse(item);
-            if (identifier == null) {
-                continue;
-            }
-            contacts.add(identifier);
-        }
-        return contacts;
     }
 
     public String getMD5Secret() {

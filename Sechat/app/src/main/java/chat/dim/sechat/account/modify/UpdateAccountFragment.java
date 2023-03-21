@@ -20,12 +20,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.digest.MD5;
 import chat.dim.format.Hex;
 import chat.dim.http.FileTransfer;
+import chat.dim.model.Configuration;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.ID;
@@ -137,23 +139,37 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
         if (nickname.length() > 0) {
             visa.setName(nickname);
         }
+        boolean ok = true;
 
         // upload avatar
         if (avatarImage != null) {
-            FileTransfer ftp = FileTransfer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
             // TODO: upload delegate
-            ftp.uploadAvatar(imageData, filename, identifier, null);
-
-            // TODO: update visa after avatar uploaded
-            //visa.setAvatar(avatarURL);
+            URL url = getFileTransfer().uploadAvatar(imageData, filename, identifier, null);
+            if (url == null) {
+                // waiting for avatar uploaded
+                ok = false;
+            } else {
+                visa.setAvatar(url.toString());
+            }
         }
 
-        mViewModel.updateVisa(visa);
+        mViewModel.updateVisa(visa, ok);
 
         Alert.tips(getActivity(), R.string.account_saved);
     }
+
+    private FileTransfer getFileTransfer() {
+        if (ftp == null) {
+            ftp = FileTransfer.getInstance();
+            Configuration config = Configuration.getInstance();
+            ftp.api = config.getUploadURL();
+            ftp.secret = config.getMD5Secret();
+        }
+        return ftp;
+    }
+    private FileTransfer ftp = null;
 
     private void deleteAccount() {
         FragmentActivity activity = getActivity();

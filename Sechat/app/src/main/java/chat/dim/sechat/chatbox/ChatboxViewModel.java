@@ -4,14 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.crypto.DecryptKey;
-import chat.dim.filesys.LocalCache;
-import chat.dim.filesys.Paths;
 import chat.dim.http.FileTransfer;
 import chat.dim.io.Resources;
 import chat.dim.mkm.User;
@@ -28,7 +23,6 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.sechat.SechatApp;
 import chat.dim.sechat.model.EntityViewModel;
 import chat.dim.ui.image.Images;
-import chat.dim.utils.Log;
 
 enum MsgType {
 
@@ -84,59 +78,16 @@ public class ChatboxViewModel extends EntityViewModel {
         return MsgType.RECEIVED;
     }
 
-    static Uri getFileUri(FileContent content) throws MalformedURLException {
-        String path = getFilePath(content);
-        if (path != null) {
-            return Uri.parse(path);
-        }
-        return null;
-    }
-
-    static String getFilePath(FileContent content) throws MalformedURLException {
-        String filePath;
-        // check decrypted file
-        String filename = content.getFilename();
-        if (filename == null) {
-            Log.error("file content error: " + content);
-            return null;
-        }
-        LocalCache cache = LocalCache.getInstance();
-        filePath = cache.getCacheFilePath(filename);
-        if (Paths.exists(filePath)) {
-            return filePath;
-        }
-        // get encrypted data
-        String urlString = content.getURL();
-        if (urlString == null) {
-            return null;
-        }
-        URL url = new URL(urlString);
+    static Uri getFileUri(FileContent content) {
         FileTransfer ftp = FileTransfer.getInstance();
-        // TODO: download delegate
-        String tempPath = ftp.downloadEncryptedData(url, null);
-        if (tempPath == null) {
-            Log.info("not download yet: " + url);
+        String path = ftp.getFilePath(content);
+        if (path == null) {
             return null;
         }
-        DecryptKey password = content.getPassword();
-        if (password == null) {
-            Log.error("password not found: " + content);
-            return null;
-        }
-        byte[] data = ftp.decryptFileData(tempPath, password);
-        if (data == null) {
-            Log.error("failed to decrypt file: " + tempPath + ", password: " + password);
-            return null;
-        }
-        if (ftp.cacheFileData(data, filePath) == data.length) {
-            // success
-            return filePath;
-        }
-        // TODO: remove cachePath
-        return null;
+        return Uri.parse(path);
     }
 
-    static Uri getImageUri(ImageContent content) throws MalformedURLException {
+    static Uri getImageUri(ImageContent content) {
         return getFileUri(content);
     }
 
@@ -157,7 +108,7 @@ public class ChatboxViewModel extends EntityViewModel {
         return gallery;
     }
 
-    static Uri getAudioUri(AudioContent content) throws MalformedURLException {
+    static Uri getAudioUri(AudioContent content) {
         return getFileUri(content);
     }
 

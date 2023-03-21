@@ -136,10 +136,11 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         if (MsgType.SENT == type) {
-            List traces = (List) iMsg.get("traces");
+            List<?> traces = (List<?>) iMsg.get("traces");
             if (traces == null || traces.size() == 0) {
+                Object error = iMsg.get("error");
                 Date time = iMsg.getTime();
-                if (time == null || time.getTime() < (System.currentTimeMillis() - 120 * 1000)) {
+                if (error != null || time == null || time.getTime() < (System.currentTimeMillis() - 120 * 1000)) {
                     holder.failedIndicator.setVisibility(View.VISIBLE);
                     holder.sendingIndicator.setVisibility(View.GONE);
                 } else {
@@ -211,9 +212,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         ImageViewerActivity.show(context, Uri.parse(path), sender);
     }
 
-    private ConversationDatabase msgDB = ConversationDatabase.getInstance();
+    private final ConversationDatabase msgDB = ConversationDatabase.getInstance();
 
-    private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) throws MalformedURLException {
+    private void showMessage(InstantMessage iMsg, ViewHolder viewHolder) {
 
         ID sender = iMsg.getSender();
 
@@ -272,7 +273,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         holder.msgView.setText(content.getText());
     }
-    private void showImageMessage(ImageContent content, ViewHolder holder) throws MalformedURLException {
+    private void showImageMessage(ImageContent content, ViewHolder holder) {
         holder.frameLayout.setVisibility(View.GONE);
         holder.speakerView.setVisibility(View.GONE);
         holder.msgView.setVisibility(View.GONE);
@@ -293,7 +294,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
             holder.imgView.setImageURI(uri);
         }
     }
-    private void showAudioMessage(AudioContent content, ViewHolder holder) throws MalformedURLException {
+    private void showAudioMessage(AudioContent content, ViewHolder holder) {
         holder.frameLayout.setVisibility(View.VISIBLE);
         holder.speakerView.setVisibility(View.VISIBLE);
         holder.msgView.setVisibility(View.VISIBLE);
@@ -346,7 +347,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
 
         @Override
-        public void finalize() throws Throwable {
+        protected void finalize() throws Throwable {
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
             nc.removeObserver(this, NotificationNames.FileDownloadFailure);
@@ -397,7 +398,7 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         @Override
         public void onReceiveNotification(Notification notification) {
             String name = notification.name;
-            Map info = notification.userInfo;
+            Map<String, Object> info = notification.userInfo;
             assert name != null && info != null : "notification error: " + notification;
             String url = (String) info.get("URL");
             if (url != null && url.equals(downloadingURL)) {

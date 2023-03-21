@@ -25,15 +25,15 @@ public enum GlobalVariable {
         Register.prepare();
     }
 
-    public AccountDBI adb;
-    public MessageDBI mdb;
-    public SessionDBI sdb;
-    public SharedDatabase database;
+    public final AccountDBI adb;
+    public final MessageDBI mdb;
+    public final SessionDBI sdb;
+    public final SharedDatabase database;
 
-    public SharedFacebook facebook;
+    public final SharedFacebook facebook;
 
     public SharedMessenger messenger = null;
     public Terminal terminal = null;
 
-    public Emitter emitter = new Emitter().start();
+    public final Emitter emitter = new Emitter();
 }

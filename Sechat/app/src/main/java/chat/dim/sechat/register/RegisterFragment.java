@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.net.URL;
 
 import chat.dim.GlobalVariable;
 import chat.dim.Register;
@@ -169,15 +170,20 @@ public class RegisterFragment extends Fragment {
         Meta meta = user.getMeta();
         Visa visa = user.getVisa();
 
+        boolean ok = true;
+
         // 2. upload avatar
         if (avatarImage != null) {
-            FileTransfer ftp = FileTransfer.getInstance();
             byte[] imageData = Images.jpeg(avatarImage);
             String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
             // TODO: upload delegate
-            ftp.uploadAvatar(imageData, filename, user.getIdentifier(), null);
-            // TODO: waiting for avatar uploaded
-            //visa.setAvatar(avatarURL);
+            URL url = getFileTransfer().uploadAvatar(imageData, filename, user.getIdentifier(), null);
+            if (url == null) {
+                // waiting for avatar uploaded
+                ok = false;
+            } else {
+                visa.setAvatar(url.toString());
+            }
             SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.getIdentifier());
             assert sKey != null : "failed to get private key: " + user.getIdentifier();
             visa.sign(sKey);
@@ -188,12 +194,25 @@ public class RegisterFragment extends Fragment {
         facebook.setCurrentUser(user);
 
         // 4. upload meta & visa to DIM station
-        SharedMessenger messenger = shared.messenger;
-        messenger.postDocument(visa, meta);
+        if (ok) {
+            SharedMessenger messenger = shared.messenger;
+            messenger.postDocument(visa, meta);
+        }
 
         // 5. show main activity
         checkUser();
     }
+
+    private FileTransfer getFileTransfer() {
+        if (ftp == null) {
+            ftp = FileTransfer.getInstance();
+            Configuration config = Configuration.getInstance();
+            ftp.api = config.getUploadURL();
+            ftp.secret = config.getMD5Secret();
+        }
+        return ftp;
+    }
+    private FileTransfer ftp = null;
 
     void fetchImage(Bitmap bitmap) {
         if (bitmap != null) {

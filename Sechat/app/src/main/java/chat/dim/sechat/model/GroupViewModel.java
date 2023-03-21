@@ -127,8 +127,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        FileTransfer ftp = FileTransfer.getInstance();
-        String path = ftp.getEntityFilePath(group, "logo.png");
+        String path = FileTransfer.getEntityFilePath(group, "logo.png");
         BackgroundThreads.wait(() -> {
             try {
                 Bitmap bitmap = drawLogo(group);

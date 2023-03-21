@@ -33,6 +33,7 @@ package chat.dim.http;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,7 @@ import chat.dim.format.UTF8;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Address;
+import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 import chat.dim.utils.Log;
 
@@ -70,12 +72,16 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
             @Override
             protected void cleanup() {
                 // clean expired temporary files for upload/download
-                FileTransfer ftp = FileTransfer.getInstance();
-                ftp.cleanup();
+                long now = System.currentTimeMillis();
+                LocalCache cache = LocalCache.getInstance();
+                //cleanup(cache.getCachesDirectory(), now - CACHES_EXPIRES);
+                ExternalStorage.cleanup(cache.getTemporaryDirectory(), now - TEMPORARY_EXPIRES);
             }
         };
         http.start();
     }
+    //public static final long CACHES_EXPIRES = 365 * 24 * 3600 * 1000L;
+    public static final long TEMPORARY_EXPIRES = 7 * 24 * 3600 * 1000L;
 
     /**
      *  Upload avatar image data for user
@@ -124,10 +130,10 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         if (ext != null) {
             filename = filename.substring(0, filename.length() - ext.length() - 1);
         }
-        return filename.length() == 32 && filename.matches("^[0-9A-Fa-f]+$");
+        return filename.length() == 32 && filename.matches("^[\\dA-Fa-f]+$");
     }
 
-    private String getFilename(byte[] data, String filename) {
+    public static String getFilename(byte[] data, String filename) {
         // split file extension
         String ext = Paths.extension(filename);
         if (isEncoded(filename, ext)) {
@@ -142,11 +148,71 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         return filename + "." + ext;
     }
 
-    private String getFilename(URL url) {
+    private static String getFilename(URL url) {
         String urlString = url.toString();
         String filename = Paths.filename(urlString);
         byte[] data = UTF8.encode(urlString);
         return getFilename(data, filename);
+    }
+
+    public static String getFilename(UploadRequest request) {
+        if (request instanceof UploadTask) {
+            return ((UploadTask)request).filename;
+        } else {
+            return Paths.filename(request.path);
+        }
+    }
+
+    public String getFilePath(FileContent content) {
+        final String filename = content.getFilename();
+        if (filename == null) {
+            Log.error("file content error: " + content);
+            return null;
+        }
+        // check decrypted file
+        final String cachePath = getCacheFilePath(filename);
+        if (Paths.exists(cachePath)) {
+            return cachePath;
+        }
+        // get download URL
+        final String urlString = content.getURL();
+        if (urlString == null) {
+            return null;
+        }
+        final URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            Log.error("URL error: " + urlString);
+            return null;
+        }
+        // try download file from remote URL
+        final String tempPath = downloadEncryptedFile(url, this);
+        if (tempPath == null) {
+            Log.info("not download yet: " + url);
+            return null;
+        }
+        // decrypt with message password
+        final DecryptKey password = content.getPassword();
+        if (password == null) {
+            Log.error("password not found: " + content);
+            return null;
+        }
+        final byte[] data = decryptFileData(tempPath, password);
+        if (data == null) {
+            Log.error("failed to decrypt file: " + tempPath + ", password: " + password);
+            // delete to download again
+            Paths.delete(tempPath);
+            return null;
+        }
+        // save decrypted file data
+        final int len = cacheFileData(data, cachePath);
+        if (len != data.length) {
+            Log.error("failed to cache file: " + cachePath);
+            return null;
+        }
+        // success
+        return cachePath;
     }
 
     /**
@@ -173,7 +239,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param delegate - callback
      * @return temporary path if same file downloaded before
      */
-    public String downloadEncryptedData(URL url, DownloadDelegate delegate) {
+    private String downloadEncryptedFile(URL url, DownloadDelegate delegate) {
         String filename = getFilename(url);
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getDownloadFilePath(filename);
@@ -184,13 +250,13 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     }
 
     //
-    //  Decryption
-    //  ~~~~~~~~~~
+    //  Decryption process
+    //  ~~~~~~~~~~~~~~~~~~
     //
-    //  1. get 'filename' from file content and call 'loadCachedFileData(filename)',
+    //  1. get 'filename' from file content and call 'getCacheFilePath(filename)',
     //     if not null, means this file is already downloaded an decrypted;
     //
-    //  2. get 'URL' from file content and call 'downloadEncryptedData()',
+    //  2. get 'URL' from file content and call 'downloadEncryptedFile(url, delegate)',
     //     if not null, means this file is already downloaded but not decrypted yet,
     //     this step will get a temporary path for encrypted data, continue step 3;
     //     if the return path is null, then let the delegate waiting for response;
@@ -208,35 +274,18 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param password - symmetric key
      * @return decrypted data
      */
-    public byte[] decryptFileData(String path, DecryptKey password) {
+    private static byte[] decryptFileData(String path, DecryptKey password) {
         byte[] data = loadDownloadedFileData(path);
         if (data == null) {
             Log.warning("failed to load temporary file: " + path);
             return null;
         }
+        Log.info("decrypting file: " + path + ", size: " + data.length + " byte(s)");
         return password.decrypt(data);
     }
 
-    private byte[] loadDownloadedFileData(String filename) {
+    private static byte[] loadDownloadedFileData(String filename) {
         String path = getDownloadFilePath(filename);
-        if (Paths.exists(path)) {
-            try {
-                return ExternalStorage.loadBinary(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    /**
-     *  Load cached file with name (or path)
-     *
-     * @param filename - cache file name
-     * @return decrypted data
-     */
-    public byte[] loadCachedFileData(String filename) {
-        String path = getCacheFilePath(filename);
         if (Paths.exists(path)) {
             try {
                 return ExternalStorage.loadBinary(path);
@@ -254,7 +303,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param filename - cache file name
      * @return data length
      */
-    public int cacheFileData(byte[] data, String filename) {
+    public static int cacheFileData(byte[] data, String filename) {
         String path = getCacheFilePath(filename);
         try {
             return ExternalStorage.saveBinary(data, path);
@@ -264,7 +313,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         }
     }
 
-    private String getCacheFilePath(String filename) {
+    private static String getCacheFilePath(String filename) {
         if (filename.contains(File.separator)) {
             // full path?
             return filename;
@@ -275,7 +324,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         }
     }
 
-    private String getDownloadFilePath(String filename) {
+    private static String getDownloadFilePath(String filename) {
         if (filename.contains(File.separator)) {
             // full path?
             return filename;
@@ -293,12 +342,12 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param filename - entity file name
      * @return entity file path
      */
-    public String getEntityFilePath(ID entity, String filename) {
+    public static String getEntityFilePath(ID entity, String filename) {
         String dir = getEntityDirectory(entity.getAddress());
         return Paths.append(dir, filename);
     }
 
-    private String getEntityDirectory(Address address) {
+    private static String getEntityDirectory(Address address) {
         String string = address.toString();
         String dir = getEntityDirectory();
         String xx = string.substring(0, 2);
@@ -306,22 +355,10 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         return Paths.append(dir, xx, yy, string);
     }
 
-    private String getEntityDirectory() {
+    private static String getEntityDirectory() {
         LocalCache cache = LocalCache.getInstance();
         return Paths.append(cache.getRoot(), "mkm");
     }
-
-    /**
-     *  Remove expired files in the temporary directory
-     */
-    public void cleanup() {
-        long now = System.currentTimeMillis();
-        LocalCache cache = LocalCache.getInstance();
-        //cleanup(cache.getCachesDirectory(), now - CACHES_EXPIRES);
-        ExternalStorage.cleanup(cache.getTemporaryDirectory(), now - TEMPORARY_EXPIRES);
-    }
-    //public static long CACHES_EXPIRES = 365 * 24 * 3600 * 1000L;
-    public static long TEMPORARY_EXPIRES = 7 * 24 * 3600 * 1000L;
 
     //-------- Upload Delegate
 

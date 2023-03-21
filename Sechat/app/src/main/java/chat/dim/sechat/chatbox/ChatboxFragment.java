@@ -60,11 +60,13 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.addObserver(this, NotificationNames.MessageUpdated);
+        nc.addObserver(this, NotificationNames.FileDownloadSuccess);
     }
 
     @Override
     public void onDestroy() {
         NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
         nc.removeObserver(this, NotificationNames.MessageUpdated);
         // destroy audio player
         adapter.setAudioPlayer(null);
@@ -74,13 +76,16 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MessageUpdated)) {
             ID entity = (ID) info.get("ID");
             if (chatBox.identifier.equals(entity)) {
                 reloadData();
             }
+        } else if (name.equals(NotificationNames.FileDownloadSuccess)) {
+            // TODO: only refresh the message which filename exactly equal to the downloaded
+            reloadData();
         }
     }
 
@@ -115,7 +120,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
     //  Send Message
     //
 
-    private void send() {
+    private void send() throws IOException {
         String text = inputText.getText().toString();
         if (text.length() > 0) {
             GlobalVariable shared = GlobalVariable.getInstance();
@@ -127,7 +132,7 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
     private static final Images.Size MAX_SIZE = new Images.Size(1024, 1024);
 
-    void sendImage(Bitmap bitmap) {
+    void sendImage(Bitmap bitmap) throws IOException {
 
         // check image size
         Images.Size size = Images.getSize(bitmap);
@@ -221,14 +226,22 @@ public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageLis
 
         inputText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                send();
+                try {
+                    send();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
             return false;
         });
         inputText.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                send();
+                try {
+                    send();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
             return false;
