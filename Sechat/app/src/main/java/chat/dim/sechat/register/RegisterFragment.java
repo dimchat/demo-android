@@ -177,7 +177,7 @@ public class RegisterFragment extends Fragment {
             byte[] imageData = Images.jpeg(avatarImage);
             String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
             // TODO: upload delegate
-            URL url = getFileTransfer().uploadAvatar(imageData, filename, user.getIdentifier(), null);
+            URL url = getFileTransfer().uploadAvatar(imageData, filename, user.getIdentifier());
             if (url == null) {
                 // waiting for avatar uploaded
                 ok = false;

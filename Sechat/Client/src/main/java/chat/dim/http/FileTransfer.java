@@ -89,15 +89,15 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param data     - image data
      * @param filename - image filename ('avatar.jpg')
      * @param sender   - user ID
-     * @param delegate - callback
      * @return remote URL if same file uploaded before
      * @throws IOException on failed to create temporary file
      */
-    public URL uploadAvatar(byte[] data, String filename, ID sender, UploadDelegate delegate) throws IOException {
-        filename = getFilename(data, Paths.filename(filename));
+    public URL uploadAvatar(byte[] data, String filename, ID sender) throws IOException {
+        //filename = Paths.filename(filename);
+        filename = getFilename(data, filename);
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getAvatarFilePath(filename);
-        return upload(data, path, "avatar", sender, delegate);
+        return upload(data, path, "avatar", sender);
     }
 
     /**
@@ -106,24 +106,20 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param data     - encrypted data
      * @param filename - data file name ('voice.mp4')
      * @param sender   - user ID
-     * @param delegate - callback
      * @return remote URL if same file uploaded before
      * @throws IOException on failed to create temporary file
      */
-    public URL uploadEncryptData(byte[] data, String filename, ID sender, UploadDelegate delegate) throws IOException {
+    public URL uploadEncryptData(byte[] data, String filename, ID sender) throws IOException {
         filename = getFilename(data, Paths.filename(filename));
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getUploadFilePath(filename);
-        return upload(data, path, "file", sender, delegate);
+        return upload(data, path, "file", sender);
     }
 
-    private URL upload(byte[] data, String path, String var, ID sender, UploadDelegate delegate) throws IOException {
+    private URL upload(byte[] data, String path, String var, ID sender) throws IOException {
         URL url = new URL(api);
         byte[] key = Hex.decode(secret);
-        if (delegate == null) {
-            delegate = this;
-        }
-        return http.upload(url, key, data, path, var, sender, delegate);
+        return http.upload(url, key, data, path, var, sender, this);
     }
 
     private static boolean isEncoded(String filename, String ext) {
@@ -163,6 +159,24 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         }
     }
 
+    //
+    //  Decryption process
+    //  ~~~~~~~~~~~~~~~~~~
+    //
+    //  1. get 'filename' from file content and call 'getCacheFilePath(filename)',
+    //     if not null, means this file is already downloaded an decrypted;
+    //
+    //  2. get 'URL' from file content and call 'downloadEncryptedFile(url)',
+    //     if not null, means this file is already downloaded but not decrypted yet,
+    //     this step will get a temporary path for encrypted data, continue step 3;
+    //     if the return path is null, then let the delegate waiting for response;
+    //
+    //  3. get 'password' from file content and call 'decryptFileData(path, password)',
+    //     this step will get the decrypted file data, you should save it to cache path
+    //     by calling 'cacheFileData(data, filename)', notice that this filename is in
+    //     hex format by hex(md5(data)), which is the same string with content.filename.
+    //
+
     public String getFilePath(FileContent content) {
         final String filename = content.getFilename();
         if (filename == null) {
@@ -177,6 +191,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
         // get download URL
         final String urlString = content.getURL();
         if (urlString == null) {
+            Log.error("file URL not found: " + content);
             return null;
         }
         final URL url;
@@ -187,7 +202,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
             return null;
         }
         // try download file from remote URL
-        final String tempPath = downloadEncryptedFile(url, this);
+        final String tempPath = downloadEncryptedFile(url);
         if (tempPath == null) {
             Log.info("not download yet: " + url);
             return null;
@@ -219,53 +234,27 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      *  Download avatar image file
      *
      * @param url      - avatar URL
-     * @param delegate - callback
      * @return local path if same file downloaded before
      */
-    public String downloadAvatar(URL url, DownloadDelegate delegate) {
+    public String downloadAvatar(URL url) {
         String filename = getFilename(url);
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getAvatarFilePath(filename);
-        if (delegate == null) {
-            delegate = this;
-        }
-        return http.download(url, path, delegate);
+        return http.download(url, path, this);
     }
 
     /**
      *  Download encrypted file data for user
      *
      * @param url      - relay URL
-     * @param delegate - callback
      * @return temporary path if same file downloaded before
      */
-    private String downloadEncryptedFile(URL url, DownloadDelegate delegate) {
+    private String downloadEncryptedFile(URL url) {
         String filename = getFilename(url);
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getDownloadFilePath(filename);
-        if (delegate == null) {
-            delegate = this;
-        }
-        return http.download(url, path, delegate);
+        return http.download(url, path, this);
     }
-
-    //
-    //  Decryption process
-    //  ~~~~~~~~~~~~~~~~~~
-    //
-    //  1. get 'filename' from file content and call 'getCacheFilePath(filename)',
-    //     if not null, means this file is already downloaded an decrypted;
-    //
-    //  2. get 'URL' from file content and call 'downloadEncryptedFile(url, delegate)',
-    //     if not null, means this file is already downloaded but not decrypted yet,
-    //     this step will get a temporary path for encrypted data, continue step 3;
-    //     if the return path is null, then let the delegate waiting for response;
-    //
-    //  3. get 'password' from file content and call 'decryptFileData(path, password)',
-    //     this step will get the decrypted file data, you should save it to cache path
-    //     by calling 'cacheFileData(data, filename)', notice that this filename is in
-    //     hex format by hex(md5(data)), which is the same string with content.filename.
-    //
 
     /**
      *  Decrypt temporary file with password from received message
@@ -336,7 +325,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     }
 
     /**
-     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{XX}/{YY}/{address}/{filename}"
+     *  Get entity file path: "/sdcard/chat.dim.sechat/mkm/{AA}/{BB}/{address}/{filename}"
      *
      * @param entity   - user or group ID
      * @param filename - entity file name
@@ -350,9 +339,9 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     private static String getEntityDirectory(Address address) {
         String string = address.toString();
         String dir = getEntityDirectory();
-        String xx = string.substring(0, 2);
-        String yy = string.substring(2, 4);
-        return Paths.append(dir, xx, yy, string);
+        String aa = string.substring(0, 2);
+        String bb = string.substring(2, 4);
+        return Paths.append(dir, aa, bb, string);
     }
 
     private static String getEntityDirectory() {
@@ -362,23 +351,31 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
 
     //-------- Upload Delegate
 
+    private static Map<String, Object> uploadInfo(UploadRequest request) {
+        Map<String, Object> info = new HashMap<>();
+        // request info
+        if (request instanceof UploadTask) {
+            UploadTask task = (UploadTask) request;
+            info.put("request", request);
+            info.put("api", request.url);
+            info.put("name", request.name);
+            info.put("filename", task.filename);
+        } else {
+            info.put("api", request.url);
+            info.put("path", request.path);
+            info.put("name", request.name);
+            info.put("sender", request.sender);
+        }
+        return info;
+    }
+
     @Override
     public void onUploadSuccess(UploadRequest request, URL url) {
         Log.info("onUploadSuccess: " + request + ", url: " + url);
         Map<String, Object> response = new HashMap<>();
-        response.put("URL", url);
-        Map<String, Object> info = new HashMap<>();
+        response.put("url", url);
+        Map<String, Object> info = uploadInfo(request);
         info.put("response", response);
-        // request info
-        info.put("api", request.url);
-        info.put("name", request.name);
-        if (request instanceof UploadTask) {
-            UploadTask task = (UploadTask) request;
-            info.put("filename", task.filename);
-        } else {
-            info.put("path", request.path);
-            info.put("sender", request.sender);
-        }
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.FileUploadSuccess, this, info);
     }
@@ -386,18 +383,8 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     @Override
     public void onUploadFailed(UploadRequest request, IOException error) {
         Log.error("onUploadFailed: " + request + ", error: " + error);
-        Map<String, Object> info = new HashMap<>();
+        Map<String, Object> info = uploadInfo(request);
         info.put("error", error);
-        // request info
-        info.put("api", request.url);
-        info.put("name", request.name);
-        if (request instanceof UploadTask) {
-            UploadTask task = (UploadTask) request;
-            info.put("filename", task.filename);
-        } else {
-            info.put("path", request.path);
-            info.put("sender", request.sender);
-        }
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.FileUploadFailure, this, info);
     }
@@ -405,18 +392,8 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     @Override
     public void onUploadError(UploadRequest request, IOError error) {
         Log.error("onUploadError: " + request + ", error: " + error);
-        Map<String, Object> info = new HashMap<>();
+        Map<String, Object> info = uploadInfo(request);
         info.put("error", error);
-        // request info
-        info.put("api", request.url);
-        info.put("name", request.name);
-        if (request instanceof UploadTask) {
-            UploadTask task = (UploadTask) request;
-            info.put("filename", task.filename);
-        } else {
-            info.put("path", request.path);
-            info.put("sender", request.sender);
-        }
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.postNotification(NotificationNames.FileUploadFailure, this, info);
     }
@@ -427,6 +404,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     public void onDownloadSuccess(DownloadRequest request, String path) {
         Log.info("onDownloadSuccess: " + request + ", path: " + path);
         Map<String, Object> info = new HashMap<>();
+        info.put("request", request);
         info.put("url", request.url);
         info.put("path", request.path);
         NotificationCenter nc = NotificationCenter.getInstance();
@@ -437,6 +415,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     public void onDownloadFailed(DownloadRequest request, IOException error) {
         Log.info("onDownloadFailed: " + request + ", error: " + error);
         Map<String, Object> info = new HashMap<>();
+        info.put("request", request);
         info.put("url", request.url);
         info.put("path", request.path);
         info.put("error", error);
@@ -448,6 +427,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
     public void onDownloadError(DownloadRequest request, IOError error) {
         Log.info("onDownloadFailed: " + request + ", error: " + error);
         Map<String, Object> info = new HashMap<>();
+        info.put("request", request);
         info.put("url", request.url);
         info.put("path", request.path);
         info.put("error", error);

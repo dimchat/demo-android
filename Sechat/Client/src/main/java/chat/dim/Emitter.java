@@ -25,7 +25,6 @@
  */
 package chat.dim;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -39,10 +38,13 @@ import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.format.Hex;
 import chat.dim.http.FileTransfer;
-import chat.dim.http.UploadDelegate;
 import chat.dim.http.UploadRequest;
 import chat.dim.model.Configuration;
 import chat.dim.model.MessageDataSource;
+import chat.dim.notification.Notification;
+import chat.dim.notification.NotificationCenter;
+import chat.dim.notification.NotificationNames;
+import chat.dim.notification.Observer;
 import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
@@ -54,10 +56,21 @@ import chat.dim.protocol.TextContent;
 import chat.dim.type.Pair;
 import chat.dim.utils.Log;
 
-public class Emitter implements UploadDelegate {
+public class Emitter implements Observer {
 
     Emitter() {
         super();
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.addObserver(this, NotificationNames.FileUploadSuccess);
+        nc.addObserver(this, NotificationNames.FileUploadFailure);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        NotificationCenter nc = NotificationCenter.getInstance();
+        nc.removeObserver(this, NotificationNames.FileUploadFailure);
+        nc.removeObserver(this, NotificationNames.FileUploadSuccess);
+        super.finalize();
     }
 
     public void sendText(String text, ID receiver) throws IOException {
@@ -126,7 +139,7 @@ public class Emitter implements UploadDelegate {
         byte[] encrypted = password.encrypt(data);
         filename = FileTransfer.getFilename(encrypted, filename);
         ID sender = iMsg.getSender();
-        URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender, this);
+        URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender);
         if (url == null) {
             // add task for upload
             addTask(filename, iMsg);
@@ -189,8 +202,25 @@ public class Emitter implements UploadDelegate {
         // TODO: remove expired messages in the map
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void onUploadSuccess(UploadRequest request, URL url) {
+    public void onReceiveNotification(Notification notification) {
+        String name = notification.name;
+        Map<String, Object> info = notification.userInfo;
+        if (name.equals(NotificationNames.FileUploadSuccess)) {
+            UploadRequest request = (UploadRequest) info.get("request");
+            Map<String, Object> response = (Map<String, Object>) info.get("response");
+            URL url = (URL) response.get("url");
+            onUploadSuccess(request, url);
+        } else if (name.equals(NotificationNames.FileUploadFailure)) {
+            UploadRequest request = (UploadRequest) info.get("request");
+            IOException error = (IOException) info.get("error");
+            onUploadFailed(request, error);
+        }
+    }
+
+    //@Override
+    private void onUploadSuccess(UploadRequest request, URL url) {
         Log.info("onUploadSuccess: " + request + ", url: " + url);
         String filename = FileTransfer.getFilename(request);
         InstantMessage iMsg = popTask(filename);
@@ -211,30 +241,9 @@ public class Emitter implements UploadDelegate {
         }
     }
 
-    @Override
-    public void onUploadFailed(UploadRequest request, IOException error) {
+    //@Override
+    private void onUploadFailed(UploadRequest request, IOException error) {
         Log.error("onUploadFailed: " + request + ", error: " + error);
-        String filename = FileTransfer.getFilename(request);
-        InstantMessage iMsg = popTask(filename);
-        if (iMsg == null) {
-            Log.error("failed to get task: " + filename);
-        } else {
-            Log.info("get task for file: " + filename);
-            // file data failed to upload, mark it error
-            Map<String, Object> info = new HashMap<>();
-            info.put("message", "failed to upload file");
-            iMsg.put("error", info);
-            try {
-                saveInstantMessage(iMsg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void onUploadError(UploadRequest request, IOError error) {
-        Log.error("onUploadError: " + request + ", error: " + error);
         String filename = FileTransfer.getFilename(request);
         InstantMessage iMsg = popTask(filename);
         if (iMsg == null) {

@@ -74,8 +74,8 @@ public final class SharedFacebook extends ClientFacebook {
             try {
                 url = new URL(urlString);
                 FileTransfer ftp = FileTransfer.getInstance();
-                // TODO: download delegate
-                path = ftp.downloadAvatar(url, null);
+                // TODO: observe notification: 'FileUploadSuccess'
+                path = ftp.downloadAvatar(url);
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }

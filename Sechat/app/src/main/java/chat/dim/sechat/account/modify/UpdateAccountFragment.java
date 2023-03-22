@@ -146,7 +146,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
             byte[] imageData = Images.jpeg(avatarImage);
             String filename = Hex.encode(MD5.digest(imageData)) + ".jpeg";
             // TODO: upload delegate
-            URL url = getFileTransfer().uploadAvatar(imageData, filename, identifier, null);
+            URL url = getFileTransfer().uploadAvatar(imageData, filename, identifier);
             if (url == null) {
                 // waiting for avatar uploaded
                 ok = false;
