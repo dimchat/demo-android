@@ -88,7 +88,7 @@ public class Emitter implements Observer {
         sendContent(content, receiver);
     }
 
-    public void sendVoice(byte[] mp4, int duration, ID receiver) throws IOException {
+    public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
         assert mp4 != null && mp4.length > 0 : "voice data empty";
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
         AudioContent content = FileContent.audio(filename, mp4);

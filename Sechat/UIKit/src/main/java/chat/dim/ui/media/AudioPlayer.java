@@ -38,7 +38,7 @@ public class AudioPlayer {
     private final ContextWrapper activity;
 
     private MediaService.Binder binder = null;
-    private Connection connection = new Connection();
+    private final Connection connection = new Connection();
 
     public AudioPlayer(ContextWrapper activity) {
         super();
@@ -61,11 +61,16 @@ public class AudioPlayer {
         activity.stopService(new Intent(activity, MediaService.class));
     }
 
-    public int getPlayDuration() {
+    /**
+     *  Get playing duration
+     *
+     * @return seconds
+     */
+    public float getDuration() {
         if (binder == null) {
             return -1;
         }
-        return binder.getPlayDuration();
+        return binder.getPlayDuration() / 1000.0f;
     }
 
     private class Connection implements ServiceConnection {

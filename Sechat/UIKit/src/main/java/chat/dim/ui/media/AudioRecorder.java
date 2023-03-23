@@ -40,7 +40,7 @@ public class AudioRecorder {
     private final Activity activity;
 
     private MediaService.Binder binder = null;
-    private Connection connection = new Connection();
+    private final Connection connection = new Connection();
 
     private int duration = 0;
 
@@ -80,8 +80,13 @@ public class AudioRecorder {
         return filePath;
     }
 
-    public int getDuration() {
-        return duration;
+    /**
+     *  Get recorded duration
+     *
+     * @return seconds
+     */
+    public float getDuration() {
+        return duration / 1000.0f;
     }
 
     private class Connection implements ServiceConnection {
