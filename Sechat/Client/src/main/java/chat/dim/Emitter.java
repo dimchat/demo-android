@@ -58,6 +58,11 @@ import chat.dim.utils.Log;
 
 public class Emitter implements Observer {
 
+    private FileTransfer ftp = null;
+
+    private final Map<String, InstantMessage> map = new HashMap<>();  // filename => task
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
     Emitter() {
         super();
         NotificationCenter nc = NotificationCenter.getInstance();
@@ -73,85 +78,6 @@ public class Emitter implements Observer {
         super.finalize();
     }
 
-    public void sendText(String text, ID receiver) throws IOException {
-        TextContent content = new BaseTextContent(text);
-        sendContent(content, receiver);
-    }
-
-    public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
-        assert jpeg != null && jpeg.length > 0 : "image data empty";
-        String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
-        ImageContent content = FileContent.image(filename, jpeg);
-        // add image data length & thumbnail into message content
-        content.put("length", jpeg.length);
-        content.setThumbnail(thumbnail);
-        sendContent(content, receiver);
-    }
-
-    public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
-        assert mp4 != null && mp4.length > 0 : "voice data empty";
-        String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
-        AudioContent content = FileContent.audio(filename, mp4);
-        // add voice data length & duration into message content
-        content.put("length", mp4.length);
-        content.put("duration", duration);
-        sendContent(content, receiver);
-    }
-
-    private void sendContent(Content content, ID receiver) throws IOException {
-        assert receiver != null : "receiver should not empty";
-        GlobalVariable shared = GlobalVariable.getInstance();
-        Pair<InstantMessage, ReliableMessage> result;
-        result = shared.messenger.sendContent(null, receiver, content, 0);
-        if (result.second == null) {
-            Log.warning("not send yet (type=" + content.getType() + "): " + receiver);
-            return;
-        }
-        assert result.first != null : "failed to pack instant message: " + receiver;
-        // save instant message
-        saveInstantMessage(result.first);
-    }
-
-    private void sendInstantMessage(InstantMessage iMsg) throws IOException {
-        Log.info("send instant message (type=" + iMsg.getContent().getType() + "): "
-                + iMsg.getSender() + " -> " + iMsg.getReceiver());
-        // send by shared messenger
-        GlobalVariable shared = GlobalVariable.getInstance();
-        shared.messenger.sendInstantMessage(iMsg, 0);
-        // save instant message
-        saveInstantMessage(iMsg);
-    }
-
-    public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) throws IOException {
-        FileContent content = (FileContent) iMsg.getContent();
-        // 1. save origin file data
-        byte[] data = content.getData();
-        String filename = content.getFilename();
-        int len = FileTransfer.cacheFileData(data, filename);
-        if (len != data.length) {
-            Log.error("failed to save file data (len=" + data.length + "): " + filename);
-            return;
-        }
-        // 2. save instant message without file data
-        content.setData(null);
-        saveInstantMessage(iMsg);
-        // 3. add upload task with encrypted data
-        byte[] encrypted = password.encrypt(data);
-        filename = FileTransfer.getFilename(encrypted, filename);
-        ID sender = iMsg.getSender();
-        URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender);
-        if (url == null) {
-            // add task for upload
-            addTask(filename, iMsg);
-            Log.info("waiting upload filename: " + content.getFilename() + " -> " + filename);
-        } else {
-            // already upload before, set URL and send out immediately
-            Log.info("uploaded filename: " + content.getFilename() + " -> " + filename + " => " + url);
-            content.setURL(url.toString());
-            sendInstantMessage(iMsg);
-        }
-    }
-
     private FileTransfer getFileTransfer() {
         if (ftp == null) {
             ftp = FileTransfer.getInstance();
@@ -161,19 +87,6 @@ public class Emitter implements Observer {
         }
         return ftp;
     }
-    private FileTransfer ftp = null;
-
-    private static void saveInstantMessage(InstantMessage iMsg) throws IOException {
-        // save instant message
-        MessageDataSource mds = MessageDataSource.getInstance();
-        boolean ok = mds.saveInstantMessage(iMsg);
-        if (!ok) {
-            throw new IOException("failed to save message: " + iMsg);
-        }
-    }
-
-    private final Map<String, InstantMessage> map = new HashMap<>();  // filename => task
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private void addTask(String filename, InstantMessage item) {
         Lock writeLock = lock.writeLock();
@@ -226,18 +139,18 @@ public class Emitter implements Observer {
         InstantMessage iMsg = popTask(filename);
         if (iMsg == null) {
             Log.error("failed to get task: " + filename + ", url: " + url);
-        } else {
-            Log.info("get task for file: " + filename + ", url: " + url);
-            // file data uploaded to FTP server, replace it with download URL
-            // and send the content to station
-            FileContent content = (FileContent) iMsg.getContent();
-            //content.setData(null);
-            content.setURL(url.toString());
-            try {
-                sendInstantMessage(iMsg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return;
+        }
+        Log.info("get task for file: " + filename + ", url: " + url);
+        // file data uploaded to FTP server, replace it with download URL
+        // and send the content to station
+        FileContent content = (FileContent) iMsg.getContent();
+        //content.setData(null);
+        content.setURL(url.toString());
+        try {
+            sendInstantMessage(iMsg);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -260,5 +173,123 @@ public class Emitter implements Observer {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static void saveInstantMessage(InstantMessage iMsg) throws IOException {
+        // save instant message
+        MessageDataSource mds = MessageDataSource.getInstance();
+        boolean ok = mds.saveInstantMessage(iMsg);
+        if (!ok) {
+            throw new IOException("failed to save message: " + iMsg);
+        }
+    }
+
+    private void sendInstantMessage(InstantMessage iMsg) throws IOException {
+        Log.info("send instant message (type=" + iMsg.getContent().getType() + "): "
+                + iMsg.getSender() + " -> " + iMsg.getReceiver());
+        // send by shared messenger
+        GlobalVariable shared = GlobalVariable.getInstance();
+        shared.messenger.sendInstantMessage(iMsg, 0);
+        // save instant message
+        saveInstantMessage(iMsg);
+    }
+
+    /**
+     *  Send file content message with password
+     *
+     * @param iMsg     - outgoing message
+     * @param password - key for encrypt/decrypt file data
+     * @throws IOException on failed to save message
+     */
+    public void sendFileContentMessage(InstantMessage iMsg, SymmetricKey password) throws IOException {
+        FileContent content = (FileContent) iMsg.getContent();
+        // 1. save origin file data
+        byte[] data = content.getData();
+        String filename = content.getFilename();
+        int len = FileTransfer.cacheFileData(data, filename);
+        if (len != data.length) {
+            Log.error("failed to save file data (len=" + data.length + "): " + filename);
+            return;
+        }
+        // 2. save instant message without file data
+        content.setData(null);
+        saveInstantMessage(iMsg);
+        // 3. add upload task with encrypted data
+        byte[] encrypted = password.encrypt(data);
+        filename = FileTransfer.getFilename(encrypted, filename);
+        ID sender = iMsg.getSender();
+        URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender);
+        if (url == null) {
+            // add task for upload
+            addTask(filename, iMsg);
+            Log.info("waiting upload filename: " + content.getFilename() + " -> " + filename);
+        } else {
+            // already upload before, set URL and send out immediately
+            Log.info("uploaded filename: " + content.getFilename() + " -> " + filename + " => " + url);
+            content.setURL(url.toString());
+            sendInstantMessage(iMsg);
+        }
+    }
+
+    /**
+     *  Send text message to receiver
+     *
+     * @param text     - text message
+     * @param receiver - receiver ID
+     * @throws IOException on failed to save message
+     */
+    public void sendText(String text, ID receiver) throws IOException {
+        TextContent content = new BaseTextContent(text);
+        sendContent(content, receiver);
+    }
+
+    /**
+     *  Send image message to receiver
+     *
+     * @param jpeg      - image data
+     * @param thumbnail - image thumbnail
+     * @param receiver  - receiver ID
+     * @throws IOException on failed to save message
+     */
+    public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
+        assert jpeg != null && jpeg.length > 0 : "image data empty";
+        String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
+        ImageContent content = FileContent.image(filename, jpeg);
+        // add image data length & thumbnail into message content
+        content.put("length", jpeg.length);
+        content.setThumbnail(thumbnail);
+        sendContent(content, receiver);
+    }
+
+    /**
+     *  Send voice message to receiver
+     *
+     * @param mp4      - voice file
+     * @param duration - length
+     * @param receiver - receiver ID
+     * @throws IOException on failed to save message
+     */
+    public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
+        assert mp4 != null && mp4.length > 0 : "voice data empty";
+        String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
+        AudioContent content = FileContent.audio(filename, mp4);
+        // add voice data length & duration into message content
+        content.put("length", mp4.length);
+        content.put("duration", duration);
+        sendContent(content, receiver);
+    }
+
+    private void sendContent(Content content, ID receiver) throws IOException {
+        assert receiver != null : "receiver should not empty";
+        GlobalVariable shared = GlobalVariable.getInstance();
+        Pair<InstantMessage, ReliableMessage> result;
+        result = shared.messenger.sendContent(null, receiver, content, 0);
+        if (result.second == null) {
+            Log.warning("not send yet (type=" + content.getType() + "): " + receiver);
+            return;
+        }
+        assert result.first != null : "failed to pack instant message: " + receiver;
+        // save instant message
+        saveInstantMessage(result.first);
     }
 }

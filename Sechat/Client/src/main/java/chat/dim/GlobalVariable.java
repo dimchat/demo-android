@@ -19,6 +19,7 @@ public enum GlobalVariable {
         sdb = db;
         database = db;
         facebook = new SharedFacebook(db);
+        emitter = new Emitter();
 
         CryptoPlugins.registerCryptoPlugins();
 
@@ -32,8 +33,8 @@ public enum GlobalVariable {
 
     public final SharedFacebook facebook;
 
+    public final Emitter emitter;
+
     public SharedMessenger messenger = null;
     public Terminal terminal = null;
-
-    public final Emitter emitter = new Emitter();
 }

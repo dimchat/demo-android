@@ -361,6 +361,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
             info.put("name", request.name);
             info.put("filename", task.filename);
         } else {
+            info.put("request", request);
             info.put("api", request.url);
             info.put("path", request.path);
             info.put("name", request.name);

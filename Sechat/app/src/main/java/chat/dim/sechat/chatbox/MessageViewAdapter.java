@@ -22,8 +22,8 @@ import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
+import chat.dim.http.FileTransfer;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -181,13 +181,9 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
         }
         if (iMsg.getContent() instanceof AudioContent) {
             AudioContent content = (AudioContent) iMsg.getContent();
-            String filename = content.getFilename();
-            if (filename == null) {
-                return;
-            }
-            LocalCache cache = LocalCache.getInstance();
-            String path = cache.getCacheFilePath(filename);
-            if (Paths.exists(path)) {
+            FileTransfer ftp = FileTransfer.getInstance();
+            String path = ftp.getFilePath(content);
+            if (path != null && Paths.exists(path)) {
                 Log.info("playing " + path);
                 audioPlayer.startPlay(Uri.parse(path));
             }
@@ -196,20 +192,17 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
     private void showImage(InstantMessage iMsg, Context context) {
         if (iMsg.getContent() instanceof ImageContent) {
-            GlobalVariable shared = GlobalVariable.getInstance();
-            SharedFacebook facebook = shared.facebook;
             ImageContent content = (ImageContent) iMsg.getContent();
-            showImage(content.getFilename(), facebook.getName(iMsg.getSender()), context);
+            FileTransfer ftp = FileTransfer.getInstance();
+            String path = ftp.getFilePath(content);
+            Log.info("showing image: " + path);
+            if (path != null && Paths.exists(path)) {
+                GlobalVariable shared = GlobalVariable.getInstance();
+                SharedFacebook facebook = shared.facebook;
+                String sender = facebook.getName(iMsg.getSender());
+                ImageViewerActivity.show(context, Uri.parse(path), sender);
+            }
         }
-    }
-
-    private void showImage(String filename, String sender, Context context) {
-        LocalCache cache = LocalCache.getInstance();
-        String path = cache.getCacheFilePath(filename);
-        if (!Paths.exists(path)) {
-            return;
-        }
-        ImageViewerActivity.show(context, Uri.parse(path), sender);
     }
 
     private final ConversationDatabase msgDB = ConversationDatabase.getInstance();
