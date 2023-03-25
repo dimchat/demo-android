@@ -42,7 +42,7 @@ public class GridFragment<VA extends GridViewAdapter, L extends DummyList> exten
     protected L dummyList = null;
     protected VA adapter = null;
 
-    private ReadWriteLock dummyLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock dummyLock = new ReentrantReadWriteLock();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

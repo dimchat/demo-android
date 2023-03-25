@@ -50,7 +50,7 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.MembersUpdated);
         super.finalize();
@@ -59,7 +59,7 @@ public final class Client extends Terminal implements Observer {
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MembersUpdated)) {
             ID group = (ID) info.get("group");
@@ -159,7 +159,6 @@ public final class Client extends Terminal implements Observer {
 
     private void startServer(ProviderTable.StationInfo stationInfo) {
         ID identifier = stationInfo.identifier;
-        String name = stationInfo.name;
         String host = stationInfo.host;
         int port = stationInfo.port;
 

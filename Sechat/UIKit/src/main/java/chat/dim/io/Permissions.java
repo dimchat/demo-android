@@ -66,7 +66,7 @@ public class Permissions {
             requests.add(item);
         }
         permissions = requests.toArray(new String[0]);
-        if (permissions == null || permissions.length == 0) {
+        if (permissions.length == 0) {
             // all permissions granted
             return;
         }
@@ -79,7 +79,7 @@ public class Permissions {
 
     private static final String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static String[] EXTERNAL_STORAGE_PERMISSIONS = {
+    private static final String[] EXTERNAL_STORAGE_PERMISSIONS = {
             READ_EXTERNAL_STORAGE,
             WRITE_EXTERNAL_STORAGE
     };
@@ -97,7 +97,7 @@ public class Permissions {
     //
 
     private static final String CAMERA = Manifest.permission.CAMERA;
-    private static String[] CAMERA_PERMISSIONS = {
+    private static final String[] CAMERA_PERMISSIONS = {
             READ_EXTERNAL_STORAGE,
             WRITE_EXTERNAL_STORAGE,
             CAMERA
@@ -116,7 +116,7 @@ public class Permissions {
     //
 
     private static final String RECORD_AUDIO = Manifest.permission.RECORD_AUDIO;
-    private static String[] MICROPHONE_PERMISSIONS = {
+    private static final String[] MICROPHONE_PERMISSIONS = {
             READ_EXTERNAL_STORAGE,
             WRITE_EXTERNAL_STORAGE,
             RECORD_AUDIO

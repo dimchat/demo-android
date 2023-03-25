@@ -170,9 +170,6 @@ public class ImagePicker implements DialogInterface.OnClickListener {
 
     public boolean cropPicture(Uri data, String tempDir) throws IOException {
         File file = Storage.createTempFile("picture", ".jpeg", tempDir);
-        if (file == null) {
-            return false;
-        }
         Uri output = Uri.fromFile(file);
 
         Intent intent = new Intent(ACTION_CROP);

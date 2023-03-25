@@ -69,7 +69,7 @@ public class MessageDataSource implements Observer {
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         NotificationCenter nc = NotificationCenter.getInstance();
         nc.removeObserver(this, NotificationNames.MetaSaved);
         nc.removeObserver(this, NotificationNames.DocumentUpdated);
@@ -82,7 +82,7 @@ public class MessageDataSource implements Observer {
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.MetaSaved) || name.equals(NotificationNames.DocumentUpdated)) {
             GlobalVariable shared = GlobalVariable.getInstance();

@@ -75,7 +75,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.ContactsUpdated)) {
             ID contact = (ID) info.get("contact");
@@ -174,7 +174,8 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        facebook.addContact(identifier, user.getIdentifier());
+        boolean ok = facebook.addContact(identifier, user.getIdentifier());
+        assert ok : "failed to add contact: " + identifier + ", user: " + user;
         // open chat box
         Client client = Client.getInstance();
         client.startChat(identifier);
@@ -185,7 +186,8 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
         SharedFacebook facebook = shared.facebook;
         User user = facebook.getCurrentUser();
         assert user != null : "failed to get current user";
-        facebook.removeContact(identifier, user.getIdentifier());
+        boolean ok = facebook.removeContact(identifier, user.getIdentifier());
+        assert ok : "failed to remove contact: " + identifier + ", user: " + user;
         close();
     }
 

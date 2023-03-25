@@ -153,6 +153,7 @@ public final class SharedFacebook extends ClientFacebook {
         if (contacts == null) {
             contacts = super.getContacts(user);
             if (contacts == null) {
+                // placeholder
                 contacts = new ArrayList<>();
             }
             userContacts.put(user, contacts);

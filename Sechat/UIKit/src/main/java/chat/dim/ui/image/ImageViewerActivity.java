@@ -67,6 +67,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             Uri imageUri = intent.getParcelableExtra("URI");
+            assert imageUri != null : "image URI not set";
             Bitmap bitmap = BitmapFactory.decodeFile(imageUri.getPath());
             if (bitmap != null) {
                 originSize = new Images.Size(bitmap.getWidth(), bitmap.getHeight());

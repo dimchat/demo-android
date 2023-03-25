@@ -70,7 +70,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
         }
 
         @Override
-        public void finalize() throws Throwable {
+        protected void finalize() throws Throwable {
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.removeObserver(this, NotificationNames.DocumentUpdated);
             nc.removeObserver(this, NotificationNames.FileDownloadSuccess);
@@ -80,7 +80,7 @@ public class ContactViewAdapter extends RecyclerViewAdapter<ContactViewAdapter.V
         @Override
         public void onReceiveNotification(Notification notification) {
             String name = notification.name;
-            Map info = notification.userInfo;
+            Map<String, Object> info = notification.userInfo;
             assert name != null && info != null : "notification error: " + notification;
             if (name.equals(NotificationNames.DocumentUpdated)) {
                 ID user = ID.parse(info.get("ID"));
