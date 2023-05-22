@@ -132,7 +132,7 @@ public final class SechatApp extends Application {
 
     static {
 
-        Log.LEVEL = Log.DEVELOP;
+        Log.LEVEL = Log.DEBUG;
 
         // prepare plugins
         GlobalVariable shared = GlobalVariable.getInstance();

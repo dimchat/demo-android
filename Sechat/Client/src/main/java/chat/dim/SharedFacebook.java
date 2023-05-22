@@ -70,7 +70,7 @@ public final class SharedFacebook extends ClientFacebook {
         }
         String path = null;
         URL url = null;
-        if (urlString != null && urlString.length() > 0) {
+        if (urlString != null && urlString.indexOf("://") > 0) {
             try {
                 url = new URL(urlString);
                 FileTransfer ftp = FileTransfer.getInstance();

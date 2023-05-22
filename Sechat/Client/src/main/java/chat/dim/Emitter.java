@@ -160,18 +160,18 @@ public class Emitter implements Observer {
         String filename = FileTransfer.getFilename(request);
         InstantMessage iMsg = popTask(filename);
         if (iMsg == null) {
-            Log.error("failed to get task: " + filename);
-        } else {
-            Log.info("get task for file: " + filename);
-            // file data failed to upload, mark it error
-            Map<String, Object> info = new HashMap<>();
-            info.put("message", "failed to upload file");
-            iMsg.put("error", info);
-            try {
-                saveInstantMessage(iMsg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.error("failed to get task: " + filename + ", error: " + error);
+            return;
+        }
+        Log.info("get task for file: " + filename);
+        // file data failed to upload, mark it error
+        Map<String, Object> info = new HashMap<>();
+        info.put("message", "failed to upload file");
+        iMsg.put("error", info);
+        try {
+            saveInstantMessage(iMsg);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

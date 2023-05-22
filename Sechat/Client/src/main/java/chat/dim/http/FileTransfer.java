@@ -110,7 +110,8 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @throws IOException on failed to create temporary file
      */
     public URL uploadEncryptData(byte[] data, String filename, ID sender) throws IOException {
-        filename = getFilename(data, Paths.filename(filename));
+        //filename = Paths.filename(filename);
+        filename = getFilename(data, filename);
         LocalCache cache = LocalCache.getInstance();
         String path = cache.getUploadFilePath(filename);
         return upload(data, path, "file", sender);

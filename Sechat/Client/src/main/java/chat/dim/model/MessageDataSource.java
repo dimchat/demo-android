@@ -215,7 +215,7 @@ public class MessageDataSource implements Observer {
         if (waiting == null) {
             waiting = iMsg.getGroup();
             if (waiting == null) {
-                waiting = iMsg.getSender();
+                waiting = iMsg.getReceiver();
             }
         } else {
             iMsg.remove("waiting");
