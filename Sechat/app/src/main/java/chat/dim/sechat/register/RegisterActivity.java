@@ -31,6 +31,8 @@ public class RegisterActivity extends ImagePickerActivity {
 //        JPushManager.getInstance().setAlias("");  //注册页面停止推送
         setTitle(R.string.register);
 
+        MainActivity.initLocalStorage(this);
+
         tryLaunch();
 
         if (savedInstanceState == null) {

@@ -26,8 +26,10 @@
 package chat.dim;
 
 import java.io.IOException;
+import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
+import chat.dim.model.MessageDataSource;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
@@ -140,4 +142,19 @@ public class SharedPacker extends ClientMessagePacker {
         }
         return iMsg;
     }
+
+    @Override
+    protected void suspendMessage(ReliableMessage rMsg, Map<String, ?> info) {
+        rMsg.put("error", info);
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.suspendMessage(rMsg);
+    }
+
+    @Override
+    protected void suspendMessage(InstantMessage iMsg, Map<String, ?> info) {
+        iMsg.put("error", info);
+        MessageDataSource mds = MessageDataSource.getInstance();
+        mds.suspendMessage(iMsg);
+    }
+
 }

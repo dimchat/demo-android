@@ -41,6 +41,6 @@ public abstract class Database extends SQLiteOpenHelper {
 
     protected static String getFilePath(String dbName) {
         LocalCache cache = LocalCache.getInstance();
-        return Paths.append(cache.getRoot(), "sqlite", dbName);
+        return Paths.append(cache.getCachesDirectory(), "sqlite", dbName);
     }
 }

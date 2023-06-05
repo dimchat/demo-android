@@ -3,16 +3,20 @@ package chat.dim.sechat;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
+import chat.dim.filesys.LocalCache;
 import chat.dim.mkm.User;
 import chat.dim.network.SessionState;
 import chat.dim.notification.Notification;
@@ -188,6 +192,8 @@ public class MainActivity extends AppCompatActivity implements Observer {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         setDefaultFragment();
 
+        initLocalStorage(this);
+
         try {
             SechatApp.launch(getApplication(), this);
         } catch (Exception e) {
@@ -204,5 +210,27 @@ public class MainActivity extends AppCompatActivity implements Observer {
 //            //将用户地址设为别名
 //            JPushManager.getInstance().setAlias(user.identifier.getAddress().toString());
         }
+    }
+
+    public static void initLocalStorage(Context context) {
+
+        String cacheDir = null;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            // sdcard found, get external cache
+            File dir = context.getExternalCacheDir();
+            if (dir != null) {
+                cacheDir = dir.getAbsolutePath();
+            }
+        }
+        String tmpDir = context.getCacheDir().getAbsolutePath();
+        if (cacheDir == null) {
+            // external cache not found, use internal cache instead
+            cacheDir = tmpDir;
+        }
+        System.out.println("cache dirs: [" + cacheDir + ", " + tmpDir + "]");
+        LocalCache cache = LocalCache.getInstance();
+        cache.setCachesDirectory(cacheDir);
+        cache.setTemporaryDirectory(tmpDir);
+
     }
 }

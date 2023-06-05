@@ -2,16 +2,13 @@ package chat.dim.sechat;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.os.Environment;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.common.KeyStore;
-import chat.dim.filesys.LocalCache;
 import chat.dim.format.Base64;
 import chat.dim.format.DataCoder;
 import chat.dim.io.Permissions;
@@ -150,10 +147,5 @@ public final class SechatApp extends Application {
                 return android.util.Base64.decode(string, android.util.Base64.DEFAULT);
             }
         };
-
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        path += File.separator + "chat.dim.sechat";
-        LocalCache cache = LocalCache.getInstance();
-        cache.setRoot(path);
     }
 }

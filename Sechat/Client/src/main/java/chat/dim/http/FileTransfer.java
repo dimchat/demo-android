@@ -347,7 +347,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
 
     private static String getEntityDirectory() {
         LocalCache cache = LocalCache.getInstance();
-        return Paths.append(cache.getRoot(), "mkm");
+        return Paths.append(cache.getCachesDirectory(), "mkm");
     }
 
     //-------- Upload Delegate
