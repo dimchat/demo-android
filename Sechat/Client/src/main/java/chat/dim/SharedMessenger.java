@@ -131,17 +131,17 @@ public class SharedMessenger extends ClientMessenger {
     public void postContacts(List<ID> contacts) {
         User user = getFacebook().getCurrentUser();
         assert user != null : "current user empty";
+        StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
+        content.setIdentifier(user.getIdentifier());
         // 1. generate password
         SymmetricKey password = SymmetricKey.generate(SymmetricKey.AES);
         // 2. encrypt contacts list
         byte[] data = UTF8.encode(JSON.encode(contacts));
-        data = password.encrypt(data);
+        data = password.encrypt(data, content.toMap());
         // 3. encrypt key
         byte[] key = UTF8.encode(JSON.encode(password));
         key = user.encrypt(key);
         // 4. pack 'storage' command
-        StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
-        content.setIdentifier(user.getIdentifier());
         content.setData(data);
         content.setKey(key);
         sendCommand(content, Departure.Priority.SLOWER.value);

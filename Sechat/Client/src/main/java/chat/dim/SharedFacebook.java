@@ -36,6 +36,7 @@ import chat.dim.crypto.PrivateKey;
 import chat.dim.database.AddressNameTable;
 import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
@@ -59,15 +60,19 @@ public final class SharedFacebook extends ClientFacebook {
      * @return cache path & remote URL
      */
     public Pair<String, URL> getAvatar(ID user) {
-        String urlString = null;
+        PortableNetworkFile avatar = null;
         Document doc = getDocument(user, "*");
         if (doc != null) {
             if (doc instanceof Visa) {
-                urlString = ((Visa) doc).getAvatar();
+                avatar = ((Visa) doc).getAvatar();
             } else {
-                urlString = (String) doc.getProperty("avatar");
+                Object pnf = doc.getProperty("avatar");
+                avatar = PortableNetworkFile.parse(pnf);
             }
         }
+        String urlString = avatar == null ? null : avatar.getURL().toString();
+        // TODO: if 'URL' is empty, get avatar from 'data'
+        //       if 'key' exists, decrypt downloaded data.
         String path = null;
         URL url = null;
         if (urlString != null && urlString.indexOf("://") > 0) {

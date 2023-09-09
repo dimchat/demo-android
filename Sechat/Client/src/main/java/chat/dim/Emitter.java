@@ -26,6 +26,7 @@
 package chat.dim;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,14 +46,14 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
-import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
+import chat.dim.protocol.file.AudioContent;
+import chat.dim.protocol.file.ImageContent;
 import chat.dim.type.Pair;
 import chat.dim.utils.Log;
 
@@ -146,7 +147,7 @@ public class Emitter implements Observer {
         // and send the content to station
         FileContent content = (FileContent) iMsg.getContent();
         //content.setData(null);
-        content.setURL(url.toString());
+        content.setURL(URI.create(url.toString()));
         try {
             sendInstantMessage(iMsg);
         } catch (IOException e) {
@@ -215,7 +216,7 @@ public class Emitter implements Observer {
         content.setData(null);
         saveInstantMessage(iMsg);
         // 3. add upload task with encrypted data
-        byte[] encrypted = password.encrypt(data);
+        byte[] encrypted = password.encrypt(data, iMsg.toMap());
         filename = FileTransfer.getFilename(encrypted, filename);
         ID sender = iMsg.getSender();
         URL url = getFileTransfer().uploadEncryptData(encrypted, filename, sender);
@@ -226,7 +227,7 @@ public class Emitter implements Observer {
         } else {
             // already upload before, set URL and send out immediately
             Log.info("uploaded filename: " + content.getFilename() + " -> " + filename + " => " + url);
-            content.setURL(url.toString());
+            content.setURL(URI.create(url.toString()));
             sendInstantMessage(iMsg);
         }
     }

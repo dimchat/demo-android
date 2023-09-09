@@ -79,7 +79,7 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
         if (meta == null) {
             throw new NullPointerException("meta not exists: " + identifier);
         }
-        if (!(doc.isValid() || doc.verify(meta.getKey()))) {
+        if (!(doc.isValid() || doc.verify(meta.getPublicKey()))) {
             throw new VerifyError("document error: " + doc);
         }
         boolean ok = documentTable.saveDocument(doc);

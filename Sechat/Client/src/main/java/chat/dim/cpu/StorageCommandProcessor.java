@@ -54,7 +54,7 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
             throw new NullPointerException("data not found: " + content);
         }
         // 2. decrypt data
-        data = password.decrypt(data);
+        data = password.decrypt(data, content.toMap());
         if (data == null) {
             throw new NullPointerException("failed to decrypt data: " + content);
         }

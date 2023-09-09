@@ -240,7 +240,7 @@ public class AccountViewModel extends UserViewModel {
                 visa.setName(nickname);
             }
             if (msgKey != null) {
-                visa.setKey(msgKey);
+                visa.setPublicKey(msgKey);
             }
             if (visa.sign(privateKey) == null) {
                 return null;

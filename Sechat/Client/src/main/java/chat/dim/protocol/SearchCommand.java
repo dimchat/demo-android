@@ -66,7 +66,7 @@ public class SearchCommand extends BaseCommand {
     }
 
     public String getKeywords() {
-        String keywords = (String) getString("keywords");
+        String keywords = getString("keywords", null);
         if (keywords == null && ONLINE_USERS.equals(getCmd())) {
             keywords = ONLINE_USERS;
         }
@@ -88,15 +88,14 @@ public class SearchCommand extends BaseCommand {
     }
 
     public int getStart() {
-        return  getInt("start");
+        return  getInt("start", 0);
     }
     public void setStart(int start) {
         put("start", start);
     }
 
     public int getLimit() {
-        Object limit = get("limit");
-        return limit == null ? 20 : ((Number) limit).intValue();
+        return getInt("limit", 50);
     }
     public void setLimit(int limit) {
         put("limit", limit);

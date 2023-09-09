@@ -183,7 +183,7 @@ public class StorageCommand extends BaseCommand {
             if (data == null) {
                 return null;
             }
-            plaintext = key.decrypt(data);
+            plaintext = key.decrypt(data, toMap());
         }
         return plaintext;
     }
@@ -204,7 +204,7 @@ public class StorageCommand extends BaseCommand {
         if (data == null) {
             return null;
         }
-        byte[] key = privateKey.decrypt(data);
+        byte[] key = privateKey.decrypt(data, toMap());
         if (key == null) {
             throw new NullPointerException("failed to decrypt key: " + Arrays.toString(data));
         }

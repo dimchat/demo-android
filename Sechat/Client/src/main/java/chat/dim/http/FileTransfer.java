@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -190,16 +191,16 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
             return cachePath;
         }
         // get download URL
-        final String urlString = content.getURL();
-        if (urlString == null) {
+        final URI remoteURL = content.getURL();
+        if (remoteURL == null) {
             Log.error("file URL not found: " + content);
             return null;
         }
         final URL url;
         try {
-            url = new URL(urlString);
+            url = new URL(remoteURL.toString());
         } catch (MalformedURLException e) {
-            Log.error("URL error: " + urlString);
+            Log.error("URL error: " + remoteURL);
             return null;
         }
         // try download file from remote URL
@@ -214,7 +215,7 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
             Log.error("password not found: " + content);
             return null;
         }
-        final byte[] data = decryptFileData(tempPath, password);
+        final byte[] data = decryptFileData(tempPath, password, content);
         if (data == null) {
             Log.error("failed to decrypt file: " + tempPath + ", password: " + password);
             // delete to download again
@@ -264,14 +265,14 @@ public enum FileTransfer implements UploadDelegate, DownloadDelegate {
      * @param password - symmetric key
      * @return decrypted data
      */
-    private static byte[] decryptFileData(String path, DecryptKey password) {
+    private static byte[] decryptFileData(String path, DecryptKey password, FileContent content) {
         byte[] data = loadDownloadedFileData(path);
         if (data == null) {
             Log.warning("failed to load temporary file: " + path);
             return null;
         }
         Log.info("decrypting file: " + path + ", size: " + data.length + " byte(s)");
-        return password.decrypt(data);
+        return password.decrypt(data, content.toMap());
     }
 
     private static byte[] loadDownloadedFileData(String filename) {

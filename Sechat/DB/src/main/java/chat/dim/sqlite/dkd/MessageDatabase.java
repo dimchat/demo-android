@@ -114,10 +114,6 @@ public final class MessageDatabase extends Database {
 
     @SuppressWarnings("rawtypes")
     private static InstantMessage getInstanceMessage(Map msg) {
-        InstantMessage iMsg = InstantMessage.parse(msg);
-        if (iMsg != null) {
-            iMsg.setDelegate(messenger);
-        }
-        return iMsg;
+        return InstantMessage.parse(msg);
     }
 }

@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -29,14 +30,14 @@ import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.notification.Observer;
-import chat.dim.protocol.AudioContent;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
-import chat.dim.protocol.ImageContent;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.TextContent;
+import chat.dim.protocol.file.AudioContent;
+import chat.dim.protocol.file.ImageContent;
 import chat.dim.sechat.R;
 import chat.dim.sechat.contacts.ContactList;
 import chat.dim.sechat.model.UserViewModel;
@@ -349,7 +350,8 @@ public class MessageViewAdapter extends RecyclerViewAdapter<MessageViewAdapter.V
 
         void setFileContent(FileContent content) {
             fileContent = content;
-            downloadingURL = content.getURL();
+            URI remoteURL = content.getURL();
+            downloadingURL = remoteURL == null ? null : remoteURL.toString();
             Log.info("waiting for downloading: " + downloadingURL);
             NotificationCenter nc = NotificationCenter.getInstance();
             nc.addObserver(this, NotificationNames.FileDownloadSuccess);

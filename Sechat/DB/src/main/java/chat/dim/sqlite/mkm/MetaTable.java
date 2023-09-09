@@ -89,7 +89,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             Log.info("meta already exists: " + entity);
             return true;
         }
-        VerifyKey key = meta.getKey();
+        VerifyKey key = meta.getPublicKey();
         String pk = JSON.encode(key);
 
         // 1. save into database

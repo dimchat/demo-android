@@ -26,6 +26,7 @@ import java.util.Map;
 
 import chat.dim.digest.MD5;
 import chat.dim.format.Hex;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
 import chat.dim.model.Configuration;
 import chat.dim.notification.NotificationCenter;
@@ -151,7 +152,7 @@ public class UpdateAccountFragment extends Fragment implements DialogInterface.O
                 // waiting for avatar uploaded
                 ok = false;
             } else {
-                visa.setAvatar(url.toString());
+                visa.setAvatar(PortableNetworkFile.parse(url.toString()));
             }
         }
 
