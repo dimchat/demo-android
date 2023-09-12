@@ -3,7 +3,6 @@ package chat.dim;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -19,7 +18,9 @@ import chat.dim.database.ProviderTable;
 import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.dbi.MessageDBI;
+import chat.dim.dbi.ProviderInfo;
 import chat.dim.dbi.SessionDBI;
+import chat.dim.dbi.StationInfo;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Document;
@@ -27,8 +28,8 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.protocol.group.ResetCommand;
 import chat.dim.type.Pair;
-import chat.dim.type.Triplet;
 
 public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserTable {
 
@@ -174,6 +175,30 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
+    public List<ID> getAdministrators(ID group) {
+        return groupTable.getAdministrators(group);
+    }
+
+    @Override
+    public boolean saveAdministrators(List<ID> members, ID group) {
+        return groupTable.saveAdministrators(members, group);
+    }
+
+    //
+    //  Reset Group DBI
+    //
+
+    @Override
+    public Pair<ResetCommand, ReliableMessage> getResetCommandMessage(ID identifier) {
+        return null;
+    }
+
+    @Override
+    public boolean saveResetCommandMessage(ID identifier, ResetCommand content, ReliableMessage rMsg) {
+        return false;
+    }
+
+    @Override
     public boolean saveMeta(Meta meta, ID entity) {
         if (!Meta.matches(entity, meta)) {
             throw new VerifyError("meta not match: " + entity + " => " + meta);
@@ -277,6 +302,16 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
+    public Map<String, Object> getGroupKeys(ID group, ID sender) {
+        return null;
+    }
+
+    @Override
+    public boolean saveGroupKeys(ID group, ID sender, Map<String, Object> keys) {
+        return false;
+    }
+
+    @Override
     public Pair<List<ReliableMessage>, Integer> getReliableMessages(ID receiver, int start, int limit) {
         // TODO:
         return null;
@@ -309,22 +344,47 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public Set<Triplet<String, Integer, ID>> allNeighbors() {
-        return providerTable.allNeighbors();
+    public List<ProviderInfo> allProviders() {
+        return null;
     }
 
     @Override
-    public ID getNeighbor(String ip, int port) {
-        return providerTable.getNeighbor(ip, port);
+    public boolean addProvider(ID identifier, int chosen) {
+        return false;
     }
 
     @Override
-    public boolean addNeighbor(String ip, int port, ID station) {
-        return providerTable.addNeighbor(ip, port, station);
+    public boolean updateProvider(ID identifier, int chosen) {
+        return false;
     }
 
     @Override
-    public boolean removeNeighbor(String ip, int port) {
-        return providerTable.removeNeighbor(ip, port);
+    public boolean removeProvider(ID identifier) {
+        return false;
+    }
+
+    @Override
+    public List<StationInfo> allStations(ID provider) {
+        return null;
+    }
+
+    @Override
+    public boolean addStation(ID identifier, String host, int port, ID provider, int chosen) {
+        return false;
+    }
+
+    @Override
+    public boolean updateStation(ID identifier, String host, int port, ID provider, int chosen) {
+        return false;
+    }
+
+    @Override
+    public boolean removeStation(String host, int port, ID provider) {
+        return false;
+    }
+
+    @Override
+    public boolean removeStations(ID provider) {
+        return false;
     }
 }

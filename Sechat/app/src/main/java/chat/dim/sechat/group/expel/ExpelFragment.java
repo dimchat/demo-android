@@ -20,7 +20,6 @@ import java.util.Set;
 import chat.dim.GlobalVariable;
 import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedMessenger;
 import chat.dim.crypto.SignKey;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.User;

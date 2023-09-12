@@ -164,6 +164,16 @@ public final class GroupTable extends DataTable implements chat.dim.database.Gro
     }
 
     @Override
+    public List<ID> getAdministrators(ID group) {
+        return null;
+    }
+
+    @Override
+    public boolean saveAdministrators(List<ID> members, ID group) {
+        return false;
+    }
+
+    @Override
     public boolean removeGroup(ID group) {
         String[] whereArgs = {group.toString()};
         boolean ok1 = delete(EntityDatabase.T_MEMBER, "gid=?", whereArgs) > 0;

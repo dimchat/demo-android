@@ -255,7 +255,7 @@ public class Emitter implements Observer {
     public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
         assert jpeg != null && jpeg.length > 0 : "image data empty";
         String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
-        ImageContent content = FileContent.image(filename, jpeg);
+        ImageContent content = FileContent.image(jpeg, filename);
         // add image data length & thumbnail into message content
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
@@ -273,7 +273,7 @@ public class Emitter implements Observer {
     public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
         assert mp4 != null && mp4.length > 0 : "voice data empty";
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
-        AudioContent content = FileContent.audio(filename, mp4);
+        AudioContent content = FileContent.audio(mp4, filename);
         // add voice data length & duration into message content
         content.put("length", mp4.length);
         content.put("duration", duration);

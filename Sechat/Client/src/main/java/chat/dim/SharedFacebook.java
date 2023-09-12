@@ -38,6 +38,8 @@ import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
+import chat.dim.mkm.Entity;
+import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -91,6 +93,20 @@ public final class SharedFacebook extends ClientFacebook {
     public boolean savePrivateKey(PrivateKey key, String type, ID user) {
         AccountDBI db = getDatabase();
         return db.savePrivateKey(key, type, user);
+    }
+
+    @Override
+    protected Group createGroup(ID group) {
+        Group grp = super.createGroup(group);
+        if (grp != null) {
+            Entity.DataSource delegate = grp.getDataSource();
+            if (delegate == null || delegate == this) {
+                // replace group's data source
+                GroupManager manager = GroupManager.getInstance();
+                grp.setDataSource(manager);
+            }
+        }
+        return grp;
     }
 
     //-------- Users
