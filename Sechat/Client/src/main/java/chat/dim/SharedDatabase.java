@@ -200,7 +200,7 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!Meta.matches(entity, meta)) {
+        if (!meta.matchIdentifier(entity)) {
             throw new VerifyError("meta not match: " + entity + " => " + meta);
         }
         boolean ok = metaTable.saveMeta(meta, entity);

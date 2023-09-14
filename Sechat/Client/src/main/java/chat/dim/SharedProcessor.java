@@ -57,7 +57,7 @@ public class SharedProcessor extends ClientMessageProcessor {
     }
 
     @Override
-    protected ContentProcessor.Creator createCreator() {
-        return new ClientProcessorCreator(getFacebook(), getMessenger());
+    protected ContentProcessor.Creator createCreator(Facebook facebook, Messenger messenger) {
+        return new ClientProcessorCreator(facebook, messenger);
     }
 }

@@ -78,7 +78,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!Meta.matches(entity, meta)) {
+        if (!meta.matchIdentifier(entity)) {
             Log.error("meta not match ID: " + entity + ", " + meta);
             return false;
         }

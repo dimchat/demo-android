@@ -382,7 +382,7 @@ public enum GroupManager implements Group.DataSource {
       assert gMeta != null : "failed to get meta for group: " + group;
       Meta mMeta = facebook.getMeta(member);
       assert mMeta != null : "failed to get meta for member: " + member;
-      return Meta.matches(mMeta.getPublicKey(), gMeta);
+      return gMeta.matchPublicKey(mMeta.getPublicKey());
    }
 
    public boolean isOwner(ID member, ID group) {
