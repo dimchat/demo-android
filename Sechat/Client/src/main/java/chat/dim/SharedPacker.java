@@ -33,7 +33,6 @@ import chat.dim.model.MessageDataSource;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
@@ -58,7 +57,7 @@ public class SharedPacker extends ClientMessagePacker {
             return super.serializeMessage(rMsg);
         } else {
             // D-MTP
-            attachKeyDigest(rMsg, getMessenger());
+            // TODO: attachKeyDigest(rMsg, getMessenger());
             return MsgUtils.serializeMessage(rMsg);
         }
     }
@@ -91,12 +90,11 @@ public class SharedPacker extends ClientMessagePacker {
         // make sure visa.key exists before encrypting message
         Content content = iMsg.getContent();
         if (content instanceof FileContent) {
-            if (content.get("data") != null/* && content.get("URL") == null*/) {
-                ID sender = iMsg.getSender();
-                ID receiver = iMsg.getReceiver();
-                Messenger messenger = getMessenger();
-                SymmetricKey key = messenger.getCipherKey(sender, receiver, true);
-                assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
+            FileContent fileContent = (FileContent) content;
+            if (fileContent.getData() != null/* && fileContent.getURL() == null*/) {
+                SymmetricKey key = getMessenger().getEncryptKey(iMsg);
+                assert key != null : "failed to get msg key: "
+                        + iMsg.getSender() + " => " + iMsg.getReceiver() + ", " + iMsg.get("group");
                 // call emitter to encrypt & upload file data before send out
                 GlobalVariable shared = GlobalVariable.getInstance();
                 try {
@@ -107,20 +105,8 @@ public class SharedPacker extends ClientMessagePacker {
                 return null;
             }
         }
-
-        SecureMessage sMsg = super.encryptMessage(iMsg);
-        ID receiver = iMsg.getReceiver();
-        if (receiver.isGroup()) {
-            // reuse group message keys
-            ID sender = iMsg.getSender();
-            Messenger messenger = getMessenger();
-            SymmetricKey key = messenger.getCipherKey(sender, receiver, false);
-            assert key != null : "failed to get msg key for: " + sender + " -> " + receiver;
-            key.put("reused", true);
-        }
-        // TODO: reuse personal message key?
-
-        return sMsg;
+        // check receiver & encrypt
+        return super.encryptMessage(iMsg);
     }
 
     @Override
@@ -129,14 +115,16 @@ public class SharedPacker extends ClientMessagePacker {
         if (iMsg != null) {
             Content content = iMsg.getContent();
             if (content instanceof FileContent) {
-                if (content.get("data") == null && content.get("URL") != null) {
-                    ID sender = iMsg.getSender();
-                    ID receiver = iMsg.getReceiver();
-                    Messenger messenger = getMessenger();
-                    SymmetricKey key = messenger.getCipherKey(sender, receiver, false);
-                    assert key != null : "failed to get password: " + sender + " -> " + receiver;
+                FileContent fileContent = (FileContent) content;
+                if (fileContent.getPassword() == null && ((FileContent) content).getURL() != null) {
+                    // now received file content with remote data,
+                    // which must be encrypted before upload to CDN;
+                    // so keep the password here for decrypting after downloaded.
+                    SymmetricKey key = getMessenger().getDecryptKey(sMsg);
+                    assert key != null : "failed to get msg key: "
+                            + sMsg.getSender() + " => " + sMsg.getReceiver() + ", " + sMsg.get("group");
                     // keep password to decrypt data after downloaded
-                    ((FileContent) content).setPassword(key);
+                    fileContent.setPassword(key);
                 }
             }
         }
