@@ -60,16 +60,6 @@ public final class ContactTable extends DataTable implements chat.dim.database.C
     //
 
     @Override
-    public List<ID> getLocalUsers() {
-        throw new AssertionError("Call UserTable!");
-    }
-
-    @Override
-    public boolean saveLocalUsers(List<ID> users) {
-        throw new AssertionError("Call UserTable!");
-    }
-
-    @Override
     public List<ID> getContacts(ID user) {
         List<ID> contacts = new ArrayList<>();
         String[] columns = {"contact"};

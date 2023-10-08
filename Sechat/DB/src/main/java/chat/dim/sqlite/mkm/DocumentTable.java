@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.format.Base64;
+import chat.dim.format.TransportableData;
 import chat.dim.mkm.BaseDocument;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
@@ -60,7 +61,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     }
 
     // memory caches
-    private Map<String, Document> docsTable = new HashMap<>();
+    private final Map<String, Document> docsTable = new HashMap<>();
 
     private final Document empty = new BaseDocument(ID.ANYONE, Document.PROFILE);
 
@@ -119,7 +120,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
                 if (cursor.moveToNext()) {
                     data = cursor.getString(0);
                     signature = cursor.getBlob(1);
-                    doc = Document.create(type, entity, data, Base64.encode(signature));
+                    doc = Document.create(type, entity, data, TransportableData.create(signature));
                 }
             } catch (SQLiteCantOpenDatabaseException e) {
                 e.printStackTrace();

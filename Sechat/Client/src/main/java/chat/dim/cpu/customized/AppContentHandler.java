@@ -46,8 +46,6 @@ public abstract class AppContentHandler extends TwinsHelper implements Customize
     // Application ID for customized content
     public static final String APP_ID = "chat.dim.sechat";
 
-    public static String FMT_ACT_NOT_SUPPORT = "Customized Content (app: %s, mod: %s, act: %s) not support yet!";
-
     protected AppContentHandler(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
     }
@@ -56,7 +54,7 @@ public abstract class AppContentHandler extends TwinsHelper implements Customize
     public List<Content> handleAction(String act, ID sender, CustomizedContent content, ReliableMessage rMsg) {
         String app = content.getApplication();
         String mod = content.getModule();
-        return respondReceipt("Content not support.", rMsg, content.getGroup(), newMap(
+        return respondReceipt("Content not support.", rMsg.getEnvelope(), content, newMap(
                 "template", "Customized Content (app: ${app}, mod: ${mod}, act: ${act}) not support yet!",
                 "replacements", newMap(
                         "app", app,

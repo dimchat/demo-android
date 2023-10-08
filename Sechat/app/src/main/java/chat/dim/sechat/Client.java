@@ -21,6 +21,7 @@ import chat.dim.SharedPacker;
 import chat.dim.SharedProcessor;
 import chat.dim.Terminal;
 import chat.dim.dbi.SessionDBI;
+import chat.dim.mkm.Station;
 import chat.dim.mkm.User;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.network.ClientSession;
@@ -126,6 +127,13 @@ public final class Client extends Terminal implements Observer {
     @Override
     public String getDeviceManufacturer() {
         return android.os.Build.MANUFACTURER;
+    }
+
+    @Override
+    protected ClientSession createSession(Station station) {
+        ClientSession session = new ClientSession(station, database);
+        session.start(this);
+        return session;
     }
 
     @Override

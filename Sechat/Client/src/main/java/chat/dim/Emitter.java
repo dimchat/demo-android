@@ -38,6 +38,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.format.Hex;
+import chat.dim.format.TransportableData;
 import chat.dim.http.FileTransfer;
 import chat.dim.http.UploadRequest;
 import chat.dim.model.Configuration;
@@ -255,7 +256,8 @@ public class Emitter implements Observer {
     public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
         assert jpeg != null && jpeg.length > 0 : "image data empty";
         String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
-        ImageContent content = FileContent.image(jpeg, filename);
+        TransportableData ted = TransportableData.create(jpeg);
+        ImageContent content = FileContent.image(ted, filename, null, null);
         // add image data length & thumbnail into message content
         content.put("length", jpeg.length);
         content.setThumbnail(thumbnail);
@@ -273,7 +275,8 @@ public class Emitter implements Observer {
     public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
         assert mp4 != null && mp4.length > 0 : "voice data empty";
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
-        AudioContent content = FileContent.audio(mp4, filename);
+        TransportableData ted = TransportableData.create(mp4);
+        AudioContent content = FileContent.audio(ted, filename, null, null);
         // add voice data length & duration into message content
         content.put("length", mp4.length);
         content.put("duration", duration);

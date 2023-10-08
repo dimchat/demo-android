@@ -30,10 +30,8 @@ import java.util.List;
 import chat.dim.Messenger;
 import chat.dim.Facebook;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.Envelope;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.PageContent;
-import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.file.AudioContent;
@@ -83,11 +81,6 @@ public class AnyContentProcessor extends BaseContentProcessor {
         }
 
         // response
-        Envelope env = rMsg.getEnvelope();
-        long sn = content.getSerialNumber();
-        String signature = rMsg.getString("signature", null);
-        ReceiptCommand receipt = ReceiptCommand.create(text, env, sn, signature);
-        //receipt.put("signature", signature);
-        return respondContent(receipt);
+        return respondReceipt(text, rMsg.getEnvelope(), content, null);
     }
 }

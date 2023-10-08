@@ -25,10 +25,10 @@
  */
 package chat.dim.database;
 
-import chat.dim.dbi.UserDBI;
+import chat.dim.dbi.ContactDBI;
 import chat.dim.protocol.ID;
 
-public interface ContactTable extends UserDBI {
+public interface ContactTable extends ContactDBI {
 
     boolean addContact(ID contact, ID user);
 
