@@ -24,6 +24,7 @@ import chat.dim.dbi.StationInfo;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Document;
+import chat.dim.protocol.GroupCommand;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.LoginCommand;
 import chat.dim.protocol.Meta;
@@ -185,8 +186,18 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     //
-    //  Reset Group DBI
+    //  Group History DBI
     //
+
+    @Override
+    public boolean saveGroupHistory(GroupCommand content, ReliableMessage rMsg, ID group) {
+        return false;
+    }
+
+    @Override
+    public List<Pair<GroupCommand, ReliableMessage>> getGroupHistories(ID group) {
+        return null;
+    }
 
     @Override
     public Pair<ResetCommand, ReliableMessage> getResetCommandMessage(ID identifier) {
@@ -194,9 +205,18 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public boolean saveResetCommandMessage(ID identifier, ResetCommand content, ReliableMessage rMsg) {
+    public boolean clearGroupMemberHistories(ID group) {
         return false;
     }
+
+    @Override
+    public boolean clearGroupAdminHistories(ID group) {
+        return false;
+    }
+
+    //
+    //  Meta DBI
+    //
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
