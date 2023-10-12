@@ -27,6 +27,7 @@ package chat.dim.cpu;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
+import chat.dim.core.ContentProcessor;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.StorageCommand;
