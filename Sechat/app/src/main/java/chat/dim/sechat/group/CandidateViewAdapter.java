@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedGroupManager;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.R;
@@ -69,7 +69,7 @@ public class CandidateViewAdapter extends RecyclerViewAdapter<CandidateViewAdapt
     private boolean isForbidden(ID identifier) {
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
-        GroupManager manager = GroupManager.getInstance();
+        SharedGroupManager manager = SharedGroupManager.getInstance();
         if (manager.isOwner(identifier, group)) {
             return true;
         }

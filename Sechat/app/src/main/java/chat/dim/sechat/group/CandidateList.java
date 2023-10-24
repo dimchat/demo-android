@@ -5,8 +5,8 @@ import android.graphics.Bitmap;
 import java.util.List;
 
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedGroupManager;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
@@ -34,12 +34,13 @@ public class CandidateList extends DummyList<CandidateList.Item> {
         }
         List<ID> contacts = user.getContacts();
         if (contacts != null) {
-            GroupManager manager = GroupManager.getInstance();
+            SharedGroupManager manager = SharedGroupManager.getInstance();
+            List<ID> allMembers = manager.getMembers(group);
             for (ID member : contacts) {
                 if (!member.isUser()) {
                     continue;
                 }
-                if (manager.containsMember(member, group)) {
+                if (allMembers.contains(member)) {
                     // already exists
                     continue;
                 }

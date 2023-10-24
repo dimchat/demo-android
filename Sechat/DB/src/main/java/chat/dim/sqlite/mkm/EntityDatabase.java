@@ -49,10 +49,10 @@ public final class EntityDatabase extends Database {
     }
 
     private static final String DB_NAME = "mkm.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     static final String T_META = "t_meta";
-    static final String T_PROFILE = "t_profile";
+    static final String T_DOCUMENT = "t_document";
 
     static final String T_USER = "t_user";
     static final String T_CONTACT = "t_contact";
@@ -66,13 +66,12 @@ public final class EntityDatabase extends Database {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // metas
+        // meta
         db.execSQL("CREATE TABLE " + T_META + "(did VARCHAR(64), version INTEGER, pk TEXT, seed VARCHAR(20), fingerprint BLOB)");
         db.execSQL("CREATE INDEX meta_id_index ON " + T_META + "(did)");
 
-        // profiles
-        db.execSQL("CREATE TABLE " + T_PROFILE + "(did VARCHAR(64), data TEXT, signature BLOB)");
-        db.execSQL("CREATE INDEX profile_id_index ON " + T_PROFILE + "(did)");
+        // document
+        createDocumentTable(db);
 
         // local users
         db.execSQL("CREATE TABLE " + T_USER + "(uid VARCHAR(64), chosen BIT)");
@@ -89,5 +88,13 @@ public final class EntityDatabase extends Database {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            createDocumentTable(db);
+        }
+    }
+
+    private void createDocumentTable(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE " + T_DOCUMENT + "(did VARCHAR(64), type VARCHAR(8), data TEXT, signature BLOB)");
+        db.execSQL("CREATE INDEX doc_id_index ON " + T_DOCUMENT + "(did)");
     }
 }

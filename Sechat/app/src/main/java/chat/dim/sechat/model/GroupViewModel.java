@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedGroupManager;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
 import chat.dim.http.FileTransfer;
@@ -88,8 +88,8 @@ public class GroupViewModel extends EntityViewModel {
         List<ID> members = getMembers();
         if (members == null || members.size() < 1) {
             BackgroundThreads.wait(() -> {
-                GroupManager manager = GroupManager.getInstance();
-                boolean ok = manager.query(identifier);
+                GlobalVariable shared = GlobalVariable.getInstance();
+                boolean ok = shared.messenger.queryMembers(identifier);
                 assert ok : "failed to query group info: " + identifier;
             });
         }
@@ -103,7 +103,7 @@ public class GroupViewModel extends EntityViewModel {
         if (group == null) {
             throw new NullPointerException("group ID empty");
         }
-        GroupManager manager = GroupManager.getInstance();
+        SharedGroupManager manager = SharedGroupManager.getInstance();
         List<ID> members = manager.getMembers(group);
         if (members == null || members.size() < 1) {
             return null;

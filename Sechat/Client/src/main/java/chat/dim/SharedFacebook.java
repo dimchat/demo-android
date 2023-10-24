@@ -41,7 +41,6 @@ import chat.dim.http.FileTransfer;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
 import chat.dim.type.Pair;
@@ -63,14 +62,9 @@ public final class SharedFacebook extends ClientFacebook {
      */
     public Pair<String, URL> getAvatar(ID user) {
         PortableNetworkFile avatar = null;
-        Document doc = getDocument(user, "*");
+        Visa doc = getVisa(user);
         if (doc != null) {
-            if (doc instanceof Visa) {
-                avatar = ((Visa) doc).getAvatar();
-            } else {
-                Object pnf = doc.getProperty("avatar");
-                avatar = PortableNetworkFile.parse(pnf);
-            }
+            avatar = ((Visa) doc).getAvatar();
         }
         String urlString = avatar == null ? null : avatar.getURL().toString();
         // TODO: if 'URL' is empty, get avatar from 'data'
@@ -102,7 +96,7 @@ public final class SharedFacebook extends ClientFacebook {
             Entity.DataSource delegate = grp.getDataSource();
             if (delegate == null || delegate == this) {
                 // replace group's data source
-                GroupManager manager = GroupManager.getInstance();
+                SharedGroupManager manager = SharedGroupManager.getInstance();
                 grp.setDataSource(manager);
             }
         }

@@ -196,6 +196,11 @@ public class Emitter implements Observer {
         saveInstantMessage(iMsg);
     }
 
+    public boolean uploadFileData(FileContent content, SymmetricKey password, ID sender) {
+        // TODO:
+        return true;
+    }
+
     /**
      *  Send file content message with password
      *

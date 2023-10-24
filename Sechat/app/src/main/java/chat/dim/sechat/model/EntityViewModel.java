@@ -27,7 +27,6 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
-import chat.dim.Anonymous;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
@@ -85,15 +84,7 @@ public class EntityViewModel extends ViewModel {
             return null;
         }
         // get name from document
-        Document doc = getFacebook().getDocument(identifier, "*");
-        if (doc != null) {
-            String name = doc.getName();
-            if (name != null && name.length() > 0) {
-                return name;
-            }
-        }
-        // get name from ID
-        return Anonymous.getName(identifier);
+        return getFacebook().getName(identifier);
     }
 
     public Document getDocument(String type) {

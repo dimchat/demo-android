@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedGroupManager;
 import chat.dim.mkm.User;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.protocol.ID;
@@ -33,7 +33,7 @@ public class ChatManageViewModel extends EntityViewModel {
             GlobalVariable shared = GlobalVariable.getInstance();
             SharedFacebook facebook = shared.facebook;
             User user = facebook.getCurrentUser();
-            GroupManager manager = GroupManager.getInstance();
+            SharedGroupManager manager = SharedGroupManager.getInstance();
             return manager.isOwner(user.getIdentifier(), identifier);
         }
         return false;
@@ -51,7 +51,7 @@ public class ChatManageViewModel extends EntityViewModel {
                 --count;
                 participants.add(owner);
             }
-            GroupManager manager = GroupManager.getInstance();
+            SharedGroupManager manager = SharedGroupManager.getInstance();
             List<ID> members = manager.getMembers(identifier);
             if (members != null) {
                 for (ID item : members) {
@@ -75,11 +75,7 @@ public class ChatManageViewModel extends EntityViewModel {
 
     boolean quitGroup(ID group) {
         clearHistory(group);
-        GroupManager manager = GroupManager.getInstance();
-        if (manager.quit(group)) {
-            return manager.removeGroup(group);
-        } else {
-            return false;
-        }
+        SharedGroupManager manager = SharedGroupManager.getInstance();
+        return manager.quitGroup(group);
     }
 }

@@ -76,14 +76,7 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
 
     @Override
     public boolean saveDocument(Document doc) {
-        ID identifier = doc.getIdentifier();
-        Meta meta = getMeta(identifier);
-        if (meta == null) {
-            throw new NullPointerException("meta not exists: " + identifier);
-        }
-        if (!(doc.isValid() || doc.verify(meta.getPublicKey()))) {
-            throw new VerifyError("document error: " + doc);
-        }
+        // TODO: must check old records before calling this
         boolean ok = documentTable.saveDocument(doc);
         if (ok) {
             Map<String, Object> info = doc.toMap();
@@ -94,8 +87,13 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public Document getDocument(ID entity, String type) {
-        return documentTable.getDocument(entity, type);
+    public boolean clearDocuments(ID entity, String type) {
+        return documentTable.clearDocuments(entity, type);
+    }
+
+    @Override
+    public List<Document> getDocuments(ID entity) {
+        return documentTable.getDocuments(entity);
     }
 
     @Override

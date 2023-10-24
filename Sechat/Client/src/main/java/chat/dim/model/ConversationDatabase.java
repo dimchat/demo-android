@@ -29,14 +29,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.Anonymous;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.database.MessageTable;
 import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
@@ -70,15 +68,7 @@ public final class ConversationDatabase extends MessageBuilder {
     @Override
     public String getName(ID identifier) {
         // get name from document
-        Document doc = getFacebook().getDocument(identifier, "*");
-        if (doc != null) {
-            String name = doc.getName();
-            if (name != null && name.length() > 0) {
-                return name;
-            }
-        }
-        // get name from ID
-        return Anonymous.getName(identifier);
+        return getFacebook().getName(identifier);
     }
 
     //-------- ConversationDataSource

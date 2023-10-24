@@ -29,8 +29,8 @@ import java.util.Date;
 import java.util.List;
 
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.SharedFacebook;
+import chat.dim.SharedGroupManager;
 import chat.dim.mkm.Entity;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.EntityType;
@@ -65,7 +65,7 @@ public class Conversation {
         SharedFacebook facebook = shared.facebook;
         String name = facebook.getName(identifier);
         if (identifier.isGroup()) {
-            GroupManager manager = GroupManager.getInstance();
+            SharedGroupManager manager = SharedGroupManager.getInstance();
             List<ID> members = manager.getMembers(identifier);
             int count = (members == null) ? 0 : members.size();
             if (count == 0) {

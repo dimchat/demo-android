@@ -14,7 +14,6 @@ import chat.dim.format.Hex;
 import chat.dim.format.JSON;
 import chat.dim.mkm.BaseVisa;
 import chat.dim.mkm.User;
-import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
@@ -121,9 +120,9 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // nickname
-        Document doc = getFacebook().getDocument(identifier, "*");
-        if (doc != null) {
-            info.put("nickname", doc.getName());
+        String name = getFacebook().getName(identifier);
+        if (name != null) {
+            info.put("nickname", name);
         }
 
         return JSON.encode(info);

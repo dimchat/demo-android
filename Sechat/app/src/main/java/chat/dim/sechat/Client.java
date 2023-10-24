@@ -12,7 +12,6 @@ import java.util.Map;
 import chat.dim.ClientMessenger;
 import chat.dim.CommonFacebook;
 import chat.dim.GlobalVariable;
-import chat.dim.GroupManager;
 import chat.dim.Packer;
 import chat.dim.Processor;
 import chat.dim.SharedFacebook;
@@ -149,10 +148,7 @@ public final class Client extends Terminal implements Observer {
     @Override
     protected ClientMessenger createMessenger(ClientSession session, CommonFacebook facebook) {
         GlobalVariable shared = GlobalVariable.getInstance();
-        SharedMessenger transceiver = new SharedMessenger(session, facebook, shared.mdb);
-        GroupManager manager = GroupManager.getInstance();
-        manager.messenger = transceiver;
-        shared.messenger = transceiver;
+        shared.messenger = new SharedMessenger(session, facebook, shared.mdb);
         return shared.messenger;
     }
 
