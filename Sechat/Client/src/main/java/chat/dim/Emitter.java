@@ -189,16 +189,18 @@ public class Emitter implements Observer {
     private void sendInstantMessage(InstantMessage iMsg) throws IOException {
         Log.info("send instant message (type=" + iMsg.getContent().getType() + "): "
                 + iMsg.getSender() + " -> " + iMsg.getReceiver());
-        // send by shared messenger
-        GlobalVariable shared = GlobalVariable.getInstance();
-        shared.messenger.sendInstantMessage(iMsg, 0);
+        ID receiver = iMsg.getReceiver();
+        if (receiver.isGroup()) {
+            // group message, send by group emitter
+            SharedGroupManager manager = SharedGroupManager.getInstance();
+            manager.sendInstantMessage(iMsg, 0);
+        } else {
+            // send by shared messenger
+            GlobalVariable shared = GlobalVariable.getInstance();
+            shared.messenger.sendInstantMessage(iMsg, 0);
+        }
         // save instant message
         saveInstantMessage(iMsg);
-    }
-
-    public boolean uploadFileData(FileContent content, SymmetricKey password, ID sender) {
-        // TODO:
-        return true;
     }
 
     /**

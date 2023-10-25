@@ -33,7 +33,6 @@ package chat.dim;
 import java.util.ArrayList;
 import java.util.List;
 
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.group.AdminManager;
 import chat.dim.group.GroupDelegate;
 import chat.dim.group.GroupEmitter;
@@ -41,14 +40,11 @@ import chat.dim.group.GroupManager;
 import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
-import chat.dim.protocol.Content;
 import chat.dim.protocol.Document;
-import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
-import chat.dim.type.Pair;
 
 /**
  *  This is for sending group message, or managing group members
@@ -103,13 +99,7 @@ public enum SharedGroupManager implements Group.DataSource {
    private GroupEmitter getEmitter() {
       GroupEmitter emitter = groupEmitter;
       if (emitter == null) {
-         groupEmitter = emitter = new GroupEmitter(getDelegate()) {
-            @Override
-            protected boolean uploadFileData(FileContent content, SymmetricKey password, ID sender) {
-               GlobalVariable shared = GlobalVariable.getInstance();
-               return shared.emitter.uploadFileData(content, password, sender);
-            }
-         };
+         groupEmitter = emitter = new GroupEmitter(getDelegate());
       }
       return emitter;
    }
@@ -283,10 +273,10 @@ public enum SharedGroupManager implements Group.DataSource {
    //  Sending group message
    //
 
-   public Pair<InstantMessage, ReliableMessage> sendContent(Content content, ID group, int priority) {
-      content.setGroup(group);
+   public ReliableMessage sendInstantMessage(InstantMessage iMsg, int priority) {
+      assert iMsg.getContent().getGroup() != null : "group message error: " + iMsg;
       GroupEmitter emitter = getEmitter();
-      return emitter.sendContent(content, priority);
+      return emitter.sendInstantMessage(iMsg, priority);
    }
 
 }
