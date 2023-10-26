@@ -87,11 +87,6 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
     }
 
     @Override
-    public boolean clearDocuments(ID entity, String type) {
-        return documentTable.clearDocuments(entity, type);
-    }
-
-    @Override
     public List<Document> getDocuments(ID entity) {
         return documentTable.getDocuments(entity);
     }

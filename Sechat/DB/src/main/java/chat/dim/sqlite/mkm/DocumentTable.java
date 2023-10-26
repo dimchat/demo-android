@@ -68,40 +68,6 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
     //  chat.dim.database.UserTable
     //
 
-    // TODO: support multi documents
-    @Override
-    public boolean saveDocument(Document doc) {
-        if (!doc.isValid()) {
-            Log.error("document not valid: " + doc);
-            return false;
-        }
-        ID identifier = doc.getIdentifier();
-        String type = doc.getType();
-        String data = doc.getString("data", "");
-        String base64 = doc.getString("signature", "");
-
-        // 1. save into database
-        ContentValues values = new ContentValues();
-        values.put("did", identifier.toString());
-        values.put("type", type);
-        values.put("data", data);
-        values.put("signature", Base64.decode(base64));
-        if (insert(EntityDatabase.T_DOCUMENT, null, values) < 0) {
-            return false;
-        }
-        Log.info("-------- entity document updated: " + identifier);
-
-        // 2. clear for reload
-        docsTable.remove(identifier.toString());
-        return true;
-    }
-
-    @Override
-    public boolean clearDocuments(ID entity, String type) {
-        String[] whereArgs = {entity.toString(), type};
-        return delete(EntityDatabase.T_DOCUMENT, "did=? AND type=?", whereArgs) >= 0;
-    }
-
     @Override
     public List<Document> getDocuments(ID entity) {
         // 1. try from memory cache
@@ -133,4 +99,71 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         }
         return documents;
     }
+
+    @Override
+    public boolean saveDocument(Document doc) {
+        // 0. check valid
+        if (!doc.isValid()) {
+            Log.error("document not valid: " + doc);
+            return false;
+        }
+        ID identifier = doc.getIdentifier();
+        String type = doc.getType();
+        if (type == null) {
+            type = "";
+        }
+        boolean exists = false;
+        // check old documents
+        List<Document> documents = getDocuments(identifier);
+        for (Document item : documents) {
+            if (identifier.equals(item.getIdentifier()) && type.equals(item.getType())) {
+                // old record found, update it
+                exists = true;
+                break;
+            }
+        }
+        boolean saved;
+        if (exists) {
+            saved = updateDocument(doc);
+        } else {
+            saved = insertDocument(doc);
+        }
+        if (saved) {
+            Log.info("-------- entity document saved: " + identifier);
+            // clear to reload
+            docsTable.remove(identifier.toString());
+        } else {
+            Log.error("failed to save document: " + identifier);
+        }
+        return saved;
+    }
+
+    protected boolean updateDocument(Document doc) {
+        ID identifier = doc.getIdentifier();
+        String type = doc.getType();
+        String data = doc.getString("data", "");
+        String base64 = doc.getString("signature", "");
+        // conditions
+        String[] whereArgs = {identifier.toString(), type};
+        // fill values
+        ContentValues values = new ContentValues();
+        values.put("data", data);
+        values.put("signature", Base64.decode(base64));
+        return update(EntityDatabase.T_DOCUMENT, values, "did=? AND type=?", whereArgs) > 0;
+    }
+
+    protected boolean insertDocument(Document doc) {
+        ID identifier = doc.getIdentifier();
+        String type = doc.getType();
+        String data = doc.getString("data", "");
+        String base64 = doc.getString("signature", "");
+        // new values
+        ContentValues values = new ContentValues();
+        values.put("did", identifier.toString());
+        values.put("type", type);
+        values.put("data", data);
+        values.put("signature", Base64.decode(base64));
+        return insert(EntityDatabase.T_DOCUMENT, null, values) >= 0;
+    }
+
 }

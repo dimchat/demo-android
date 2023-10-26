@@ -30,10 +30,21 @@ import java.util.List;
 import chat.dim.core.ContentProcessor;
 import chat.dim.cpu.ClientProcessorCreator;
 import chat.dim.model.MessageDataSource;
+import chat.dim.protocol.Bulletin;
+import chat.dim.protocol.Command;
+import chat.dim.protocol.Content;
+import chat.dim.protocol.DocumentCommand;
+import chat.dim.protocol.GroupCommand;
+import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
+import chat.dim.type.Pair;
+import chat.dim.utils.FrequencyChecker;
+import chat.dim.utils.Log;
 
 public class SharedProcessor extends ClientMessageProcessor {
+
+    private final FrequencyChecker<Pair<ID, ID>> groupQueries = new FrequencyChecker<>(600 * 1000);
 
     public SharedProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
@@ -42,6 +53,26 @@ public class SharedProcessor extends ClientMessageProcessor {
     @Override
     public SharedMessenger getMessenger() {
         return (SharedMessenger) super.getMessenger();
+    }
+
+    @Override
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
+        if (!(content instanceof Command)) {
+            ID group = content.getGroup();
+            if (group != null) {
+                ID sender = rMsg.getSender();
+                Pair<ID, ID> direction = new Pair<>(sender, group);
+                Bulletin doc = getFacebook().getBulletin(group);
+                if (doc == null && groupQueries.isExpired(direction, 0, false)) {
+                    Log.info("querying group: " + group + ", " + sender);
+                    Command cmd1 = DocumentCommand.query(group);
+                    getMessenger().sendContent(null, sender, cmd1, 1);
+                    Command cmd2 = GroupCommand.query(group);
+                    getMessenger().sendContent(null, sender, cmd2, 1);
+                }
+            }
+        }
+        return super.processContent(content, rMsg);
     }
 
     @Override
