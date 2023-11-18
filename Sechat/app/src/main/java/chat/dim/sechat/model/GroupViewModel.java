@@ -85,14 +85,7 @@ public class GroupViewModel extends EntityViewModel {
         if (identifier == null) {
             return;
         }
-        List<ID> members = getMembers();
-        if (members == null || members.size() < 1) {
-            BackgroundThreads.wait(() -> {
-                GlobalVariable shared = GlobalVariable.getInstance();
-                boolean ok = shared.messenger.queryMembers(identifier);
-                assert ok : "failed to query group info: " + identifier;
-            });
-        }
+        BackgroundThreads.wait(this::getMembers);
     }
 
     //

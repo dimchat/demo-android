@@ -51,12 +51,17 @@ import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.type.Pair;
-import chat.dim.utils.Log;
 
 public class SharedMessenger extends ClientMessenger {
 
     public SharedMessenger(Session session, CommonFacebook facebook, MessageDBI database) {
         super(session, facebook, database);
+    }
+
+    @Override
+    protected ClientArchivist getArchivist() {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        return shared.archivist;
     }
 
     public User getCurrentUser() {
@@ -153,17 +158,6 @@ public class SharedMessenger extends ClientMessenger {
         StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
         content.setIdentifier(user.getIdentifier());
         sendCommand(content, Departure.Priority.SLOWER.value);
-    }
-
-    @Override
-    public boolean queryDocument(ID identifier) {
-        boolean ok = super.queryDocument(identifier);
-        if (ok) {
-            Log.info("querying document: " + identifier);
-        } else {
-            Log.info("document query not expired: " + identifier);
-        }
-        return ok;
     }
 
     @Override

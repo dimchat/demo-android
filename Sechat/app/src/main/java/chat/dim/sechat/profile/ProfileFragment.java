@@ -123,7 +123,7 @@ public class ProfileFragment extends Fragment implements Observer, DialogInterfa
 
         BackgroundThreads.wait(() -> {
             GlobalVariable shared = GlobalVariable.getInstance();
-            shared.messenger.queryDocument(identifier);
+            shared.facebook.getDocuments(identifier);
         });
 
         return view;

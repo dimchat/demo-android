@@ -32,6 +32,7 @@ public enum GlobalVariable {
     public final SharedDatabase database;
 
     public final SharedFacebook facebook;
+    public final ClientArchivist archivist = new SharedArchivist();
 
     public final Emitter emitter;
 

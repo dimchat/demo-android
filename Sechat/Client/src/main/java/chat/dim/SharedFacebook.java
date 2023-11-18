@@ -54,6 +54,12 @@ public final class SharedFacebook extends ClientFacebook {
         super(db);
     }
 
+    @Override
+    protected Archivist getArchivist() {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        return shared.archivist;
+    }
+
     /**
      *  Get avatar for user
      *

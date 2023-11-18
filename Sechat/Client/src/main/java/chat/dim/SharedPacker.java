@@ -43,7 +43,6 @@ import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.TextContent;
 import chat.dim.protocol.Visa;
 import chat.dim.utils.Log;
-import chat.dim.utils.QueryFrequencyChecker;
 
 public class SharedPacker extends ClientMessagePacker {
 
@@ -146,8 +145,8 @@ public class SharedPacker extends ClientMessagePacker {
     }
 
     protected void pushVisa(ID contact) {
-        QueryFrequencyChecker checker = QueryFrequencyChecker.getInstance();
-        if (!checker.isDocumentResponseExpired(contact, 0, false)) {
+        GlobalVariable shared = GlobalVariable.getInstance();
+        if (!shared.archivist.isDocumentResponseExpired(contact, false)) {
             // response not expired yet
             Log.debug("visa push not expired yet: " + contact);
             return;
