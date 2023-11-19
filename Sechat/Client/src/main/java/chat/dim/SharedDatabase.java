@@ -324,24 +324,6 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
         return false;
     }
 
-    @Override
-    public Pair<List<ReliableMessage>, Integer> getReliableMessages(ID receiver, int start, int limit) {
-        // TODO:
-        return null;
-    }
-
-    @Override
-    public boolean cacheReliableMessage(ID receiver, ReliableMessage rMsg) {
-        // TODO:
-        return false;
-    }
-
-    @Override
-    public boolean removeReliableMessage(ID receiver, ReliableMessage rMsg) {
-        // TODO:
-        return false;
-    }
-
     //
     //  Session DBI
     //

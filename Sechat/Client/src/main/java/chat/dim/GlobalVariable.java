@@ -18,7 +18,8 @@ public enum GlobalVariable {
         mdb = db;
         sdb = db;
         database = db;
-        facebook = new SharedFacebook(db);
+        archivist = new SharedArchivist(db);
+        facebook = new SharedFacebook();
         emitter = new Emitter();
 
         CryptoPlugins.registerCryptoPlugins();
@@ -31,8 +32,8 @@ public enum GlobalVariable {
     public final SessionDBI sdb;
     public final SharedDatabase database;
 
+    public final ClientArchivist archivist;
     public final SharedFacebook facebook;
-    public final ClientArchivist archivist = new SharedArchivist();
 
     public final Emitter emitter;
 

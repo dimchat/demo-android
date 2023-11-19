@@ -50,12 +50,8 @@ public final class SharedFacebook extends ClientFacebook {
     private final List<User> localUsers = new ArrayList<>();
     private final Map<ID, List<ID>> userContacts = new HashMap<>();
 
-    public SharedFacebook(AccountDBI db) {
-        super(db);
-    }
-
     @Override
-    protected Archivist getArchivist() {
+    public CommonArchivist getArchivist() {
         GlobalVariable shared = GlobalVariable.getInstance();
         return shared.archivist;
     }
