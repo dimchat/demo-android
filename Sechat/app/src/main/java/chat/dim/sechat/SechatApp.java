@@ -8,7 +8,7 @@ import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.common.KeyStore;
+import chat.dim.crypto.KeyStore;
 import chat.dim.format.Base64;
 import chat.dim.format.DataCoder;
 import chat.dim.io.Permissions;

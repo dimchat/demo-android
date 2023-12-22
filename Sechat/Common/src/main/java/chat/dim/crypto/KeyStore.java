@@ -28,13 +28,11 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package chat.dim.common;
+package chat.dim.crypto;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.crypto.PlainKey;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.database.MsgKeyTable;
 import chat.dim.protocol.ID;
 

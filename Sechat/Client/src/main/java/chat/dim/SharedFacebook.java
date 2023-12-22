@@ -56,6 +56,10 @@ public final class SharedFacebook extends ClientFacebook {
         return shared.archivist;
     }
 
+    public AccountDBI getDatabase() {
+        return getArchivist().getDatabase();
+    }
+
     /**
      *  Get avatar for user
      *
