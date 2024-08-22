@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -242,13 +243,13 @@ public final class Client extends Terminal implements Observer {
     //
 
     @Override
-    public void enterState(SessionState next, StateMachine ctx, long now) {
+    public void enterState(SessionState next, StateMachine ctx, Date now) {
         super.enterState(next, ctx, now);
         // called after state changed
     }
 
     @Override
-    public void exitState(SessionState previous, StateMachine ctx, long now) {
+    public void exitState(SessionState previous, StateMachine ctx, Date now) {
         super.exitState(previous, ctx, now);
         // called after state changed
         Log.info("state changed: " + previous + " => " + ctx.getCurrentState());
@@ -264,13 +265,14 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
-    public void pauseState(SessionState current, StateMachine ctx, long now) {
+    public void pauseState(SessionState current, StateMachine ctx, Date now) {
         super.pauseState(current, ctx, now);
     }
 
     @Override
-    public void resumeState(SessionState current, StateMachine ctx, long now) {
+    public void resumeState(SessionState current, StateMachine ctx, Date now) {
         super.resumeState(current, ctx, now);
         // TODO: clear session key for re-login?
     }
+
 }
