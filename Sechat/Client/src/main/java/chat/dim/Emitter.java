@@ -38,6 +38,7 @@ import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
 import chat.dim.format.Hex;
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
 import chat.dim.http.FileTransfer;
 import chat.dim.http.UploadRequest;
@@ -267,7 +268,7 @@ public class Emitter implements Observer {
         ImageContent content = FileContent.image(ted, filename, null, null);
         // add image data length & thumbnail into message content
         content.put("length", jpeg.length);
-        content.setThumbnail(thumbnail);
+        content.setThumbnail(PortableNetworkFile.create(thumbnail, "thumbnail.jpeg"));
         sendContent(content, receiver);
     }
 

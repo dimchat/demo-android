@@ -7,6 +7,7 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
 import chat.dim.io.Resources;
 import chat.dim.mkm.User;
@@ -92,10 +93,11 @@ public class ChatboxViewModel extends EntityViewModel {
     }
 
     static Bitmap getThumbnail(ImageContent content) {
-        byte[] thumbnail = content.getThumbnail();
-        if (thumbnail == null) {
+        PortableNetworkFile pnf = content.getThumbnail();
+        if (pnf == null) {
             return null;
         }
+        byte[] thumbnail = pnf.getData();
         // TODO: save thumbnail data into local storage and remove from message content
 
         Bitmap image = BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
