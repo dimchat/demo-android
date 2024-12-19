@@ -19,6 +19,7 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
 import chat.dim.protocol.Visa;
 import chat.dim.sechat.model.UserViewModel;
+import chat.dim.type.Converter;
 
 public class AccountViewModel extends UserViewModel {
 
@@ -160,16 +161,13 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // meta.version
-        int version = 0;
         value = info.get("version");
         if (value == null) {
             value = info.get("type");
         }
-        if (value instanceof Number) {
-            version = ((Number) value).intValue();
-        }
-        if (version == 0) {
-            version = MetaType.DEFAULT.value;
+        String version = Converter.getString(value, null);
+        if (version == null) {
+            version = Meta.MKM;
         }
 
         // ID.type
@@ -194,7 +192,7 @@ public class AccountViewModel extends UserViewModel {
         return savePrivateInfo(base64, algorithm, version, network, seed, nickname);
     }
 
-    private ID savePrivateInfo(String keyData, String algorithm, int metaVersion, int network, String seed, String nickname) {
+    private ID savePrivateInfo(String keyData, String algorithm, String metaVersion, int network, String seed, String nickname) {
         // generate private key
         Map<String, Object> keyInfo = new HashMap<>();
         keyInfo.put("algorithm", algorithm);

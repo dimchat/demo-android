@@ -25,17 +25,22 @@
  */
 package chat.dim.cpu.customized;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
 import chat.dim.core.TwinsHelper;
+import chat.dim.cpu.BaseContentProcessor;
 import chat.dim.cpu.CustomizedContentHandler;
 import chat.dim.dkd.AppCustomizedContent;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.CustomizedContent;
+import chat.dim.protocol.Envelope;
 import chat.dim.protocol.ID;
+import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 
 /**
@@ -48,6 +53,18 @@ public abstract class AppContentHandler extends TwinsHelper implements Customize
 
     protected AppContentHandler(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
+    }
+
+    //
+    //  Convenient responding
+    //
+
+    protected List<Content> respondReceipt(String text, Envelope envelope, Content content, Map<String, Object> extra) {
+        // create base receipt command with text & original envelope
+        ReceiptCommand res = BaseContentProcessor.createReceipt(text, envelope, content, extra);
+        List<Content> responses = new ArrayList<>();
+        responses.add(res);
+        return responses;
     }
 
     @Override

@@ -58,12 +58,6 @@ public class SharedMessenger extends ClientMessenger {
         super(session, facebook, database);
     }
 
-    @Override
-    protected ClientArchivist getArchivist() {
-        GlobalVariable shared = GlobalVariable.getInstance();
-        return shared.archivist;
-    }
-
     public User getCurrentUser() {
         return getFacebook().getCurrentUser();
     }
@@ -90,23 +84,23 @@ public class SharedMessenger extends ClientMessenger {
             return false;
         }
         Pair<InstantMessage, ReliableMessage> result;
-        result = sendContent(null, receiver, content, priority);
+        result = sendContent(content, null, receiver, priority);
         return result.second != null;
     }
 
-    /**
-     *  Pack and broadcast content to everyone
-     *
-     * @param content - message content
-     */
-    public boolean broadcastContent(Content content) {
-        ID group = content.getGroup();
-        if (group == null || !group.isBroadcast()) {
-            group = ID.EVERYONE;
-            content.setGroup(group);
-        }
-        return sendContent(group, content, 1);
-    }
+//    /**
+//     *  Pack and broadcast content to everyone
+//     *
+//     * @param content - message content
+//     */
+//    public boolean broadcastContent(Content content) {
+//        ID group = content.getGroup();
+//        if (group == null || !group.isBroadcast()) {
+//            group = ID.EVERYONE;
+//            content.setGroup(group);
+//        }
+//        return sendContent(group, content, 1);
+//    }
 
     public void broadcastVisa(Visa visa) {
         User user = getCurrentUser();
@@ -134,7 +128,7 @@ public class SharedMessenger extends ClientMessenger {
     }
 
     public void postContacts(List<ID> contacts) {
-        User user = getFacebook().getCurrentUser();
+        User user = getCurrentUser();
         assert user != null : "current user empty";
         StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
         content.setIdentifier(user.getIdentifier());

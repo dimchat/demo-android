@@ -36,9 +36,9 @@ import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.Paths;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.http.FileTransfer;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.Group;

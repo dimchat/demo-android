@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import chat.dim.ClientFacebook;
 import chat.dim.ClientMessenger;
 import chat.dim.CommonFacebook;
 import chat.dim.GlobalVariable;
@@ -137,20 +138,21 @@ public final class Client extends Terminal implements Observer {
     }
 
     @Override
-    protected Packer createPacker(CommonFacebook facebook, ClientMessenger messenger) {
+    protected Packer createPacker(ClientFacebook facebook, ClientMessenger messenger) {
         return new SharedPacker(facebook, messenger);
     }
 
     @Override
-    protected Processor createProcessor(CommonFacebook facebook, ClientMessenger messenger) {
+    protected Processor createProcessor(ClientFacebook facebook, ClientMessenger messenger) {
         return new SharedProcessor(facebook, messenger);
     }
 
     @Override
     protected ClientMessenger createMessenger(ClientSession session, CommonFacebook facebook) {
         GlobalVariable shared = GlobalVariable.getInstance();
-        shared.messenger = new SharedMessenger(session, facebook, shared.mdb);
-        return shared.messenger;
+        SharedMessenger messenger = new SharedMessenger(session, facebook, shared.database);
+        shared.setMessenger(messenger);
+        return messenger;
     }
 
     public void startChat(ID entity) {

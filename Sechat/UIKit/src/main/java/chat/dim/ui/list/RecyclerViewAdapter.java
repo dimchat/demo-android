@@ -28,6 +28,7 @@ package chat.dim.ui.list;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+@SuppressWarnings({"rawtypes"})
 public abstract class RecyclerViewAdapter<VH extends RecyclerViewHolder, L extends DummyList> extends RecyclerView.Adapter<VH> {
 
     protected final L dummyList;

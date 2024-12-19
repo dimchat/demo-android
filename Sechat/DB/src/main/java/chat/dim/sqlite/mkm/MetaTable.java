@@ -31,9 +31,9 @@ import android.database.Cursor;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.crypto.VerifyKey;
-import chat.dim.format.Base64;
+import chat.dim.crypto.PublicKey;
 import chat.dim.format.JSON;
+import chat.dim.format.TransportableData;
 import chat.dim.mkm.BaseMeta;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
@@ -66,6 +66,12 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
     private final Map<ID, Meta> metaTable = new HashMap<>();
 
     private final Meta empty = new BaseMeta(new HashMap<>()) {
+
+        @Override
+        protected boolean hasSeed() {
+            return false;
+        }
+
         @Override
         public Address generateAddress(int type) {
             return null;
@@ -89,16 +95,25 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             Log.info("meta already exists: " + entity);
             return true;
         }
-        VerifyKey key = meta.getPublicKey();
-        String pk = JSON.encode(key);
+        int type = MetaType.parseInt(meta.getType(), 0);
+        String json = JSON.encode(meta.getPublicKey());
+        String seed;
+        byte[] fingerprint;
+        if (MetaType.hasSeed(type)) {
+            seed = meta.getSeed();
+            fingerprint = meta.getFingerprint();
+        } else {
+            seed = "";
+            fingerprint = null;
+        }
 
         // 1. save into database
         ContentValues values = new ContentValues();
         values.put("did", entity.toString());
-        values.put("version", meta.getType());
-        values.put("pk", pk);
-        values.put("seed", meta.getSeed());
-        values.put("fingerprint", meta.getFingerprint());
+        values.put("version", type);
+        values.put("pk", json);
+        values.put("seed", seed);
+        values.put("fingerprint", fingerprint);
         if (insert(EntityDatabase.T_META, null, values) < 0) {
             return false;
         }
@@ -118,28 +133,19 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             String[] columns = {"version", "pk", "seed", "fingerprint"};
             String[] selectionArgs = {entity.toString()};
             try (Cursor cursor = query(EntityDatabase.T_META, columns, "did=?", selectionArgs, null, null, null)) {
-                int version;
-                String pk;
-                Object key;  // Map<String, Object>
-                String seed;
-                byte[] fp;
-                Map<String, Object> info;
                 if (cursor.moveToNext()) {
-                    version = cursor.getInt(0);
-                    pk = cursor.getString(1);
-                    key = JSON.decode(pk);
-
-                    info = new HashMap<>();
-                    info.put("version", version);
-                    info.put("type", version);
-                    info.put("key", key);
-                    if (MetaType.hasSeed(version)) {
-                        seed = cursor.getString(2);
-                        fp = cursor.getBlob(3);
-                        info.put("seed", seed);
-                        info.put("fingerprint", Base64.encode(fp));
+                    int type = cursor.getInt(0);
+                    String json = cursor.getString(1);
+                    PublicKey key = PublicKey.parse(JSON.decode(json));
+                    if (MetaType.hasSeed(type)) {
+                        String seed = cursor.getString(2);
+                        byte[] fingerprint = cursor.getBlob(3);
+                        TransportableData ted = TransportableData.create(fingerprint);
+                        meta = Meta.create(Integer.toString(type), key, seed, ted);
+                    } else {
+                        meta = Meta.create(Integer.toString(type), key, null, null);
                     }
-                    meta = Meta.parse(info);
+                    meta.put("version", type);  // compatible with 0.9.*
                 }
             }
             if (meta == null) {

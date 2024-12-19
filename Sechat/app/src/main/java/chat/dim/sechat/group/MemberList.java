@@ -2,7 +2,7 @@ package chat.dim.sechat.group;
 
 import java.util.List;
 
-import chat.dim.SharedGroupManager;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.protocol.ID;
 
 public class MemberList extends CandidateList {

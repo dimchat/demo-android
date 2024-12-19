@@ -30,7 +30,7 @@ import java.util.List;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.Entity;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.EntityType;

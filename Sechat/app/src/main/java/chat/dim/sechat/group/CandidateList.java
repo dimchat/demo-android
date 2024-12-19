@@ -6,7 +6,7 @@ import java.util.List;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;

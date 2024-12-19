@@ -19,8 +19,8 @@ import java.util.Set;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
 import chat.dim.crypto.SignKey;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Bulletin;
@@ -100,7 +100,7 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
         // expel group member(s)
         List<ID> members = new ArrayList<>(selected);
         SharedGroupManager manager = SharedGroupManager.getInstance();
-        if (manager.expelGroupMembers(identifier, members)) {
+        if (manager.expelGroupMembers(members, identifier)) {
             Alert.tips(getContext(), R.string.group_members_updated);
             close();
         } else {

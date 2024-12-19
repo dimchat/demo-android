@@ -45,7 +45,7 @@ public class AnyContentProcessor extends BaseContentProcessor {
     }
 
     @Override
-    public List<Content> process(Content content, ReliableMessage rMsg) {
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
         String text;
 
         // File: Image, Audio, Video
@@ -71,7 +71,7 @@ public class AnyContentProcessor extends BaseContentProcessor {
             text = "Web page received";
         } else {
             // Other
-            return super.process(content, rMsg);
+            return super.processContent(content, rMsg);
         }
 
         Object group = content.getGroup();

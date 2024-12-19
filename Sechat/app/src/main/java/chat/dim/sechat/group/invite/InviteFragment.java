@@ -21,8 +21,8 @@ import java.util.Set;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
 import chat.dim.crypto.SignKey;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.BaseBulletin;
 import chat.dim.mkm.User;
 import chat.dim.notification.NotificationCenter;
@@ -117,7 +117,7 @@ public class InviteFragment extends ListFragment<CandidateViewAdapter, Candidate
         // invite group member(s)
         List<ID> members = new ArrayList<>(selected);
         SharedGroupManager manager = SharedGroupManager.getInstance();
-        if (manager.inviteGroupMembers(identifier, members)) {
+        if (manager.inviteGroupMembers(members, identifier)) {
             if (from.isUser()) {
                 Map<String, Object> info = new HashMap<>();
                 info.put("ID", identifier);

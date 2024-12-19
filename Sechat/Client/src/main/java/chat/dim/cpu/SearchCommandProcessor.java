@@ -42,7 +42,7 @@ public class SearchCommandProcessor extends BaseCommandProcessor {
     }
 
     @Override
-    public List<Content> process(Content content, ReliableMessage rMsg) {
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
         assert content instanceof SearchCommand : "search command error: " + content;
         SearchCommand command = (SearchCommand) content;
 

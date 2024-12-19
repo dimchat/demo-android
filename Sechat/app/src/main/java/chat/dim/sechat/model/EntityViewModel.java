@@ -27,9 +27,14 @@ package chat.dim.sechat.model;
 
 import androidx.lifecycle.ViewModel;
 
+import java.util.List;
+
+import chat.dim.CommonArchivist;
+import chat.dim.CommonFacebook;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.mkm.Entity;
+import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.threading.BackgroundThreads;
@@ -39,6 +44,11 @@ public class EntityViewModel extends ViewModel {
     public static SharedFacebook getFacebook() {
         GlobalVariable shared = GlobalVariable.getInstance();
         return shared.facebook;
+    }
+    public static List<User> getLocalUsers() {
+        CommonFacebook facebook = getFacebook();
+        CommonArchivist archivist = facebook.getArchivist();
+        return archivist.getLocalUsers();
     }
 
     private Entity entity = null;

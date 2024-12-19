@@ -1,8 +1,7 @@
 package chat.dim;
 
 import chat.dim.dbi.AccountDBI;
-import chat.dim.dbi.MessageDBI;
-import chat.dim.dbi.SessionDBI;
+import chat.dim.group.SharedGroupManager;
 
 public enum GlobalVariable {
 
@@ -13,13 +12,8 @@ public enum GlobalVariable {
     }
 
     GlobalVariable() {
-        SharedDatabase db = new SharedDatabase();
-        adb = db;
-        mdb = db;
-        sdb = db;
-        database = db;
-        archivist = new SharedArchivist(db);
-        facebook = new SharedFacebook();
+        database = new SharedDatabase();
+        facebook = createFacebook(database);
         emitter = new Emitter();
 
         CryptoPlugins.registerCryptoPlugins();
@@ -27,16 +21,29 @@ public enum GlobalVariable {
         Register.prepare();
     }
 
-    public final AccountDBI adb;
-    public final MessageDBI mdb;
-    public final SessionDBI sdb;
     public final SharedDatabase database;
-
-    public final ClientArchivist archivist;
     public final SharedFacebook facebook;
-
     public final Emitter emitter;
 
     public SharedMessenger messenger = null;
     public Terminal terminal = null;
+
+    public void setMessenger(SharedMessenger transceiver) {
+        messenger = transceiver;
+        // prepare for group manager
+        SharedGroupManager manager = SharedGroupManager.getInstance();
+        manager.setFacebook(facebook);
+        manager.setMessenger(messenger);
+        // prepare for entity checker
+        ClientChecker checker = facebook.getEntityChecker();
+        checker.setMessenger(messenger);
+    }
+
+    static SharedFacebook createFacebook(AccountDBI db) {
+        SharedFacebook facebook = new SharedFacebook(db);
+        facebook.setArchivist(new ClientArchivist(facebook, db));
+        facebook.setEntityChecker(new ClientChecker(facebook, db));
+        return facebook;
+    }
+
 }

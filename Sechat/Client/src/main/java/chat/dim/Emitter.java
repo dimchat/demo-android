@@ -40,6 +40,7 @@ import chat.dim.dkd.BaseTextContent;
 import chat.dim.format.Hex;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.http.FileTransfer;
 import chat.dim.http.UploadRequest;
 import chat.dim.model.Configuration;
@@ -295,7 +296,7 @@ public class Emitter implements Observer {
         assert receiver != null : "receiver should not empty";
         GlobalVariable shared = GlobalVariable.getInstance();
         Pair<InstantMessage, ReliableMessage> result;
-        result = shared.messenger.sendContent(null, receiver, content, 0);
+        result = shared.messenger.sendContent(content, null, receiver, 0);
         if (result.second == null) {
             Log.warning("not send yet (type=" + content.getType() + "): " + receiver);
             return;

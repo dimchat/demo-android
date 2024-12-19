@@ -33,7 +33,6 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
-import chat.dim.crypto.SymmetricKey;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -52,7 +51,6 @@ import chat.dim.protocol.ReceiptCommand;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
-import chat.dim.protocol.group.InviteCommand;
 import chat.dim.protocol.group.QueryCommand;
 import chat.dim.utils.Log;
 
@@ -165,17 +163,17 @@ public class MessageDataSource implements Observer {
             return true;
         }
 
-        if (content instanceof InviteCommand) {
-            // send keys again
-            ID me = iMsg.getReceiver();
-            ID group = content.getGroup();
-            GlobalVariable shared = GlobalVariable.getInstance();
-            SymmetricKey key = shared.mdb.getCipherKey(me, group, false);
-            if (key != null) {
-                //key.put("reused", null);
-                key.remove("reused");
-            }
-        }
+//        if (content instanceof InviteCommand) {
+//            // send keys again
+//            ID me = iMsg.getReceiver();
+//            ID group = content.getGroup();
+//            GlobalVariable shared = GlobalVariable.getInstance();
+//            SymmetricKey key = shared.mdb.getCipherKey(me, group, false);
+//            if (key != null) {
+//                //key.put("reused", null);
+//                key.remove("reused");
+//            }
+//        }
         if (content instanceof QueryCommand) {
             // FIXME: same query command sent to different members?
             return true;

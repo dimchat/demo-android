@@ -130,7 +130,7 @@ public class StorageCommandProcessor extends BaseCommandProcessor {
     }
 
     @Override
-    public List<Content> process(Content content, ReliableMessage rMsg) {
+    public List<Content> processContent(Content content, ReliableMessage rMsg) {
         assert content instanceof StorageCommand : "storage command error: " + content;
         StorageCommand command = (StorageCommand) content;
         String title = command.getTitle();

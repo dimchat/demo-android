@@ -69,7 +69,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
     @Override
     public void onReceiveNotification(Notification notification) {
         String name = notification.name;
-        Map info = notification.userInfo;
+        Map<String, Object> info = notification.userInfo;
         assert name != null && info != null : "notification error: " + notification;
         if (name.equals(NotificationNames.SearchUpdated)) {
             if (info instanceof SearchCommand) {
@@ -96,7 +96,7 @@ public class SearchFragment extends ListFragment<SearchViewAdapter, DummyContent
             bot = ID.parse("archivist@anywhere");
         }
         Content content = new SearchCommand(keywords);
-        return shared.messenger.sendContent(null, bot, content, 0).second != null;
+        return shared.messenger.sendContent(content, null, bot, 0).second != null;
     }
 
     @Override

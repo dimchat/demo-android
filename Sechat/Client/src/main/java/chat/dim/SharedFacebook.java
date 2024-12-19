@@ -38,8 +38,6 @@ import chat.dim.database.UserTable;
 import chat.dim.dbi.AccountDBI;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
-import chat.dim.mkm.Entity;
-import chat.dim.mkm.Group;
 import chat.dim.mkm.User;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Visa;
@@ -47,17 +45,15 @@ import chat.dim.type.Pair;
 
 public final class SharedFacebook extends ClientFacebook {
 
-    private final List<User> localUsers = new ArrayList<>();
     private final Map<ID, List<ID>> userContacts = new HashMap<>();
 
-    @Override
-    public CommonArchivist getArchivist() {
-        GlobalVariable shared = GlobalVariable.getInstance();
-        return shared.archivist;
+    public SharedFacebook(AccountDBI database) {
+        super(database);
     }
 
-    public AccountDBI getDatabase() {
-        return getArchivist().getDatabase();
+    @Override
+    public ClientChecker getEntityChecker() {
+        return (ClientChecker) super.getEntityChecker();
     }
 
     /**
@@ -70,7 +66,7 @@ public final class SharedFacebook extends ClientFacebook {
         PortableNetworkFile avatar = null;
         Visa doc = getVisa(user);
         if (doc != null) {
-            avatar = ((Visa) doc).getAvatar();
+            avatar = doc.getAvatar();
         }
         String urlString = avatar == null ? null : avatar.getURL().toString();
         // TODO: if 'URL' is empty, get avatar from 'data'
@@ -95,30 +91,7 @@ public final class SharedFacebook extends ClientFacebook {
         return db.savePrivateKey(key, type, user);
     }
 
-    @Override
-    protected Group createGroup(ID group) {
-        Group grp = super.createGroup(group);
-        if (grp != null) {
-            Entity.DataSource delegate = grp.getDataSource();
-            if (delegate == null || delegate == this) {
-                // replace group's data source
-                SharedGroupManager manager = SharedGroupManager.getInstance();
-                grp.setDataSource(manager);
-            }
-        }
-        return grp;
-    }
-
     //-------- Users
-
-    @Override
-    public List<User> getLocalUsers() {
-        if (localUsers.size() == 0) {
-            List<User> users = super.getLocalUsers();
-            localUsers.addAll(users);
-        }
-        return localUsers;
-    }
 
     public boolean addUser(ID user) {
         AccountDBI db = getDatabase();
@@ -130,13 +103,7 @@ public final class SharedFacebook extends ClientFacebook {
             return false;
         }
         allUsers.add(user);
-        if (db.saveLocalUsers(allUsers)) {
-            // clear cache for reload
-            localUsers.clear();
-            return true;
-        } else {
-            return false;
-        }
+        return db.saveLocalUsers(allUsers);
     }
 
     public boolean removeUser(ID user) {
@@ -147,13 +114,7 @@ public final class SharedFacebook extends ClientFacebook {
             return false;
         }
         allUsers.remove(user);
-        if (db.saveLocalUsers(allUsers)) {
-            // clear cache for reload
-            localUsers.clear();
-            return true;
-        } else {
-            return false;
-        }
+        return db.saveLocalUsers(allUsers);
     }
 
     @Override
@@ -161,8 +122,6 @@ public final class SharedFacebook extends ClientFacebook {
         AccountDBI db = getDatabase();
         UserTable table = (UserTable) db;
         table.setCurrentUser(user.getIdentifier());
-        // clear cache for reload
-        localUsers.clear();
         super.setCurrentUser(user);
     }
 

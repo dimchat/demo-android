@@ -20,7 +20,7 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
-import chat.dim.SharedGroupManager;
+import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.User;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;

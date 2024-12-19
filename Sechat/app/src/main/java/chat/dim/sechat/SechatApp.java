@@ -75,7 +75,7 @@ public final class SechatApp extends Application {
         ConversationDatabase msgDB = ConversationDatabase.getInstance();
         msgDB.messageTable = MessageTable.getInstance();
 
-        shared.terminal = new Client(shared.facebook, shared.sdb);
+        shared.terminal = new Client(shared.facebook, shared.database);
     }
 
     @Override

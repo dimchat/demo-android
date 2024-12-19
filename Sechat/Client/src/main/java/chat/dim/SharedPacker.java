@@ -29,20 +29,13 @@ import java.io.IOException;
 import java.util.Map;
 
 import chat.dim.crypto.SymmetricKey;
-import chat.dim.mkm.User;
 import chat.dim.model.MessageDataSource;
 import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Content;
-import chat.dim.protocol.ContentType;
-import chat.dim.protocol.DocumentCommand;
 import chat.dim.protocol.FileContent;
-import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.SecureMessage;
-import chat.dim.protocol.TextContent;
-import chat.dim.protocol.Visa;
-import chat.dim.utils.Log;
 
 public class SharedPacker extends ClientMessagePacker {
 
@@ -52,7 +45,7 @@ public class SharedPacker extends ClientMessagePacker {
     // Message Transfer Protocol
     public int mtpFormat = MTP_JSON;
 
-    public SharedPacker(Facebook facebook, Messenger messenger) {
+    public SharedPacker(ClientFacebook facebook, ClientMessenger messenger) {
         super(facebook, messenger);
     }
 
@@ -114,81 +107,6 @@ public class SharedPacker extends ClientMessagePacker {
         }
         // check receiver & encrypt
         return super.encryptMessage(iMsg);
-    }
-
-    @Override
-    public InstantMessage decryptMessage(SecureMessage sMsg) {
-        InstantMessage iMsg = super.decryptMessage(sMsg);
-        if (iMsg == null) {
-            // failed to decrypt message, visa.key changed?
-            // 1. push new visa document to this message sender
-            pushVisa(sMsg.getSender());
-            // 2. build 'failed' message
-            iMsg = getFailedMessage(sMsg);
-        } else {
-            Content content = iMsg.getContent();
-            if (content instanceof FileContent) {
-                FileContent fileContent = (FileContent) content;
-                if (fileContent.getPassword() == null && ((FileContent) content).getURL() != null) {
-                    // now received file content with remote data,
-                    // which must be encrypted before upload to CDN;
-                    // so keep the password here for decrypting after downloaded.
-                    SymmetricKey key = getMessenger().getDecryptKey(sMsg);
-                    assert key != null : "failed to get msg key: "
-                            + sMsg.getSender() + " => " + sMsg.getReceiver() + ", " + sMsg.get("group");
-                    // keep password to decrypt data after downloaded
-                    fileContent.setPassword(key);
-                }
-            }
-        }
-        return iMsg;
-    }
-
-    protected void pushVisa(ID contact) {
-        GlobalVariable shared = GlobalVariable.getInstance();
-        if (!shared.archivist.isDocumentResponseExpired(contact, false)) {
-            // response not expired yet
-            Log.debug("visa push not expired yet: " + contact);
-            return;
-        }
-        Log.info("push visa to: " + contact);
-        User user = getFacebook().getCurrentUser();
-        Visa visa = user.getVisa();
-        if (visa == null || !visa.isValid()) {
-            // FIXME: user visa not found?
-            assert false : "user visa error: " + user;
-            return;
-        }
-        ID me = user.getIdentifier();
-        Content command = DocumentCommand.response(me, visa);
-        CommonMessenger messenger = (CommonMessenger) getMessenger();
-        messenger.sendContent(me, contact, command, 1);
-    }
-
-    protected InstantMessage getFailedMessage(SecureMessage sMsg) {
-        ID sender = sMsg.getSender();
-        ID group = sMsg.getGroup();
-        int type = sMsg.getType();
-        if (ContentType.COMMAND.equals(type) || ContentType.HISTORY.equals(type)) {
-            Log.warning("ignore message unable to decrypt (type=" + type + ") from " + sender);
-            return null;
-        }
-        // create text content
-        Content content = TextContent.create("Failed to decrypt message.");
-        content.put("template", "Failed to decrypt message (type=${type}) from '${sender}'");
-        content.put("replacements", newMap(
-                "type", type,
-                "sender", sender.toString(),
-                "group", group == null ? null : group.toString()
-        ));
-        if (group != null) {
-            content.setGroup(group);
-        }
-        // pack instant message
-        Map<String, Object> info = sMsg.copyMap(false);
-        info.remove("data");
-        info.put("content", content.toMap());
-        return InstantMessage.parse(info);
     }
 
     @Override
