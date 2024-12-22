@@ -67,7 +67,7 @@ public class SearchCommand extends BaseCommand {
 
     public String getKeywords() {
         String keywords = getString("keywords", null);
-        if (keywords == null && ONLINE_USERS.equals(getCmd())) {
+        if (keywords == null && ONLINE_USERS.equals(getCommandName())) {
             keywords = ONLINE_USERS;
         }
         return keywords;

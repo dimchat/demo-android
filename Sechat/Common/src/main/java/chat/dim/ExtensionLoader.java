@@ -27,6 +27,7 @@ package chat.dim;
 
 import chat.dim.compat.ClientPluginLoader;
 import chat.dim.compat.CommonLoader;
+import chat.dim.plugins.CryptoPluginLoader;
 
 class ExtensionLoader extends CommonLoader {
 
