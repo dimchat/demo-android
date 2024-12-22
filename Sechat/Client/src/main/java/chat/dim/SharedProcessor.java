@@ -28,8 +28,8 @@ package chat.dim;
 import java.util.List;
 
 import chat.dim.cpu.ClientProcessorCreator;
+import chat.dim.dkd.ContentProcessor;
 import chat.dim.model.MessageDataSource;
-import chat.dim.msg.ContentProcessor;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Command;
 import chat.dim.protocol.Content;

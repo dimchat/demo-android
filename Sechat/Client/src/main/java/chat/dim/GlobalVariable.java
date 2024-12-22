@@ -16,9 +16,8 @@ public enum GlobalVariable {
         facebook = createFacebook(database);
         emitter = new Emitter();
 
-        CryptoPlugins.registerCryptoPlugins();
-
-        Register.prepare();
+        // register plugins
+        new ExtensionLoader().run();
     }
 
     public final SharedDatabase database;
