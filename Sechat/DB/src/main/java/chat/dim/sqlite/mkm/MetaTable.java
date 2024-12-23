@@ -35,6 +35,7 @@ import chat.dim.crypto.PublicKey;
 import chat.dim.format.JSON;
 import chat.dim.format.TransportableData;
 import chat.dim.mkm.BaseMeta;
+import chat.dim.mkm.MetaHelper;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
@@ -84,7 +85,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matchIdentifier(entity)) {
+        if (!MetaHelper.matches(entity, meta)) {
             Log.error("meta not match ID: " + entity + ", " + meta);
             return false;
         }

@@ -21,6 +21,7 @@ import chat.dim.dbi.MessageDBI;
 import chat.dim.dbi.ProviderInfo;
 import chat.dim.dbi.SessionDBI;
 import chat.dim.dbi.StationInfo;
+import chat.dim.mkm.MetaHelper;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Document;
@@ -213,7 +214,7 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
 
     @Override
     public boolean saveMeta(Meta meta, ID entity) {
-        if (!meta.matchIdentifier(entity)) {
+        if (!MetaHelper.matches(entity, meta)) {
             throw new VerifyError("meta not match: " + entity + " => " + meta);
         }
         boolean ok = metaTable.saveMeta(meta, entity);
