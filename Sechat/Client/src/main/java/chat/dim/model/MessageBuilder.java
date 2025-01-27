@@ -98,7 +98,7 @@ public abstract class MessageBuilder {
         } else if (content instanceof LoginCommand) {
             text = getLoginCommandText((LoginCommand) content, commander);
         } else {
-            text = String.format("Current version doesn't support this command: %s", content.getCommandName());
+            text = String.format("Current version doesn't support this command: %s", content.getCmd());
         }
         // store message text
         content.put("text", text);

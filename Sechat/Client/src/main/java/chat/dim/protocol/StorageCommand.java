@@ -97,7 +97,7 @@ public class StorageCommand extends BaseCommand {
                 //      data    : '...',
                 //      key     : '...'
                 //  }
-                title = getCommandName();
+                title = getCmd();
                 assert !title.equalsIgnoreCase(STORAGE) : "title error: " + title;
             }
         }
