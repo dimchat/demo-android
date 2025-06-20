@@ -29,6 +29,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 
+import chat.dim.compat.EntityIDFactory;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
@@ -47,6 +48,8 @@ public final class AddressNameTable extends DataTable implements chat.dim.databa
         return ourInstance;
     }
 
+    private final ID.Factory identifierFactory = new EntityIDFactory();
+
     @Override
     protected Database getDatabase() {
         return AddressNameDatabase.getInstance();
@@ -63,7 +66,7 @@ public final class AddressNameTable extends DataTable implements chat.dim.databa
         String[] selectionArgs = {alias};
         try (Cursor cursor = query(AddressNameDatabase.T_RECORD, columns, "alias=?", selectionArgs, null, null, null)) {
             if (cursor.moveToNext()) {
-                identifier = ID.parse(cursor.getString(0));
+                identifier = identifierFactory.parseIdentifier(cursor.getString(0));
             }
         } catch (SQLiteCantOpenDatabaseException e) {
             e.printStackTrace();

@@ -193,7 +193,7 @@ public final class Client extends Terminal implements Observer {
 
         // FIXME: debug
         //host = "192.168.31.91";
-        host = "106.52.25.169";
+        host = "129.226.12.4";
         port = 9394;
 
         // connect server

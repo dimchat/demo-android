@@ -44,6 +44,7 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.tlv.values.RawValue;
 import chat.dim.tlv.values.StringValue;
 import chat.dim.type.ByteArray;
+import chat.dim.type.Converter;
 import chat.dim.type.Data;
 import chat.dim.type.Dictionary;
 import chat.dim.type.IntegerData;
@@ -68,8 +69,8 @@ public class MsgUtils {
             info.put("receiver", receiver.toString());
         }
         Object type = info.get("type");
-        if (type instanceof ContentType) {
-            info.put("type", ((ContentType) type).value);
+        if (type instanceof String) {
+            info.put("type", Converter.getInt(type, 0));
         }
         Object group = info.get("group");
         if (group instanceof ID) {

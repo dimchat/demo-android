@@ -39,7 +39,7 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
     }
 
     @Override
-    public ContentProcessor createContentProcessor(int type) {
+    public ContentProcessor createContentProcessor(String type) {
         // application customized
         if (ContentType.APPLICATION.equals(type)) {
             return new AppContentProcessor(getFacebook(), getMessenger());
@@ -47,14 +47,14 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
             return new AppContentProcessor(getFacebook(), getMessenger());
         }
         // default
-        if (0 == type) {
+        if (ContentType.ANY.equals(type)) {
             return new AnyContentProcessor(getFacebook(), getMessenger());
         }
         return super.createContentProcessor(type);
     }
 
     @Override
-    public ContentProcessor createCommandProcessor(int type, String name) {
+    public ContentProcessor createCommandProcessor(String type, String name) {
         switch (name) {
             // storage (contacts, private_key)
             case StorageCommand.STORAGE:

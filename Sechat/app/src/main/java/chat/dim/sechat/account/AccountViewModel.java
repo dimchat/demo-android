@@ -137,7 +137,7 @@ public class AccountViewModel extends UserViewModel {
             info = new HashMap<>();
             info.put("data", json);
             info.put("algorithm", AsymmetricKey.ECC);
-            info.put("version", MetaType.ETH.value);
+            info.put("version", MetaType.ETH);
         } else if (json.startsWith("{")) {
             // dictionary
             info = (Map<String, Object>) JSON.decode(json);
@@ -167,7 +167,7 @@ public class AccountViewModel extends UserViewModel {
         }
         String version = Converter.getString(value, null);
         if (version == null) {
-            version = Meta.MKM;
+            version = MetaType.MKM;
         }
 
         // ID.type

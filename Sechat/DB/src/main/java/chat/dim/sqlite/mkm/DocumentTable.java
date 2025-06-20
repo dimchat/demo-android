@@ -36,6 +36,7 @@ import java.util.Map;
 
 import chat.dim.format.Base64;
 import chat.dim.format.TransportableData;
+import chat.dim.plugins.SharedAccountExtensions;
 import chat.dim.protocol.Document;
 import chat.dim.protocol.ID;
 import chat.dim.sqlite.DataTable;
@@ -108,7 +109,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
             return false;
         }
         ID identifier = doc.getIdentifier();
-        String type = doc.getType();
+        String type = getDocumentType(doc);
         if (type == null) {
             type = "";
         }
@@ -116,7 +117,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         // check old documents
         List<Document> documents = getDocuments(identifier);
         for (Document item : documents) {
-            if (identifier.equals(item.getIdentifier()) && type.equals(item.getType())) {
+            if (identifier.equals(item.getIdentifier()) && type.equals(getDocumentType(item))) {
                 // old record found, update it
                 exists = true;
                 break;
@@ -138,9 +139,13 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
         return saved;
     }
 
+    private String getDocumentType(Document doc) {
+        return SharedAccountExtensions.helper.getDocumentType(doc.toMap(), null);
+    }
+
     protected boolean updateDocument(Document doc) {
         ID identifier = doc.getIdentifier();
-        String type = doc.getType();
+        String type = getDocumentType(doc);
         String data = doc.getString("data", "");
         String base64 = doc.getString("signature", "");
         // conditions
@@ -154,7 +159,7 @@ public final class DocumentTable extends DataTable implements chat.dim.database.
 
     protected boolean insertDocument(Document doc) {
         ID identifier = doc.getIdentifier();
-        String type = doc.getType();
+        String type = getDocumentType(doc);
         String data = doc.getString("data", "");
         String base64 = doc.getString("signature", "");
         // new values

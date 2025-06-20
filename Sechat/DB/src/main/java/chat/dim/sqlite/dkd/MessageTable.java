@@ -46,6 +46,7 @@ import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.ReceiptCommand;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
+import chat.dim.type.Converter;
 import chat.dim.utils.Log;
 
 public final class MessageTable extends DataTable implements chat.dim.database.MessageTable {
@@ -457,7 +458,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         String sender = iMsg.getSender().toString();
         String receiver = iMsg.getReceiver().toString();
         Date time = iMsg.getTime();
-        int type = content.getType();
+        int type = Converter.getInt(content.getType(), 0);
         long sn = content.getSerialNumber();
         String signature = (String) iMsg.get("signature");
         if (signature == null) {

@@ -89,6 +89,6 @@ public abstract class AppContentHandler extends TwinsHelper implements Customize
      * @return application customized content
      */
     public static CustomizedContent create(String mod, String act) {
-        return new AppCustomizedContent(ContentType.APPLICATION.value, APP_ID, mod, act);
+        return new AppCustomizedContent(ContentType.APPLICATION, APP_ID, mod, act);
     }
 }

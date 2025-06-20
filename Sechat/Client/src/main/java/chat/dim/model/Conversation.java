@@ -98,7 +98,7 @@ public class Conversation {
         // return database.lastMessage(this);
         int count = numberOfMessages();
         InstantMessage iMsg;
-        int msgType;
+        String msgType;
         for (int index = count - 1; index >= 0; --index) {
             iMsg = messageAtIndex(index);
             if (iMsg == null) {
@@ -106,14 +106,14 @@ public class Conversation {
             }
             // FIXME: here will throw a NullPointerException
             msgType = iMsg.getType();
-            if (msgType == ContentType.TEXT.value ||
-                    msgType == ContentType.FILE.value ||
-                    msgType == ContentType.IMAGE.value ||
-                    msgType == ContentType.AUDIO.value ||
-                    msgType == ContentType.VIDEO.value ||
-                    msgType == ContentType.PAGE.value ||
-                    msgType == ContentType.MONEY.value ||
-                    msgType == ContentType.TRANSFER.value) {
+            if (ContentType.TEXT.equals(msgType) ||
+                    ContentType.FILE.equals(msgType) ||
+                    ContentType.IMAGE.equals(msgType) ||
+                    ContentType.AUDIO.equals(msgType) ||
+                    ContentType.VIDEO.equals(msgType) ||
+                    ContentType.PAGE.equals(msgType) ||
+                    ContentType.MONEY.equals(msgType) ||
+                    ContentType.TRANSFER.equals(msgType)) {
                 // got it
                 return iMsg;
             }

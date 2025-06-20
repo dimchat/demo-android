@@ -40,6 +40,7 @@ import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaType;
+import chat.dim.protocol.MetaVersion;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
 import chat.dim.utils.Log;
@@ -96,11 +97,11 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
             Log.info("meta already exists: " + entity);
             return true;
         }
-        int type = MetaType.parseInt(meta.getType(), 0);
+        int type = MetaVersion.parseInt(meta.getType(), 0);
         String json = JSON.encode(meta.getPublicKey());
         String seed;
         byte[] fingerprint;
-        if (MetaType.hasSeed(type)) {
+        if (MetaVersion.hasSeed(type)) {
             seed = meta.getSeed();
             fingerprint = meta.getFingerprint();
         } else {
@@ -138,7 +139,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
                     int type = cursor.getInt(0);
                     String json = cursor.getString(1);
                     PublicKey key = PublicKey.parse(JSON.decode(json));
-                    if (MetaType.hasSeed(type)) {
+                    if (MetaVersion.hasSeed(type)) {
                         String seed = cursor.getString(2);
                         byte[] fingerprint = cursor.getBlob(3);
                         TransportableData ted = TransportableData.create(fingerprint);

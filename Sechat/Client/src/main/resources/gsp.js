@@ -8,7 +8,7 @@
     "CA": {},
 
     "stations": [
-        {"ID": "gsp-s002@wpjUWg1oYDnkHh74tHQFPxii6q9j3ymnyW", "host": "106.52.25.169", "port": 9394}
+        {"ID": "gsp-hk4@2AF3HkMockiHSXfABQuBGdGWbxaUVy7s83", "host": "129.226.12.4", "port": 9394, "desc": "HK"}
     ],
 
     "APIs": {
