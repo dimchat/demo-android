@@ -104,7 +104,10 @@ public class ContactList extends DummyList<ContactList.Item> {
                 GlobalVariable shared = GlobalVariable.getInstance();
                 SharedFacebook facebook = shared.facebook;
                 Map<String, Object> info = content.getStation();
-                ID sid = ID.parse(info.get("ID"));
+                ID sid = ID.parse(info.get("did"));
+                if (sid == null) {
+                    sid = ID.parse(info.get("ID"));
+                }
                 Date time = content.getTime();
                 if (time != null) {
                     if (sid != null) {

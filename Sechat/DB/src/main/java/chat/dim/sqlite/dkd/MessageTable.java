@@ -415,7 +415,10 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
     private boolean insertTrace(ID cid, long sn, String signature, Object trace) {
         String tid;
         if (trace instanceof Map) {
-            tid = (String) ((Map) trace).get("ID");
+            tid = (String) ((Map<?, ?>) trace).get("did");
+            if (tid == null) {
+                tid = (String) ((Map<?, ?>) trace).get("ID");
+            }
         } else if (trace instanceof ID) {
             tid = trace.toString();
         } else {

@@ -10,7 +10,6 @@ import java.util.List;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.http.FileTransfer;
 import chat.dim.io.Resources;
-import chat.dim.mkm.User;
 import chat.dim.model.Conversation;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.NotificationCenter;
@@ -70,9 +69,9 @@ public class ChatboxViewModel extends EntityViewModel {
             return MsgType.RECEIVED;
         }
 
-        List<User> users = getLocalUsers();
-        for (User user : users) {
-            if (user.getIdentifier().equals(sender)) {
+        List<ID> users = getLocalUsers();
+        for (ID user : users) {
+            if (user.equals(sender)) {
                 return MsgType.SENT;
             }
         }

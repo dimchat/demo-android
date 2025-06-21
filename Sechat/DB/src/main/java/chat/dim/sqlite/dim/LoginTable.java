@@ -101,7 +101,10 @@ public final class LoginTable extends DataTable implements chat.dim.database.Log
         ID user = command.getIdentifier();
         Date oldTime = getLoginTime(user);
         Map<String, Object> station = command.getStation();
-        String sid = (String) station.get("ID");
+        String sid = (String) station.get("did");
+        if (sid == null) {
+            sid = (String) station.get("ID");
+        }
         String text = JSON.encode(command);
 
         ContentValues values = new ContentValues();

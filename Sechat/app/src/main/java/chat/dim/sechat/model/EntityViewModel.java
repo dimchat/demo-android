@@ -33,6 +33,8 @@ import chat.dim.CommonArchivist;
 import chat.dim.CommonFacebook;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
+import chat.dim.core.Barrack;
+import chat.dim.dbi.AccountDBI;
 import chat.dim.mkm.Entity;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
@@ -45,10 +47,10 @@ public class EntityViewModel extends ViewModel {
         GlobalVariable shared = GlobalVariable.getInstance();
         return shared.facebook;
     }
-    public static List<User> getLocalUsers() {
+    public static List<ID> getLocalUsers() {
         CommonFacebook facebook = getFacebook();
-        CommonArchivist archivist = facebook.getArchivist();
-        return archivist.getLocalUsers();
+        AccountDBI db = facebook.getDatabase();
+        return db.getLocalUsers();
     }
 
     private Entity entity = null;

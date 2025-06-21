@@ -40,7 +40,7 @@ public enum GlobalVariable {
 
     static SharedFacebook createFacebook(AccountDBI db) {
         SharedFacebook facebook = new SharedFacebook(db);
-        facebook.setArchivist(new ClientArchivist(facebook, db));
+        facebook.setBarrack(new ClientArchivist(facebook, db));
         facebook.setEntityChecker(new ClientChecker(facebook, db));
         return facebook;
     }

@@ -111,14 +111,14 @@ public class StorageCommand extends BaseCommand {
 
     // user ID
     public ID getIdentifier() {
-        return ID.parse(get("ID"));
+        return ID.parse(get("did"));
     }
 
     public void setIdentifier(ID identifier) {
         if (identifier == null) {
-            remove("ID");
+            remove("did");
         } else {
-            put("ID", identifier.toString());
+            put("did", identifier.toString());
         }
     }
 

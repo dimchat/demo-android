@@ -155,7 +155,10 @@ public final class NetworkDatabase {
         int chosen = 1;
 
         for (Map item : stations) {
-            sid = ID.parse(item.get("ID"));
+            sid = ID.parse(item.get("did"));
+            if (sid == null) {
+                sid = ID.parse(item.get("ID"));
+            }
             host = (String) item.get("host");
             port = (int) item.get("port");
             name = (String) item.get("name");
