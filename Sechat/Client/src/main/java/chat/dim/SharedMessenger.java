@@ -47,7 +47,6 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
-import chat.dim.protocol.SecureMessage;
 import chat.dim.protocol.StorageCommand;
 import chat.dim.protocol.Visa;
 import chat.dim.type.Pair;
@@ -163,23 +162,6 @@ public class SharedMessenger extends ClientMessenger {
         names.add("assistant");
         AnsCommand command = AnsCommand.query(names);
         sendCommand(command, 1);
-    }
-
-    @Override
-    public byte[] serializeContent(Content content, SymmetricKey password, InstantMessage iMsg) {
-        if (content instanceof Command) {
-            content = Compatible.fixCommand((Command) content);
-        }
-        return super.serializeContent(content, password, iMsg);
-    }
-
-    @Override
-    public Content deserializeContent(byte[] data, SymmetricKey password, SecureMessage sMsg) {
-        Content content = super.deserializeContent(data, password, sMsg);
-        if (content instanceof Command) {
-            content = Compatible.fixCommand((Command) content);
-        }
-        return content;
     }
 
     static {

@@ -28,6 +28,7 @@ package chat.dim;
 import java.io.IOException;
 import java.util.Map;
 
+import chat.dim.compat.Compatible;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.model.MessageDataSource;
 import chat.dim.mtp.MsgUtils;
@@ -51,12 +52,13 @@ public class SharedPacker extends ClientMessagePacker {
 
     @Override
     public byte[] serializeMessage(ReliableMessage rMsg) {
-        Compatible.fixMetaAttachment(rMsg);
         if (mtpFormat == MTP_JSON) {
             // JsON
             return super.serializeMessage(rMsg);
         } else {
             // D-MTP
+            Compatible.fixMetaAttachment(rMsg);
+            Compatible.fixVisaAttachment(rMsg);
             // TODO: attachKeyDigest(rMsg, getMessenger());
             return MsgUtils.serializeMessage(rMsg);
         }
@@ -75,12 +77,11 @@ public class SharedPacker extends ClientMessagePacker {
             // D-MTP
             rMsg = MsgUtils.deserializeMessage(data);
             if (rMsg != null) {
+                Compatible.fixMetaAttachment(rMsg);
+                Compatible.fixVisaAttachment(rMsg);
                 // FIXME: just change it when first package received
                 mtpFormat = MTP_DMTP;
             }
-        }
-        if (rMsg != null) {
-            Compatible.fixMetaAttachment(rMsg);
         }
         return rMsg;
     }
