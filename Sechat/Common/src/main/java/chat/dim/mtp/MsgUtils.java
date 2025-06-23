@@ -70,7 +70,7 @@ public class MsgUtils {
         }
         Object type = info.get("type");
         if (type instanceof String) {
-            info.put("type", Converter.getInt(type, 0));
+            info.put("type", Converter.getInteger(type, 0));
         }
         Object group = info.get("group");
         if (group instanceof ID) {

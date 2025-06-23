@@ -461,7 +461,7 @@ public final class MessageTable extends DataTable implements chat.dim.database.M
         String sender = iMsg.getSender().toString();
         String receiver = iMsg.getReceiver().toString();
         Date time = iMsg.getTime();
-        int type = Converter.getInt(content.getType(), 0);
+        int type = Converter.getInteger(content.getType(), 0);
         long sn = content.getSerialNumber();
         String signature = (String) iMsg.get("signature");
         if (signature == null) {

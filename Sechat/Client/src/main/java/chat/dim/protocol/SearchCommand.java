@@ -88,14 +88,14 @@ public class SearchCommand extends BaseCommand {
     }
 
     public int getStart() {
-        return  getInt("start", 0);
+        return  getInteger("start", 0);
     }
     public void setStart(int start) {
         put("start", start);
     }
 
     public int getLimit() {
-        return getInt("limit", 50);
+        return getInteger("limit", 50);
     }
     public void setLimit(int limit) {
         put("limit", limit);
