@@ -78,7 +78,7 @@ public final class KeyStore implements MsgKeyTable {
             table.put(receiver, key);
         } else if (generate) {
             // generate new key and store it
-            key = SymmetricKey.generate(SymmetricKey.AES);
+            key = SymmetricKey.generate(SymmetricAlgorithms.AES);
             keyTable.cacheCipherKey(sender, receiver, key);
             // cache it
             table.put(receiver, key);

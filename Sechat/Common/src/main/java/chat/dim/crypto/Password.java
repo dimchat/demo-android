@@ -66,7 +66,7 @@ public final class Password {
       System.arraycopy(digest, digest.length - BLOCK_SIZE, iv, 0, BLOCK_SIZE);
       // generate AES key
       Map<String, Object> key = new HashMap<>();
-      key.put("algorithm", SymmetricKey.AES);
+      key.put("algorithm", SymmetricAlgorithms.AES);
       key.put("data", Base64.encode(data));
       key.put("iv", Base64.encode(iv));
       return SymmetricKey.parse(key);

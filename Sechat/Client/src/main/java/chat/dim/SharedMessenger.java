@@ -28,6 +28,7 @@ package chat.dim;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.dim.crypto.SymmetricAlgorithms;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.dbi.MessageDBI;
 import chat.dim.format.JSON;
@@ -132,7 +133,7 @@ public class SharedMessenger extends ClientMessenger {
         StorageCommand content = new StorageCommand(StorageCommand.CONTACTS);
         content.setIdentifier(user.getIdentifier());
         // 1. generate password
-        SymmetricKey password = SymmetricKey.generate(SymmetricKey.AES);
+        SymmetricKey password = SymmetricKey.generate(SymmetricAlgorithms.AES);
         // 2. encrypt contacts list
         byte[] data = UTF8.encode(JSON.encode(contacts));
         data = password.encrypt(data, content.toMap());

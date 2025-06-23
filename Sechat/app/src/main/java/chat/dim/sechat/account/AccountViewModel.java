@@ -5,7 +5,7 @@ import java.util.Map;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedMessenger;
-import chat.dim.crypto.AsymmetricKey;
+import chat.dim.crypto.AsymmetricAlgorithms;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
 import chat.dim.crypto.PrivateKey;
@@ -73,7 +73,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         String pem;
-        if (sKey.getAlgorithm().equals(AsymmetricKey.ECC)) {
+        if (sKey.getAlgorithm().equals(AsymmetricAlgorithms.ECC)) {
             byte[] data = sKey.getData();
             if (data == null) {
                 return null;
@@ -136,7 +136,7 @@ public class AccountViewModel extends UserViewModel {
             // ECC private key
             info = new HashMap<>();
             info.put("data", json);
-            info.put("algorithm", AsymmetricKey.ECC);
+            info.put("algorithm", AsymmetricAlgorithms.ECC);
             info.put("version", MetaType.ETH);
         } else if (json.startsWith("{")) {
             // dictionary
@@ -157,7 +157,7 @@ public class AccountViewModel extends UserViewModel {
         // algorithm of private key
         String algorithm = (String) info.get("algorithm");
         if (algorithm == null) {
-            algorithm = AsymmetricKey.RSA;
+            algorithm = AsymmetricAlgorithms.RSA;
         }
 
         // meta.version
@@ -217,7 +217,7 @@ public class AccountViewModel extends UserViewModel {
         if (privateKey instanceof DecryptKey) {
             msgKey = null;
         } else {
-            PrivateKey rsaKey = PrivateKey.generate(AsymmetricKey.RSA);
+            PrivateKey rsaKey = PrivateKey.generate(AsymmetricAlgorithms.RSA);
             if (getFacebook().savePrivateKey(rsaKey, "P", identifier)) {
                 msgKey = (EncryptKey) rsaKey.getPublicKey();
             } else {
