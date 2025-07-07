@@ -37,7 +37,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.digest.MD5;
 import chat.dim.dkd.BaseTextContent;
-import chat.dim.format.EncodeAlgorithms;
 import chat.dim.format.Hex;
 import chat.dim.format.PortableNetworkFile;
 import chat.dim.format.TransportableData;
@@ -266,8 +265,8 @@ public class Emitter implements Observer {
     public void sendImage(byte[] jpeg, byte[] thumbnail, ID receiver) throws IOException {
         assert jpeg != null && jpeg.length > 0 : "image data empty";
         String filename = Hex.encode(MD5.digest(jpeg)) + ".jpeg";
-        TransportableData big = TransportableData.create(EncodeAlgorithms.DEFAULT, jpeg);
-        TransportableData small = TransportableData.create(EncodeAlgorithms.DEFAULT, thumbnail);
+        TransportableData big = TransportableData.create(jpeg);
+        TransportableData small = TransportableData.create(thumbnail);
         ImageContent content = FileContent.image(big, filename, null, null);
         // add image data length & thumbnail into message content
         content.put("length", jpeg.length);
@@ -286,7 +285,7 @@ public class Emitter implements Observer {
     public void sendVoice(byte[] mp4, float duration, ID receiver) throws IOException {
         assert mp4 != null && mp4.length > 0 : "voice data empty";
         String filename = Hex.encode(MD5.digest(mp4)) + ".mp4";
-        TransportableData ted = TransportableData.create(EncodeAlgorithms.DEFAULT, mp4);
+        TransportableData ted = TransportableData.create(mp4);
         AudioContent content = FileContent.audio(ted, filename, null, null);
         // add voice data length & duration into message content
         content.put("length", mp4.length);

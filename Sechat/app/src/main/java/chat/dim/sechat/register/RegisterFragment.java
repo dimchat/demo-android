@@ -22,6 +22,7 @@ import chat.dim.GlobalVariable;
 import chat.dim.Register;
 import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
+import chat.dim.core.Archivist;
 import chat.dim.crypto.SignKey;
 import chat.dim.digest.MD5;
 import chat.dim.format.Hex;
@@ -159,6 +160,8 @@ public class RegisterFragment extends Fragment {
 
         GlobalVariable shared = GlobalVariable.getInstance();
         SharedFacebook facebook = shared.facebook;
+        Archivist archivist = facebook.getArchivist();
+        assert archivist != null : "facebook (archivist) not ready";
 
         // 1. create user
         Register userRegister = new Register(facebook.getDatabase());
@@ -188,7 +191,7 @@ public class RegisterFragment extends Fragment {
             SignKey sKey = facebook.getPrivateKeyForVisaSignature(user.getIdentifier());
             assert sKey != null : "failed to get private key: " + user.getIdentifier();
             visa.sign(sKey);
-            facebook.saveDocument(visa);
+            archivist.saveDocument(visa);
         }
 
         // 3. set current user

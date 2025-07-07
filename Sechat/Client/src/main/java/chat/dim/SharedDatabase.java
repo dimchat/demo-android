@@ -1,5 +1,6 @@
 package chat.dim;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,12 +191,12 @@ public class SharedDatabase implements AccountDBI, MessageDBI, SessionDBI, UserT
 
     @Override
     public List<Pair<GroupCommand, ReliableMessage>> getGroupHistories(ID group) {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public Pair<ResetCommand, ReliableMessage> getResetCommandMessage(ID identifier) {
-        return null;
+        return new Pair<>(null, null);
     }
 
     @Override

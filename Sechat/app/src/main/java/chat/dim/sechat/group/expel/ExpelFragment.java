@@ -19,6 +19,7 @@ import java.util.Set;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
+import chat.dim.core.Archivist;
 import chat.dim.crypto.SignKey;
 import chat.dim.group.SharedGroupManager;
 import chat.dim.mkm.BaseBulletin;
@@ -93,7 +94,10 @@ public class ExpelFragment extends ListFragment<CandidateViewAdapter, MemberList
                 Bulletin bulletin = new BaseBulletin(identifier);
                 bulletin.setName(newName);
                 bulletin.sign(sKey);
-                facebook.saveDocument(bulletin);
+                Archivist archivist = facebook.getArchivist();
+                if (archivist != null) {
+                    archivist.saveDocument(bulletin);
+                }
             }
         }
 

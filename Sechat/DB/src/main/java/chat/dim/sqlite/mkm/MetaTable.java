@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.crypto.PublicKey;
-import chat.dim.format.EncodeAlgorithms;
 import chat.dim.format.JSON;
 import chat.dim.format.TransportableData;
 import chat.dim.mkm.BaseMeta;
@@ -142,7 +141,7 @@ public final class MetaTable extends DataTable implements chat.dim.database.Meta
                     if (MetaVersion.hasSeed(type)) {
                         String seed = cursor.getString(2);
                         byte[] fingerprint = cursor.getBlob(3);
-                        TransportableData ted = TransportableData.create(EncodeAlgorithms.DEFAULT, fingerprint);
+                        TransportableData ted = TransportableData.create(fingerprint);
                         meta = Meta.create(Integer.toString(type), key, seed, ted);
                     } else {
                         meta = Meta.create(Integer.toString(type), key, null, null);

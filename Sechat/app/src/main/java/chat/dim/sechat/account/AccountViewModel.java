@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import chat.dim.GlobalVariable;
+import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
+import chat.dim.core.Archivist;
 import chat.dim.crypto.AsymmetricAlgorithms;
 import chat.dim.crypto.DecryptKey;
 import chat.dim.crypto.EncryptKey;
@@ -40,21 +42,27 @@ public class AccountViewModel extends UserViewModel {
         if (identifier == null || !identifier.equals(visa.getIdentifier())) {
             return;
         }
+        SharedFacebook facebook = getFacebook();
+        Archivist archivist = facebook.getArchivist();
+        if (archivist == null) {
+            assert false : "facebook (archivist) not ready";
+            return;
+        }
         // get private key to sign the visa document
-        SignKey sKey = getFacebook().getPrivateKeyForVisaSignature(identifier);
+        SignKey sKey = facebook.getPrivateKeyForVisaSignature(identifier);
         if (sKey == null) {
             throw new NullPointerException("failed to get private key: " + identifier);
         }
         visa.sign(sKey);
         // save signed visa document
-        if (!getFacebook().saveDocument(visa)) {
+        if (!archivist.saveDocument(visa)) {
             return;
         }
         if (broadcast) {
             GlobalVariable shared = GlobalVariable.getInstance();
             SharedMessenger messenger = shared.messenger;
             // upload to server
-            Meta meta = getFacebook().getMeta(identifier);
+            Meta meta = facebook.getMeta(identifier);
             messenger.postDocument(visa, meta);
             // broadcast to all contacts
             messenger.broadcastVisa(visa);
@@ -208,8 +216,15 @@ public class AccountViewModel extends UserViewModel {
         // generate ID
         ID identifier = ID.generate(meta, network, null);
 
+        SharedFacebook facebook = getFacebook();
+        Archivist archivist = facebook.getArchivist();
+        if (archivist == null) {
+            assert false : "facebook (archivist) not ready";
+            return null;
+        }
+
         // save private key with user ID
-        if (!getFacebook().savePrivateKey(privateKey, "M", identifier)) {
+        if (!facebook.savePrivateKey(privateKey, "M", identifier)) {
             return null;
         }
 
@@ -218,7 +233,7 @@ public class AccountViewModel extends UserViewModel {
             msgKey = null;
         } else {
             PrivateKey rsaKey = PrivateKey.generate(AsymmetricAlgorithms.RSA);
-            if (getFacebook().savePrivateKey(rsaKey, "P", identifier)) {
+            if (facebook.savePrivateKey(rsaKey, "P", identifier)) {
                 msgKey = (EncryptKey) rsaKey.getPublicKey();
             } else {
                 return null;
@@ -226,7 +241,7 @@ public class AccountViewModel extends UserViewModel {
         }
 
         // save meta with user ID
-        if (!getFacebook().saveMeta(meta, identifier)) {
+        if (!archivist.saveMeta(meta, identifier)) {
             return null;
         }
 
@@ -242,7 +257,7 @@ public class AccountViewModel extends UserViewModel {
             if (visa.sign(privateKey) == null) {
                 return null;
             }
-            if (!getFacebook().saveDocument(visa)) {
+            if (!archivist.saveDocument(visa)) {
                 return null;
             }
         }
