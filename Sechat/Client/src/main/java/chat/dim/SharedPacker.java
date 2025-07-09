@@ -28,10 +28,8 @@ package chat.dim;
 import java.io.IOException;
 import java.util.Map;
 
-import chat.dim.compat.Compatible;
 import chat.dim.crypto.SymmetricKey;
 import chat.dim.model.MessageDataSource;
-import chat.dim.mtp.MsgUtils;
 import chat.dim.protocol.Content;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.InstantMessage;
@@ -40,50 +38,8 @@ import chat.dim.protocol.SecureMessage;
 
 public class SharedPacker extends ClientMessagePacker {
 
-    public static final int MTP_JSON = 0x01;
-    public static final int MTP_DMTP = 0x02;
-
-    // Message Transfer Protocol
-    public int mtpFormat = MTP_JSON;
-
     public SharedPacker(ClientFacebook facebook, ClientMessenger messenger) {
         super(facebook, messenger);
-    }
-
-    @Override
-    public byte[] serializeMessage(ReliableMessage rMsg) {
-        if (mtpFormat == MTP_JSON) {
-            // JsON
-            return super.serializeMessage(rMsg);
-        } else {
-            // D-MTP
-            Compatible.fixMetaAttachment(rMsg);
-            Compatible.fixVisaAttachment(rMsg);
-            // TODO: attachKeyDigest(rMsg, getMessenger());
-            return MsgUtils.serializeMessage(rMsg);
-        }
-    }
-
-    @Override
-    public ReliableMessage deserializeMessage(byte[] data) {
-        if (data == null || data.length < 2) {
-            return null;
-        }
-        ReliableMessage rMsg;
-        if (data[0] == '{') {
-            // JsON
-            rMsg = super.deserializeMessage(data);
-        } else {
-            // D-MTP
-            rMsg = MsgUtils.deserializeMessage(data);
-            if (rMsg != null) {
-                Compatible.fixMetaAttachment(rMsg);
-                Compatible.fixVisaAttachment(rMsg);
-                // FIXME: just change it when first package received
-                mtpFormat = MTP_DMTP;
-            }
-        }
-        return rMsg;
     }
 
     @Override
