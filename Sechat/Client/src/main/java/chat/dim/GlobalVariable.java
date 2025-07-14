@@ -17,7 +17,7 @@ public enum GlobalVariable {
         emitter = new Emitter();
 
         // register plugins
-        new ExtensionLoader().run();
+        new AppLibraryLoader().run();
     }
 
     public final SharedDatabase database;

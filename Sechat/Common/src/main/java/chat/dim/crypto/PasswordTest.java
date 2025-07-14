@@ -28,49 +28,19 @@ package chat.dim.crypto;
 import java.util.HashMap;
 import java.util.Map;
 
-import chat.dim.digest.SHA256;
+import chat.dim.compat.CommonExtensionLoader;
+import chat.dim.compat.CommonPluginLoader;
 import chat.dim.format.Base64;
 import chat.dim.format.UTF8;
+import chat.dim.plugins.CryptoPluginLoader;
+import chat.dim.protocol.GroupKeyCommand;
+import chat.dim.protocol.Password;
+import chat.dim.utils.Log;
 
 /**
  *  This is for generating symmetric key with a text string
  */
-public final class Password {
-
-   private static final int KEY_SIZE = 32;
-   private static final int BLOCK_SIZE = 16;
-
-   public static SymmetricKey generate(String password) {
-      byte[] data = UTF8.encode(password);
-      byte[] digest = SHA256.digest(data);
-      // AES key data
-      int filling = KEY_SIZE - data.length;
-      if (filling > 0) {
-         // format: {digest_prefix}+{pwd_data}
-         byte[] merged = new byte[KEY_SIZE];
-         System.arraycopy(digest, 0, merged, 0, filling);
-         System.arraycopy(data, 0, merged, filling, data.length);
-         data = merged;
-      } else if (filling < 0) {
-         //throw new IllegalArgumentException("password too long: " + password);
-         if (KEY_SIZE == digest.length) {
-            data = digest;
-         } else {
-            // FIXME: what about KEY_SIZE > digest.length?
-            data = new byte[KEY_SIZE];
-            System.arraycopy(digest, 0, data, 0, KEY_SIZE);
-         }
-      }
-      // AES iv
-      byte[] iv = new byte[BLOCK_SIZE];
-      System.arraycopy(digest, digest.length - BLOCK_SIZE, iv, 0, BLOCK_SIZE);
-      // generate AES key
-      Map<String, Object> key = new HashMap<>();
-      key.put("algorithm", SymmetricAlgorithms.AES);
-      key.put("data", Base64.encode(data));
-      key.put("iv", Base64.encode(iv));
-      return SymmetricKey.parse(key);
-   }
+public final class PasswordTest {
 
    /**
     *  Test case
@@ -78,6 +48,14 @@ public final class Password {
     * @param args - command arguments
     */
    public static void main(String[] args) {
+
+      (new CommonExtensionLoader()).run();
+      (new CommonPluginLoader()).run();
+      (new CryptoPluginLoader()).run();
+
+      Log.LEVEL = Log.DEBUG;
+
+
       String text = "Hello world!";
       String password = "12345";
 
@@ -101,10 +79,19 @@ public final class Password {
       System.out.println(text + " -> " + base64 + " -> " + res);
 
       if (!base64.equals("Ty9C/v1XVW8IWbNxgpdg8Q==")) {
-         throw new AssertionError("cipher text not match: " + base64);
+         Log.error("cipher text not match: " + base64);
       }
-      if (!res.equals(text)) {
+      if (res.equals(text)) {
+         Log.info("Password test OK: \"" + text + "\"");
+      } else {
          throw new AssertionError("failed to en/decrypt: " + text + " -> " + res);
       }
+
+      Log.info("key1: " + key1);
+      Log.info("key2: " + key2);
+
+      String digest = GroupKeyCommand.digest(key1);
+      Log.info("key digest: " + digest);
+
    }
 }

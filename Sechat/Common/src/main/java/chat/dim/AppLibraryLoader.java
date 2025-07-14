@@ -28,7 +28,11 @@ package chat.dim;
 import chat.dim.compat.LibraryLoader;
 import chat.dim.plugins.CryptoPluginLoader;
 
-class ExtensionLoader extends LibraryLoader {
+class AppLibraryLoader extends LibraryLoader {
+
+   public AppLibraryLoader() {
+      super(null, null);
+   }
 
    private final CryptoPluginLoader cryptoPluginLoader = new CryptoPluginLoader();
 
