@@ -37,7 +37,6 @@ import chat.dim.protocol.ReliableMessage;
 /**
  *  Drift Bottle Game
  *  ~~~~~~~~~~~~~~~~~
- *
  *  Handler for customized content
  */
 public class DriftBottleHandler extends AppContentHandler {
@@ -51,6 +50,10 @@ public class DriftBottleHandler extends AppContentHandler {
 
     public DriftBottleHandler(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
+    }
+
+    public boolean matches(String app, String mod) {
+        return APP_ID.equals(app) && MOD_NAME.equals(mod);
     }
 
     @Override

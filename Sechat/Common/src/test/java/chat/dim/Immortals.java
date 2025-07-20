@@ -47,8 +47,10 @@ import chat.dim.filesys.Resource;
 import chat.dim.format.JSON;
 import chat.dim.format.UTF8;
 import chat.dim.mkm.BaseUser;
+import chat.dim.mkm.MetaUtils;
 import chat.dim.mkm.User;
 import chat.dim.protocol.Document;
+import chat.dim.protocol.DocumentType;
 import chat.dim.protocol.ID;
 import chat.dim.protocol.Meta;
 import chat.dim.protocol.Visa;
@@ -178,7 +180,7 @@ public final class Immortals implements User.DataSource {
     }
 
     private boolean cache(Meta meta, ID identifier) {
-        assert Meta.matches(identifier, meta) : "meta not match: " + identifier + ", " + meta;
+        assert MetaUtils.matches(identifier, meta) : "meta not match: " + identifier + ", " + meta;
         metaMap.put(identifier, meta);
         return true;
     }
@@ -236,6 +238,15 @@ public final class Immortals implements User.DataSource {
     }
 
     @Override
+    public List<Document> getDocuments(ID identifier) {
+        List<Document> docs = new ArrayList<>();
+        Document visa = visaMap.get(identifier);
+        if (visa != null) {
+            docs.add(visa);
+        }
+        return docs;
+    }
+
     public Document getDocument(ID identifier, String type) {
         return visaMap.get(identifier);
     }
@@ -258,11 +269,11 @@ public final class Immortals implements User.DataSource {
     }
 
     private EncryptKey getVisaKey(ID user) {
-        Document doc = getDocument(user, Document.VISA);
+        Document doc = getDocument(user, DocumentType.VISA);
         if (doc instanceof Visa) {
             Visa visa = (Visa) doc;
             if (visa.isValid()) {
-                return visa.getKey();
+                return visa.getPublicKey();
             }
         }
         return null;
@@ -273,7 +284,7 @@ public final class Immortals implements User.DataSource {
             //throw new NullPointerException("failed to get meta for ID: " + user);
             return null;
         }
-        return meta.getKey();
+        return meta.getPublicKey();
     }
 
     @Override

@@ -25,60 +25,23 @@
  */
 package chat.dim.cpu.customized;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import chat.dim.Facebook;
 import chat.dim.Messenger;
-import chat.dim.TwinsHelper;
-import chat.dim.cpu.BaseContentProcessor;
-import chat.dim.cpu.CustomizedContentHandler;
+import chat.dim.cpu.app.BaseCustomizedHandler;
 import chat.dim.dkd.AppCustomizedContent;
-import chat.dim.protocol.Content;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.CustomizedContent;
-import chat.dim.protocol.Envelope;
-import chat.dim.protocol.ID;
-import chat.dim.protocol.ReceiptCommand;
-import chat.dim.protocol.ReliableMessage;
 
 /**
  *  Handler for App Customized Content
  */
-public abstract class AppContentHandler extends TwinsHelper implements CustomizedContentHandler {
+public abstract class AppContentHandler extends BaseCustomizedHandler {
 
     // Application ID for customized content
     public static final String APP_ID = "chat.dim.sechat";
 
     protected AppContentHandler(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
-    }
-
-    //
-    //  Convenient responding
-    //
-
-    protected List<Content> respondReceipt(String text, Envelope envelope, Content content, Map<String, Object> extra) {
-        // create base receipt command with text & original envelope
-        ReceiptCommand res = BaseContentProcessor.createReceipt(text, envelope, content, extra);
-        List<Content> responses = new ArrayList<>();
-        responses.add(res);
-        return responses;
-    }
-
-    @Override
-    public List<Content> handleAction(String act, ID sender, CustomizedContent content, ReliableMessage rMsg) {
-        String app = content.getApplication();
-        String mod = content.getModule();
-        return respondReceipt("Content not support.", rMsg.getEnvelope(), content, newMap(
-                "template", "Customized Content (app: ${app}, mod: ${mod}, act: ${act}) not support yet!",
-                "replacements", newMap(
-                        "app", app,
-                        "mod", mod,
-                        "act", act
-                )
-        ));
     }
 
     /**

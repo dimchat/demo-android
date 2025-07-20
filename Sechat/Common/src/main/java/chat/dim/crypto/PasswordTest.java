@@ -33,7 +33,6 @@ import chat.dim.compat.CommonPluginLoader;
 import chat.dim.format.Base64;
 import chat.dim.format.UTF8;
 import chat.dim.plugins.CryptoPluginLoader;
-import chat.dim.protocol.GroupKeyCommand;
 import chat.dim.protocol.Password;
 import chat.dim.utils.Log;
 
@@ -90,8 +89,11 @@ public final class PasswordTest {
       Log.info("key1: " + key1);
       Log.info("key2: " + key2);
 
-      String digest = GroupKeyCommand.digest(key1);
+      SymmetricKey key = Password.generate("moky");
+      String digest = Password.digest(key);
       Log.info("key digest: " + digest);
+      String exp = "rZqXq3mu";
+      assert exp.equals(digest) : "key digest error: " + digest + " != " + exp;
 
    }
 }

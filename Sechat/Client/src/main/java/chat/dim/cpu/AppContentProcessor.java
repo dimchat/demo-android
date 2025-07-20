@@ -25,26 +25,22 @@
  */
 package chat.dim.cpu;
 
-import java.util.List;
-
 import chat.dim.Facebook;
 import chat.dim.Messenger;
-import chat.dim.cpu.customized.AppContentHandler;
+import chat.dim.cpu.app.CustomizedContentHandler;
 import chat.dim.cpu.customized.DriftBottleHandler;
-import chat.dim.protocol.Content;
 import chat.dim.protocol.CustomizedContent;
 import chat.dim.protocol.ReliableMessage;
 
 /**
  *  Application Customized Content Processor
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
  *  Process customized contents for this application only
  */
-public class AppContentProcessor extends CustomizedContentProcessor {
+public class AppContentProcessor extends AppCustomizedContentProcessor {
 
     // module(s) for customized contents
-    private final CustomizedContentHandler driftBottle;
+    private final DriftBottleHandler driftBottle;
 
     public AppContentProcessor(Facebook facebook, Messenger messenger) {
         super(facebook, messenger);
@@ -52,26 +48,14 @@ public class AppContentProcessor extends CustomizedContentProcessor {
     }
 
     @Override
-    protected List<Content> filter(String app, CustomizedContent content, ReliableMessage rMsg) {
-        if (app != null && app.equals(AppContentHandler.APP_ID)) {
-            // App ID match
-            // return null to fetch module handler
-            return null;
-        }
-        return super.filter(app, content, rMsg);
-    }
-
-    @Override
-    protected CustomizedContentHandler fetch(String mod, CustomizedContent content, ReliableMessage rMsg) {
-        if (mod == null) {
-            throw new IllegalArgumentException("module name empty: " + content);
-        } else if (mod.equals(DriftBottleHandler.MOD_NAME)) {
+    protected CustomizedContentHandler filter(String app, String mod, CustomizedContent content, ReliableMessage rMsg) {
+        if (driftBottle.matches(app, mod)) {
             // customized module: "drift_bottle"
             return driftBottle;
         }
         // TODO: define your modules here
         // ...
 
-        return super.fetch(mod, content, rMsg);
+        return super.filter(app, mod, content, rMsg);
     }
 }

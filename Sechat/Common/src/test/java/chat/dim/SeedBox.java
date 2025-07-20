@@ -6,9 +6,12 @@ import java.util.Random;
 /*!
  * compile group: 'chat.dim', name: 'Plugins', version: '0.1.0'
  */
+import chat.dim.compat.CommonExtensionLoader;
+import chat.dim.compat.CommonPluginLoader;
 import chat.dim.digest.SHA256;
 import chat.dim.format.Hex;
 import chat.dim.format.UTF8;
+import chat.dim.plugins.CryptoPluginLoader;
 
 public class SeedBox {
 
@@ -133,7 +136,11 @@ public class SeedBox {
     }
 
     static {
-        final Plugins plugins = new Plugins() {}; // active HEX encoder implementation
+
+        // active HEX encoder implementation
+        (new CommonExtensionLoader()).run();
+        (new CommonPluginLoader()).run();
+        (new CryptoPluginLoader()).run();
 
         // SHA256 + HEX test
         String string = "moky";
