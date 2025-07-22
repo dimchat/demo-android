@@ -27,6 +27,8 @@ package chat.dim.cpu;
 
 import chat.dim.Facebook;
 import chat.dim.Messenger;
+import chat.dim.cpu.customized.AppContentHandler;
+import chat.dim.cpu.customized.DriftBottleHandler;
 import chat.dim.dkd.ContentProcessor;
 import chat.dim.protocol.ContentType;
 import chat.dim.protocol.SearchCommand;
@@ -39,17 +41,26 @@ public class ClientProcessorCreator extends ClientContentProcessorCreator {
     }
 
     @Override
+    protected AppCustomizedProcessor createCustomizedContentProcessor(Facebook facebook, Messenger messenger) {
+        AppCustomizedProcessor cpu = super.createCustomizedContentProcessor(facebook, messenger);
+        // 'chat.dim.sechat:drift_bottle'
+        cpu.setHandler(
+                AppContentHandler.APP_ID,
+                DriftBottleHandler.MOD_NAME,
+                new DriftBottleHandler(facebook, messenger)
+        );
+        return cpu;
+    }
+
+    @Override
     public ContentProcessor createContentProcessor(String type) {
-        // application customized
-        if (ContentType.APPLICATION.equals(type)) {
-            return new AppContentProcessor(getFacebook(), getMessenger());
-        } else if (ContentType.CUSTOMIZED.equals(type)) {
-            return new AppContentProcessor(getFacebook(), getMessenger());
+        switch (type) {
+            // default
+            case ContentType.ANY:
+            case "*":
+                return new AnyContentProcessor(getFacebook(), getMessenger());
         }
-        // default
-        if (ContentType.ANY.equals(type)) {
-            return new AnyContentProcessor(getFacebook(), getMessenger());
-        }
+        // others
         return super.createContentProcessor(type);
     }
 

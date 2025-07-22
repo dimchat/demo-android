@@ -52,10 +52,6 @@ public class DriftBottleHandler extends AppContentHandler {
         super(facebook, messenger);
     }
 
-    public boolean matches(String app, String mod) {
-        return APP_ID.equals(app) && MOD_NAME.equals(mod);
-    }
-
     @Override
     public List<Content> handleAction(String act, ID sender, CustomizedContent content, ReliableMessage rMsg) {
         if (act == null) {
