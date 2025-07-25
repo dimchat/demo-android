@@ -13,6 +13,11 @@ import chat.dim.format.Base64;
 import chat.dim.format.DataCoder;
 import chat.dim.io.Permissions;
 import chat.dim.io.Resources;
+import chat.dim.log.DefaultLogger;
+import chat.dim.log.Log;
+import chat.dim.log.LogCaller;
+import chat.dim.log.LogPrinter;
+import chat.dim.log.Logger;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.sqlite.Database;
@@ -29,7 +34,6 @@ import chat.dim.sqlite.mkm.GroupTable;
 import chat.dim.sqlite.mkm.MetaTable;
 import chat.dim.sqlite.mkm.UserTable;
 import chat.dim.ui.Application;
-import chat.dim.utils.Log;
 
 public final class SechatApp extends Application {
 
@@ -129,7 +133,33 @@ public final class SechatApp extends Application {
 
     static {
 
-        Log.LEVEL = Log.DEBUG;
+        Log.level = Log.DEBUG;
+        //Log.showCaller = false;
+        Log.logger = new DefaultLogger(new LogPrinter() {
+            @Override
+            protected void println(String tag, LogCaller caller, String msg) {
+                String filename;
+                if (caller == null) {
+                    filename = null;
+                } else {
+                    filename = caller.filename.split("\\.")[0];
+                }
+                switch (tag) {
+                    case Logger.DEBUG_TAG:
+                        android.util.Log.d(filename == null ? "Debug" : filename, msg);
+                        break;
+                    case Logger.INFO_TAG:
+                        android.util.Log.i(filename == null ? "Log" : filename, msg);
+                        break;
+                    case Logger.WARNING_TAG:
+                        android.util.Log.w(filename == null ? "Warning" : filename, msg);
+                        break;
+                    case Logger.ERROR_TAG:
+                        android.util.Log.e(filename == null ? "Error" : filename, msg);
+                        break;
+                }
+            }
+        });
 
         // prepare plugins
         GlobalVariable shared = GlobalVariable.getInstance();

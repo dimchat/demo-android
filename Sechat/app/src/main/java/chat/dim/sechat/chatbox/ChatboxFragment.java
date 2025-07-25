@@ -25,6 +25,7 @@ import chat.dim.GlobalVariable;
 import chat.dim.filesys.ExternalStorage;
 import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
+import chat.dim.log.Log;
 import chat.dim.model.Conversation;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -39,7 +40,6 @@ import chat.dim.ui.image.Images;
 import chat.dim.ui.list.ListFragment;
 import chat.dim.ui.media.AudioPlayer;
 import chat.dim.ui.media.AudioRecorder;
-import chat.dim.utils.Log;
 
 public class ChatboxFragment extends ListFragment<MessageViewAdapter, MessageList> implements Observer {
 

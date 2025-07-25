@@ -32,9 +32,9 @@ import chat.dim.compat.CommonExtensionLoader;
 import chat.dim.compat.CommonPluginLoader;
 import chat.dim.format.Base64;
 import chat.dim.format.UTF8;
+import chat.dim.log.Log;
 import chat.dim.plugins.CryptoPluginLoader;
 import chat.dim.protocol.Password;
-import chat.dim.utils.Log;
 
 /**
  *  This is for generating symmetric key with a text string
@@ -52,7 +52,7 @@ public final class PasswordTest {
       (new CommonPluginLoader()).run();
       (new CryptoPluginLoader()).run();
 
-      Log.LEVEL = Log.DEBUG;
+      Log.level = Log.DEBUG;
 
 
       String text = "Hello world!";

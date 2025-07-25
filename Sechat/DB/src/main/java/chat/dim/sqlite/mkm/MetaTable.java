@@ -34,6 +34,7 @@ import java.util.Map;
 import chat.dim.crypto.PublicKey;
 import chat.dim.format.JSON;
 import chat.dim.format.TransportableData;
+import chat.dim.log.Log;
 import chat.dim.mkm.BaseMeta;
 import chat.dim.mkm.MetaUtils;
 import chat.dim.protocol.Address;
@@ -42,7 +43,6 @@ import chat.dim.protocol.Meta;
 import chat.dim.protocol.MetaVersion;
 import chat.dim.sqlite.DataTable;
 import chat.dim.sqlite.Database;
-import chat.dim.utils.Log;
 
 public final class MetaTable extends DataTable implements chat.dim.database.MetaTable {
 

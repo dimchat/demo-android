@@ -43,6 +43,7 @@ import chat.dim.format.TransportableData;
 import chat.dim.group.SharedGroupManager;
 import chat.dim.http.FileTransfer;
 import chat.dim.http.UploadRequest;
+import chat.dim.log.Log;
 import chat.dim.model.Configuration;
 import chat.dim.model.MessageDataSource;
 import chat.dim.notification.Notification;
@@ -58,7 +59,6 @@ import chat.dim.protocol.TextContent;
 import chat.dim.protocol.file.AudioContent;
 import chat.dim.protocol.file.ImageContent;
 import chat.dim.type.Pair;
-import chat.dim.utils.Log;
 
 public class Emitter implements Observer {
 

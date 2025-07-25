@@ -7,12 +7,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import chat.dim.ethereum.Ethereum;
+import chat.dim.log.Log;
 import chat.dim.mkm.ETHAddress;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.profile.ProfileViewModel;
 import chat.dim.threading.BackgroundThreads;
-import chat.dim.utils.Log;
 import chat.dim.wallet.WalletName;
 
 public class WalletViewModel extends ProfileViewModel {

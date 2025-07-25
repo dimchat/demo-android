@@ -46,12 +46,12 @@ import chat.dim.filesys.LocalCache;
 import chat.dim.filesys.Paths;
 import chat.dim.format.Hex;
 import chat.dim.format.UTF8;
+import chat.dim.log.Log;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
 import chat.dim.protocol.Address;
 import chat.dim.protocol.FileContent;
 import chat.dim.protocol.ID;
-import chat.dim.utils.Log;
 
 public enum FileTransfer implements UploadDelegate, DownloadDelegate {
 

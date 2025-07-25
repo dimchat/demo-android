@@ -33,6 +33,7 @@ import java.util.Map;
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.SharedMessenger;
+import chat.dim.log.Log;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
 import chat.dim.notification.NotificationNames;
@@ -52,7 +53,6 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.protocol.ReportCommand;
 import chat.dim.protocol.SearchCommand;
 import chat.dim.protocol.group.QueryCommand;
-import chat.dim.utils.Log;
 
 public class MessageDataSource implements Observer {
 

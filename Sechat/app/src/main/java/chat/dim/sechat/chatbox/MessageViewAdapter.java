@@ -25,6 +25,7 @@ import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
 import chat.dim.filesys.Paths;
 import chat.dim.http.FileTransfer;
+import chat.dim.log.Log;
 import chat.dim.model.ConversationDatabase;
 import chat.dim.notification.Notification;
 import chat.dim.notification.NotificationCenter;
@@ -49,7 +50,6 @@ import chat.dim.ui.list.Listener;
 import chat.dim.ui.list.RecyclerViewAdapter;
 import chat.dim.ui.list.RecyclerViewHolder;
 import chat.dim.ui.media.AudioPlayer;
-import chat.dim.utils.Log;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link ContactList.Item} and makes a call to the

@@ -29,6 +29,7 @@ import java.util.List;
 
 import chat.dim.cpu.ClientProcessorCreator;
 import chat.dim.dkd.ContentProcessor;
+import chat.dim.log.Log;
 import chat.dim.model.MessageDataSource;
 import chat.dim.protocol.Bulletin;
 import chat.dim.protocol.Command;
@@ -41,7 +42,6 @@ import chat.dim.protocol.ReliableMessage;
 import chat.dim.type.Duration;
 import chat.dim.type.Pair;
 import chat.dim.utils.FrequencyChecker;
-import chat.dim.utils.Log;
 
 public class SharedProcessor extends ClientMessageProcessor {
 

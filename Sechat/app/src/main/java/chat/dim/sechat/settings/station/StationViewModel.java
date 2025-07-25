@@ -4,11 +4,11 @@ import java.util.List;
 
 import chat.dim.GlobalVariable;
 import chat.dim.SharedFacebook;
+import chat.dim.log.Log;
 import chat.dim.model.NetworkDatabase;
 import chat.dim.protocol.ID;
 import chat.dim.sechat.model.UserViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
-import chat.dim.utils.Log;
 
 public class StationViewModel extends UserViewModel {
 

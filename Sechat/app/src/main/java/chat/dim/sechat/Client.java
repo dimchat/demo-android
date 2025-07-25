@@ -22,6 +22,7 @@ import chat.dim.Terminal;
 import chat.dim.core.Packer;
 import chat.dim.core.Processor;
 import chat.dim.dbi.SessionDBI;
+import chat.dim.log.Log;
 import chat.dim.mkm.Station;
 import chat.dim.mkm.User;
 import chat.dim.model.NetworkDatabase;
@@ -36,7 +37,6 @@ import chat.dim.protocol.ID;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sqlite.dim.ProviderTable;
 import chat.dim.threading.BackgroundThreads;
-import chat.dim.utils.Log;
 
 public final class Client extends Terminal implements Observer {
 

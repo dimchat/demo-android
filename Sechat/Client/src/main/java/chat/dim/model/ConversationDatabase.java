@@ -40,7 +40,7 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.protocol.Message;
 import chat.dim.protocol.ReceiptCommand;
-import chat.dim.type.Time;
+import chat.dim.utils.TimeUtils;
 
 public final class ConversationDatabase extends MessageBuilder {
 
@@ -57,7 +57,7 @@ public final class ConversationDatabase extends MessageBuilder {
         if (time == null) {
             return null;
         }
-        return Time.getTimeString(time);
+        return TimeUtils.getTimeString(time);
     }
 
     private SharedFacebook getFacebook() {

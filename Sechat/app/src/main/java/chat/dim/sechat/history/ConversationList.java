@@ -17,9 +17,9 @@ import chat.dim.protocol.ID;
 import chat.dim.protocol.InstantMessage;
 import chat.dim.sechat.model.GroupViewModel;
 import chat.dim.sechat.model.UserViewModel;
-import chat.dim.type.Time;
 import chat.dim.ui.list.DummyItem;
 import chat.dim.ui.list.DummyList;
+import chat.dim.utils.TimeUtils;
 
 /**
  * Helper class for providing sample content for user interfaces created by
@@ -92,7 +92,7 @@ public class ConversationList extends DummyList<ConversationList.Item> {
             if (iMsg != null) {
                 Date time = iMsg.getTime();
                 if (time != null) {
-                    string = Time.getTimeString(time);
+                    string = TimeUtils.getTimeString(time);
                 }
             }
             return string;
